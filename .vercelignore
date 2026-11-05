@@ -1,0 +1,7 @@
+# Never upload secrets or local build leftovers to Vercel.
+.env
+.env*.local
+.next
+.next-codex-build-backup
+node_modules
+*.tsbuildinfo

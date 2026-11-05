@@ -1,0 +1,15 @@
+node_modules
+.next
+.env*.local
+.env
+next-env.d.ts
+*.tsbuildinfo
+.vercel
+.env*
+
+# Local build backups and OS files
+.next-codex-build-backup
+.DS_Store
+
+# Keep the template (no secrets) while ignoring real env files
+!.env.example
