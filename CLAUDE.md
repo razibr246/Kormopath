@@ -76,7 +76,11 @@ Bangla text gotcha: some characters (য়, ড়, ঢ়) can be stored as on
 
 `lib/chuktiguard.ts` still has its own `fmtBdt` and `calculateInvoiceFinOps`, with rail fees and incentive rates written into the code instead of coming from `lib/finops.ts`. Check both places before changing money logic, and prefer moving the math into `finops.ts`.
 
-Browser workflow checks live in `tests/e2e/browser.mjs` and are not part of `npm test`. They need `puppeteer-core` installed outside the repo; the file header says how to run them.
+To test a production build while someone is running `npm run dev`, build into a separate folder so their `.next` cache is not overwritten: `NEXT_DIST_DIR=.next-test npm run build && NEXT_DIST_DIR=.next-test npx next start -p 3100`.
+
+`api/probaho/coach` is a model-backed route on the standard pattern: the quote check runs inside a per-request Zod schema (`superRefine` against the answer), so a made-up quote triggers the repair retry; the deterministic score in `lib/speech.ts` is never changed by the model. `/judges` is a static English guide for buildathon judges, linked from the sticker strip in `components/BuildathonSticker.tsx`.
+
+Browser workflow checks live in `tests/e2e/browser.mjs` (plus `tests/e2e/features-browser.mjs`) and are not part of `npm test`. They need `puppeteer-core` installed outside the repo; the file header says how to run them.
 
 ### UI conventions
 Tailwind v4 (via `@tailwindcss/postcss`; theme and global styles in `app/globals.css`), `lucide-react` icons, and English/বাংলা toggles kept in component state (`lang: "en" | "bn"`). `bnDigits` in `lib/contract.ts` converts digits to Bengali numerals.

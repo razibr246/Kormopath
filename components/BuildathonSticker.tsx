@@ -18,11 +18,12 @@ export function BuildathonSticker() {
   const src = stickerFile();
   return (
     <div className="relative z-50 border-b border-amber-300 bg-gradient-to-r from-amber-100 via-yellow-50 to-amber-100 print:hidden" role="note" aria-label={LABEL}>
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 py-1.5">
       <a
         href="https://yunet-aignite26.devpost.com/"
         target="_blank"
         rel="noopener noreferrer"
-        className="mx-auto flex max-w-7xl items-center justify-center gap-2 px-4 py-1.5 text-center"
+        className="flex items-center justify-center gap-2 text-center"
       >
         {src ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -33,6 +34,10 @@ export function BuildathonSticker() {
           </span>
         )}
       </a>
+      <a href="/judges" className="rounded-full bg-amber-900 px-3 py-0.5 text-[11px] font-bold text-amber-50 hover:bg-amber-800 sm:text-[12px]">
+        Judges: 2-minute tour →
+      </a>
+      </div>
     </div>
   );
 }

@@ -69,6 +69,7 @@ export default function SettingsPage() {
             <strong className="block">আপনি কোনো অনলাইন সুবিধা চালালে কী পাঠানো হয়</strong>
             <ul className="mt-2 list-disc space-y-1 pl-5">
               <li><strong>Workspace audit:</strong> আপনি জমা দেওয়া CV/প্রোফাইল লেখা বা ফাইল Gemini-তে যায়; GitHub username দিলে বা CV-তে GitHub URL থাকলে public repo lookup-এর জন্য username GitHub-এ যায়। Viva উত্তর, pitch-এর নাম/client/scope/দামের তথ্য এবং receipt OCR অনুরোধও সংশ্লিষ্ট KormoPath API-তে যায়; model-backed grading/drafting/OCR হলে Gemini-তে পাঠানো হয়।</li>
+              <li><strong>Probaho AI coach:</strong> আপনি “AI কোচকে জিজ্ঞেস করুন” চাপলে শুধু ওই একটি উত্তরের লেখা Gemini-তে যায়; সার্ভারে সংরক্ষণ বা ক্যাশ করা হয় না।</li>
               <li><strong>Buddy:</strong> পাঠানো chat বার্তা Gemini-তে যায়। Buddy আপনার ব্রাউজারের অন্য অ্যাপের সংরক্ষিত ডেটা পড়তে পারে না।</li>
               <li><strong>ওয়েব সার্চ:</strong> My Path, Shohoj Budget ও HaatBazar-এ আপনি যে query লিখে সার্চ করেন তা Gemini Search-এ যায়।</li>
               <li><strong>MediScan:</strong> prescription-এর ছবি OCR করতে সম্মতি দিয়ে submit করলে ছবিটি Gemini-তে যায়। স্থানীয় নোট বা লেখা upload না করলে স্বয়ংক্রিয়ভাবে পাঠানো হয় না।</li>

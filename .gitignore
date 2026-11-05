@@ -13,3 +13,4 @@ next-env.d.ts
 
 # Keep the template (no secrets) while ignoring real env files
 !.env.example
+.next-test

@@ -61,3 +61,15 @@ First browser run: 63/70. Fixed: duplicate button label on Shohoj (UX bug); `/ap
 New browser checks (16): Shohoj category budget with Bangla digits, goal progress and per-month amount, persistence, no silent transaction; MediScan ml/frequency reading, 1+0+1 timetable, bd line left unscheduled, `.ics` content (2 events × 5 days), export does not save the prescription; AdmitBuddy stage/next step and persistence; Probaho STAR flags and streak; security headers, 413 on oversized body, normal requests unaffected.
 
 Console errors in the run are the deliberate bad-request checks (400/422) and one fetch aborted on page close.
+
+## Update 2026-11-05 (evening): judge tour, example data, Probaho AI coach
+
+| Check | Result |
+|---|---|
+| `npx tsc --noEmit` | clean (after fixing a misplaced JSX fragment close in Shohoj found by the type-check) |
+| `npm test` | 70/70 pass |
+| Production build (`NEXT_DIST_DIR=.next-test`) | success; new routes `/judges`, `/api/probaho/coach` |
+| `tests/e2e/browser.mjs` | 87/87 |
+| `tests/e2e/features-browser.mjs` | 16/16 (first run 15/16: the test matched a CSS-uppercased heading case-sensitively; test fixed) |
+
+Observed: locally `gemini-2.5-flash` returned 429 (free-tier daily quota) and `gemini-flash-lite-latest` one 503, so one coach call fell back to the labelled rule-based coach; the next call returned Gemini coaching with verified quotes.

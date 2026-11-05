@@ -607,8 +607,20 @@ export default function ShohojBudgetPage() {
                 <div className="py-8 text-center text-[13px] text-slate-500">
                   <p className="font-semibold text-slate-700">এই মাসে এখনো কোনো লেনদেন নেই।</p>
                   <p className="mt-1">উপরে বলুন বা লিখুন, অথবা নিচে বিকাশ/নগদ/ব্যাংকের এসএমএস পেস্ট করুন।</p>
+                  {txs.length === 0 && (
+                    <button onClick={() => setTxs(exampleMonth(today))} className="mt-4 rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-[12px] font-bold text-emerald-800 hover:bg-emerald-100" data-testid="load-example">
+                      উদাহরণ মাস দেখুন · Load example data
+                    </button>
+                  )}
                 </div>
               ) : (
+                <>
+                {txs.some((t) => t.id.startsWith("ex-")) && (
+                  <p className="mb-2 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-amber-50 px-3 py-2 text-[12px] text-amber-900">
+                    <span>“উদাহরণ” লেখা লেনদেনগুলো নমুনা, আপনার আসল হিসাব নয়। · Example entries, not real data.</span>
+                    <button onClick={() => setTxs((p) => p.filter((t) => !t.id.startsWith("ex-")))} className="font-bold underline">উদাহরণ মুছুন</button>
+                  </p>
+                )}
                 <ul className="divide-y divide-slate-100">
                   {monthTxs.map((t) => (
                     <li key={t.id} className="py-3">
@@ -640,6 +652,7 @@ export default function ShohojBudgetPage() {
                     </li>
                   ))}
                 </ul>
+                </>
               )}
             </section>
           </div>
@@ -914,4 +927,22 @@ function GoalsPanel({ goals, setGoals, today }: { goals: SavingsGoal[]; setGoals
       {goals.length > 0 && <p className="text-[10px] text-slate-400">লক্ষ্যের জমা আলাদা হিসাব; এটি আপনার লেনদেনের খাতায় নিজে থেকে কিছু যোগ করে না।</p>}
     </section>
   );
+}
+
+/** Clearly labelled example entries for first-time visitors; ids start with "ex-" so they can be removed in one tap. */
+function exampleMonth(today: string): Transaction[] {
+  const [y, m, d] = today.split("-").map(Number);
+  const day = (n: number) => `${y}-${String(m).padStart(2, "0")}-${String(Math.min(n, d || 1)).padStart(2, "0")}`;
+  const now = new Date().toISOString();
+  const mk = (id: string, type: TxType, taka: number, categoryId: CategoryId, method: Method, note: string, n: number): Transaction => ({
+    id: `ex-${id}`, type, amountPoisha: toPoisha(taka), categoryId, method, note: `উদাহরণ: ${note}`, date: day(n), source: "manual", createdAt: now, updatedAt: now, history: [],
+  });
+  return [
+    mk("1", "income", 25000, "freelance", "bKash", "ক্লায়েন্টের পেমেন্ট", 1),
+    mk("2", "expense", 8000, "rent", "Cash", "বাসা ভাড়া", 1),
+    mk("3", "expense", 1200, "grocery", "Cash", "বাজার", 2),
+    mk("4", "expense", 1500, "utilities", "bKash", "ইন্টারনেট বিল", 3),
+    mk("5", "expense", 80, "transport", "Cash", "রিকশা ভাড়া", 4),
+    mk("6", "expense", 650, "food", "Nagad", "বন্ধুদের সাথে খাওয়া", 4),
+  ];
 }

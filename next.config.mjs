@@ -13,6 +13,8 @@ const securityHeaders = [
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Lets a test build go to another folder (NEXT_DIST_DIR=.next-test) without clobbering a running `next dev`.
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   devIndicators: false,
   poweredByHeader: false,
   async headers() {

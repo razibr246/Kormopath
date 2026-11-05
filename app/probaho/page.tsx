@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Mic, Square, Keyboard, Play, RotateCcw, CheckCircle2, XCircle, Lightbulb, MessageCircleQuestion, Trash2, TrendingUp, Info } from "lucide-react";
+import { Mic, Square, Keyboard, Play, RotateCcw, CheckCircle2, XCircle, Lightbulb, MessageCircleQuestion, Trash2, TrendingUp, Info, Sparkles, Quote } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { QUESTIONS, analyzeAnswer, progressSummary, starCheck, practiceStreak, type Question, type Analysis, type SessionRecord } from "@/lib/speech";
 import { usePersistentState, storageKey, readStored, writeStored } from "@/lib/clientStore";
@@ -306,6 +306,7 @@ export default function ProbahoPage() {
                 <p className="mt-2 text-[11px] text-slate-600">{star.missing.length ? "যে অংশে চিহ্ন নেই, সেটি গল্পে স্পষ্ট করে বলুন।" : "চারটি অংশেরই ইঙ্গিত পাওয়া গেছে।"} এটি কিছু সংকেত-শব্দ দেখে করা আন্দাজ, গল্পের মান যাচাই নয়।</p>
               </div>
             )}
+            {analysis && <AiCoach key={`${q.id}:${answerText.length}`} questionId={q.id} answer={answerText} lang={q.lang} />}
           </section>
         </div>
 
@@ -411,6 +412,83 @@ function Feedback({ a, q, showModel, setShowModel }: { a: Analysis; q: Question;
         <button onClick={() => setShowModel(!showModel)} className="text-[13px] font-bold text-violet-700">{showModel ? "নমুনা উত্তর লুকান" : "একটি শক্তিশালী নমুনা উত্তর দেখুন"}</button>
         {showModel && <p className="mt-2 rounded-xl bg-slate-50 p-3 text-[13px] leading-relaxed">{q.modelAnswer}</p>}
       </div>
+    </div>
+  );
+}
+
+interface CoachResult {
+  engine: string;
+  strengths: { point: string; quote: string }[];
+  gaps: { tip: string }[];
+  stronger_sentence: string | null;
+  error?: string;
+}
+
+/** Optional Gemini coach. Sends only this answer's text, after the user clicks. */
+function AiCoach({ questionId, answer, lang }: { questionId: string; answer: string; lang: "en" | "bn" }) {
+  const [busy, setBusy] = useState(false);
+  const [res, setRes] = useState<CoachResult | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  const en = lang === "en";
+  const run = async () => {
+    setBusy(true);
+    setErr(null);
+    try {
+      const r = await fetch("/api/probaho/coach", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ questionId, answer }) });
+      const d = (await r.json()) as CoachResult;
+      if (!r.ok) throw new Error(d.error || `HTTP ${r.status}`);
+      setRes(d);
+    } catch (e) {
+      setErr(en ? `AI coach unavailable right now (${(e as Error).message}). The feedback above still applies.` : `এখন AI কোচ পাওয়া যাচ্ছে না (${(e as Error).message})। উপরের ফিডব্যাক প্রযোজ্য।`);
+    } finally {
+      setBusy(false);
+    }
+  };
+  const isAi = res && res.engine !== "rule-based" && res.engine !== "guard";
+  return (
+    <div className="space-y-3 rounded-xl border border-violet-200 bg-gradient-to-br from-violet-50 to-white p-4" data-testid="ai-coach">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h3 className="flex items-center gap-1.5 text-[14px] font-bold"><Sparkles size={16} className="text-violet-700" aria-hidden /> {en ? "AI coach (Gemini)" : "AI কোচ (Gemini)"}</h3>
+        {res && <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${isAi ? "bg-violet-100 text-violet-800" : "bg-amber-100 text-amber-900"}`}>{isAi ? res.engine : en ? "rule-based fallback" : "নিয়মভিত্তিক বিকল্প"}</span>}
+      </div>
+      {!res && (
+        <>
+          <p className="text-[12px] text-slate-600">{en ? "Get specific coaching on this answer. Every strength must quote your own words — we check each quote. Your score above is not changed by the AI." : "এই উত্তরের ওপর নির্দিষ্ট পরামর্শ নিন। প্রতিটি ভালো দিক আপনার নিজের কথা থেকে উদ্ধৃত হতে হবে — আমরা যাচাই করি। উপরের স্কোর AI বদলায় না।"}</p>
+          <button onClick={run} disabled={busy} className="inline-flex items-center gap-1.5 rounded-lg bg-violet-700 px-3 py-2 text-[13px] font-bold text-white hover:bg-violet-800 disabled:opacity-50">
+            <Sparkles size={14} aria-hidden /> {busy ? (en ? "Thinking…" : "ভাবছে…") : en ? "Ask the AI coach" : "AI কোচকে জিজ্ঞেস করুন"}
+          </button>
+          <p className="text-[10px] text-slate-500">{en ? "Sends only this answer's text to Google Gemini. Nothing is stored." : "শুধু এই উত্তরের লেখা Google Gemini-তে পাঠানো হয়। কিছু সংরক্ষণ করা হয় না।"}</p>
+        </>
+      )}
+      {err && <p role="alert" className="text-[12px] text-amber-900">{err}</p>}
+      {res && (
+        <div className="space-y-3 text-[13px]">
+          {res.strengths.length > 0 && (
+            <div>
+              <p className="mb-1 text-[11px] font-bold uppercase text-emerald-800">{en ? "What worked" : "যা ভালো হয়েছে"}</p>
+              <ul className="space-y-1.5">
+                {res.strengths.map((s, i) => (
+                  <li key={i} className="rounded-lg bg-emerald-50 p-2">
+                    <span className="font-semibold">{s.point}</span>
+                    <span className="mt-0.5 flex items-start gap-1 text-[12px] italic text-slate-600"><Quote size={12} className="mt-0.5 shrink-0" aria-hidden /> “{s.quote}”</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <div>
+            <p className="mb-1 text-[11px] font-bold uppercase text-amber-800">{en ? "Improve next time" : "পরের বার উন্নতি করুন"}</p>
+            <ul className="list-disc space-y-1 pl-5">{res.gaps.map((g, i) => <li key={i}>{g.tip}</li>)}</ul>
+          </div>
+          {res.stronger_sentence && (
+            <div className="rounded-lg border border-violet-200 bg-white p-2">
+              <p className="text-[11px] font-bold uppercase text-violet-800">{en ? "Try saying" : "এভাবে বলে দেখুন"}</p>
+              <p className="mt-0.5">{res.stronger_sentence}</p>
+            </div>
+          )}
+          <p className="text-[10px] text-slate-500">{isAi ? (en ? "Each quoted strength was checked against your answer text." : "প্রতিটি উদ্ধৃতি আপনার উত্তরের লেখার সাথে মিলিয়ে দেখা হয়েছে।") : en ? "Model unavailable, so this is built from the rule-based analysis." : "মডেল পাওয়া যায়নি, তাই নিয়মভিত্তিক বিশ্লেষণ থেকে তৈরি।"}</p>
+        </div>
+      )}
     </div>
   );
 }
