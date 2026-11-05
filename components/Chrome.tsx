@@ -23,16 +23,16 @@ export function Navbar(props?: {
     <header className="sticky top-0 z-40 border-b border-white/10 bg-[#070d1e]/95 backdrop-blur-md text-white shadow-xl transition-colors">
       <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between gap-4 px-4 sm:px-6">
         {/* Left: Official Brand & Logo */}
-        <div className="flex items-center gap-6">
+        <div className="flex min-w-0 items-center gap-5">
           <Link href="/" className="flex items-center gap-2.5 group shrink-0">
             <div className="relative h-10 w-10 overflow-hidden rounded-xl border border-white/15 bg-[#0a1226] p-0.5 shadow-sm group-hover:scale-105 transition-transform">
               <img
                 src="/kormopath-logo.jpg"
                 alt="KormoPath Logo"
-                className="h-full w-full object-cover rounded-lg"
+                className="h-full w-full object-contain rounded-lg"
               />
             </div>
-            <div className="flex flex-col">
+            <div className="flex flex-col whitespace-nowrap">
               <span className="display text-[20px] font-extrabold leading-none tracking-tight">
                 <span className="text-white">Kormo</span>
                 <span className="bg-gradient-to-r from-orange-500 via-amber-400 to-orange-400 bg-clip-text text-transparent">Path</span>
@@ -43,60 +43,21 @@ export function Navbar(props?: {
             </div>
           </Link>
 
-          {/* Center Navigation Links (Clean, Spacious, Single Row) */}
-          <nav className="hidden lg:flex items-center gap-1 xl:gap-2 text-[13px] font-semibold text-slate-300">
-            <a
-              href="#apps-showcase"
-              className="rounded-lg px-2.5 py-1.5 hover:text-white hover:bg-white/10 transition-colors"
-            >
-              {lang === "bn" ? "৬টি অ্যাপস" : "6 Ecosystem Apps"}
+          {/* Center navigation: a few top-level destinations; individual apps live in the Ecosystem launcher. */}
+          <nav aria-label="Main" className="hidden lg:flex items-center gap-1 text-[13px] font-semibold text-slate-300">
+            <Link href="/workspace" className="rounded-lg px-3 py-1.5 whitespace-nowrap hover:text-white hover:bg-white/10 transition-colors text-orange-300 hover:text-orange-200">
+              {lang === "bn" ? "ওয়ার্কস্পেস" : "Workspace"}
+            </Link>
+            <a href="/#apps-showcase" className="rounded-lg px-3 py-1.5 whitespace-nowrap hover:text-white hover:bg-white/10 transition-colors">
+              {lang === "bn" ? "৬টি অ্যাপ" : "Apps"}
             </a>
-            <Link
-              href="/opportunities"
-              className="rounded-lg px-2.5 py-1.5 text-amber-300 hover:text-amber-200 hover:bg-white/10 transition-colors"
-            >
+            <Link href="/opportunities" className="rounded-lg px-3 py-1.5 whitespace-nowrap hover:text-white hover:bg-white/10 transition-colors">
               {lang === "bn" ? "আমার পথ" : "My Path"}
             </Link>
-            <Link
-              href="/admitbuddy"
-              className="rounded-lg px-2.5 py-1.5 hover:text-white hover:bg-white/10 transition-colors"
-            >
-              AdmitBuddy
+            <Link href="/judges" className="rounded-lg px-3 py-1.5 whitespace-nowrap hover:text-white hover:bg-white/10 transition-colors text-amber-300 hover:text-amber-200">
+              {lang === "bn" ? "বিচারক গাইড" : "Judge tour"}
             </Link>
-            <Link
-              href="/mediscan"
-              className="rounded-lg px-2.5 py-1.5 hover:text-white hover:bg-white/10 transition-colors"
-            >
-              MediScan BD
-            </Link>
-            <Link
-              href="/shohoj-budget"
-              className="rounded-lg px-2.5 py-1.5 hover:text-white hover:bg-white/10 transition-colors"
-            >
-              Shohoj Budget
-            </Link>
-            <Link
-              href="/haatbazar"
-              className="rounded-lg px-2.5 py-1.5 hover:text-white hover:bg-white/10 transition-colors"
-            >
-              HaatBazar AI
-            </Link>
-            <Link
-              href="/feeguard"
-              className="rounded-lg px-2.5 py-1.5 text-amber-400 hover:text-amber-300 hover:bg-white/10 transition-colors"
-            >
-              FeeGuard BD
-            </Link>
-            <Link
-              href="/chuktiguard"
-              className="rounded-lg px-2.5 py-1.5 text-indigo-300 hover:text-indigo-200 hover:bg-white/10 transition-colors"
-            >
-              ChuktiGuard
-            </Link>
-            <a
-              href="#faq"
-              className="rounded-lg px-2.5 py-1.5 hover:text-white hover:bg-white/10 transition-colors"
-            >
+            <a href="/#faq" className="rounded-lg px-3 py-1.5 whitespace-nowrap hover:text-white hover:bg-white/10 transition-colors">
               FAQ
             </a>
           </nav>
@@ -106,7 +67,7 @@ export function Navbar(props?: {
         <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
           {/* USD/BDT reference rate; marked live only when the API confirms it */}
           <div
-            className="hidden md:flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/5 px-2.5 py-1.5 text-[12px] font-mono text-slate-300 shadow-xs"
+            className="hidden xl:flex items-center gap-1.5 whitespace-nowrap rounded-xl border border-white/15 bg-white/5 px-2.5 py-1.5 text-[12px] font-mono text-slate-300 shadow-xs"
             title={fxLive ? "Latest available USD/BDT market reference rate" : "Fallback USD/BDT reference rate; live data unavailable"}
           >
             <span className={`h-2 w-2 rounded-full ${fxLive ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
@@ -127,7 +88,7 @@ export function Navbar(props?: {
             aria-label="Search Command Palette"
           >
             <span className="text-slate-400">🔍</span>
-            <span className="hidden xl:inline text-slate-300">Search</span>
+            <span className="hidden 2xl:inline text-slate-300">Search</span>
             <kbd className="rounded bg-white/10 px-1.5 py-0.5 text-[10px] font-mono text-slate-400 border border-white/10">
               ⌘K
             </kbd>
@@ -155,15 +116,17 @@ export function Navbar(props?: {
           )}
 
           {/* 5-App Dropdown Switcher (Auto-detects current route) */}
-          <AppSwitcherDropdown lang={lang} />
+          <span className={onOpenEcosystem ? "sm:hidden" : ""}>
+            <AppSwitcherDropdown lang={lang} />
+          </span>
 
           {/* Quick Action CTA Pill */}
           <Link
-            href="/admitbuddy"
-            className="hidden xl:inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-orange-600 via-amber-500 to-orange-500 hover:from-orange-500 hover:to-amber-400 px-3.5 py-2 text-[12px] font-bold text-white shadow-md shadow-orange-600/25 transition-all hover:scale-[1.02]"
+            href="/workspace"
+            className="hidden xl:inline-flex items-center gap-1.5 whitespace-nowrap rounded-xl bg-gradient-to-r from-orange-600 via-amber-500 to-orange-500 hover:from-orange-500 hover:to-amber-400 px-3.5 py-2 text-[12px] font-bold text-white shadow-md shadow-orange-600/25 transition-all hover:scale-[1.02]"
           >
             <Sparkles size={13} />
-            <span>Launch AdmitBuddy</span>
+            <span>{lang === "bn" ? "ওয়ার্কস্পেস চালান" : "Try the Workspace"}</span>
           </Link>
         </div>
       </div>
