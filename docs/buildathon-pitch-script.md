@@ -36,7 +36,7 @@ MediScan reads a prescription in plain Bangla and turns it into calendar reminde
 Shohoj Budget lets you say an expense in Bangla, and nothing is saved until you confirm it.
 HaatBazar tells a farmer whether a distant market is worth the trip, with live weather for spraying.
 Probaho coaches interview and viva answers, and FeeGuard shows how much of a freelance payment really reaches you.
-Everything stays on your device. It's live right now at kormopath.vercel.app, with 70 unit tests and 87 browser checks passing.
+Everything stays on your device. It's live right now at kormopath.vercel.app, with 70 unit tests and 103 browser checks passing — and there's a two-minute judge tour at slash judges.
 KormoPath — AI you can check. Thank you.
 
 ## Delivery tips
