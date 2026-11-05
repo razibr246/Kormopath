@@ -37,6 +37,9 @@ export default function JudgesPage() {
           <Link href="/workspace" className="inline-flex items-center gap-2 rounded-xl bg-orange-600 px-5 py-3 text-[15px] font-bold text-white shadow hover:bg-orange-700">
             Start with the flagship → Workspace
           </Link>
+          <Link href="/demo" className="ml-3 inline-flex items-center gap-2 rounded-xl border border-orange-300 bg-white px-5 py-3 text-[15px] font-bold text-orange-800 hover:bg-orange-50">
+            ▶ Watch the 2-minute demo
+          </Link>
         </section>
 
         <section aria-labelledby="flag-h" className="rounded-2xl border border-slate-200 bg-white p-5">
