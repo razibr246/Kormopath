@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Mic, Square, Keyboard, Play, RotateCcw, CheckCircle2, XCircle, Lightbulb, MessageCircleQuestion, Trash2, TrendingUp, Info, Sparkles, Quote } from "lucide-react";
-import { AppHeader } from "@/components/AppHeader";
-import { QUESTIONS, analyzeAnswer, progressSummary, starCheck, practiceStreak, type Question, type Analysis, type SessionRecord } from "@/lib/speech";
+import { Mic, Square, Keyboard, Play, RotateCcw, CheckCircle2, XCircle, Lightbulb, MessageCircleQuestion, Trash2, Info, Sparkles, Quote } from "lucide-react";
+import { AppHeader, AppOverview } from "@/components/AppHeader";
+import { QUESTIONS, analyzeAnswer, progressSummary, starCheck, practiceStreak, practiceReviewQueue, type Question, type Analysis, type SessionRecord } from "@/lib/speech";
 import { usePersistentState, storageKey, readStored, writeStored } from "@/lib/clientStore";
 
 type SR = {
@@ -51,6 +51,7 @@ export default function ProbahoPage() {
   const [showModel, setShowModel] = useState(false);
 
   const recRef = useRef<SR | null>(null);
+  const questionSelectRef = useRef<HTMLSelectElement>(null);
   const startRef = useRef<number | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const finalRef = useRef("");
@@ -96,6 +97,7 @@ export default function ProbahoPage() {
           id: Math.random().toString(36).slice(2), questionId: q.id, date: new Date().toISOString(),
           total: a.score.total, content: a.score.content, structure: a.score.structure, delivery: a.score.delivery,
           wordCount: a.wordCount, wpm: a.wpm, fillerPer100: a.fillerPer100,
+          missedTopicIds: a.missing.map((topic) => topic.id),
           ...(keepTranscripts ? { transcript: text.slice(0, 4000) } : {}),
         },
         ...p,
@@ -174,6 +176,7 @@ export default function ProbahoPage() {
   const stop = () => recRef.current?.stop();
 
   const progress = useMemo(() => progressSummary(history), [history]);
+  const reviewQueue = useMemo(() => practiceReviewQueue(history), [history]);
   const streak = useMemo(() => practiceStreak(history, new Date().toISOString().slice(0, 10)), [history]);
   const answerText = mode === "speak" ? finalText : typed;
   const star = analysis && q.track === "hr" ? starCheck(answerText) : null;
@@ -185,23 +188,18 @@ export default function ProbahoPage() {
     <div className="min-h-screen bg-[#f8f7fc] text-slate-900 antialiased">
       <AppHeader taglineEn="Interview & viva speaking coach" appId="probaho" href="/probaho" name="Probaho Coach" taglineBn="ভাইভা ও ইন্টারভিউ বলার অনুশীলন" icon={<Mic size={22} />} accent="from-violet-600 to-indigo-700" />
 
-      <main id="main" className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6">
-        <section className="flex flex-wrap items-end justify-between gap-4 rounded-2xl border border-violet-100 bg-white p-5">
-          <div className="max-w-2xl">
-            <h1 className="text-[26px] font-extrabold leading-tight tracking-tight sm:text-[32px]">প্রশ্নের উত্তর বলুন, কোথায় ভালো হলো আর কী বাদ পড়ল দেখুন</h1>
-            <p className="mt-2 text-[15px] leading-relaxed text-slate-600">
-              প্রতিটি প্রশ্নে কোন বিষয়গুলো একজন পরীক্ষক শুনতে চান তা আগে থেকে ঠিক করা আছে। আপনার উত্তর সেগুলো ছুঁয়েছে কি না, উদাহরণ ও সারসংক্ষেপ আছে কি না, ফিলার শব্দ কত — সব স্বচ্ছভাবে দেখায়। উচ্চারণ বা অ্যাকসেন্টের জন্য নম্বর কাটে না।
-            </p>
-          </div>
-          {progress && (
-            <div className="min-w-[240px] rounded-2xl border border-violet-200 bg-violet-50 p-4 text-[13px]">
-              <span className="flex items-center gap-1 text-[11px] font-bold uppercase text-violet-800"><TrendingUp size={13} aria-hidden /> আপনার অগ্রগতি</span>
-              <p className="mt-1"><strong>{progress.sessions}</strong>টি চেষ্টা, <strong>{progress.daysPractised}</strong> দিন অনুশীলন</p>
-              <p>সাম্প্রতিক গড়: <strong>{progress.recentAvg}</strong> (প্রথম দিকে {progress.earlyAvg})</p>
-              <p>সবচেয়ে দুর্বল দিক: <strong>{progress.weakest === "content" ? "বিষয়বস্তু" : progress.weakest === "structure" ? "গঠন" : "উপস্থাপন"}</strong></p>
-            </div>
-          )}
-        </section>
+      <main id="main" tabIndex={-1} className="app-workspace mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6">
+        <AppOverview appId="probaho" category="Interview practice" title="উত্তর দিন, ফিডব্যাক নিন, আবার চেষ্টা করুন"
+          actions={[{ href: "#practice-question", label: "অনুশীলন শুরু" }, { href: "#review-queue", label: "আবার অনুশীলন" }]}
+          summary={<>
+            <span className="app-overview-label">আপনার অগ্রগতি</span>
+            <span className="app-overview-metric">{progress ? `${progress.sessions}টি চেষ্টা` : "প্রথম প্রশ্ন দিয়ে শুরু করুন"}</span>
+            {progress ? <p>সাম্প্রতিক গড় <strong>{progress.recentAvg}/100</strong> · {progress.daysPractised} দিন অনুশীলন · {reviewQueue.length}টি প্রশ্ন আবার দেখুন</p>
+              : <p>{QUESTIONS.length}টি প্রশ্ন · বাংলা ও ইংরেজি · বলে বা লিখে উত্তর</p>}
+          </>}
+        >
+          বিষয়বস্তু, গঠন ও উপস্থাপনা আলাদাভাবে দেখুন। যে বিষয়গুলো বাদ পড়েছে সেগুলো আবার অনুশীলন করুন। উচ্চারণ বা অ্যাকসেন্ট স্কোরে ধরা হয় না।
+        </AppOverview>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
           <section aria-labelledby="q-h" className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5">
@@ -214,7 +212,7 @@ export default function ProbahoPage() {
             </div>
             <label className="block text-[12px] font-bold text-slate-600">
               প্রশ্ন
-              <select value={qid} onChange={(e) => pickQuestion(e.target.value)} className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-2 py-2 text-[13px] font-normal">
+              <select id="practice-question" ref={questionSelectRef} value={qid} disabled={recording} onChange={(e) => pickQuestion(e.target.value)} className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-2 py-2 text-[13px] font-normal">
                 {questionsInTrack.map((x) => <option key={x.id} value={x.id}>[{x.level}] {x.prompt}</option>)}
               </select>
             </label>
@@ -310,6 +308,31 @@ export default function ProbahoPage() {
           </section>
         </div>
 
+        <section id="review-queue" aria-labelledby="review-queue-h" className="rounded-2xl border border-violet-200 bg-white p-5">
+          <h2 id="review-queue-h" className="flex items-center gap-2 font-bold"><RotateCcw size={17} aria-hidden /> আবার অনুশীলনের তালিকা</h2>
+          <p className="mt-1 text-sm text-slate-600">প্রতিটি প্রশ্নের সর্বশেষ উত্তরে বাদ পড়া বিষয়। পরের চেষ্টায় সব বিষয় ছুঁলে প্রশ্নটি তালিকা থেকে সরে যাবে।</p>
+          {reviewQueue.length > 0 ? (
+            <ul className="mt-3 grid gap-3 md:grid-cols-2">
+              {reviewQueue.map(({ question, record, topics }) => (
+                <li key={question.id} className="rounded-xl border border-violet-100 bg-violet-50 p-3.5 text-sm">
+                  <p className="text-xs font-bold text-violet-800">বিষয়বস্তু {record.content}/50</p>
+                  <h3 className="mt-1 font-bold" lang={question.lang}>{question.prompt}</h3>
+                  {topics ? <ul className="mt-2 list-disc space-y-1 pl-5 text-slate-700">
+                    {topics.map((topic) => <li key={topic.id} lang={question.lang}><strong>{topic.label}</strong><span className="block text-xs">{topic.followUp}</span></li>)}
+                  </ul> : <p className="mt-2 text-xs text-slate-700">পুরনো চেষ্টায় বিস্তারিত বিষয় রাখা হয়নি। আবার উত্তর দিয়ে দেখুন।</p>}
+                  <button type="button" disabled={recording} onClick={() => {
+                    setTrack(question.track);
+                    pickQuestion(question.id);
+                    questionSelectRef.current?.focus();
+                  }} className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-lg bg-violet-700 px-3 text-xs font-bold text-white disabled:opacity-50">
+                    <RotateCcw size={14} aria-hidden /> প্রশ্নটি আবার চেষ্টা করুন
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : <p className="mt-3 rounded-lg bg-slate-50 p-3 text-sm text-slate-700">{history.length ? "এখন তালিকায় কোনো প্রশ্ন নেই। নতুন প্রশ্ন চেষ্টা করুন।" : "প্রথম উত্তর মূল্যায়নের পর এখানে আবার অনুশীলনের বিষয় দেখাবে।"}</p>}
+        </section>
+
         <section aria-labelledby="hist-h" className="rounded-2xl border border-slate-200 bg-white p-5">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 id="hist-h" className="text-[16px] font-bold">অনুশীলনের ইতিহাস</h2>
@@ -319,7 +342,7 @@ export default function ProbahoPage() {
               {history.length > 0 && <button onClick={() => { if (window.confirm("সব অনুশীলনের ইতিহাস মুছবেন?")) setHistory([]); }} className="inline-flex items-center gap-1 font-semibold text-red-700"><Trash2 size={13} aria-hidden /> সব মুছুন</button>}
             </div>
           </div>
-          <p className="mt-1 text-[11px] text-slate-500">শুধু এই ডিভাইসে থাকে। ডিফল্টভাবে শুধু স্কোর রাখা হয়, আপনার বলা কথা নয়।</p>
+          <p className="mt-1 text-[11px] text-slate-500">স্কোর ও বাদ পড়া বিষয় এই ডিভাইসে থাকে। ট্রান্সক্রিপ্ট রাখতে চাইলে উপরের বক্সে টিক দিন।</p>
           {history.length === 0 ? (
             <p className="mt-3 text-[13px] text-slate-500">এখনো কোনো অনুশীলন নেই। প্রতিদিন একটি প্রশ্ন দিয়ে শুরু করুন।</p>
           ) : (
