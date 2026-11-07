@@ -1,5 +1,5 @@
 // Deterministic money engine. Pure functions, no imports, no language model.
-// Unit-tested in tests/finops.test.ts.
+// Unit-tested in tests/core.test.ts.
 
 export interface FeeValues {
   fiverrFee: number; // %
@@ -39,6 +39,7 @@ export interface Channel {
 }
 
 const r2 = (n: number) => Math.round(n * 100) / 100;
+export const MAX_INVOICE_USD = 100_000;
 
 function build(
   id: Channel["id"], name: string, route: string, marketplace: boolean,
@@ -85,6 +86,26 @@ export function compareChannels(inp: FinInput): Channel[] {
     build("payoneer_bkash", "Direct client via Payoneer", "Client → Payoneer → bKash", false, inp, 0, f.payoneerBkashFlat, f.payoneerBkashFx, 0),
     build("bank_wire", "Direct client via bank wire", "Client → SWIFT → your BD bank", false, inp, 0, f.wireFlat, f.bankFx, inp.claimIncentive ? f.freelancerIncentive : 0),
   ];
+}
+
+/** Find the smallest invoice, to the USD cent, whose displayed payout meets the target. */
+export function invoicesForTarget(targetBdt: number, config: Omit<FinInput, "invoiceUsd">) {
+  if (!Number.isFinite(targetBdt) || targetBdt <= 0 || !Number.isFinite(config.fx) || config.fx <= 0) return [];
+  const maxCents = MAX_INVOICE_USD * 100;
+  return compareChannels({ ...config, invoiceUsd: MAX_INVOICE_USD }).map((channel, index) => {
+    const identity = { id: channel.id, name: channel.name };
+    if (channel.netBdt < targetBdt) return { ...identity, invoiceUsd: null, netBdt: null };
+
+    const netAt = (cents: number) => compareChannels({ ...config, invoiceUsd: cents / 100 })[index].netBdt;
+    let low = 1;
+    let high = maxCents;
+    while (low < high) {
+      const mid = Math.floor((low + high) / 2);
+      if (netAt(mid) >= targetBdt) high = mid;
+      else low = mid + 1;
+    }
+    return { ...identity, invoiceUsd: low / 100, netBdt: netAt(low) };
+  });
 }
 
 // Invariant: gross + every step must equal net. Catches any arithmetic slip.
