@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { analyzeAnswer, countFillers, containsTerm, progressSummary, QUESTIONS, type SessionRecord } from "../lib/speech.ts";
+import { analyzeAnswer, countFillers, containsTerm, progressSummary, practiceReviewQueue, QUESTIONS, type SessionRecord } from "../lib/speech.ts";
 
 const q = QUESTIONS.find((x) => x.id === "tech-race")!;
 
@@ -73,4 +73,13 @@ test("Every model answer in the question bank covers all of its own topics", () 
     const a = analyzeAnswer(question.modelAnswer, question, null);
     assert.equal(a.missing.length, 0, `${question.id} misses ${a.missing.map((m) => m.id).join(",")}`);
   }
+});
+
+test("Practice review follows the newest attempt, preserves legacy scores, and drops mastered questions", () => {
+  const older: SessionRecord = { id: "1", questionId: q.id, date: "2026-11-01T12:00:00Z", total: 55, content: 25, structure: 10, delivery: 20, wordCount: 20, wpm: null, fillerPer100: 0 };
+  assert.equal(practiceReviewQueue([older])[0].topics, null);
+  const missed = { ...older, id: "2", date: "2026-11-02T12:00:00Z", missedTopicIds: ["verify", "old-id"] };
+  assert.deepEqual(practiceReviewQueue([older, missed])[0].topics?.map((topic) => topic.id), ["verify"]);
+  const mastered = { ...missed, id: "3", date: "2026-11-03T12:00:00Z", content: 50, missedTopicIds: [] };
+  assert.deepEqual(practiceReviewQueue([mastered, older, missed]), []);
 });
