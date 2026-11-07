@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { compareChannels, checkInvariants, best, batchingSaving, fmtBdt, type FinInput } from "../lib/finops.ts";
+import { compareChannels, checkInvariants, best, batchingSaving, fmtBdt, invoicesForTarget, type FinInput } from "../lib/finops.ts";
 import { verifyEvidence, numberAppears, unknownAmounts } from "../lib/grounding.ts";
 import { milestoneAmounts } from "../lib/contract.ts";
 
@@ -36,6 +36,29 @@ test("Steps always reconcile with net", () => {
 test("Tiny invoices never go negative", () => {
   const cs = compareChannels({ ...base, invoiceUsd: 10, withdrawals: 4 });
   for (const c of cs) assert.ok(c.netBdt >= 0, `${c.id} = ${c.netBdt}`);
+});
+
+test("Payout target finds the first USD cent that meets the BDT target on all routes", () => {
+  for (const config of [base, { ...base, withdrawals: 4, fx: 123.45, claimIncentive: true }]) {
+    for (const target of [0.01, 50_000.37, 100_000]) {
+      const estimates = invoicesForTarget(target, config);
+      assert.equal(estimates.length, 4);
+      for (const estimate of estimates) {
+        const invoice = estimate.invoiceUsd!;
+        const at = (invoiceUsd: number) => compareChannels({ ...config, invoiceUsd }).find((c) => c.id === estimate.id)!.netBdt;
+        assert.ok(estimate.netBdt! >= target);
+        assert.equal(at(invoice), estimate.netBdt);
+        assert.ok(at((Math.round(invoice * 100) - 1) / 100) < target, estimate.id);
+      }
+    }
+  }
+});
+
+test("Payout target rejects invalid inputs and marks unreachable routes", () => {
+  assert.deepEqual(invoicesForTarget(0, base), []);
+  assert.deepEqual(invoicesForTarget(100, { ...base, fx: 0 }), []);
+  assert.deepEqual(invoicesForTarget(Infinity, base), []);
+  assert.ok(invoicesForTarget(1e9, base).every((route) => route.invoiceUsd === null && route.netBdt === null));
 });
 
 test("Best channel and batching", () => {
