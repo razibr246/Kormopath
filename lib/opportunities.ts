@@ -61,7 +61,27 @@ export const PATHS: { id: PathId; title: string; description: string; queryLabel
   },
 ];
 
-export interface SavedOpportunity {
+export const OPPORTUNITY_STATUSES = {
+  saved: "সংরক্ষিত",
+  applied: "আবেদন করেছি",
+  response: "উত্তর পেয়েছি",
+  accepted: "নির্বাচিত হয়েছি",
+  closed: "বন্ধ",
+} as const;
+
+export type OpportunityStatus = keyof typeof OPPORTUNITY_STATUSES;
+
+export interface OpportunityProgress {
+  status: OpportunityStatus;
+  followUp: string;
+  note: string;
+}
+
+export const MAX_SAVED_OPPORTUNITIES = 100;
+export const OPPORTUNITY_TITLE_LIMIT = 160;
+export const OPPORTUNITY_NOTE_LIMIT = 500;
+
+export interface SavedOpportunity extends OpportunityProgress {
   id: string;
   title: string;
   url: string;
@@ -76,6 +96,40 @@ export interface OpportunityBoardState {
 }
 
 export const EMPTY_BOARD: OpportunityBoardState = { path: "freelance", completedByPath: {}, saved: [] };
+
+export function normalizeOpportunityUrl(value: string): string | null {
+  try {
+    const url = new URL(value.trim());
+    if ((url.protocol === "https:" || url.protocol === "http:") && !url.username && !url.password) return url.href;
+  } catch {
+    // An opportunity must link to an external web page.
+  }
+  return null;
+}
+
+export function isOpportunityStatus(value: unknown): value is OpportunityStatus {
+  return typeof value === "string" && Object.hasOwn(OPPORTUNITY_STATUSES, value);
+}
+
+export function isFollowUpDate(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || value.startsWith("0000")) return false;
+  const date = new Date(value + "T00:00:00Z");
+  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
+
+export function isFollowUpDue(item: OpportunityProgress, today: string): boolean {
+  return Boolean(item.followUp) && item.followUp <= today && item.status !== "accepted" && item.status !== "closed";
+}
+
+export function opportunitiesToCsv(items: SavedOpportunity[]): string {
+  const headers = ["title", "url", "path", "status", "follow_up_date", "note", "saved_at"];
+  const rows = items.map((item) => [item.title, item.url, item.track, item.status, item.followUp, item.note, item.savedAt]);
+  return [headers, ...rows].map((row) => row.map((value) => {
+    // Quote all cells and neutralize spreadsheet formulas, including after whitespace.
+    const safe = /^[\s]*[=+\-@＝＋－＠]|^[\t\r\n]/u.test(value) ? "'" + value : value;
+    return `"${safe.replace(/"/g, '""')}"`;
+  }).join(",")).join("\r\n");
+}
 
 export function sanitizeOpportunityBoard(raw: unknown): OpportunityBoardState | null {
   if (!raw || typeof raw !== "object") return null;
@@ -92,12 +146,19 @@ export function sanitizeOpportunityBoard(raw: unknown): OpportunityBoardState | 
         if (!item || typeof item !== "object") return [];
         const row = item as Record<string, unknown>;
         if (typeof row.id !== "string" || typeof row.title !== "string" || typeof row.url !== "string" || typeof row.savedAt !== "string" || !PATHS.some((candidate) => candidate.id === row.track)) return [];
-        try {
-          const url = new URL(row.url);
-          if (url.protocol !== "https:" && url.protocol !== "http:") return [];
-          return [{ id: row.id.slice(0, 80), title: row.title.slice(0, 160), url: url.href, track: row.track as PathId, savedAt: row.savedAt.slice(0, 40) }];
-        } catch { return []; }
-      }).slice(0, 100)
+        const url = normalizeOpportunityUrl(row.url);
+        if (!url) return [];
+        return [{
+          id: row.id.slice(0, 80),
+          title: row.title.trim().slice(0, OPPORTUNITY_TITLE_LIMIT) || new URL(url).hostname,
+          url,
+          track: row.track as PathId,
+          savedAt: row.savedAt.slice(0, 40),
+          status: isOpportunityStatus(row.status) ? row.status : "saved",
+          followUp: typeof row.followUp === "string" && isFollowUpDate(row.followUp) ? row.followUp : "",
+          note: typeof row.note === "string" ? row.note.slice(0, OPPORTUNITY_NOTE_LIMIT) : "",
+        }];
+      }).slice(0, MAX_SAVED_OPPORTUNITIES)
     : [];
   return { path, completedByPath, saved };
 }
