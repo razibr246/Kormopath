@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  parseAmount, parseEntry, parseSms, bnToAsciiDigits, summarizeMonth, budgetPace, splitBill,
+  parseAmount, parseEntry, parseSms, bnToAsciiDigits, summarizeMonth, compareMonthlySpending, budgetPace, splitBill,
   toCsv, sanitizeTransactions, migrateLegacy, unusualExpenses, type Transaction,
 } from "../lib/budget.ts";
 
@@ -76,6 +76,26 @@ test("Month summary sums in integer poisha with no float drift", () => {
   assert.equal(s.netPoisha, 499970);
   assert.equal(s.count, 3);
   assert.equal(s.byCategory[0].pct, 100);
+});
+
+test("Spending comparison uses the same cutoff, excludes samples, and rolls over January", () => {
+  const rows = [
+    tx({ date: "2026-01-04", amountPoisha: 30500 }),
+    tx({ date: "2026-01-12", amountPoisha: 99900 }),
+    tx({ date: "2025-12-05", amountPoisha: 12500 }),
+    tx({ date: "2025-12-09", amountPoisha: 50000 }),
+    tx({ id: "ex-1", date: "2026-01-04", amountPoisha: 20000 }),
+    tx({ date: "2025-12-04", categoryId: "grocery", amountPoisha: 1800 }),
+  ];
+  const r = compareMonthlySpending(rows, "2026-01", "2026-01-05");
+  assert.equal(r.previous.month, "2025-12");
+  assert.equal(r.cutoffDay, 5);
+  assert.equal(r.differencePoisha, 16200);
+  assert.deepEqual(r.changes.map((c) => [c.id, c.differencePoisha]), [["food", 18000], ["grocery", -1800]]);
+  const historical = compareMonthlySpending(rows, "2026-01", "2026-02-01");
+  assert.equal(historical.cutoffDay, null);
+  assert.equal(historical.current.expensePoisha, 130400);
+  assert.equal(historical.previous.expensePoisha, 64300);
 });
 
 test("Budget pace spreads remaining budget over days left and never goes negative", () => {
