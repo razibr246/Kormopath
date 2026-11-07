@@ -4,7 +4,7 @@ import Link from "next/link";
 import {
   Pill, Upload, ShieldAlert, AlertTriangle, CheckCircle2, Printer, Phone, Info, Trash2, Save, HelpCircle, Calculator, Video, CalendarDays, CreditCard, UserRound, BellRing,
 } from "lucide-react";
-import { AppHeader } from "@/components/AppHeader";
+import { AppHeader, AppOverview } from "@/components/AppHeader";
 import {
   parsePrescriptionText, checkAllPairs, checkPair, detectRedFlags, drugById, comparePrices, unitsForCourse,
   DRUG_REFERENCE, buildSchedule, scheduleToIcs, SLOT_BN, type ParsedLine, type ParsedPrescription, type Slot,
@@ -55,6 +55,8 @@ export default function MediScanPage() {
   const [text, setText] = useState("");
   const [symptoms, setSymptoms] = useState("");
   const [consent, setConsent] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [ocrDraft, setOcrDraft] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadMsg, setUploadMsg] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
   const [saved, setSaved] = usePersistentState<SavedRx[]>(storageKey("mediscan", "savedPrescriptions"), [], sanitizeSaved);
@@ -74,12 +76,10 @@ export default function MediScanPage() {
   const findings = useMemo(() => checkAllPairs(recognisedIds), [recognisedIds.join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
   const manualPair = checkPair(pairA, pairB);
 
-  const handleUpload = async (file: File) => {
+  const selectFile = (file: File) => {
     setUploadMsg(null);
-    if (!consent) {
-      setUploadMsg({ kind: "error", text: "ছবি পাঠানোর আগে নিচের সম্মতি বক্সে টিক দিন।" });
-      return;
-    }
+    setSelectedFile(null);
+    setOcrDraft(null);
     if (!["image/jpeg", "image/png", "image/webp", "application/pdf"].includes(file.type)) {
       setUploadMsg({ kind: "error", text: "শুধু JPG, PNG, WEBP বা PDF ফাইল দেওয়া যাবে।" });
       return;
@@ -88,6 +88,13 @@ export default function MediScanPage() {
       setUploadMsg({ kind: "error", text: "ফাইল ৪ MB-এর বেশি। ছোট বা কম রেজোলিউশনের ছবি দিন।" });
       return;
     }
+    setSelectedFile(file);
+  };
+
+  const handleUpload = async () => {
+    if (!consent || !selectedFile || uploading) return;
+    const file = selectedFile;
+    setUploadMsg(null);
     setUploading(true);
     try {
       const base64 = await new Promise<string>((resolve, reject) => {
@@ -107,8 +114,9 @@ export default function MediScanPage() {
       } else if (!data.legible) {
         setUploadMsg({ kind: "error", text: "ছবিতে পড়ার মতো প্রেসক্রিপশন পাওয়া যায়নি। আরও পরিষ্কার ছবি দিন বা টাইপ করুন।" });
       } else {
-        setText(data.text);
-        setUploadMsg({ kind: "ok", text: "ছবি থেকে লেখা বের করা হয়েছে। এটি স্বয়ংক্রিয় পাঠ — ভুল থাকতে পারে। মূল প্রেসক্রিপশনের সাথে মিলিয়ে নিচের বক্সে ঠিক করে নিন।" });
+        setOcrDraft(data.text.slice(0, 5000));
+        setSelectedFile(null);
+        setUploadMsg({ kind: "ok", text: "খসড়াটি মূল প্রেসক্রিপশনের সঙ্গে মিলিয়ে দেখুন। যাচাই করে ব্যবহার করলে এটি উপরের লেখা প্রতিস্থাপন করবে।" });
       }
     } catch {
       setUploadMsg({ kind: "error", text: "নেটওয়ার্ক সমস্যা। লেখা টাইপ করে দিন — সেটি সম্পূর্ণ এই ডিভাইসেই কাজ করে।" });
@@ -136,62 +144,17 @@ export default function MediScanPage() {
         </div>
       </div>
 
-      <main id="main" className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6">
-        <section className="rounded-2xl border border-sky-100 bg-white p-5">
-          <h1 className="text-[26px] font-extrabold leading-tight tracking-tight sm:text-[32px]">ডাক্তারের প্রেসক্রিপশন সহজ বাংলায় বুঝে নিন</h1>
-          <p className="mt-2 max-w-3xl text-[15px] leading-relaxed text-slate-600">
-            প্রেসক্রিপশনে যা লেখা আছে — কোন ওষুধ, দিনে কয়বার, কতদিন, খাবারের আগে না পরে — তা পরিষ্কার করে দেখায়। যা লেখা নেই বা আমরা চিনি না, তা স্পষ্ট করে জানায়। এটি ডাক্তার বা ফার্মাসিস্টের বিকল্প নয়; ডোজ বা ওষুধ নিজে থেকে বদলাবেন না।
-          </p>
-        </section>
-
-        <section aria-labelledby="appointment-title" className="rounded-2xl border border-violet-200 bg-white p-5 shadow-sm">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h2 id="appointment-title" className="flex items-center gap-2 text-[20px] font-extrabold"><CalendarDays size={21} className="text-violet-700" aria-hidden /> ডাক্তারের সাথে পরামর্শ বুক করুন</h2>
-              <p className="mt-1 text-[13px] text-slate-600">ডেমো ডাক্তার বেছে ফোন বা ভিডিও পরামর্শের নমুনা বুকিং করুন।</p>
-            </div>
-            <span className="rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-[11px] font-bold text-amber-900">ডেমো · বাস্তব চিকিৎসক নন</span>
-          </div>
-          <div className="mt-4 grid gap-4 md:grid-cols-2">
-            <div className="space-y-3">
-              <label className="block text-[13px] font-bold">ডাক্তার বেছে নিন
-                <select value={doctorId} onChange={(event) => { setDoctorId(event.target.value); setDemoBooking(false); }} className="mt-1 block w-full rounded-xl border border-slate-200 bg-white px-3 py-2 font-normal">
-                  {DEMO_DOCTORS.map((doctor) => <option key={doctor.id} value={doctor.id}>{doctor.name} · {doctor.specialty}</option>)}
-                </select>
-              </label>
-              <div className="flex items-center gap-3 rounded-xl bg-violet-50 p-3">
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-violet-100 text-violet-800"><UserRound size={22} aria-hidden /></span>
-                <div className="min-w-0 text-[13px]"><strong className="block">{selectedDoctor.name}</strong><span className="text-slate-600">{selectedDoctor.specialty} · {selectedDoctor.experience}</span></div>
-              </div>
-              <fieldset>
-                <legend className="mb-1.5 text-[13px] font-bold">পরামর্শের ধরন</legend>
-                <div className="flex flex-wrap gap-2">
-                  <button type="button" aria-pressed={consultationType === "phone"} onClick={() => { setConsultationType("phone"); setDemoBooking(false); }} className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-[13px] font-bold ${consultationType === "phone" ? "border-violet-600 bg-violet-50 text-violet-900" : "border-slate-200"}`}><Phone size={16} aria-hidden /> ফোন কল</button>
-                  <button type="button" aria-pressed={consultationType === "video"} onClick={() => { setConsultationType("video"); setDemoBooking(false); }} className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-[13px] font-bold ${consultationType === "video" ? "border-violet-600 bg-violet-50 text-violet-900" : "border-slate-200"}`}><Video size={16} aria-hidden /> ভিডিও কল</button>
-                </div>
-              </fieldset>
-            </div>
-            <div className="space-y-3">
-              <label className="block text-[13px] font-bold">সময় বেছে নিন
-                <select value={appointmentSlot} onChange={(event) => { setAppointmentSlot(event.target.value); setDemoBooking(false); }} className="mt-1 block w-full rounded-xl border border-slate-200 bg-white px-3 py-2 font-normal">
-                  <option value="">একটি সময় বেছে নিন</option>
-                  <option value="আজ, সন্ধ্যা ৭:০০">আজ, সন্ধ্যা ৭:০০</option>
-                  <option value="আগামীকাল, সকাল ১০:৩০">আগামীকাল, সকাল ১০:৩০</option>
-                  <option value="আগামীকাল, বিকেল ৪:০০">আগামীকাল, বিকেল ৪:০০</option>
-                </select>
-              </label>
-              <label className="block text-[13px] font-bold">ডেমো পেমেন্ট পদ্ধতি
-                <select value={paymentMethod} onChange={(event) => setPaymentMethod(event.target.value)} className="mt-1 block w-full rounded-xl border border-slate-200 bg-white px-3 py-2 font-normal">
-                  <option value="bkash">বিকাশ (নমুনা)</option><option value="nagad">নগদ (নমুনা)</option><option value="card">কার্ড (নমুনা)</option>
-                </select>
-              </label>
-              <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-3 text-[14px]"><span className="inline-flex items-center gap-2 text-slate-700"><CreditCard size={17} aria-hidden /> পরামর্শ ফি</span><strong>৳{selectedDoctor.fee}</strong></div>
-              <button type="button" disabled={!appointmentSlot} onClick={() => setDemoBooking(true)} className="w-full rounded-xl bg-violet-700 px-4 py-3 text-[14px] font-bold text-white hover:bg-violet-800 disabled:cursor-not-allowed disabled:opacity-40">বুকিং ও ডেমো পেমেন্ট নিশ্চিত করুন</button>
-            </div>
-          </div>
-          {demoBooking && <div role="status" className="mt-4 rounded-xl border border-emerald-300 bg-emerald-50 p-4 text-[13px] text-emerald-950"><strong className="block">নমুনা অ্যাপয়েন্টমেন্ট তৈরি হয়েছে</strong><span>{selectedDoctor.name} · {consultationType === "phone" ? "ফোন কল" : "ভিডিও কল"} · {appointmentSlot} · ৳{selectedDoctor.fee} ({paymentMethod === "bkash" ? "বিকাশ" : paymentMethod === "nagad" ? "নগদ" : "কার্ড"})</span><p className="mt-1">এটি শুধু ডেমো: কোনো টাকা কাটা হয়নি, বুকিং ডাক্তারকে পাঠানো হয়নি, এবং কল/ভিডিও সংযোগ চালু নেই।</p></div>}
-          <p className="mt-3 text-[11px] leading-relaxed text-slate-500">ডাক্তারদের নাম, সময় ও ফি কাল্পনিক। এই নমুনায় কোনো পেমেন্ট নেওয়া, চিকিৎসকের সাথে সংযোগ বা প্রকৃত অ্যাপয়েন্টমেন্ট তৈরি হয় না।</p>
-        </section>
+      <main id="main" tabIndex={-1} className="app-workspace mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6">
+        <AppOverview appId="mediscan" category="Prescription reader" title="প্রেসক্রিপশনের লেখা সহজ বাংলায় বুঝুন"
+          actions={[{ href: "#rx", label: "লেখা দিন" }, { href: "#out-h", label: "পাঠ দেখুন" }]}
+          summary={<>
+            <span className="app-overview-label">গোপনীয়তা</span>
+            <span className="app-overview-metric">লেখা ডিভাইসেই থাকে</span>
+            <p>ছবি পড়তে চাইলে ফাইল বেছে আলাদাভাবে পাঠাতে হবে।</p>
+          </>}
+        >
+          প্রেসক্রিপশনে লেখা তথ্য পড়ুন ও অস্পষ্ট লাইনগুলো ফার্মাসিস্টকে দেখানোর জন্য গুছিয়ে নিন। ডোজ বা ওষুধ বদলানোর আগে চিকিৎসকের সঙ্গে কথা বলুন।
+        </AppOverview>
 
         {redFlags.length > 0 && (
           <section role="alert" className="rounded-2xl border-2 border-red-500 bg-red-50 p-5">
@@ -215,6 +178,7 @@ export default function MediScanPage() {
               id="rx"
               rows={8}
               value={text}
+              maxLength={5000}
               onChange={(e) => setText(e.target.value)}
               placeholder={"প্রতিটি ওষুধ আলাদা লাইনে লিখুন, যেমন:\nTab. Napa Extra 500mg 1+0+1 x 3 days p.c."}
               className="w-full rounded-xl border border-slate-200 p-3 font-mono text-[13px] leading-relaxed outline-none focus:border-sky-600"
@@ -232,27 +196,47 @@ export default function MediScanPage() {
             <div className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
               <span className="block text-[13px] font-bold">ছবি থেকে লেখা বের করুন (ঐচ্ছিক)</span>
               <label className="flex items-start gap-2 text-[12px] leading-relaxed text-slate-700">
-                <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-0.5 h-4 w-4 accent-sky-600" />
+                <input type="checkbox" checked={consent} disabled={uploading} onChange={(e) => setConsent(e.target.checked)} className="mt-0.5 h-4 w-4 accent-sky-600" />
                 <span>
                   আমি বুঝেছি: ছবিটি লেখা পড়ার জন্য আমাদের সার্ভার হয়ে Google Gemini-তে পাঠানো হবে। আমরা ছবি বা লেখা সংরক্ষণ করি না। স্বাস্থ্য তথ্য সংবেদনশীল — রোগীর নাম/ফোন নম্বর ঢেকে ছবি তোলা ভালো। পাঠ ভুল হতে পারে, তাই আমি নিজে মিলিয়ে দেখব।
                 </span>
               </label>
-              <label className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-bold ${consent && !uploading ? "cursor-pointer bg-sky-600 text-white hover:bg-sky-700" : "cursor-not-allowed bg-slate-200 text-slate-500"}`}>
-                <Upload size={15} aria-hidden /> {uploading ? "পড়া হচ্ছে…" : "ছবি / PDF বেছে নিন"}
+              <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-lg border border-sky-300 bg-white px-3 py-2 text-[13px] font-bold text-sky-800 focus-within:outline-2 focus-within:outline-sky-700">
+                <Upload size={15} aria-hidden /> ছবি / PDF বেছে নিন
                 <input
                   type="file"
                   accept="image/jpeg,image/png,image/webp,application/pdf"
                   className="sr-only"
-                  disabled={!consent || uploading}
+                  disabled={uploading}
                   onChange={(e) => {
                     const f = e.target.files?.[0];
-                    if (f) void handleUpload(f);
+                    if (f) selectFile(f);
                     e.target.value = "";
                   }}
                 />
               </label>
+              {selectedFile && (
+                <div className="space-y-2 rounded-lg border border-slate-200 bg-white p-3 text-[12px]">
+                  <p className="wrap-anywhere"><strong>{selectedFile.name}</strong> · {Math.ceil(selectedFile.size / 1024)} KB</p>
+                  <p>{uploading ? "ফাইল থেকে লেখা পড়া হচ্ছে…" : "ফাইলটি বেছে নেওয়া হয়েছে। পাঠাতে সম্মতি দিন ও নিচের বোতাম চাপুন।"}</p>
+                  <div className="flex flex-wrap gap-2">
+                    <button type="button" disabled={!consent || uploading} onClick={() => void handleUpload()} className="min-h-10 rounded-lg bg-sky-700 px-3 font-bold text-white disabled:opacity-50">লেখা পড়তে ফাইল পাঠান</button>
+                    <button type="button" disabled={uploading} onClick={() => { setSelectedFile(null); setUploadMsg(null); }} className="min-h-10 rounded-lg px-3 font-bold text-slate-700 underline">ফাইল সরান</button>
+                  </div>
+                </div>
+              )}
               {uploadMsg && (
                 <p role={uploadMsg.kind === "error" ? "alert" : "status"} className={`text-[12px] ${uploadMsg.kind === "error" ? "text-red-700" : "text-emerald-800"}`}>{uploadMsg.text}</p>
+              )}
+              {ocrDraft !== null && (
+                <div className="space-y-2 rounded-lg border border-sky-200 bg-white p-3 text-[12px]">
+                  <label htmlFor="ocr-draft" className="font-bold">ছবি থেকে পাওয়া খসড়া</label>
+                  <textarea id="ocr-draft" rows={4} value={ocrDraft} maxLength={5000} onChange={(e) => setOcrDraft(e.target.value)} className="block w-full rounded-lg border border-slate-200 p-2" />
+                  <div className="flex flex-wrap gap-2">
+                    <button type="button" disabled={!ocrDraft.trim()} onClick={() => { setText(ocrDraft); setOcrDraft(null); setUploadMsg(null); }} className="min-h-10 rounded-lg bg-sky-700 px-3 font-bold text-white disabled:opacity-50">যাচাই করা লেখা ব্যবহার করুন</button>
+                    <button type="button" onClick={() => { setOcrDraft(null); setUploadMsg(null); }} className="min-h-10 rounded-lg px-3 font-bold text-slate-700 underline">খসড়া বাদ দিন</button>
+                  </div>
+                </div>
               )}
             </div>
 
@@ -268,7 +252,7 @@ export default function MediScanPage() {
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 id="out-h" className="text-[17px] font-bold">২. যা লেখা আছে</h2>
               {parsed.lines.length > 0 && (
-                <button onClick={() => window.print()} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[12px] font-bold text-slate-700 print:hidden"><Printer size={14} aria-hidden /> প্রিন্ট করুন</button>
+                <a href="#rx-review" className="inline-flex items-center gap-1.5 rounded-lg border border-sky-200 bg-white px-3 py-1.5 text-[12px] font-bold text-sky-800"><Printer size={14} aria-hidden /> পর্যালোচনার পাতা</a>
               )}
             </div>
 
@@ -309,6 +293,8 @@ export default function MediScanPage() {
             )}
           </section>
         </div>
+
+        {parsed.lines.length > 0 && <PrescriptionReview lines={parsed.lines} />}
 
         <div className="grid gap-6 lg:grid-cols-3">
           <PriceCompare lines={parsed.lines} />
@@ -367,6 +353,55 @@ export default function MediScanPage() {
           </section>
         </div>
 
+        <section aria-labelledby="appointment-title" className="rounded-2xl border border-violet-200 bg-white p-5 shadow-sm print:hidden">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 id="appointment-title" className="flex items-center gap-2 text-[20px] font-extrabold"><CalendarDays size={21} className="text-violet-700" aria-hidden /> পরামর্শ বুকিংয়ের ডেমো</h2>
+              <p className="mt-1 text-[13px] text-slate-600">ডেমো ডাক্তার বেছে ফোন বা ভিডিও পরামর্শের নমুনা বুকিং করুন।</p>
+            </div>
+            <span className="rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-[11px] font-bold text-amber-900">ডেমো · বাস্তব চিকিৎসক নন</span>
+          </div>
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            <div className="space-y-3">
+              <label className="block text-[13px] font-bold">ডাক্তার বেছে নিন
+                <select value={doctorId} onChange={(event) => { setDoctorId(event.target.value); setDemoBooking(false); }} className="mt-1 block w-full rounded-xl border border-slate-200 bg-white px-3 py-2 font-normal">
+                  {DEMO_DOCTORS.map((doctor) => <option key={doctor.id} value={doctor.id}>{doctor.name} · {doctor.specialty}</option>)}
+                </select>
+              </label>
+              <div className="flex items-center gap-3 rounded-xl bg-violet-50 p-3">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-violet-100 text-violet-800"><UserRound size={22} aria-hidden /></span>
+                <div className="min-w-0 text-[13px]"><strong className="block">{selectedDoctor.name}</strong><span className="text-slate-600">{selectedDoctor.specialty} · {selectedDoctor.experience}</span></div>
+              </div>
+              <fieldset>
+                <legend className="mb-1.5 text-[13px] font-bold">পরামর্শের ধরন</legend>
+                <div className="flex flex-wrap gap-2">
+                  <button type="button" aria-pressed={consultationType === "phone"} onClick={() => { setConsultationType("phone"); setDemoBooking(false); }} className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-[13px] font-bold ${consultationType === "phone" ? "border-violet-600 bg-violet-50 text-violet-900" : "border-slate-200"}`}><Phone size={16} aria-hidden /> ফোন কল</button>
+                  <button type="button" aria-pressed={consultationType === "video"} onClick={() => { setConsultationType("video"); setDemoBooking(false); }} className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-[13px] font-bold ${consultationType === "video" ? "border-violet-600 bg-violet-50 text-violet-900" : "border-slate-200"}`}><Video size={16} aria-hidden /> ভিডিও কল</button>
+                </div>
+              </fieldset>
+            </div>
+            <div className="space-y-3">
+              <label className="block text-[13px] font-bold">সময় বেছে নিন
+                <select value={appointmentSlot} onChange={(event) => { setAppointmentSlot(event.target.value); setDemoBooking(false); }} className="mt-1 block w-full rounded-xl border border-slate-200 bg-white px-3 py-2 font-normal">
+                  <option value="">একটি সময় বেছে নিন</option>
+                  <option value="আজ, সন্ধ্যা ৭:০০">আজ, সন্ধ্যা ৭:০০</option>
+                  <option value="আগামীকাল, সকাল ১০:৩০">আগামীকাল, সকাল ১০:৩০</option>
+                  <option value="আগামীকাল, বিকেল ৪:০০">আগামীকাল, বিকেল ৪:০০</option>
+                </select>
+              </label>
+              <label className="block text-[13px] font-bold">ডেমো পেমেন্ট পদ্ধতি
+                <select value={paymentMethod} onChange={(event) => setPaymentMethod(event.target.value)} className="mt-1 block w-full rounded-xl border border-slate-200 bg-white px-3 py-2 font-normal">
+                  <option value="bkash">বিকাশ (নমুনা)</option><option value="nagad">নগদ (নমুনা)</option><option value="card">কার্ড (নমুনা)</option>
+                </select>
+              </label>
+              <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-3 text-[14px]"><span className="inline-flex items-center gap-2 text-slate-700"><CreditCard size={17} aria-hidden /> পরামর্শ ফি</span><strong>৳{selectedDoctor.fee}</strong></div>
+              <button type="button" disabled={!appointmentSlot} onClick={() => setDemoBooking(true)} className="w-full rounded-xl bg-violet-700 px-4 py-3 text-[14px] font-bold text-white hover:bg-violet-800 disabled:cursor-not-allowed disabled:opacity-40">বুকিং ও ডেমো পেমেন্ট নিশ্চিত করুন</button>
+            </div>
+          </div>
+          {demoBooking && <div role="status" className="mt-4 rounded-xl border border-emerald-300 bg-emerald-50 p-4 text-[13px] text-emerald-950"><strong className="block">নমুনা অ্যাপয়েন্টমেন্ট তৈরি হয়েছে</strong><span>{selectedDoctor.name} · {consultationType === "phone" ? "ফোন কল" : "ভিডিও কল"} · {appointmentSlot} · ৳{selectedDoctor.fee} ({paymentMethod === "bkash" ? "বিকাশ" : paymentMethod === "nagad" ? "নগদ" : "কার্ড"})</span><p className="mt-1">এটি শুধু ডেমো: কোনো টাকা কাটা হয়নি, বুকিং ডাক্তারকে পাঠানো হয়নি, এবং কল/ভিডিও সংযোগ চালু নেই।</p></div>}
+          <p className="mt-3 text-[11px] leading-relaxed text-slate-500">ডাক্তারদের নাম, সময় ও ফি কাল্পনিক। এই নমুনায় কোনো পেমেন্ট নেওয়া, চিকিৎসকের সাথে সংযোগ বা প্রকৃত অ্যাপয়েন্টমেন্ট তৈরি হয় না।</p>
+        </section>
+
         <section className="rounded-2xl border border-slate-200 bg-white p-5 text-[12px] leading-relaxed text-slate-600">
           <h2 className="mb-1 text-[14px] font-bold text-slate-800">সীমাবদ্ধতা ও উৎস</h2>
           <ul className="list-disc space-y-1 pl-5">
@@ -379,6 +414,28 @@ export default function MediScanPage() {
         </section>
       </main>
     </div>
+  );
+}
+
+function PrescriptionReview({ lines }: { lines: ParsedLine[] }) {
+  return (
+    <section id="rx-review" aria-labelledby="rx-review-h" className="rounded-2xl border border-sky-200 bg-white p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 id="rx-review-h" className="text-lg font-bold">ফার্মাসিস্টকে দেখানোর জন্য পর্যালোচনার পাতা</h2>
+          <p className="mt-1 text-sm text-slate-700">মূল প্রেসক্রিপশন সঙ্গে রাখুন। এখানে প্রতিটি লেখা লাইন ও যে তথ্যগুলো নিশ্চিত করা দরকার তা দেখানো হয়েছে।</p>
+        </div>
+        <button type="button" onClick={() => window.print()} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-sky-700 px-3 text-sm font-bold text-white print:hidden"><Printer size={15} aria-hidden /> পর্যালোচনার পাতা প্রিন্ট করুন</button>
+      </div>
+      <ol className="mt-4 grid list-decimal gap-3 pl-5 text-sm">
+        {lines.map((line, index) => (
+          <li key={index} className="break-inside-avoid rounded-lg border border-slate-200 p-3">
+            <p className="wrap-anywhere font-mono font-semibold">{line.raw}</p>
+            {line.missing.length > 0 && <ul className="mt-1 list-disc space-y-1 pl-4 text-amber-900">{line.missing.map((note) => <li key={note}>{note}</li>)}</ul>}
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }
 
