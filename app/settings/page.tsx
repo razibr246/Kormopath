@@ -13,7 +13,7 @@ const APPS: { ns: AppNamespace; name: string; href: string; what: string; sensit
   { ns: "haatbazar", name: "HaatBazar AI", href: "/haatbazar", what: "দামের খাতা, কৃষি বাজার/পরিবহনের quote, জেলা" },
   { ns: "feeguard", name: "FeeGuard BD", href: "/feeguard", what: "পেমেন্ট রেকর্ড" },
   { ns: "chuktiguard", name: "ChuktiGuard", href: "/chuktiguard", what: "Service Pack ও চুক্তির খসড়া" },
-  { ns: "platform", name: "KormoPath প্ল্যাটফর্ম", href: "/", what: "সাধারণ প্রোফাইল, My Path-এর অগ্রগতি ও সংরক্ষিত সুযোগ", legacy: ["kormopath_unified_profile_v1"] },
+  { ns: "platform", name: "KormoPath প্ল্যাটফর্ম", href: "/", what: "সাধারণ প্রোফাইল, My Path-এর অগ্রগতি, সংরক্ষিত সুযোগ, আবেদনের অবস্থা ও নোট", legacy: ["kormopath_unified_profile_v1"] },
 ];
 
 function keysFor(app: (typeof APPS)[number]) {
