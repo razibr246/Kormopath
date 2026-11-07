@@ -296,6 +296,22 @@ export function summarizeMonth(txs: Transaction[], month: string): MonthSummary 
   return { month, incomePoisha: income, expensePoisha: expense, netPoisha: income - expense, byCategory, count: inMonth.length };
 }
 
+export function compareMonthlySpending(txs: Transaction[], month: string, today: string) {
+  const [year, monthNumber] = month.split("-").map(Number);
+  const previousMonth = monthNumber === 1 ? `${year - 1}-12` : `${year}-${String(monthNumber - 1).padStart(2, "0")}`;
+  const cutoffDay = month === today.slice(0, 7) ? Number(today.slice(8, 10)) : null;
+  const entries = txs.filter((t) => !t.id.startsWith("ex-") && (cutoffDay === null || Number(t.date.slice(8, 10)) <= cutoffDay));
+  const current = summarizeMonth(entries, month);
+  const previous = summarizeMonth(entries, previousMonth);
+  const categories = new Set([...current.byCategory, ...previous.byCategory].map((c) => c.id));
+  const changes = [...categories].map((id) => {
+    const currentPoisha = current.byCategory.find((c) => c.id === id)?.poisha ?? 0;
+    const previousPoisha = previous.byCategory.find((c) => c.id === id)?.poisha ?? 0;
+    return { id, currentPoisha, previousPoisha, differencePoisha: currentPoisha - previousPoisha };
+  }).filter((row) => row.differencePoisha !== 0).sort((a, b) => Math.abs(b.differencePoisha) - Math.abs(a.differencePoisha));
+  return { current, previous, cutoffDay, changes, differencePoisha: current.expensePoisha - previous.expensePoisha };
+}
+
 export interface BudgetPace {
   daysInMonth: number;
   dayOfMonth: number;
