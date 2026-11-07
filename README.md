@@ -15,6 +15,8 @@ KormoPath currently contains six standalone applications, a shared landing page 
 
 Other apps include HaatBazar AI (agriculture and market information), Shohoj Budget, MediScan BD (prescription text support), Probaho and AdmitBuddy. Availability and maturity vary; AI and third-party features need configuration and are not professional advice or a substitute for qualified review.
 
+My Path lets you bookmark search results or add your own links, track application status, record follow-up dates and outcomes, and export each path to CSV. The tracker works in your browser without an API key.
+
 Workspace shows model calls, tool calls and fallbacks for its supported flows. Model output is untrusted: financial calculations remain deterministic and claims from uploaded evidence are checked against source text.
 
 ## Run locally
