@@ -1,8 +1,33 @@
 "use client";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { ShieldCheck } from "lucide-react";
+import { ArrowDownRight, ShieldCheck } from "lucide-react";
 import { AppSwitcherDropdown, type AppItem } from "@/components/AppSwitcherDropdown";
+
+export function AppOverview({ appId, category, title, children, actions, summary }: {
+  appId: AppItem["id"];
+  category: string;
+  title: string;
+  children: ReactNode;
+  actions: { href: string; label: string }[];
+  summary: ReactNode;
+}) {
+  return (
+    <section className="app-overview" data-app-theme={appId} aria-labelledby="app-title">
+      <div className="app-overview-copy">
+        <p className="app-overview-kicker" lang="en">{category}</p>
+        <h1 id="app-title" className="display">{title}</h1>
+        <p className="app-overview-description">{children}</p>
+        <nav className="app-overview-actions" aria-label="এই অ্যাপের প্রধান কাজ">
+          {actions.map(({ href, label }) => (
+            <a key={href} href={href}>{label}<ArrowDownRight size={15} aria-hidden /></a>
+          ))}
+        </nav>
+      </div>
+      <div className="app-overview-summary">{summary}</div>
+    </section>
+  );
+}
 
 /**
  * Shared header for the ecosystem apps. Each app keeps its own colour and icon; the
