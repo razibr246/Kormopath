@@ -321,6 +321,24 @@ export interface SessionRecord {
   wpm: number | null;
   fillerPer100: number;
   transcript?: string; // only if the user chose to keep it
+  missedTopicIds?: string[];
+}
+
+export function practiceReviewQueue(records: SessionRecord[]) {
+  const latest = new Map<string, SessionRecord>();
+  for (const record of records) {
+    const previous = latest.get(record.questionId);
+    if (!previous || previous.date < record.date) latest.set(record.questionId, record);
+  }
+
+  return QUESTIONS.flatMap((question) => {
+    const record = latest.get(question.id);
+    if (!record) return [];
+    const ids = record.missedTopicIds;
+    const topics = Array.isArray(ids) ? question.topics.filter((topic) => ids.includes(topic.id)) : null;
+    if (topics?.length === 0 || (topics === null && !(record.content < 50))) return [];
+    return [{ question, record, topics }];
+  }).sort((a, b) => a.record.content - b.record.content || b.record.date.localeCompare(a.record.date));
 }
 
 export function progressSummary(records: SessionRecord[]) {
