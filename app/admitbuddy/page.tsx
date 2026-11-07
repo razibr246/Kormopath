@@ -3,15 +3,15 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   GraduationCap, Bookmark, BookmarkCheck, CalendarPlus, Download, ExternalLink, CheckCircle2, Circle, Trash2, Send, Copy,
-  FileText, Bot, Info, AlertTriangle, ListChecks, Compass,
+  FileText, Bot, Info, AlertTriangle, ListChecks, Compass, Columns3,
 } from "lucide-react";
-import { AppHeader, SourceTag } from "@/components/AppHeader";
+import { AppHeader, AppOverview, SourceTag } from "@/components/AppHeader";
 import { saveUserProfile } from "@/lib/profile";
 import {
   UNIVERSITIES, OFFICIAL_RESOURCES, DOCUMENT_CHECKLIST, calculateMatches, generateDeadlines, validateUserDeadline,
   generateSopDraft, answerCounselorQuery, analyzeListBalance, analyzeSopText, toIcs,
   APPLICATION_STAGES, applicationPipeline, sanitizeStatuses,
-  type StudentProfile, type UserDeadline, type ApplicationStatus, type ApplicationStage,
+  type StudentProfile, type UserDeadline, type ApplicationStatus, type ApplicationStage, type MatchResult,
 } from "@/lib/admitbuddy";
 import { usePersistentState, storageKey, downloadText, todayLocal } from "@/lib/clientStore";
 
@@ -50,6 +50,8 @@ export default function AdmitBuddyPage() {
   const [statuses, setStatuses] = usePersistentState<ApplicationStatus[]>(storageKey("admitbuddy", "applicationStatus"), [], sanitizeStatuses);
   const [today, setToday] = useState("1970-01-01");
   const [filter, setFilter] = useState<"all" | "eligible" | "public" | "private" | "shortlist">("all");
+  const [query, setQuery] = useState("");
+  const [comparisonIds, setComparisonIds] = useState<string[]>([]);
   const [editingProfile, setEditingProfile] = useState(false);
   useEffect(() => setToday(todayLocal()), []);
 
@@ -65,9 +67,13 @@ export default function AdmitBuddyPage() {
       return next;
     });
 
-  const filtered = matches.filter((m) =>
+  const queryText = query.trim().toLowerCase();
+  const filtered = matches.filter(({ university: u }) =>
+    !queryText || [u.name, u.shortName, u.location, ...u.programs].some((value) => value.toLowerCase().includes(queryText)),
+  ).filter((m) =>
     filter === "all" ? true : filter === "eligible" ? m.eligibility === "meets" : filter === "shortlist" ? shortlist.includes(m.university.id) : m.university.type === filter,
   );
+  const comparison = matches.filter((m) => comparisonIds.includes(m.university.id));
   const dated = tasks.filter((t) => t.dueDate && !t.isDone);
   const nextTask = dated[0];
   const profileEmpty = !profile.name && !profile.interests.length && !profile.preferredLocations.length;
@@ -84,32 +90,26 @@ export default function AdmitBuddyPage() {
     <div className="min-h-screen bg-[#f7f7fd] text-slate-900 antialiased">
       <AppHeader taglineEn="University admission planner" appId="admitbuddy" href="/admitbuddy" name="AdmitBuddy" taglineBn="বিশ্ববিদ্যালয় ভর্তির পরিকল্পনা ও ট্র্যাকার" icon={<GraduationCap size={22} />} accent="from-indigo-600 to-blue-700" />
 
-      <main id="main" className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6">
-        <section className="flex flex-wrap items-start justify-between gap-4 rounded-2xl border border-indigo-100 bg-white p-5">
-          <div className="max-w-2xl">
-            <h1 className="text-[26px] font-extrabold leading-tight tracking-tight sm:text-[32px]">কোথায় আবেদন করবেন, কবে, কী কী লাগবে — এক জায়গায়</h1>
-            <p className="mt-2 text-[15px] leading-relaxed text-slate-600">
-              আপনার GPA, বাজেট ও পছন্দ অনুযায়ী {UNIVERSITIES.length}টি বিশ্ববিদ্যালয় সাজিয়ে দেখায়। ভর্তির তারিখ আমরা অনুমান করি না: অফিসিয়াল সার্কুলার প্রকাশিত হলে আপনি তারিখ ও উৎস যোগ করবেন, আমরা মনে করিয়ে দেব ও ক্যালেন্ডারে পাঠাব।
-            </p>
-          </div>
-          <div className="min-w-[250px] rounded-2xl border border-slate-200 bg-slate-50 p-4 text-[13px]">
-            <div className="flex items-center justify-between">
-              <strong>{profile.name || "আপনার প্রোফাইল"}</strong>
-              <button onClick={() => setEditingProfile(!editingProfile)} className="text-[12px] font-bold text-indigo-700">{editingProfile ? "বন্ধ" : "এডিট"}</button>
+      <main id="main" tabIndex={-1} className="app-workspace mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6">
+        <AppOverview appId="admitbuddy" category="University admissions" title="বিশ্ববিদ্যালয় বাছুন, আবেদনের পরিকল্পনা করুন"
+          actions={[{ href: "#admit-tools", label: "ভর্তির সরঞ্জাম" }]}
+          summary={<>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="app-overview-label">{profile.name || "আপনার প্রোফাইল"}</span>
+              <button onClick={() => setEditingProfile(!editingProfile)} className="rounded-md border border-white/30 px-2 py-1 font-bold text-white">{editingProfile ? "বন্ধ" : "এডিট"}</button>
             </div>
-            <p className="text-slate-600">SSC {profile.sscGpa.toFixed(2)} · HSC {profile.hscGpa.toFixed(2)} · {profile.group}</p>
-            <p className="text-slate-600">বাজেট: ৳{profile.maxBudgetPerSemester.toLocaleString("en-IN")}/সেমিস্টার</p>
-            {nextTask ? (
-              <p className="mt-2 rounded-lg bg-indigo-50 p-2 text-indigo-900">পরের কাজ: <strong>{nextTask.title}</strong> — {nextTask.dueDate}</p>
-            ) : (
-              <p className="mt-2 text-[12px] text-slate-500">শর্টলিস্ট করে তারিখ যোগ করলে পরের কাজ এখানে দেখাবে।</p>
-            )}
-          </div>
-        </section>
+            <span className="app-overview-metric">{shortlist.length}টি শর্টলিস্টে</span>
+            <p>SSC {profile.sscGpa.toFixed(2)} · HSC {profile.hscGpa.toFixed(2)} · {profile.group}</p>
+            <p>বাজেট ৳{profile.maxBudgetPerSemester.toLocaleString("en-IN")}/সেমিস্টার</p>
+            <p>{nextTask ? <>পরের কাজ <strong>{nextTask.title}</strong> · {nextTask.dueDate}</> : "শর্টলিস্টে তারিখ যোগ করলে পরের কাজ এখানে দেখাবে।"}</p>
+          </>}
+        >
+          আপনার GPA, বাজেট ও পছন্দ অনুযায়ী {UNIVERSITIES.length}টি বিশ্ববিদ্যালয় খুঁজুন ও তুলনা করুন। অফিসিয়াল সার্কুলার থেকে তারিখ যোগ করে আবেদনের কাজগুলো গুছিয়ে রাখুন।
+        </AppOverview>
 
         {(editingProfile || profileEmpty) && <ProfileForm profile={profile} setProfile={setProfile} onDone={() => setEditingProfile(false)} />}
 
-        <nav className="flex gap-1 overflow-x-auto rounded-xl border border-slate-200 bg-white p-1" role="tablist" aria-label="AdmitBuddy">
+        <nav id="admit-tools" className="flex gap-1 overflow-x-auto rounded-xl border border-slate-200 bg-white p-1" role="tablist" aria-label="AdmitBuddy">
           {TABS.map((t) => (
             <button key={t.id} role="tab" aria-selected={tab === t.id} onClick={() => setTab(t.id)} className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-[13px] font-bold ${tab === t.id ? "bg-indigo-600 text-white" : "text-slate-600 hover:bg-slate-100"}`}>
               {t.icon} {t.label}
@@ -119,6 +119,13 @@ export default function AdmitBuddyPage() {
 
         {tab === "discover" && (
           <section aria-label="বিশ্ববিদ্যালয়" className="space-y-4">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <label className="min-w-0 flex-1 text-sm font-bold text-slate-700">
+                বিশ্ববিদ্যালয়, এলাকা বা প্রোগ্রাম খুঁজুন
+                <input type="search" value={query} maxLength={80} onChange={(e) => setQuery(e.target.value)} placeholder="যেমন DU, Dhaka, CSE" className="mt-1 block w-full max-w-md rounded-xl border border-slate-300 px-3 py-2 font-normal" />
+              </label>
+              <p role="status" className="text-sm text-slate-600">{filtered.length}টি ফলাফল · {comparison.length}/3 তুলনায়</p>
+            </div>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap gap-1.5" role="group" aria-label="ফিল্টার">
                 {([["all", "সব"], ["eligible", "GPA শর্ত পূরণ"], ["public", "সরকারি"], ["private", "বেসরকারি"], ["shortlist", "শর্টলিস্ট"]] as const).map(([id, l]) => (
@@ -131,10 +138,12 @@ export default function AdmitBuddyPage() {
               <AlertTriangle size={14} className="mr-1 inline" aria-hidden />
               ন্যূনতম GPA ও খরচের পরিসর আনুমানিক এবং ২০২৬-২৭ সেশনের জন্য যাচাই করা হয়নি। সরকারি বিশ্ববিদ্যালয়ে আসন ঠিক হয় ভর্তি পরীক্ষার মেধাক্রমে। আবেদনের আগে অফিসিয়াল সার্কুলার পড়ুন।
             </div>
+            {comparison.length > 0 && <UniversityComparison matches={comparison} onClear={() => setComparisonIds([])} />}
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {filtered.map((m) => {
                 const u = m.university;
                 const saved = shortlist.includes(u.id);
+                const comparing = comparisonIds.includes(u.id);
                 return (
                   <article key={u.id} className={`flex flex-col rounded-2xl border bg-white p-4 ${saved ? "border-indigo-400 ring-1 ring-indigo-200" : "border-slate-200"}`}>
                     <div className="flex items-start justify-between gap-2">
@@ -154,6 +163,19 @@ export default function AdmitBuddyPage() {
                     <p className="mt-2 text-[12px] text-slate-600">প্রোগ্রাম: {u.programs.join(", ")}</p>
                     <p className="text-[12px] text-slate-600">আনুমানিক ন্যূনতম GPA: SSC {u.minGpaSsc} · HSC {u.minGpaHsc} · খরচ ৳{u.minBudgetPerSemester.toLocaleString("en-IN")}–{u.maxBudgetPerSemester.toLocaleString("en-IN")}/সেম.</p>
                     <p className="mt-1 text-[12px] text-slate-500">{u.waiverInfo}</p>
+                    <div className="my-3 flex flex-wrap items-center gap-3">
+                      <button
+                        type="button"
+                        aria-pressed={comparing}
+                        aria-label={`${u.shortName} তুলনায় রাখুন`}
+                        disabled={!comparing && comparisonIds.length >= 3}
+                        onClick={() => setComparisonIds((ids) => ids.includes(u.id) ? ids.filter((id) => id !== u.id) : [...ids, u.id].slice(0, 3))}
+                        className={`inline-flex min-h-9 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-bold disabled:opacity-50 ${comparing ? "border-indigo-300 bg-indigo-50 text-indigo-900" : "border-slate-200 text-indigo-700 hover:bg-indigo-50"}`}
+                      >
+                        <Columns3 size={14} aria-hidden /> {comparing ? "তুলনায় আছে" : "তুলনায় রাখুন"}
+                      </button>
+                      {comparing && <a href="#university-comparison" className="text-xs font-bold text-indigo-700 underline">তুলনা দেখুন</a>}
+                    </div>
                     <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-3 text-[12px]">
                       <span className={m.isClosed ? "font-bold text-red-700" : m.daysLeft !== null ? "font-bold text-indigo-800" : "text-slate-500"}>
                         {m.isClosed ? "আপনার দেওয়া আবেদনের শেষ তারিখ পার হয়েছে" : m.daysLeft !== null ? `${m.nextDeadline!.label}: ${m.daysLeft} দিন বাকি` : "তারিখ যোগ করা হয়নি"}
@@ -208,6 +230,33 @@ export default function AdmitBuddyPage() {
         </p>
       </main>
     </div>
+  );
+}
+
+function UniversityComparison({ matches, onClear }: { matches: MatchResult[]; onClear: () => void }) {
+  return (
+    <section id="university-comparison" aria-labelledby="comparison-h" className="rounded-2xl border border-indigo-200 bg-indigo-50 p-4 sm:p-5">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 id="comparison-h" className="flex items-center gap-2 font-bold text-indigo-950"><Columns3 size={18} aria-hidden /> বিশ্ববিদ্যালয়ের পাশাপাশি তুলনা</h2>
+        <button type="button" onClick={onClear} className="min-h-9 px-2 text-sm font-bold text-indigo-800 underline">তুলনা খালি করুন</button>
+      </div>
+      <p className="mt-1 text-sm text-slate-700">{matches.length < 2 ? "পাশাপাশি দেখতে আরও একটি বিশ্ববিদ্যালয় যোগ করুন। " : ""}খরচ ও GPA-এর শর্ত আনুমানিক। সিদ্ধান্তের আগে অফিসিয়াল সার্কুলার দেখুন।</p>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {matches.map(({ university: u, matchScore, category, nextDeadline }) => (
+          <article key={u.id} className="min-w-0 rounded-xl border border-indigo-100 bg-white p-3.5">
+            <h3 className="font-bold text-indigo-950">{u.shortName} <span className="font-normal text-slate-600">· {u.location}</span></h3>
+            <dl className="my-2 grid gap-2 text-sm">
+              <div><dt className="text-xs text-slate-600">প্রোফাইল ফিট</dt><dd className="font-bold">{matchScore}/100 · {category}</dd></div>
+              <div><dt className="text-xs text-slate-600">আনুমানিক সেমিস্টার খরচ</dt><dd>৳{u.minBudgetPerSemester.toLocaleString("en-IN")}–{u.maxBudgetPerSemester.toLocaleString("en-IN")}</dd></div>
+              <div><dt className="text-xs text-slate-600">আনুমানিক ন্যূনতম GPA</dt><dd>SSC {u.minGpaSsc} · HSC {u.minGpaHsc}</dd></div>
+              <div><dt className="text-xs text-slate-600">প্রোগ্রাম</dt><dd>{u.programs.join(", ")}</dd></div>
+              <div><dt className="text-xs text-slate-600">যোগ করা তারিখ</dt><dd>{nextDeadline ? <>{nextDeadline.label} · {nextDeadline.date}</> : "তারিখ যোগ করা হয়নি"}</dd></div>
+            </dl>
+            <a href={u.website} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm font-bold text-indigo-700 underline">অফিসিয়াল সাইট <ExternalLink size={13} aria-hidden /></a>
+          </article>
+        ))}
+      </div>
+    </section>
   );
 }
 
