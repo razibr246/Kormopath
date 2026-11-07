@@ -102,6 +102,18 @@ export function priceAgeDays(date: string, today: string): number {
   return Math.round((b - a) / 86_400_000);
 }
 
+export function latestMarketQuotes<T extends PriceNote>(notes: T[], cropId: string, kind: PriceNote["kind"], today: string): T[] {
+  const byMarket = new Map<string, T>();
+  for (const note of notes) {
+    const market = note.market.trim().replace(/\s+/g, " ").toLowerCase();
+    const age = priceAgeDays(note.date, today);
+    if (note.cropId !== cropId || note.kind !== kind || !market || !Number.isFinite(age) || age < 0) continue;
+    const previous = byMarket.get(market);
+    if (!previous || previous.date < note.date) byMarket.set(market, note);
+  }
+  return [...byMarket.values()].sort((a, b) => b.date.localeCompare(a.date));
+}
+
 export interface Season {
   id: string;
   nameBn: string;
