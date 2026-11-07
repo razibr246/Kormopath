@@ -1,4 +1,10 @@
 import type { Metadata, Viewport } from "next";
+import "@fontsource-variable/anek-bangla/standard.css";
+import "@fontsource-variable/jetbrains-mono";
+import "@fontsource/hind-siliguri/400.css";
+import "@fontsource/hind-siliguri/500.css";
+import "@fontsource/hind-siliguri/600.css";
+import "@fontsource/hind-siliguri/700.css";
 import "./globals.css";
 import { CommandPalette } from "@/components/CommandPalette";
 import { Buddy } from "@/components/Buddy";
@@ -12,10 +18,10 @@ export const metadata: Metadata = {
     template: "%s | KormoPath",
   },
   description:
-    "Bangladesh-focused tools for study planning, health information, household budgeting, farming, interview practice, freelance payments and contracts. Private app data stays in your browser.",
+    "Bangladesh-focused tools for study planning, health information, household budgeting, farming, interview practice, freelance payments and contracts. Save records in your browser and choose when to use online tools.",
   keywords: [
     "KormoPath",
-    "कर्मपथ",
+    "কর্মপথ",
     "AI Platform Bangladesh",
     "Bangladesh study planner",
     "Bangladesh agriculture tools",
@@ -92,12 +98,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="bn" className="scroll-smooth" suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wdth,wght@75..125,400..800&family=Hind+Siliguri:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
-        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
