@@ -25,8 +25,10 @@ Workspace shows model calls, tool calls and fallbacks for its supported flows. M
 npm install
 cp .env.example .env.local   # optional: add GEMINI_API_KEY and PASSPORT_SECRET
 npm run dev                  # http://localhost:3000
-npm test                     # money-math and grounding unit tests
+npm test                     # unit and domain regression tests (Node.js 24)
 ```
+
+For the browser workflows, build and serve the production bundle with `npm run build` and `npm start -- --port 3100`. In another terminal, run `CHROME_PATH=/path/to/chrome npm run test:e2e`. GitHub Actions runs the build, unit tests, and browser workflows on pull requests and pushes to `main`.
 
 Without `GEMINI_API_KEY`, model-backed features may use limited fallbacks or be unavailable; image/PDF OCR requires the key. Configure `PASSPORT_SECRET` with a strong random value for signed passport operations. Do not put secrets in client-side code or commit `.env.local`.
 
