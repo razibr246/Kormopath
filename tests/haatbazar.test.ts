@@ -1,8 +1,20 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { tripMargin, shareTruck, priceAgeDays, sprayWindow, seasonForMonth, CROP_DISEASES, type WeatherHour } from "../lib/haatbazar.ts";
+import { tripMargin, shareTruck, priceAgeDays, latestMarketQuotes, sprayWindow, seasonForMonth, CROP_DISEASES, type PriceNote, type WeatherHour } from "../lib/haatbazar.ts";
 
 const base = { quantityKg: 1000, localPricePerKg: 38, distantPricePerKg: 48, transportPerMaund: 65, commissionPct: 5, labourPerMaund: 10, lossPct: 2, otherCosts: 300 };
+
+test("Market comparison keeps the latest like-for-like quote per market and skips future dates", () => {
+  const q: PriceNote = { cropId: "potato", market: "Bogura Market", pricePerKg: 43, kind: "wholesale", heardFrom: "seller", date: "2026-11-01" };
+  const latest = { ...q, market: " bogura  market ", date: "2026-11-05", pricePerKg: 47 };
+  const older = { ...q, market: "Naogaon Market", date: "2026-10-25" };
+  assert.deepEqual(latestMarketQuotes([
+    q, older, latest,
+    { ...q, date: "2026-11-08" },
+    { ...q, market: "Retail Market", kind: "retail" },
+    { ...q, market: "Rice Market", cropId: "rice" },
+  ], "potato", "wholesale", "2026-11-07"), [latest, older]);
+});
 
 test("Trip margin uses wholesale price and subtracts every cost", () => {
   const r = tripMargin(base);
