@@ -9,7 +9,7 @@ const APPS: { ns: AppNamespace; name: string; href: string; what: string; sensit
   { ns: "shohoj", name: "Shohoj Budget", href: "/shohoj-budget", what: "লেনদেন, বাজেট, খাতভিত্তিক সীমা, সঞ্চয়ের লক্ষ্য, নিয়মিত লেনদেন", legacy: ["shohoj_expenses"] },
   { ns: "mediscan", name: "MediScan BD", href: "/mediscan", what: "আপনি সংরক্ষণ করতে বেছে নেওয়া প্রেসক্রিপশন, রিমাইন্ডারের সময়", sensitive: true },
   { ns: "admitbuddy", name: "AdmitBuddy", href: "/admitbuddy", what: "প্রোফাইল, শর্টলিস্ট, আবেদনের অবস্থা ও নোট, তারিখ, কাগজপত্রের তালিকা, SOP খসড়া" },
-  { ns: "probaho", name: "Probaho Coach", href: "/probaho", what: "অনুশীলনের স্কোর (ট্রান্সক্রিপ্ট শুধু আপনি চাইলে), মাইক সম্মতি" },
+  { ns: "probaho", name: "Probaho Coach", href: "/probaho", what: "অনুশীলনের স্কোর ও বাদ পড়া বিষয়, মাইক সম্মতি, আপনার অনুমতি থাকলে ট্রান্সক্রিপ্ট" },
   { ns: "haatbazar", name: "HaatBazar AI", href: "/haatbazar", what: "দামের খাতা, কৃষি বাজার/পরিবহনের quote, জেলা" },
   { ns: "feeguard", name: "FeeGuard BD", href: "/feeguard", what: "পেমেন্ট রেকর্ড" },
   { ns: "chuktiguard", name: "ChuktiGuard", href: "/chuktiguard", what: "Service Pack ও চুক্তির খসড়া" },
@@ -72,7 +72,7 @@ export default function SettingsPage() {
               <li><strong>Probaho AI coach:</strong> আপনি “AI কোচকে জিজ্ঞেস করুন” চাপলে শুধু ওই একটি উত্তরের লেখা Gemini-তে যায়; সার্ভারে সংরক্ষণ বা ক্যাশ করা হয় না।</li>
               <li><strong>Buddy:</strong> পাঠানো chat বার্তা Gemini-তে যায়। Buddy আপনার ব্রাউজারের অন্য অ্যাপের সংরক্ষিত ডেটা পড়তে পারে না।</li>
               <li><strong>ওয়েব সার্চ:</strong> My Path, Shohoj Budget ও HaatBazar-এ আপনি যে query লিখে সার্চ করেন তা Gemini Search-এ যায়।</li>
-              <li><strong>MediScan:</strong> prescription-এর ছবি OCR করতে সম্মতি দিয়ে submit করলে ছবিটি Gemini-তে যায়। স্থানীয় নোট বা লেখা upload না করলে স্বয়ংক্রিয়ভাবে পাঠানো হয় না।</li>
+              <li><strong>MediScan:</strong> ছবি বেছে নেওয়ার পর সম্মতি দিয়ে “লেখা পড়তে ফাইল পাঠান” চাপলে ফাইলটি KormoPath সার্ভার হয়ে Google Gemini-তে যায়। হাতে লেখা তথ্য ও পর্যালোচনার পাতা ডিভাইসেই থাকে।</li>
               <li><strong>ভয়েস:</strong> Probaho/Shohoj-এর speech recognition আপনার browser-এর সেবা ব্যবহার করে; browser/provider অনুযায়ী audio বাইরে প্রক্রিয়াকৃত হতে পারে।</li>
               <li><strong>লাইভ তথ্য:</strong> USD/BDT rate-এর জন্য exchange-rate service এবং HaatBazar আবহাওয়ার জন্য Open-Meteo ব্যবহৃত হয়; আবহাওয়ার অনুরোধে নির্বাচিত জেলার পরিচিতি পাঠানো হয়।</li>
               <li><strong>Passport:</strong> issue/share করলে signing ও যাচাইয়ের জন্য token data KormoPath API-তে যায়। শেয়ার লিংক যার কাছে থাকবে, মেয়াদ শেষ না হওয়া পর্যন্ত সে নির্বাচিত তথ্য দেখতে পারে।</li>
