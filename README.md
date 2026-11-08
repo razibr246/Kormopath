@@ -15,7 +15,7 @@ KormoPath currently contains six standalone applications, a shared landing page 
 
 Other apps include HaatBazar AI (agriculture and market information), Shohoj Budget, MediScan BD (prescription text support), Probaho and AdmitBuddy. Availability and maturity vary; AI and third-party features need configuration and are not professional advice or a substitute for qualified review.
 
-My Path lets you bookmark search results or add your own links, track application status, record follow-up dates and outcomes, and export each path to CSV. The tracker works in your browser without an API key.
+My Path lets you bookmark search results or add your own links, track application status, record follow-up dates and outcomes, export each path to CSV, and download follow-up dates as an iCalendar file for Google Calendar or other calendars. The app does not send notifications itself. The tracker works in your browser without an API key.
 
 Workspace shows model calls, tool calls and fallbacks for its supported flows. Model output is untrusted: financial calculations remain deterministic and claims from uploaded evidence are checked against source text.
 
@@ -28,7 +28,28 @@ npm run dev                  # http://localhost:3000
 npm test                     # money-math and grounding unit tests
 ```
 
-Without `GEMINI_API_KEY`, model-backed features may use limited fallbacks or be unavailable; image/PDF OCR requires the key. Configure `PASSPORT_SECRET` with a strong random value for signed passport operations. Do not put secrets in client-side code or commit `.env.local`.
+Without `GEMINI_API_KEY`, model-backed features may use limited fallbacks or be unavailable; image/PDF OCR requires the key. Configure `PASSPORT_SECRET` with at least 32 random characters for signed passport operations. Do not put secrets in client-side code or commit `.env.local`.
+
+## Browser backup and restore
+
+Open `/settings` to download a versioned JSON backup of all saved app data, including the Workspace ledger. On another device, open the same page and select the backup to preview its keys before restoring. Existing storage items are kept by default; replacing them requires selecting the overwrite option. Individual records inside arrays are not merged. Older per-app exports are also supported. Files are processed locally and are not uploaded. Backups are unencrypted and may contain sensitive data; store them securely. Files over 5 MB, unsupported versions and unrelated storage keys are rejected. App-specific sanitizers still validate restored records when an app opens.
+
+`npm test` and `npm run build` also run in GitHub Actions for pushes and pull requests.
+
+## Verification
+
+Use Node.js 24. `npm test` runs domain, storage-hook and signing checks. Browser checks use the pinned `puppeteer-core` dev dependency and an installed Chromium/Chrome browser:
+
+```bash
+npm run build
+npm start -- -p 3100
+# In another terminal (set CHROME_PATH for your installed browser):
+CHROME_PATH=/usr/bin/chromium npm run test:browser
+```
+
+`BASE` can override the default `http://localhost:3100`. Browser tests clear local data on the test origin; use a dedicated test browser profile. CI runs the same build and browser journeys. The interface uses native system typography (San Francisco on Apple devices), with locally served Inter on other devices and Hind Siliguri for Bangla. Font licenses are in `public/font-licenses/`.
+
+Production passport signing and sharing return HTTP 503 until a suitable signing key is configured. Signatures protect record integrity; browser-submitted assessment results do not establish independent identity or skill certification. Local profiles start empty and restored profile values are bounded before use.
 
 ## Deployment
 
@@ -36,7 +57,7 @@ Without `GEMINI_API_KEY`, model-backed features may use limited fallbacks or be 
 2. vercel.com → Add New → Project → import the repo (framework: Next.js, no settings to change).
 3. Settings → Environment Variables:
    - `GEMINI_API_KEY` — free key from https://aistudio.google.com/apikey
-   - `PASSPORT_SECRET` — any long random string (e.g. `openssl rand -hex 32`)
+   - `PASSPORT_SECRET` — at least 32 random characters (e.g. `openssl rand -hex 32`)
    - `GEMINI_MODEL` — optional, defaults to `gemini-2.5-flash`
 4. Deploy, then verify environment variables, route behavior, data disclosures, security headers, and the production build for your deployment. The app has not been audited as production-ready; see the audit and security roadmap before handling sensitive data.
 

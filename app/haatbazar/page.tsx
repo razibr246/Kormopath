@@ -200,6 +200,7 @@ function WeatherPanel({ district, setDistrict }: { district: string; setDistrict
     let cancelled = false;
     setLoading(true);
     setError(null);
+    setData(null);
     fetch(`/api/weather?d=${encodeURIComponent(district)}`)
       .then(async (r) => {
         const d = await r.json();

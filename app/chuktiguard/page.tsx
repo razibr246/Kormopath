@@ -3,7 +3,7 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { AppSwitcherDropdown } from "@/components/AppSwitcherDropdown";
 import { FX_FALLBACK } from "@/lib/data";
-import { fmtBdt } from "@/lib/finops";
+import { fmtBdt, splitMilestoneUsd } from "@/lib/finops";
 import { storageKey, usePersistentState } from "@/lib/clientStore";
 import { playClick, playSuccessChime } from "@/lib/sound";
 import {
@@ -47,8 +47,27 @@ export default function ChuktiGuardPage() {
   const sanitizePacks = (v: unknown): ServicePack[] | null => Array.isArray(v) ? v.filter((p): p is ServicePack => !!p && typeof p.id === "string" && typeof p.title === "string" && typeof p.scope === "string" && typeof p.timeline === "string" && Number.isFinite(p.amountUsd) && p.amountUsd > 0 && p.amountUsd < 1_000_000).slice(0, 30) : null;
   const [packs, setPacks] = usePersistentState<ServicePack[]>(storageKey("chuktiguard", "servicePackages.v1"), [], sanitizePacks);
   const [packTitle, setPackTitle] = useState(""); const [packScope, setPackScope] = useState(""); const [packTimeline, setPackTimeline] = useState(""); const [packAmount, setPackAmount] = useState("");
-  const savePack = () => { const amount = Number(packAmount); if (!packTitle.trim() || !packScope.trim() || !Number.isFinite(amount) || amount <= 0) return; setPacks((p) => [{ id: crypto.randomUUID(), title: packTitle.trim(), scope: packScope.trim(), timeline: packTimeline.trim(), amountUsd: amount }, ...p].slice(0, 30)); setPackTitle(""); setPackScope(""); setPackTimeline(""); setPackAmount(""); };
-  const applyPack = (pack: ServicePack) => { const deliverables = pack.scope.split(/\n+/).map((s) => s.trim()).filter(Boolean).slice(0, 20); const chunks = Math.floor(pack.amountUsd * 100 / Math.max(1, deliverables.length)); let remainder = Math.round(pack.amountUsd * 100) - chunks * deliverables.length; const due = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10); setInvoice({ ...invoice, serviceCategory: pack.title, milestones: deliverables.map((title, i) => ({ id: `pack-${Date.now()}-${i}`, title, amountUsd: (chunks + (remainder-- > 0 ? 1 : 0)) / 100, dueDate: due, status: "pending" })) }); setActiveTab("editor"); };
+  const [packError, setPackError] = useState("");
+  const savePack = () => {
+    setPackError("");
+    const amount = Number(packAmount);
+    const deliverables = packScope.split(/\n+/).map((line) => line.trim()).filter(Boolean);
+    if (!packTitle.trim() || !deliverables.length) { setPackError("Enter a package name and at least one deliverable."); return; }
+    try { splitMilestoneUsd(amount, deliverables.length); }
+    catch (error) { setPackError(error instanceof Error ? error.message : "Check package details."); return; }
+    setPacks((all) => [{ id: crypto.randomUUID(), title: packTitle.trim(), scope: packScope.trim(), timeline: packTimeline.trim(), amountUsd: amount }, ...all].slice(0, 30));
+    setPackTitle(""); setPackScope(""); setPackTimeline(""); setPackAmount("");
+  };
+  const applyPack = (pack: ServicePack) => {
+    setPackError("");
+    const deliverables = pack.scope.split(/\n+/).map((line) => line.trim()).filter(Boolean);
+    try {
+      const amounts = splitMilestoneUsd(pack.amountUsd, deliverables.length);
+      const due = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
+      setInvoice({ ...invoice, serviceCategory: pack.title, milestones: deliverables.map((title, index) => ({ id: `pack-${Date.now()}-${index}`, title, amountUsd: amounts[index], dueDate: due, status: "pending" })) });
+      setActiveTab("editor");
+    } catch (error) { setPackError(error instanceof Error ? error.message : "Check package details."); }
+  };
 
   // FinOps calculation
   const finops = useMemo(() => {
@@ -133,7 +152,7 @@ export default function ChuktiGuardPage() {
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased print:bg-white print:text-black">
       {/* Top Navbar */}
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur-md print:hidden">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-4">
             <Link href="/chuktiguard" className="flex items-center gap-2.5">
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-blue-700 text-white shadow-md">
@@ -166,6 +185,7 @@ export default function ChuktiGuardPage() {
 
             <button
               onClick={handlePrint}
+              aria-label="Print invoice or save PDF"
               className="flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-[12px] font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-xs"
             >
               <Printer size={15} />
@@ -192,13 +212,13 @@ export default function ChuktiGuardPage() {
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <div className="inline-flex items-center gap-1.5 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-0.5 text-[12px] font-bold text-indigo-800 mb-2">
-                <Sparkles size={14} /> Bilingual contract templates · fixed, reviewed clauses
+                <Sparkles size={14} /> Bilingual contract templates · fixed clauses
               </div>
               <h1 className="text-[26px] sm:text-[34px] font-extrabold tracking-tight text-slate-900 leading-tight">
-                Direct B2B Invoicing &amp; Outage Defense Studio
+                Client Invoices &amp; Contract Studio
               </h1>
               <p className="mt-1 text-[14px] text-slate-600 max-w-2xl">
-                1-click statutory NBR ITES tax-exempt invoices with embedded Clause 4 Force Majeure shields to protect you from penalties during nationwide internet blackouts.
+                Build milestone invoices, compare estimated payout costs and fill bilingual contract templates. Set your own scope, dates and fees before sharing with a client.
               </p>
             </div>
 
@@ -265,7 +285,7 @@ export default function ChuktiGuardPage() {
             </div>
 
             <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3 shadow-xs">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700">+2.5% Cash Incentive</span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700">Incentive estimate</span>
               <div className="text-[20px] font-extrabold text-emerald-800">+৳{finops.formattedIncentive}</div>
               <span className="text-[11px] text-emerald-600">Bangladesh Bank FE Circular 02</span>
             </div>
@@ -292,9 +312,10 @@ export default function ChuktiGuardPage() {
         <section className="mb-8 rounded-2xl border border-indigo-200 bg-white p-5 print:hidden">
           <h2 className="text-xl font-extrabold">Service packages → client-ready milestones</h2>
           <p className="mt-1 text-sm text-slate-600">আপনার নিজের scope, সময় ও fee দিয়ে package বানান। নির্বাচিত package invoice editor-এ milestone হিসেবে যাবে; মূল্য হিসাব বা নির্ধারণ করবে না।</p>
-          <div className="mt-3 grid gap-2 sm:grid-cols-2"><input value={packTitle} onChange={(e)=>setPackTitle(e.target.value)} placeholder="Package name" className="rounded-lg border px-3 py-2"/><input value={packTimeline} onChange={(e)=>setPackTimeline(e.target.value)} placeholder="সময়সীমা (আপনার শর্ত)" className="rounded-lg border px-3 py-2"/><textarea value={packScope} onChange={(e)=>setPackScope(e.target.value)} placeholder="Deliverable লিখুন, প্রতি লাইনে একটি" className="min-h-20 rounded-lg border px-3 py-2 sm:col-span-2"/><div className="flex gap-2"><input type="number" min="0.01" step="0.01" value={packAmount} onChange={(e)=>setPackAmount(e.target.value)} placeholder="আপনার মোট fee (USD)" className="w-full rounded-lg border px-3 py-2"/><button onClick={savePack} className="rounded-lg bg-indigo-700 px-4 font-bold text-white">Save package</button></div></div>
-          {!!packs.length && <div className="mt-3 grid gap-2 sm:grid-cols-2">{packs.map((p)=><article key={p.id} className="flex items-start justify-between rounded-xl border p-3"><div><strong>{p.title}</strong><p className="text-sm text-slate-600">{p.timeline} · ${p.amountUsd.toFixed(2)}</p><p className="whitespace-pre-wrap text-xs text-slate-500">{p.scope}</p><button onClick={()=>applyPack(p)} className="mt-2 rounded-lg bg-indigo-50 px-3 py-1.5 text-sm font-bold text-indigo-800">Use in invoice editor</button></div><button aria-label="Delete package" onClick={()=>setPacks((all)=>all.filter((x)=>x.id!==p.id))} className="text-xs text-slate-500">Delete</button></article>)}</div>}
-          <p className="mt-2 text-xs text-slate-500">Packages stay in this browser. Deliverable amounts are split evenly from the total you entered; edit milestone amounts before sharing.</p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2"><input value={packTitle} onChange={(e)=>setPackTitle(e.target.value)} placeholder="Package name" aria-label="Package name" maxLength={160} className="min-w-0 rounded-lg border px-3 py-2"/><input value={packTimeline} onChange={(e)=>setPackTimeline(e.target.value)} placeholder="সময়সীমা (আপনার শর্ত)" aria-label="Package timeline" maxLength={160} className="min-w-0 rounded-lg border px-3 py-2"/><textarea value={packScope} onChange={(e)=>setPackScope(e.target.value)} placeholder="Deliverable লিখুন, প্রতি লাইনে একটি" aria-label="Package deliverables" maxLength={5000} className="min-w-0 min-h-20 rounded-lg border px-3 py-2 sm:col-span-2"/><div className="flex gap-2"><input type="number" min="0.01" step="0.01" value={packAmount} onChange={(e)=>setPackAmount(e.target.value)} placeholder="আপনার মোট fee (USD)" aria-label="Package fee in USD" className="min-w-0 w-full rounded-lg border px-3 py-2"/><button onClick={savePack} className="rounded-lg bg-indigo-700 px-4 font-bold text-white">Save package</button></div></div>
+          {packError && <p role="alert" className="mt-2 text-sm text-red-700">{packError}</p>}
+          {!!packs.length && <div className="mt-3 grid gap-2 sm:grid-cols-2">{packs.map((p)=><article key={p.id} className="flex min-w-0 items-start justify-between gap-2 rounded-xl border p-3"><div className="min-w-0 break-words"><strong>{p.title}</strong><p className="text-sm text-slate-600">{p.timeline} · ${p.amountUsd.toFixed(2)}</p><p className="whitespace-pre-wrap text-xs text-slate-500">{p.scope}</p><button onClick={()=>applyPack(p)} className="mt-2 rounded-lg bg-indigo-50 px-3 py-1.5 text-sm font-bold text-indigo-800">Use in invoice editor</button></div><button aria-label="Delete package" onClick={()=>setPacks((all)=>all.filter((x)=>x.id!==p.id))} className="text-xs text-slate-500">Delete</button></article>)}</div>}
+          <p className="mt-2 text-xs text-slate-500">Packages stay in this browser. Deliverable amounts are split evenly from the total you entered; edit milestone amounts before sharing. Draft due dates default to seven days from today; set the agreed dates in the editor.</p>
         </section>
         {/* TAB 1: DOCUMENT PREVIEW */}
         {activeTab === "preview" && (
@@ -704,6 +725,7 @@ export default function ChuktiGuardPage() {
                       value={m.title}
                       onChange={(e) => handleUpdateMilestone(m.id, { title: e.target.value })}
                       placeholder="Milestone Scope Title"
+                      aria-label={`Milestone ${idx + 1} title`}
                       className="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[13px] w-full"
                     />
                     <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -712,6 +734,7 @@ export default function ChuktiGuardPage() {
                         <input
                           type="number"
                           value={m.amountUsd}
+                          min="0" step="0.01" aria-label={`Milestone ${idx + 1} amount in USD`}
                           onChange={(e) => handleUpdateMilestone(m.id, { amountUsd: Number(e.target.value) || 0 })}
                           className="w-24 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-[13px] font-mono font-bold"
                         />
@@ -719,6 +742,7 @@ export default function ChuktiGuardPage() {
 
                       <select
                         value={m.status}
+                        aria-label={`Milestone ${idx + 1} status`}
                         onChange={(e) =>
                           handleUpdateMilestone(m.id, {
                             status: e.target.value as InvoiceMilestone["status"],
@@ -734,6 +758,7 @@ export default function ChuktiGuardPage() {
                       </select>
 
                       <button
+                        aria-label={`Remove milestone ${idx + 1}`}
                         onClick={() => handleRemoveMilestone(m.id)}
                         disabled={invoice.milestones.length <= 1}
                         className="rounded-lg p-1.5 text-slate-400 hover:text-red-600 disabled:opacity-30"
@@ -763,7 +788,7 @@ export default function ChuktiGuardPage() {
                     }
                     className="w-full rounded-xl border border-slate-300 px-3 py-2 text-[14px] font-semibold"
                   >
-                    <option value="swift">Direct Bank SWIFT Wire (+2.5% Cash Incentive)</option>
+                    <option value="swift">Direct Bank SWIFT Wire (Incentive estimate)</option>
                     <option value="payoneer">Payoneer Direct Billing Account</option>
                     <option value="wise">Wise Multi-Currency Receiving Account</option>
                     <option value="bkash_remit">Direct MFS Inward Remittance (bKash)</option>

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { DataBackup } from "@/components/DataBackup";
 import { ShieldCheck, Download, Trash2, HardDrive } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { listKeys, removeStored, downloadText, type AppNamespace } from "@/lib/clientStore";
@@ -13,7 +14,7 @@ const APPS: { ns: AppNamespace; name: string; href: string; what: string; sensit
   { ns: "haatbazar", name: "HaatBazar AI", href: "/haatbazar", what: "দামের খাতা, কৃষি বাজার/পরিবহনের quote, জেলা" },
   { ns: "feeguard", name: "FeeGuard BD", href: "/feeguard", what: "পেমেন্ট রেকর্ড" },
   { ns: "chuktiguard", name: "ChuktiGuard", href: "/chuktiguard", what: "Service Pack ও চুক্তির খসড়া" },
-  { ns: "platform", name: "KormoPath প্ল্যাটফর্ম", href: "/", what: "সাধারণ প্রোফাইল, My Path-এর অগ্রগতি, সংরক্ষিত সুযোগ, আবেদনের অবস্থা ও নোট", legacy: ["kormopath_unified_profile_v1"] },
+  { ns: "platform", name: "KormoPath প্ল্যাটফর্ম", href: "/", what: "সাধারণ প্রোফাইল, My Path-এর অগ্রগতি, সংরক্ষিত সুযোগ, আবেদনের অবস্থা ও নোট", legacy: ["kormopath_unified_profile_v1", "kp-ledger"] },
 ];
 
 function keysFor(app: (typeof APPS)[number]) {
@@ -82,6 +83,8 @@ export default function SettingsPage() {
           <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-[12px] leading-relaxed text-red-950"><strong>Gemini API-এর unpaid service সতর্কতা:</strong> Google-এর বর্তমান শর্তে unpaid quota-তে পাঠানো লেখা, ছবি/ফাইল ও উত্তর Google-এর পণ্য উন্নয়নে ব্যবহৃত হতে পারে এবং মানব পর্যালোচক দেখতে পারেন। সংবেদনশীল, গোপন বা ব্যক্তিগত তথ্য unpaid service-এ পাঠাবেন না। Paid service-এও abuse monitoring-এর জন্য সীমিত logging থাকতে পারে। এই অ্যাপ নিজে billing tier শনাক্ত করতে পারে না। চালুর আগে <a href="https://ai.google.dev/gemini-api/terms" target="_blank" rel="noopener noreferrer" className="font-bold underline">Google Gemini API terms</a> যাচাই করুন।</p>
           <p className="text-[12px] text-slate-500">শেয়ার করা বা পাবলিক কম্পিউটারে ব্যবহার শেষে এখান থেকে ডেটা export বা মুছুন। ব্রাউজারের “সাইট ডেটা মুছুন” করলেও সব local data মুছে যাবে।</p>
         </section>
+
+        <DataBackup onRestore={() => force((n) => n + 1)} />
 
         <section aria-label="অ্যাপভিত্তিক ডেটা" className="space-y-3">
           {APPS.map((app) => {

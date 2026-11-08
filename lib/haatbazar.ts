@@ -153,7 +153,7 @@ export interface SprayWindow {
  */
 export function sprayWindow(next: WeatherHour[]): SprayWindow {
   const six = next.slice(0, 6);
-  if (!six.length) return { ok: false, reasonBn: "আবহাওয়ার তথ্য নেই।" };
+  if (six.length < 6 || six.some((h) => ![h.precipProbability, h.precipitationMm, h.windKmh, h.temperatureC].every(Number.isFinite) || h.precipProbability < 0 || h.precipProbability > 100 || h.precipitationMm < 0 || h.windKmh < 0)) return { ok: false, reasonBn: "আগামী ৬ ঘণ্টার সম্পূর্ণ আবহাওয়ার তথ্য নেই। স্প্রে করার সিদ্ধান্তের আগে পূর্বাভাস যাচাই করুন।" };
   const maxRain = Math.max(...six.map((h) => h.precipProbability));
   const rainMm = six.reduce((a, h) => a + h.precipitationMm, 0);
   const maxWind = Math.max(...six.map((h) => h.windKmh));

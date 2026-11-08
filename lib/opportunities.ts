@@ -162,3 +162,32 @@ export function sanitizeOpportunityBoard(raw: unknown): OpportunityBoardState | 
     : [];
   return { path, completedByPath, saved };
 }
+
+/** All-day follow-ups can be imported into an existing calendar, without an account. */
+export function opportunitiesToIcs(items: SavedOpportunity[], now = new Date()): string {
+  const escape = (value: string) => value.replace(/\\/g, "\\\\").replace(/\r\n|\r|\n/g, "\\n").replace(/;/g, "\\;").replace(/,/g, "\\,");
+  const stamp = now.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//KormoPath//My Path//BN", "CALSCALE:GREGORIAN", "METHOD:PUBLISH"];
+  for (const item of items) {
+    if (!isFollowUpDate(item.followUp) || item.status === "accepted" || item.status === "closed") continue;
+    const next = new Date(Date.parse(item.followUp + "T00:00:00Z") + 86_400_000).toISOString().slice(0, 10).replace(/-/g, "");
+    const url = normalizeOpportunityUrl(item.url);
+    lines.push("BEGIN:VEVENT", `UID:${encodeURIComponent(item.id)}@mypath.kormopath`, `DTSTAMP:${stamp}`, `DTSTART;VALUE=DATE:${item.followUp.replace(/-/g, "")}`, `DTEND;VALUE=DATE:${next}`, `SUMMARY:${escape("Follow up: " + item.title)}`, `DESCRIPTION:${escape(item.note)}`);
+    if (url) lines.push(`URL:${url}`);
+    lines.push("END:VEVENT");
+  }
+  lines.push("END:VCALENDAR");
+  // RFC 5545: fold at 75 UTF-8 octets without splitting Bangla codepoints.
+  return lines.map((line) => {
+    const folded: string[] = [];
+    let part = "";
+    let bytes = 0;
+    for (const char of line) {
+      const size = new TextEncoder().encode(char).length;
+      if (bytes + size > 75) { folded.push(part); part = " "; bytes = 1; }
+      part += char; bytes += size;
+    }
+    folded.push(part);
+    return folded.join("\r\n");
+  }).join("\r\n") + "\r\n";
+}

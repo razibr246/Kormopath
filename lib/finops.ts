@@ -144,3 +144,14 @@ export function channelsToCsv(channels: Channel[], invoiceUsd: number, fx: numbe
   }
   return rows.map((r) => r.map((v) => (/[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v)).join(",")).join("\n");
 }
+
+/** Split a user-priced package into positive milestone amounts, preserving every cent. */
+export function splitMilestoneUsd(totalUsd: number, count: number): number[] {
+  if (!Number.isFinite(totalUsd) || totalUsd <= 0 || totalUsd >= 1_000_000 || !Number.isInteger(count) || count < 1 || count > 20) throw new Error("Enter a valid package amount and 1–20 deliverables.");
+  const cents = Math.round((totalUsd + Number.EPSILON) * 100);
+  if (Math.abs(totalUsd - cents / 100) > 1e-8) throw new Error("Use at most two decimal places for USD.");
+  if (cents < count) throw new Error("Each deliverable needs at least $0.01. Increase the total or use fewer deliverables.");
+  const base = Math.floor(cents / count);
+  const remainder = cents % count;
+  return Array.from({ length: count }, (_, index) => (base + (index < remainder ? 1 : 0)) / 100);
+}

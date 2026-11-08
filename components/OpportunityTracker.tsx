@@ -8,6 +8,7 @@ import {
   isFollowUpDue,
   isOpportunityStatus,
   opportunitiesToCsv,
+  opportunitiesToIcs,
   OPPORTUNITY_NOTE_LIMIT,
   OPPORTUNITY_STATUSES,
   OPPORTUNITY_TITLE_LIMIT,
@@ -44,6 +45,7 @@ export function OpportunityTracker({ items, onAdd, onUpdate, onRemove }: Tracker
   const [showAdd, setShowAdd] = useState(false);
   const [addError, setAddError] = useState("");
   const today = todayLocal();
+  const reminders = items.filter((item) => isFollowUpDate(item.followUp) && item.status !== "accepted" && item.status !== "closed");
   const due = items.filter((item) => isFollowUpDue(item, today));
   const visible = filter === "all"
     ? items
@@ -70,10 +72,13 @@ export function OpportunityTracker({ items, onAdd, onUpdate, onRemove }: Tracker
           <p className="mt-1 text-xs leading-relaxed text-slate-600">নিজের আবেদন, ফলো-আপ ও ফলাফল লিখে রাখুন। তথ্য এই ব্রাউজারে থাকে। আবেদন মূল সাইটে করুন।</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          {reminders.length > 0 && <button type="button" className={secondaryClass} onClick={() => downloadText("kormopath-follow-ups.ics", opportunitiesToIcs(items), "text/calendar;charset=utf-8")}><CalendarClock size={15} aria-hidden /> ক্যালেন্ডারে ফলো-আপ</button>}
           {items.length > 0 && <button type="button" className={secondaryClass} onClick={() => downloadText("kormopath-opportunities.csv", opportunitiesToCsv(items))}><Download size={15} aria-hidden /> এই পথের CSV</button>}
           <button type="button" className={secondaryClass} aria-expanded={showAdd} onClick={() => { setShowAdd(!showAdd); setAddError(""); }}><Plus size={15} aria-hidden /> লিংক যোগ করুন</button>
         </div>
       </div>
+
+      {reminders.length > 0 && <p className="mt-3 text-xs text-slate-500">ফলো-আপ ক্যালেন্ডার ফাইল ডাউনলোড করে Google Calendar বা অন্য ক্যালেন্ডারে import করুন। অ্যাপ নিজে notification পাঠায় না; তারিখ বদলালে নতুন ফাইল নিন।</p>}
 
       {showAdd && (
         <form onSubmit={addLink} className="mt-4 space-y-3 rounded-xl border border-indigo-200 bg-indigo-50/60 p-3 sm:p-4">

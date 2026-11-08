@@ -16,9 +16,9 @@
   --color-brand-navy: #070d1e;
   --color-brand-orange: #f97316;
   --color-brand-gold: #f59e0b;
-  --font-display: "Anek Bangla", "Hind Siliguri", system-ui, sans-serif;
-  --font-sans: "Hind Siliguri", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter Variable", "Segoe UI", "Hind Siliguri", sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter Variable", "Segoe UI", "Hind Siliguri", sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 }
 
 html { background: #f8fafc; color: var(--color-ink); scroll-behavior: smooth; }
@@ -27,9 +27,9 @@ body {
     radial-gradient(ellipse at 7% 0%, rgba(196, 212, 232, .32), transparent 38rem),
     radial-gradient(ellipse at 95% 15%, rgba(218, 228, 241, .45), transparent 34rem),
     linear-gradient(145deg, #f7f8fa, #edf1f6 58%, #f8f9fb);
-  font-family: var(--font-sans); font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased;
+  font-family: var(--font-sans); font-size: 17px; line-height: 1.6; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
 }
-.display { font-family: var(--font-display); font-stretch: 112%; letter-spacing: -0.01em; }
+.display { font-family: var(--font-display); font-stretch: normal; letter-spacing: -0.025em; }
 .num { font-variant-numeric: tabular-nums; }
 
 ::selection { background: #fed7aa; color: #7c2d12; }
@@ -235,3 +235,12 @@ input[type="range"] { accent-color: var(--color-kept); }
 
 /* grid children may shrink below their content width (prevents sideways scroll on phones) */
 .grid > * { min-width: 0; }
+
+/* Comfortable system typography; keep compact labels readable on small screens. */
+[class~="text-[9px]"], [class~="text-[10px]"], [class~="text-[11px]"] { font-size: 12px; }
+[class~="text-[12px]"] { font-size: 13px; }
+[class~="text-[13px]"] { font-size: 14px; }
+[class~="text-[14px]"] { font-size: 15px; }
+@media print {
+  body { font-size: 14px; }
+}

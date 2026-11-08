@@ -33,7 +33,7 @@ export default async function Verify({ searchParams }: { searchParams: Promise<{
               {p.v === 2 && <div><dt className="text-muted">Expires</dt><dd className="num font-semibold">{new Date(p.expiresAt).toUTCString()}</dd></div>}
             </dl>
             <p className="mt-6 rounded-lg bg-paper p-3 text-[13px] text-muted">
-              What this proves: KormoPath issued this signed record and its contents have not been edited. Selective links disclose only the chosen fields and expire at the shown time.
+              This signature confirms the record has not changed since this deployment signed it. Assessment results are submitted by the browser; this is not independent identity, employment or skill certification. Selective links disclose only the chosen fields and expire at the shown time.
               {usingDevSecret() && " This deployment uses a demo signing key."}
             </p>
           </article>

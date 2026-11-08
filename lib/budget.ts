@@ -354,8 +354,8 @@ export function splitBill(totalTaka: number, people: number): number[] {
 const csvCell = (v: string | number) => {
   const s = String(v);
   // Neutralise spreadsheet formula injection and quote when needed.
-  const safe = /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? "'" + s : s;
-  return /[",\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
+  const safe = /^[\s]*[=+\-@＝＋－＠]|^[\t\r\n]/u.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? "'" + s : s;
+  return /[",\r\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
 };
 
 export function toCsv(txs: Transaction[]): string {
