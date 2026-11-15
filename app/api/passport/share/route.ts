@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { check, issueShare, PassportSchema } from "@/lib/passport";
+import { check, issueShare, PassportSchema, signingConfigured } from "@/lib/passport";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 
 const Body = z.object({ token: z.string().min(20).max(8000), fields: z.array(z.enum(["track", "challenge", "tests", "viva"])).min(1).max(4), expiresInDays: z.union([z.literal(1), z.literal(7), z.literal(30)]) });
 export async function POST(req: Request) {
+  if (!signingConfigured()) return NextResponse.json({ error: "Passport sharing is unavailable until a production signing key is configured." }, { status: 503 });
   const rl = checkRateLimit(req, { limit: 10, windowMs: 60_000, bucket: "passport-share" });
   if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
   const parsed = Body.safeParse(await req.json().catch(() => null));

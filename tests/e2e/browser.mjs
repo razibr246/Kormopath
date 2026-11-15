@@ -1,12 +1,8 @@
 // Browser workflow checks for the six ecosystem apps (not part of `npm test`).
 //
-// Requires a running server and puppeteer-core, which is intentionally NOT a project
-// dependency. Example:
-//   npm run build && npx next start -p 3100
-//   mkdir -p /tmp/kp-e2e && cd /tmp/kp-e2e && npm i puppeteer-core@23.11.1
-//   NODE_PATH=/tmp/kp-e2e/node_modules node --experimental-default-type=module /path/to/tests/e2e/browser.mjs
-//   (or copy this file into /tmp/kp-e2e and run `node browser.mjs` there)
-// Uses the local Google Chrome install. WARNING: clears localStorage for localhost:3100.
+// Run a production server on port 3100, then npm run test:browser.
+// Set BASE and CHROME_PATH to override the origin and installed browser.
+// WARNING: clears localStorage on the test origin in its isolated browser profile.
 import puppeteer from "puppeteer-core";
 
 const BASE = process.env.BASE || "http://localhost:3100";
@@ -16,7 +12,7 @@ const fail = (name, detail = "") => results.push({ ok: false, name, detail });
 const check = (cond, name, detail = "") => (cond ? pass(name, detail) : fail(name, detail));
 
 const browser = await puppeteer.launch({
-  executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  executablePath: process.env.CHROME_PATH || (process.platform === "darwin" ? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" : "/usr/bin/chromium"),
   headless: true,
   args: ["--no-sandbox", "--lang=bn-BD"],
 });

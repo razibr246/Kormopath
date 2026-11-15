@@ -1,5 +1,11 @@
 import type { Metadata, Viewport } from "next";
+import "@fontsource-variable/inter";
+import "@fontsource/hind-siliguri/400.css";
+import "@fontsource/hind-siliguri/500.css";
+import "@fontsource/hind-siliguri/600.css";
+import "@fontsource/hind-siliguri/700.css";
 import "./globals.css";
+import { StorageNotice } from "@/components/StorageNotice";
 import { CommandPalette } from "@/components/CommandPalette";
 import { Buddy } from "@/components/Buddy";
 import { BuildathonSticker } from "@/components/BuildathonSticker";
@@ -92,18 +98,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="bn" className="scroll-smooth" suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wdth,wght@75..125,400..800&family=Hind+Siliguri:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
-        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
       <body className="min-h-screen bg-paper text-ink antialiased selection:bg-kept-soft selection:text-kept">
+        <StorageNotice />
         <a className="skip-link" href="#main">মূল কনটেন্টে যান</a>
         <BuildathonSticker />
         {children}

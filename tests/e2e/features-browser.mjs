@@ -1,7 +1,5 @@
 // Browser + API checks for the judge tour, example-data buttons and the Probaho AI coach.
-// Run like tests/e2e/browser.mjs (needs puppeteer-core outside the repo and a running server):
-//   NEXT_DIST_DIR=.next-test npm run build && NEXT_DIST_DIR=.next-test npx next start -p 3100
-//   BASE=http://localhost:3100 node features-browser.mjs   (from a folder with puppeteer-core installed)
+// Run with npm run test:browser; BASE and CHROME_PATH are supported.
 import puppeteer from "puppeteer-core";
 const BASE = process.env.BASE || "http://localhost:3100";
 const results = [];
@@ -24,7 +22,7 @@ check(d.engine === "guard", "Coach API: short answer not sent to the model");
 r = await fetch(`${BASE}/api/probaho/coach`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ questionId: "nope", answer: good }) });
 check(r.status === 404, "Coach API: unknown question 404");
 
-const b = await puppeteer.launch({ executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", headless: true, args: ["--no-sandbox"] });
+const b = await puppeteer.launch({ executablePath: process.env.CHROME_PATH || (process.platform === "darwin" ? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" : "/usr/bin/chromium"), headless: true, args: ["--no-sandbox"] });
 const errors = [];
 const page = async (w = 1280, h = 900) => { const p = await b.newPage(); await p.setViewport({ width: w, height: h }); p.on("pageerror", (e) => errors.push(`${p.url()} ${e.message}`)); return p; };
 const clickText = (p, sel, n) => p.evaluate((s, n) => { const el = [...document.querySelectorAll(s)].find((e) => e.textContent.includes(n)); if (el) el.click(); return !!el; }, sel, n);
@@ -93,3 +91,5 @@ for (const route of ["/", "/judges", "/shohoj-budget", "/probaho"]) {
 await b.close();
 for (const x of results) console.log(`${x.ok ? "PASS" : "FAIL"}  ${x.name}${x.d ? "  — " + x.d : ""}`);
 console.log(`${results.filter((x) => x.ok).length}/${results.length} passed; page errors: ${errors.length} ${errors.slice(0, 2).join(" | ")}`);
+
+process.exit(results.some((x) => !x.ok) || errors.length ? 1 : 0);

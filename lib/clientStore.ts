@@ -25,11 +25,21 @@ export function readStored<T>(key: string, sanitize: (raw: unknown) => T | null)
   }
 }
 
+const failedKeys = new Set<string>();
+export const failedStorageKeys = () => [...failedKeys];
+function reportStorage(key: string, saved: boolean) {
+  if (saved) failedKeys.delete(key);
+  else failedKeys.add(key);
+  window.dispatchEvent(new Event("kormopath:storage-status"));
+}
+
 export function writeStored(key: string, value: unknown): boolean {
   try {
     window.localStorage.setItem(key, JSON.stringify(value));
+    reportStorage(key, true);
     return true;
   } catch {
+    reportStorage(key, false);
     return false; // private mode, quota exceeded, or storage blocked
   }
 }
@@ -37,6 +47,7 @@ export function writeStored(key: string, value: unknown): boolean {
 export function removeStored(key: string) {
   try {
     window.localStorage.removeItem(key);
+    reportStorage(key, true);
   } catch {
     /* ignore */
   }
@@ -64,19 +75,30 @@ export function usePersistentState<T>(
 ): [T, (next: T | ((prev: T) => T)) => void, { ready: boolean; saveFailed: boolean }] {
   const enabled = options.enabled ?? true;
   const [value, setValue] = useState<T>(initial);
-  const [ready, setReady] = useState(false);
+  const [loadedKey, setLoadedKey] = useState<string | null>(null);
+  const ready = !enabled || loadedKey === key;
+  const initialRef = useRef(initial);
+  initialRef.current = initial;
   const [saveFailed, setSaveFailed] = useState(false);
   const sanitizeRef = useRef(sanitize);
   sanitizeRef.current = sanitize;
 
   useEffect(() => {
     if (!enabled) {
-      setReady(true);
+      setLoadedKey(null);
       return;
     }
-    const stored = readStored(key, sanitizeRef.current);
-    if (stored !== null) setValue(stored);
-    setReady(true);
+    const load = () => {
+      const stored = readStored(key, sanitizeRef.current);
+      setValue(stored ?? initialRef.current);
+      setLoadedKey(key);
+    };
+    load();
+    const changed = (event: StorageEvent) => {
+      if (event.storageArea === window.localStorage && (event.key === key || event.key === null)) load();
+    };
+    window.addEventListener("storage", changed);
+    return () => window.removeEventListener("storage", changed);
   }, [key, enabled]);
 
   useEffect(() => {
@@ -89,8 +111,8 @@ export function usePersistentState<T>(
 }
 
 export function downloadText(filename: string, text: string, mime = "text/csv;charset=utf-8") {
-  // BOM so Excel opens Bangla text correctly.
-  const blob = new Blob(["﻿" + text], { type: mime });
+  // CSV gets a BOM for Bangla in Excel; JSON and iCalendar remain standard UTF-8.
+  const blob = new Blob([mime.startsWith("text/csv") ? "\uFEFF" : "", text], { type: mime });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;

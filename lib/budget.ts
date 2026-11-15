@@ -441,11 +441,11 @@ const UTF8_BOM = "\uFEFF";
 export const sanitizeCsvCell = (v: string | number): string => {
   const s = String(v);
   const trimmed = s.trimStart();
-  // Neutralize formula injection including leading whitespace, tabs, and pipes
+  // Neutralize formula injection including leading whitespace, tabs, fullwidth signs, and pipes
   const isNumber = /^-?\d+(\.\d+)?$/.test(trimmed);
-  const isFormula = /^[=+\-@\t\r|]/.test(trimmed) && !isNumber;
+  const isFormula = /^[=+\-@\t\r|＝＋－＠]/u.test(trimmed) && !isNumber;
   const safe = isFormula ? "'" + s : s;
-  return /[",\n\r]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
+  return /[",\r\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
 };
 
 export function toCsv(txs: Transaction[]): string {

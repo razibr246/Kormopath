@@ -198,3 +198,12 @@ test("Category Styles: every declared category has a valid hex color and Tailwin
     assert.ok(style.twText.startsWith("text-"));
   }
 });
+
+test("CSV blocks formulas after whitespace and full-width formula prefixes", () => {
+  for (const note of ["  =1+1", "\n@SUM(1)", "＋1+1", "\tformula", "\r=1"]) {
+    const csv = toCsv([tx({ note })]);
+    assert.ok(csv.includes("'" + note), `unsafe note: ${JSON.stringify(note)}`);
+  }
+  assert.ok(toCsv([tx({ note: "plain\rtext" })]).includes('"plain\rtext"'));
+});
+});
