@@ -3,13 +3,13 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   GraduationCap, Bookmark, BookmarkCheck, CalendarPlus, Download, ExternalLink, CheckCircle2, Circle, Trash2, Send, Copy,
-  FileText, Bot, Info, AlertTriangle, ListChecks, Compass,
+  FileText, Bot, Info, AlertTriangle, ListChecks, Compass, Search,
 } from "lucide-react";
 import { AppHeader, SourceTag } from "@/components/AppHeader";
 import { saveUserProfile } from "@/lib/profile";
 import {
   UNIVERSITIES, OFFICIAL_RESOURCES, DOCUMENT_CHECKLIST, calculateMatches, generateDeadlines, validateUserDeadline,
-  generateSopDraft, answerCounselorQuery, analyzeListBalance, analyzeSopText, toIcs,
+  generateSopDraft, answerCounselorQuery, analyzeListBalance, analyzeSopText, toIcs, toRoadmapMarkdown,
   APPLICATION_STAGES, applicationPipeline, sanitizeStatuses,
   type StudentProfile, type UserDeadline, type ApplicationStatus, type ApplicationStage,
 } from "@/lib/admitbuddy";
@@ -19,7 +19,11 @@ type Tab = "discover" | "applications" | "sop" | "counselor" | "resources";
 
 const DEFAULT_PROFILE: StudentProfile = { name: "", sscGpa: 5, hscGpa: 5, group: "Science", maxBudgetPerSemester: 80000, preferredLocations: [], interests: [] };
 const LOCATIONS = [...new Set(UNIVERSITIES.map((u) => u.location))].sort();
-const PROGRAMS = ["CSE", "Software Engineering", "EEE", "Civil", "Mechanical", "Architecture", "BBA", "Economics", "Pharmacy", "Law", "Physics"];
+const PROGRAMS = [
+  "CSE", "Software Engineering", "EEE", "Civil", "Mechanical", "Architecture",
+  "BBA", "Economics", "Pharmacy", "Law", "Physics",
+  "Textile Engineering", "Agriculture", "MBBS", "Biotechnology"
+];
 
 const sanitizeProfile = (r: unknown): StudentProfile | null => {
   if (!r || typeof r !== "object") return null;
@@ -50,6 +54,7 @@ export default function AdmitBuddyPage() {
   const [statuses, setStatuses] = usePersistentState<ApplicationStatus[]>(storageKey("admitbuddy", "applicationStatus"), [], sanitizeStatuses);
   const [today, setToday] = useState("1970-01-01");
   const [filter, setFilter] = useState<"all" | "eligible" | "public" | "private" | "shortlist">("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [editingProfile, setEditingProfile] = useState(false);
   useEffect(() => setToday(todayLocal()), []);
 
@@ -65,9 +70,26 @@ export default function AdmitBuddyPage() {
       return next;
     });
 
-  const filtered = matches.filter((m) =>
-    filter === "all" ? true : filter === "eligible" ? m.eligibility === "meets" : filter === "shortlist" ? shortlist.includes(m.university.id) : m.university.type === filter,
-  );
+  const filtered = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    return matches.filter((m) => {
+      const matchesCategory =
+        filter === "all" ? true :
+        filter === "eligible" ? m.eligibility === "meets" :
+        filter === "shortlist" ? shortlist.includes(m.university.id) :
+        m.university.type === filter;
+      if (!matchesCategory) return false;
+
+      if (!q) return true;
+      const u = m.university;
+      return (
+        u.name.toLowerCase().includes(q) ||
+        u.shortName.toLowerCase().includes(q) ||
+        u.location.toLowerCase().includes(q) ||
+        u.programs.some((p) => p.toLowerCase().includes(q))
+      );
+    });
+  }, [matches, filter, shortlist, searchQuery]);
   const dated = tasks.filter((t) => t.dueDate && !t.isDone);
   const nextTask = dated[0];
   const profileEmpty = !profile.name && !profile.interests.length && !profile.preferredLocations.length;
@@ -119,13 +141,48 @@ export default function AdmitBuddyPage() {
 
         {tab === "discover" && (
           <section aria-label="বিশ্ববিদ্যালয়" className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-wrap gap-1.5" role="group" aria-label="ফিল্টার">
                 {([["all", "সব"], ["eligible", "GPA শর্ত পূরণ"], ["public", "সরকারি"], ["private", "বেসরকারি"], ["shortlist", "শর্টলিস্ট"]] as const).map(([id, l]) => (
-                  <button key={id} aria-pressed={filter === id} onClick={() => setFilter(id)} className={`rounded-lg border px-2.5 py-1 text-[12px] font-semibold ${filter === id ? "border-indigo-600 bg-indigo-50 text-indigo-800" : "border-slate-200 bg-white text-slate-600"}`}>{l}</button>
+                  <button
+                    key={id}
+                    aria-pressed={filter === id}
+                    onClick={() => setFilter(id)}
+                    className={`rounded-lg border px-2.5 py-1 text-[12px] font-semibold transition-colors ${
+                      filter === id ? "border-indigo-600 bg-indigo-50 text-indigo-800" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                    }`}
+                  >
+                    {l}
+                  </button>
                 ))}
               </div>
-              <span className="text-[12px] text-slate-500">ফিট স্কোর = GPA ৪০ + বাজেট ৩০ + এলাকা ১৫ + বিষয় ১৫ (ভর্তির সম্ভাবনা নয়)</span>
+
+              {/* Real-time search bar */}
+              <div className="relative w-full sm:w-72">
+                <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden />
+                <input
+                  type="search"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="নাম, কোড, বিষয় (যেমন CSE) বা এলাকা..."
+                  aria-label="বিশ্ববিদ্যালয় অনুসন্ধান"
+                  className="w-full rounded-xl border border-slate-200 bg-white py-1.5 pl-9 pr-8 text-[13px] outline-none transition-all focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    aria-label="অনুসন্ধান মুছুন"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center justify-between text-[12px] text-slate-500">
+              <span>{filtered.length}টি বিশ্ববিদ্যালয় প্রদর্শিত হচ্ছে</span>
+              <span>ফিট স্কোর = GPA ৪০ + বাজেট ৩০ + এলাকা ১৫ + বিষয় ১৫ (ভর্তির সম্ভাবনা নয়)</span>
             </div>
             <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] text-amber-950">
               <AlertTriangle size={14} className="mr-1 inline" aria-hidden />
@@ -171,6 +228,8 @@ export default function AdmitBuddyPage() {
         {tab === "applications" && shortlist.length > 0 && <StatusBoard shortlist={shortlist} statuses={statuses} setStatuses={setStatuses} today={today} />}
         {tab === "applications" && (
           <ApplicationTracker
+            profile={profile}
+            statuses={statuses}
             shortlist={shortlist}
             tasks={tasks}
             userDeadlines={userDeadlines}
@@ -263,8 +322,10 @@ function ProfileForm({ profile, setProfile, onDone }: { profile: StudentProfile;
 }
 
 function ApplicationTracker({
-  shortlist, tasks, userDeadlines, setUserDeadlines, doneTasks, setDoneTasks, docs, setDocs, balance, today, goDiscover,
+  profile, statuses, shortlist, tasks, userDeadlines, setUserDeadlines, doneTasks, setDoneTasks, docs, setDocs, balance, today, goDiscover,
 }: {
+  profile: StudentProfile;
+  statuses: ApplicationStatus[];
   shortlist: string[];
   tasks: ReturnType<typeof generateDeadlines>;
   userDeadlines: UserDeadline[];
@@ -298,13 +359,27 @@ function ApplicationTracker({
       <section aria-labelledby="tasks-h" className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 id="tasks-h" className="text-[17px] font-bold">কাজের তালিকা ({done}/{tasks.length})</h2>
-          <button
-            disabled={!tasks.some((t) => t.dueDate)}
-            onClick={() => downloadText("admitbuddy-deadlines.ics", toIcs(tasks, new Date().toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z"), "text/calendar;charset=utf-8")}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-[12px] font-bold disabled:opacity-40"
-          >
-            <Download size={14} aria-hidden /> ক্যালেন্ডারে নিন (.ics)
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() =>
+                downloadText(
+                  `admission-roadmap-${today}.md`,
+                  toRoadmapMarkdown(profile, uniOptions, tasks, balance, userDeadlines, statuses, today),
+                  "text/markdown;charset=utf-8"
+                )
+              }
+              className="inline-flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-[12px] font-bold text-indigo-800 hover:bg-indigo-100"
+            >
+              <FileText size={14} aria-hidden /> রোডম্যাপ ডাউনলোড (.md)
+            </button>
+            <button
+              disabled={!tasks.some((t) => t.dueDate)}
+              onClick={() => downloadText("admitbuddy-deadlines.ics", toIcs(tasks, new Date().toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z"), "text/calendar;charset=utf-8")}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-[12px] font-bold disabled:opacity-40"
+            >
+              <Download size={14} aria-hidden /> ক্যালেন্ডারে নিন (.ics)
+            </button>
+          </div>
         </div>
         <div className="h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-indigo-500" style={{ width: `${tasks.length ? (done / tasks.length) * 100 : 0}%` }} /></div>
         <ul className="divide-y divide-slate-100">

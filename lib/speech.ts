@@ -161,6 +161,126 @@ export const QUESTIONS: Question[] = [
     ],
     modelAnswer: "In my final-year project, my teammate wanted to rewrite our backend two weeks before the demo; I thought it was too risky, and my role was to keep the demo build stable. I asked him to list what the rewrite would fix, and we found that two of the three problems could be fixed with small changes. I proposed we make those fixes now and schedule the rewrite after the demo. In the end we delivered on time with no crashes, and I learned to argue with data rather than opinions.",
   },
+  {
+    id: "tech-rest-graphql",
+    track: "technical",
+    level: "intermediate",
+    lang: "en",
+    prompt: "Compare REST and GraphQL architectures. When would you choose one over the other in a production system?",
+    targetSeconds: 90,
+    topics: [
+      { id: "fetching", label: "Over-fetching and under-fetching", terms: ["over-fetching", "overfetching", "under-fetching", "underfetching", "single request", "exact fields", "payload"], followUp: "How does GraphQL handle client-specific data requirements compared to REST?" },
+      { id: "endpoints", label: "Endpoints and HTTP verbs vs single endpoint", terms: ["multiple endpoints", "single endpoint", "/graphql", "http verbs", "post request", "crud", "routes"], followUp: "How do client requests differ structurally between REST routes and a GraphQL endpoint?" },
+      { id: "caching", label: "Caching and network efficiency", terms: ["caching", "cache", "http cache", "cdn", "browser cache", "varnish", "status codes"], followUp: "Why is network and CDN caching simpler in REST than GraphQL?" },
+      { id: "complexity", label: "Schema design, N+1 problem, and complexity", terms: ["schema", "strongly typed", "n+1", "dataloader", "query complexity", "rate limiting", "resolver"], followUp: "What performance and security pitfalls arise with arbitrary nested GraphQL queries?" },
+    ],
+    modelAnswer: "REST exposes multiple resource-oriented endpoints with standard HTTP verbs and status codes, which makes HTTP and CDN caching straightforward. However, it can cause over-fetching or under-fetching when mobile clients need tailored payloads. GraphQL uses a single endpoint where clients request exact fields against a strongly typed schema, eliminating multiple round trips. The trade-off is server complexity: GraphQL makes network caching harder and risks the N+1 problem unless you use tools like DataLoader. For example, in an e-commerce dashboard with diverse mobile screens, I chose GraphQL to cut client round trips by 60%, but for a public-facing file API, REST is better for HTTP caching. So, choose GraphQL for complex client-driven UIs and REST for resource caching and simplicity.",
+  },
+  {
+    id: "tech-db-index",
+    track: "technical",
+    level: "advanced",
+    lang: "en",
+    prompt: "How do database indexes work under the hood, and how do you optimize a slow query in PostgreSQL?",
+    targetSeconds: 90,
+    topics: [
+      { id: "structure", label: "Index structures (B-tree / Hash / GIN)", terms: ["b-tree", "btree", "binary tree", "balanced tree", "gin", "gist", "data structure", "leaf nodes"], followUp: "What internal data structure does a standard PostgreSQL index use to locate rows?" },
+      { id: "explain", label: "Execution plan analysis with EXPLAIN ANALYZE", terms: ["explain", "explain analyze", "execution plan", "query plan", "cost", "planner"], followUp: "What diagnostic tool do you run first to see why the database chosen a specific execution path?" },
+      { id: "scan", label: "Sequential scan vs index scan / bitmap scan", terms: ["sequential scan", "seq scan", "index scan", "bitmap index scan", "table scan", "full table scan"], followUp: "What type of table scan indicates a missing or unused index on a large dataset?" },
+      { id: "tradeoff", label: "Index trade-offs and composite index ordering", terms: ["write penalty", "overhead", "composite index", "column order", "selectivity", "cardinality", "insert", "update"], followUp: "Why shouldn't you put an index on every single column in an OLTP database?" },
+    ],
+    modelAnswer: "PostgreSQL default indexes use a balanced B-tree structure where leaf nodes point to heap tuples, providing O(log N) lookups. To optimize a slow query, I first run EXPLAIN ANALYZE to inspect the execution plan and execution cost. If I see an expensive sequential scan on a table with millions of rows, I add an index on the filtered or joined columns, considering column order and selectivity for composite indexes. However, indexes carry write penalty overhead on inserts and updates, so I avoid indexing low-cardinality flags. For example, by replacing a seq scan with a composite B-tree index on user_id and created_at, we reduced our ledger query latency from 850ms to 4ms. Therefore, always analyze with EXPLAIN first and balance read speed against write overhead.",
+  },
+  {
+    id: "tech-microservices",
+    track: "technical",
+    level: "advanced",
+    lang: "en",
+    prompt: "When should an engineering team migrate from a monolithic architecture to microservices, and what trade-offs must they manage?",
+    targetSeconds: 90,
+    topics: [
+      { id: "boundary", label: "Domain boundaries and team scaling", terms: ["domain", "bounded context", "domain-driven", "team size", "independent teams", "scale teams", "decouple"], followUp: "How do you decide where to draw service boundaries when decomposing a monolith?" },
+      { id: "deploy", label: "Independent deployment and release velocity", terms: ["independent deployment", "deploy independently", "ci/cd", "release cycle", "different tech", "polyglot"], followUp: "What operational advantage does microservices offer for deployment velocity?" },
+      { id: "distributed", label: "Distributed transactions and data consistency", terms: ["eventual consistency", "saga", "distributed transaction", "two-phase", "acid", "data consistency", "outbox"], followUp: "How do you maintain data consistency across services without shared database transactions?" },
+      { id: "observability", label: "Operational complexity and observability", terms: ["observability", "distributed tracing", "network latency", "overhead", "kubernetes", "service mesh", "monitoring", "failure modes"], followUp: "What infrastructure capabilities must a team establish before moving to distributed microservices?" },
+    ],
+    modelAnswer: "Teams should consider microservices when the engineering organization has grown so large that multiple independent teams are bottlenecked by a single monolithic deployment pipeline. Decomposing by domain-driven bounded contexts allows independent deployment and localized scaling. However, microservices introduce substantial operational complexity: network latency, cascading failure modes, and distributed data consistency where you must adopt eventual consistency or saga patterns instead of ACID transactions. You also need distributed tracing and robust observability. For example, in a previous fintech project with 40 engineers, separating the payments service reduced release cycle blockers from 2 weeks to daily deploys. In summary, start with a modular monolith and migrate to microservices only when organizational scale justifies the operational overhead.",
+  },
+  {
+    id: "bn-bcs-intro",
+    track: "bangla",
+    level: "intermediate",
+    lang: "bn",
+    prompt: "বিসিএস বা বাংলাদেশ ব্যাংকের ভাইভায় নিজের শিক্ষাগত পটভূমি, এই পেশা বেছে নেওয়ার কারণ এবং ভবিষ্যৎ কর্মপরিকল্পনা সংক্ষেপে বলুন।",
+    targetSeconds: 90,
+    topics: [
+      { id: "background", label: "শিক্ষাগত পটভূমি ও অর্জিত জ্ঞান", terms: ["স্নাতক", "বিশ্ববিদ্যালয়", "পড়াশোনা", "বিভাগ", "ডিগ্রি", "সিজিপিএ", "শিক্ষা"], followUp: "আপনার স্নাতক পর্যায়ের অর্জিত জ্ঞান কীভাবে এই পদের কাজে লাগবে?" },
+      { id: "motivation", label: "সরকারি সেবা বা কেন্দ্রীয় ব্যাংকে যোগদানের কারণ", terms: ["পাবলিক সার্ভিস", "সেবা", "নীতি নির্ধারণ", "আর্থিক শৃঙ্খলা", "কেন্দ্রীয় ব্যাংক", "জনসেবা", "জাতির সেবা", "দায়িত্ব"], followUp: "কর্পোরেট চাকরির বদলে এই পেশাকে কেন অগ্রাধিকার দিলেন?" },
+      { id: "integrity", label: "পেশাগত সততা ও প্রশাসনিক নীতি", terms: ["সততা", "নিষ্ঠা", "স্বচ্ছতা", "নৈতিকতা", "জবাবদিহিতা", "সুশাসন"], followUp: "চাপ বা প্রলোভনের মুখে আপনি কীভাবে সিদ্ধান্ত নেবেন?" },
+      { id: "vision", label: "দীর্ঘমেয়াদী রূপকল্প ও জনকল্যাণ", terms: ["রূপকল্প", "পরিকল্পনা", "উন্নয়ন", "ডিজিটাল", "ভবিষ্যৎ", "স্মার্ট বাংলাদেশ", "আর্থিক অন্তর্ভুক্তি"], followUp: "আগামী ৫ থেকে ১০ বছরে আপনার কার্যক্ষেত্রে কী পরিবর্তন আনতে চান?" },
+    ],
+    modelAnswer: "আমি একটি সরকারি বিশ্ববিদ্যালয় থেকে অর্থনীতিতে স্নাতক সম্পন্ন করেছি, যেখানে মুদ্রানীতি ও উন্নয়ন অর্থনীতি বিষয়ে গবেষণা করেছি। কেন্দ্রীয় ব্যাংকে যোগ দিয়ে দেশের আর্থিক শৃঙ্খলা রক্ষা এবং সাধারণ প্রান্তিক মানুষের আর্থিক অন্তর্ভুক্তি নিশ্চিত করার নীতি বাস্তবায়নে অংশ নেওয়া আমার মূল লক্ষ্য। যেকোনো প্রশাসনিক দায়িত্ব পালনে সততা, পেশাদারিত্ব ও জবাবদিহিতা বজায় রাখাই আমার নীতিগত অঙ্গীকার। উদাহরণ হিসেবে বলা যায়, মাঠপর্যায়ে ক্ষুদ্রঋণ নিয়ে আমার একাডেমিক ফিল্ডওয়ার্ক আমাকে নীতি প্রণয়নের বাস্তব চ্যালেঞ্জ বুঝতে শিখিয়েছে। সবশেষে, অর্জিত জ্ঞান ও নিষ্ঠার সমন্বয়ে দেশের অর্থনৈতিক সুশাসন প্রতিষ্ঠায় আমি কার্যকর অবদান রাখতে চাই।",
+  },
+  {
+    id: "bn-econ-priorities",
+    track: "bangla",
+    level: "advanced",
+    lang: "bn",
+    prompt: "বাংলাদেশের বর্তমান অর্থনৈতিক প্রেক্ষাপটে প্রধান তিনটি অগ্রাধিকার কী হওয়া উচিত বলে আপনি মনে করেন এবং কেন?",
+    targetSeconds: 120,
+    topics: [
+      { id: "export", label: "রপ্তানি বহুমুখীকরণ (তৈরি পোশাকের বাইরে)", terms: ["রপ্তানি", "তৈরি পোশাক", "আরএমজি", "বহুমুখীকরণ", "আইটি", "চামড়া", "ফার্মাসিউটিক্যাল", "পোশাক খাতের বাইরে"], followUp: "তৈরি পোশাক খাতের বাইরে রপ্তানি বাড়াতে কী কী নীতি সহায়তা প্রয়োজন?" },
+      { id: "remittance", label: "প্রবাসী আয় ও বৈদেশিক মুদ্রার রিজার্ভ", terms: ["প্রবাসী আয়", "রেমিট্যান্স", "রিজার্ভ", "হুন্ডি", "বৈদেশিক মুদ্রা", "বৈধ চ্যানেল"], followUp: "বৈধ চ্যানেলে রেমিট্যান্স প্রবাহ ধরে রাখতে বাংলাদেশ ব্যাংকের কী পদক্ষেপ নেওয়া উচিত?" },
+      { id: "inflation", label: "মূল্যস্ফীতি নিয়ন্ত্রণ ও আর্থিক খাতের সুশাসন", terms: ["মূল্যস্ফীতি", "সুশাসন", "মুদ্রানীতি", "খেলাপি ঋণ", "ব্যাংক খাত", "মুদ্রাস্ফীতি", "আর্থিক খাত"], followUp: "খেলাপি ঋণ আদায় ও বাজার তদারকিতে কোন কৌশলটি সবচেয়ে জরুরি?" },
+      { id: "human_capital", label: "মানবসম্পদ উন্নয়ন ও কর্মসংস্থান", terms: ["মানবসম্পদ", "দক্ষতা", "কর্মসংস্থান", "প্রযুক্তি", "কারিগরি", "চতুর্থ শিল্পবিপ্লব", "প্রশিক্ষণ"], followUp: "আমাদের তরুণ জনশক্তিকে বিশ্ববাজারের উপযোগী করতে শিক্ষাব্যবস্থায় কী সংস্কার দরকার?" },
+    ],
+    modelAnswer: "বর্তমান অর্থনৈতিক প্রেক্ষাপটে প্রধান অগ্রাধিকারগুলো হলো রপ্তানি বহুমুখীকরণ, বৈদেশিক মুদ্রার রিজার্ভ স্থিতিশীল রাখা, মূল্যস্ফীতি নিয়ন্ত্রণ এবং তরুণদের মানবসম্পদ উন্নয়ন। প্রথমত, তৈরি পোশাকের বাইরে আইটি ও ওষুধ খাতের রপ্তানি সম্প্রসারণ জরুরি। দ্বিতীয়ত, হুন্ডি প্রতিরোধ করে বৈধ চ্যানেলে প্রবাসী আয় বা রেমিট্যান্স আকর্ষণ করতে হবে যেন রিজার্ভ শক্তিশালী থাকে। তৃতীয়ত, ব্যাংক খাতের খেলাপি ঋণ কমিয়ে সুশাসন নিশ্চিত করা ও সংকোচনমূলক মুদ্রানীতির মাধ্যমে মূল্যস্ফীতি সহনীয় রাখা অপরিহার্য। পাশাপাশি তরুণদের কারিগরি দক্ষতা ও মানবসম্পদ উন্নয়ন নিশ্চিত করা প্রয়োজন যেন কর্মসংস্থান বৃদ্ধি পায়। উদাহরণ হিসেবে, তৈরি পোশাকের বিকল্প হিসেবে আইসিটি খাতে নগদ প্রণোদনায় ইতিবাচক ফল মিলেছে। তাই কাঠামোগত সংস্কার ও আর্থিক শৃঙ্খলা নিশ্চিত করাই হবে দীর্ঘমেয়াদী সমৃদ্ধির পথ।",
+  },
+  {
+    id: "acad-methodology",
+    track: "academic",
+    level: "advanced",
+    lang: "en",
+    prompt: "How did you conduct your literature review and choose your research methodology for your thesis or paper?",
+    targetSeconds: 120,
+    topics: [
+      { id: "gap", label: "Identifying the research gap", terms: ["research gap", "gap in literature", "unresolved", "prior work", "existing literature", "limitation of previous", "previous studies"], followUp: "What specific gap did previous studies leave unaddressed?" },
+      { id: "search", label: "Systematic search strategy and synthesis", terms: ["systematic", "ieee", "acm", "google scholar", "keywords", "inclusion criteria", "synthesize", "survey"], followUp: "What databases and search criteria did you use to filter papers?" },
+      { id: "rationale", label: "Methodology selection and justification", terms: ["methodology", "quantitative", "qualitative", "experimental", "dataset", "framework", "baseline", "model"], followUp: "Why was your chosen methodology superior to alternative approaches for this question?" },
+      { id: "validation", label: "Validation, reproducibility, and metrics", terms: ["validation", "cross-validation", "metrics", "reproducible", "f1-score", "accuracy", "benchmark", "ablation"], followUp: "How did you ensure your experimental results were statistically valid and reproducible?" },
+    ],
+    modelAnswer: "I began by conducting a systematic literature review across IEEE Xplore, ACM, and Google Scholar using structured keywords and strict inclusion criteria. Through this synthesis, I identified a clear research gap: prior work in Bengali speech recognition achieved high accuracy on studio speech but degraded heavily on noisy mobile recordings. To address this, I chose a quantitative experimental methodology combining an acoustic preprocessing pipeline with fine-tuned Whisper models. For validation, I evaluated on an independent 10-fold cross-validation split using word error rate and latency metrics against a published baseline. For example, our approach reduced the word error rate from 24% to 11.5% in street noise conditions. In conclusion, grounding our methodology in identified prior limitations ensured rigorous and reproducible results.",
+  },
+  {
+    id: "acad-reviewer-feedback",
+    track: "academic",
+    level: "intermediate",
+    lang: "en",
+    prompt: "A peer reviewer strongly questions the novelty and experimental validation of your research paper. How do you respond?",
+    targetSeconds: 90,
+    topics: [
+      { id: "tone", label: "Professional and appreciative tone", terms: ["thank the reviewer", "appreciate", "constructive", "respectful", "professional", "gratitude"], followUp: "How do you frame your opening response to maintain professional academic discourse?" },
+      { id: "point", label: "Point-by-point itemized rebuttal", terms: ["point-by-point", "itemized", "each comment", "response document", "line-by-line", "direct response"], followUp: "How do you organize your revisions so reviewers can easily track every change?" },
+      { id: "experiment", label: "Supplementary experiments and ablation studies", terms: ["ablation", "supplementary", "additional experiment", "baseline comparison", "new data", "statistical significance"], followUp: "What concrete empirical evidence do you add to defend your claims?" },
+      { id: "clarity", label: "Clarifying manuscript text without defensiveness", terms: ["revised manuscript", "clarified", "rewrote", "highlighted changes", "expanded section", "manuscript text"], followUp: "How do you ensure the main paper is improved rather than just debating in the response letter?" },
+    ],
+    modelAnswer: "First, I welcome the reviewer's feedback with a respectful and constructive tone, treating tough critiques as an opportunity to strengthen the manuscript. In our response document, I organize a point-by-point rebuttal where every critique is addressed directly. To address questions regarding novelty and validation, I do not just argue in text; I conduct supplementary experiments, including an ablation study and a comparison against two additional state-of-the-art baselines. In the revised manuscript, I clearly highlight the expanded sections explaining our architectural novelty. For example, adding an ablation study with 500 test trials confirmed our attention module provided a statistically significant 4.2% accuracy gain. So, pairing courteous responses with empirical evidence is the most effective way to address skeptical reviewers.",
+  },
+  {
+    id: "hr-setback",
+    track: "hr",
+    level: "intermediate",
+    lang: "en",
+    prompt: "Describe a major technical setback or unexpected obstacle during a project. How did you handle it using the STAR framework?",
+    targetSeconds: 120,
+    topics: [
+      { id: "situation", label: "Situation: context, timeline, and stakes", terms: ["when i was", "at my", "in my project", "during", "we were building", "deadline", "our team"], followUp: "What was the project, the deadline, and what was at stake when the obstacle hit?" },
+      { id: "task", label: "Task: your specific responsibility", terms: ["my role", "my job was", "i was responsible", "i had to", "my task", "the goal was", "i needed to"], followUp: "What were you specifically responsible for solving?" },
+      { id: "action", label: "Action: step-by-step troubleshooting and communication", terms: ["i decided", "i investigated", "i proposed", "i built", "i refactored", "i talked", "i rolled back", "root cause", "mitigation"], followUp: "What methodical steps did you take to isolate the root cause and resolve it?" },
+      { id: "result", label: "Result: outcome, metrics, and retrospective learnings", terms: ["as a result", "in the end", "the result", "finally", "we delivered", "i learned", "prevented", "uptime", "on time"], followUp: "What was the final measurable outcome, and how did you prevent it from happening again?" },
+    ],
+    modelAnswer: "In my final semester capstone project, our team was building an automated hospital triage portal when our database crashed 48 hours before the final faculty evaluation. As the backend lead, my task was to restore database availability and prevent permanent data loss while the frontend team was blocked. I immediately isolated the root cause: an unindexed nested query was exhausting connection pools under load. I decided to roll back the latest migration, added connection pooling with PgBouncer, and created composite indexes on patient records. In the end, we delivered the live demo on time with zero data loss, handling 250 concurrent requests with sub-50ms response times, and I learned the importance of load testing early. So, staying calm and addressing root causes under pressure was key.",
+  },
 ];
 
 const EN_FILLERS = ["um", "umm", "uh", "uhh", "erm", "hmm", "you know", "i mean", "kind of", "sort of", "basically", "actually", "literally"];
@@ -380,4 +500,76 @@ export function practiceStreak(records: SessionRecord[], today: string): { curre
   }
   const gap = num(today) - num(days[days.length - 1]);
   return { current: gap <= 1 ? run : 0, best };
+}
+
+export interface CustomQuestionInput {
+  prompt: string;
+  track?: Question["track"];
+  targetSeconds?: number;
+  lang?: Lang;
+  keywords?: string[];
+}
+
+export function extractKeywords(text: string, lang: Lang): string[] {
+  const w = words(text);
+  const candidates: string[] = [];
+  for (const word of w) {
+    if (STOP.has(word)) continue;
+    if (word.length < 4 && !/[\u0980-\u09FF]/.test(word)) continue;
+    if (!candidates.includes(word)) candidates.push(word);
+  }
+  return candidates.slice(0, 5);
+}
+
+export function createCustomQuestion(input: CustomQuestionInput): Question {
+  const prompt = input.prompt.trim();
+  const track = input.track ?? "technical";
+  const targetSeconds = input.targetSeconds && input.targetSeconds > 0 ? input.targetSeconds : 90;
+  const isBn = /[\u0980-\u09FF]/.test(prompt);
+  const lang: Lang = input.lang ?? (isBn ? "bn" : "en");
+
+  let topics: Topic[] = [];
+  if (input.keywords && input.keywords.length > 0) {
+    topics = input.keywords.filter(Boolean).map((kw, i) => {
+      const k = kw.trim();
+      return {
+        id: `topic-${i + 1}`,
+        label: k,
+        terms: [k],
+        followUp: lang === "bn" ? `এই বিষয়ে বিস্তারিত বলুন: "${k}"` : `Could you elaborate further on "${k}"?`,
+      };
+    });
+  }
+  
+  if (topics.length === 0) {
+    const extracted = extractKeywords(prompt, lang);
+    if (extracted.length > 0) {
+      topics = extracted.map((term, i) => ({
+        id: `kw-${i + 1}`,
+        label: term,
+        terms: [term],
+        followUp: lang === "bn" ? `"${term}" সংক্রান্ত দিকগুলো আরেকটু ব্যাখ্যা করুন।` : `Can you expand on how "${term}" applies here?`,
+      }));
+    } else {
+      topics = [
+        { id: "core", label: lang === "bn" ? "মূল ধারণা" : "Core concept & explanation", terms: ["because", "means", "concept", "মূল", "কারণ", "অর্থ"], followUp: lang === "bn" ? "মূল ধারণাটি পরিষ্কার বাক্যে বলুন।" : "Can you define the core concept in one sentence?" },
+        { id: "practical", label: lang === "bn" ? "বাস্তব উদাহরণ বা যুক্তি" : "Practical example or justification", terms: ["example", "project", "trade-off", "used", "যেমন", "উদাহরণ", "প্রকল্প"], followUp: lang === "bn" ? "একটি বাস্তব উদাহরণ দিন।" : "Give one concrete example or trade-off." },
+      ];
+    }
+  }
+
+  return {
+    id: `custom-${Math.random().toString(36).slice(2, 8)}`,
+    track,
+    level: "intermediate",
+    lang,
+    prompt,
+    targetSeconds,
+    topics,
+    modelAnswer: "",
+  };
+}
+
+export function evaluateViva(text: string, q: Question, seconds: number | null): Analysis {
+  return analyzeAnswer(text, q, seconds);
 }

@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { TRACKS, Track } from "./data";
-import { normalize, verifyEvidence, numberAppears, Verdict } from "./grounding";
+import { TRACKS, type Track } from "./data.ts";
+import { normalize, verifyEvidence, numberAppears, type Verdict } from "./grounding.ts";
 
 export const Level = z.enum(["beginner", "intermediate", "advanced"]);
 
@@ -70,7 +70,7 @@ export function ruleExtract(source: string): Extraction {
     if (skills.length >= 20) break;
   }
   const years = source.match(/(\d{1,2})\+?\s*(?:years?|yrs)/i);
-  const income = source.match(/\$\s?([0-9][0-9,]*)\s*(?:\/|per)\s*(?:mo|month)/i);
+  const income = source.match(/\$\s?([0-9][0-9,]*)\s*(?:\/|per)\s*(?:month|mo)/i);
   const platform = /fiverr/i.test(source) ? "fiverr" : /upwork/i.test(source) ? "upwork" : "none";
   const nameLine = lines[0] && lines[0].length < 40 && !/[@:]/.test(lines[0]) ? lines[0] : null;
   return {
@@ -143,8 +143,8 @@ export function valuate(skills: CheckedSkill[], years: number | null): Valuation
   const premiumHave = track.premium.filter((p) => usable.some((s) => matches(s.name, p)));
   const premiumMissing = track.premium.filter((p) => !premiumHave.includes(p));
   const lv = usable.length ? usable.reduce((a, s) => a + (s.level === "advanced" ? 0.1 : s.level === "intermediate" ? 0.05 : 0), 0) / usable.length : 0;
-  const y = Math.min(years ?? 0, 5);
-  const position = Math.min(0.85, 0.05 + 0.03 * Math.min(hits, 5) + 0.08 * y + 0.04 * premiumHave.length + lv / 2);
+  const y = Math.max(0, Math.min(Number.isFinite(years) ? (years ?? 0) : 0, 5));
+  const position = Math.max(0.05, Math.min(0.85, 0.05 + 0.03 * Math.min(hits, 5) + 0.08 * y + 0.04 * premiumHave.length + lv / 2));
   const [lo, hi] = track.rateUsd;
   const rateUsd = Math.round(lo + position * (hi - lo));
   const aiRisk = Math.max(10, track.aiRisk - 6 * premiumHave.length);
@@ -152,7 +152,7 @@ export function valuate(skills: CheckedSkill[], years: number | null): Valuation
   if (usable.some((s) => s.verdict === "partial")) actions.push("Some skills are only loosely backed by your CV. Name the project or result where you used each one.");
   return {
     track, ranking, rateUsd, position: Math.round(position * 100) / 100, premiumHave, premiumMissing, aiRisk,
-    formula: `position = 0.05 + 0.03×min(${hits},5) matched skills + 0.08×min(${years ?? 0},5) years + 0.04×${premiumHave.length} premium skills + ${(lv / 2).toFixed(3)} level bonus (cap 0.85) → $${lo} + ${position.toFixed(2)}×($${hi}−$${lo})`,
+    formula: `position = 0.05 + 0.03×min(${hits},5) matched skills + 0.08×min(${Number.isFinite(years) ? Math.max(0, years ?? 0) : 0},5) years + 0.04×${premiumHave.length} premium skills + ${(lv / 2).toFixed(3)} level bonus (cap 0.85) → $${lo} + ${position.toFixed(2)}×($${hi}−$${lo})`,
     actions,
   };
 }

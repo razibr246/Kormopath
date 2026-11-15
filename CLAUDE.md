@@ -74,7 +74,7 @@ Shared pieces: `components/AppHeader.tsx` (header, skip link, privacy chip, `Sou
 
 Bangla text gotcha: some characters (য়, ড়, ঢ়) can be stored as one Unicode codepoint or as two, and files in this repo contain both. Exact-string edits or comparisons on Bangla text can silently fail to match. Normalise with `.normalize("NFC")` in code (as `lib/budget.ts` does), and anchor scripted edits on nearby ASCII.
 
-`lib/chuktiguard.ts` still has its own `fmtBdt` and `calculateInvoiceFinOps`, with rail fees and incentive rates written into the code instead of coming from `lib/finops.ts`. Check both places before changing money logic, and prefer moving the math into `finops.ts`.
+`lib/chuktiguard.ts` re-exports `fmtBdt`/`calculateInvoiceFinOps` from `lib/finops.ts` (it used to carry its own copy). Fee math belongs in `finops.ts`; check there first if rail fees ever look divergent.
 
 To test a production build while someone is running `npm run dev`, build into a separate folder so their `.next` cache is not overwritten: `NEXT_DIST_DIR=.next-test npm run build && NEXT_DIST_DIR=.next-test npx next start -p 3100`.
 

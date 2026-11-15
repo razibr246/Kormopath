@@ -59,15 +59,51 @@ test("Evidence check accepts real quotes and rejects invented ones", () => {
   assert.equal(verifyEvidence("webhook handler in Node and Express for bKash", src).verdict, "partial");
 });
 
+test("Evidence check handles Bengali composite Unicode normalization (NFC) and marks", () => {
+  // Composed য় (\u09DF) vs decomposed য + ় (\u09AF\u09BC)
+  const src = "তিনি ঢাকায় থাকেন এবং একটি বাড়ি কিনেছেন।";
+  assert.equal(verifyEvidence("ঢাকায়", src).verdict, "verified");
+  assert.equal(verifyEvidence("ঢাকা\u09AF\u09BC", src).verdict, "verified");
+  assert.equal(verifyEvidence("বা\u09A1\u09BCি", src).verdict, "verified");
+  assert.equal(verifyEvidence("বা\u09DCি", src).verdict, "verified");
+
+  // Partial match in Bengali with vowel marks
+  const anthem = "আমার সোনার বাংলা আমি তোমায় ভালোবাসি চিরদিন তোমার আকাশ";
+  assert.equal(verifyEvidence("সোনার বাংলা আমি তোমায় অনেক ভালোবাসি", anthem).verdict, "partial");
+});
+
 test("Numbers must literally appear", () => {
   assert.ok(numberAppears(1200, "Payment received USD 1,200.00 from Acme"));
   assert.ok(!numberAppears(1300, "Payment received USD 1,200.00 from Acme"));
   assert.deepEqual(unknownAmounts("Fixed $1,200 in three parts: $360 and $9,999", [1200, 360, 480]), [9999]);
 });
 
+test("Numbers appear in Bengali digits and with currency signs", () => {
+  assert.ok(numberAppears(1200, "পেমেন্ট ১,২০০ টাকা"));
+  assert.ok(numberAppears(1200, "মোট ৳১,২০০.০০ গ্রহণ"));
+  assert.ok(!numberAppears(1300, "পেমেন্ট ১,২০০ টাকা"));
+  assert.ok(numberAppears(45.5, "চার্জ ৪৫.৫০ টাকা"));
+});
+
 test("Milestones sum exactly to the contract value", () => {
   const parts = milestoneAmounts(1000.01, [{ pct: 30 }, { pct: 40 }, { pct: 30 }]);
   assert.equal(Math.round(parts.reduce((a, b) => a + b, 0) * 100), 100001);
+});
+
+test("milestoneAmounts handles empty arrays, zero USD, and uneven splits safely", () => {
+  assert.deepEqual(milestoneAmounts(1000, []), []);
+  assert.deepEqual(milestoneAmounts(0, []), []);
+  assert.deepEqual(milestoneAmounts(0, [{ pct: 50 }, { pct: 50 }]), [0, 0]);
+
+  // 3-way split with fractional cents reconciles remainder to final milestone
+  const thirds = milestoneAmounts(100, [{ pct: 33.33 }, { pct: 33.33 }, { pct: 33.34 }]);
+  assert.deepEqual(thirds, [33.33, 33.33, 33.34]);
+  assert.equal(Math.round(thirds.reduce((a, b) => a + b, 0) * 100), 10000);
+
+  // Under-allocated percentages (99% total) allocate remainder to final milestone
+  const under = milestoneAmounts(100, [{ pct: 33 }, { pct: 33 }, { pct: 33 }]);
+  assert.deepEqual(under, [33, 33, 34]);
+  assert.equal(Math.round(under.reduce((a, b) => a + b, 0) * 100), 10000);
 });
 
 test("Rate limiter enforces sliding token-bucket window", async () => {
@@ -138,6 +174,40 @@ test("ChuktiGuard calculates B2B milestones, SWIFT deductions, and 2.5% incentiv
   assert.ok(shield.en.includes("Rahim"));
   assert.ok(shield.en.includes("72 hours"));
   assert.ok(shield.bn.includes("রহিম") || shield.bn.includes("Rahim"));
+});
+
+test("calculateInvoiceFinOps preserves exact reconciliation invariant across all rails", async () => {
+  const { calculateInvoiceFinOps } = await import("../lib/finops.ts");
+  const rails = ["swift", "payoneer", "wise", "bkash_remit"] as const;
+  const testCases = [
+    [{ amountUsd: 2 }],
+    [{ amountUsd: 500 }],
+    [{ amountUsd: 1200 }, { amountUsd: 1800 }],
+    [{ amountUsd: 1234.56 }, { amountUsd: 789.01 }],
+    [{ amountUsd: 50000 }],
+  ];
+
+  for (const r of rails) {
+    for (const ms of testCases) {
+      const res = calculateInvoiceFinOps(ms as any, 120, r);
+      // Invariant: Gross - Fees - FX + Incentive = Net
+      const calculated = res.grossBdt - res.feeBdt - res.fxDrainBdt + res.incentiveGainBdt;
+      assert.equal(res.netBdt, calculated, `Reconciliation mismatch for rail ${r} on total $${res.totalUsd}`);
+      assert.ok(res.netBdt >= 0, `Net BDT must never be negative (rail=${r}, total=$${res.totalUsd})`);
+    }
+  }
+});
+
+test("calculateInvoiceFinOps handles empty milestones and zero amounts cleanly", async () => {
+  const { calculateInvoiceFinOps } = await import("../lib/finops.ts");
+  const empty = calculateInvoiceFinOps([], 120, "swift");
+  assert.equal(empty.totalUsd, 0);
+  assert.equal(empty.grossBdt, 0);
+  assert.equal(empty.feeBdt, 0);
+  assert.equal(empty.fxDrainBdt, 0);
+  assert.equal(empty.incentiveGainBdt, 0);
+  assert.equal(empty.netBdt, 0);
+  assert.equal(empty.keptPct, 100);
 });
 
 test("FeeGuard: effective cost from what was actually received", async () => {

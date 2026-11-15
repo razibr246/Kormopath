@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Mic, Square, Keyboard, Play, RotateCcw, CheckCircle2, XCircle, Lightbulb, MessageCircleQuestion, Trash2, TrendingUp, Info, Sparkles, Quote } from "lucide-react";
+import { Mic, Square, Keyboard, Play, RotateCcw, CheckCircle2, XCircle, Lightbulb, MessageCircleQuestion, Trash2, TrendingUp, Info, Sparkles, Quote, Pencil, Plus, X } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
-import { QUESTIONS, analyzeAnswer, progressSummary, starCheck, practiceStreak, type Question, type Analysis, type SessionRecord } from "@/lib/speech";
+import { QUESTIONS, analyzeAnswer, progressSummary, starCheck, practiceStreak, createCustomQuestion, evaluateViva, type Question, type Analysis, type SessionRecord } from "@/lib/speech";
 import { usePersistentState, storageKey, readStored, writeStored } from "@/lib/clientStore";
 
 type SR = {
@@ -32,14 +32,26 @@ const sanitizeHistory = (raw: unknown): SessionRecord[] | null =>
 
 export default function ProbahoPage() {
   const [track, setTrack] = useState<Question["track"]>("technical");
+  const [customQuestions, setCustomQuestions] = useState<Question[]>([]);
+  const [customOpen, setCustomOpen] = useState(false);
+  const [customPrompt, setCustomPrompt] = useState("");
+  const [customDuration, setCustomDuration] = useState(90);
+  const [customTrack, setCustomTrack] = useState<Question["track"]>("technical");
+  const [customKeywords, setCustomKeywords] = useState("");
+
+  const allQuestions = useMemo(() => [...QUESTIONS, ...customQuestions], [customQuestions]);
   const [qid, setQid] = useState(QUESTIONS[0].id);
-  const q = QUESTIONS.find((x) => x.id === qid)!;
+  const q = allQuestions.find((x) => x.id === qid) ?? allQuestions[0];
   const [mode, setMode] = useState<"speak" | "type">("speak");
   const [finalText, setFinalText] = useState("");
   const [interim, setInterim] = useState("");
   const [typed, setTyped] = useState("");
   const [recording, setRecording] = useState(false);
   const [elapsed, setElapsed] = useState(0);
+  const [recordedSeconds, setRecordedSeconds] = useState<number | null>(null);
+  const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editText, setEditText] = useState("");
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [supported, setSupported] = useState<boolean | null>(null);
@@ -73,22 +85,24 @@ export default function ProbahoPage() {
   useEffect(() => () => { if (audioUrl) URL.revokeObjectURL(audioUrl); }, [audioUrl]);
 
   const reset = () => {
-    setFinalText(""); setInterim(""); setTyped(""); setAnalysis(null); setElapsed(0); setError(null); setShowModel(false);
+    setFinalText(""); setInterim(""); setTyped(""); setAnalysis(null); setElapsed(0); setRecordedSeconds(null); setError(null); setShowModel(false);
     finalRef.current = "";
+    if (audioStream) {
+      audioStream.getTracks().forEach((t) => t.stop());
+      setAudioStream(null);
+    }
     if (audioUrl) URL.revokeObjectURL(audioUrl);
     setAudioUrl(null);
   };
 
   const pickQuestion = (id: string) => {
-    // Stop any recording for the old question; reset() clears the transcript first, so the
-    // aborted session's onend finds nothing to score.
     reset();
     try { recRef.current?.abort?.(); } catch { /* ignore */ }
     setQid(id);
   };
 
   const finish = (text: string, seconds: number | null) => {
-    const a = analyzeAnswer(text, q, seconds);
+    const a = evaluateViva(text, q, seconds);
     setAnalysis(a);
     if (a.wordCount >= 5) {
       setHistory((p) => [
@@ -139,25 +153,28 @@ export default function ProbahoPage() {
       setInterim("");
       const secs = startRef.current ? (Date.now() - startRef.current) / 1000 : null;
       startRef.current = null;
+      setRecordedSeconds(secs);
       if (mediaRef.current && mediaRef.current.state !== "inactive") mediaRef.current.stop();
       if (finalRef.current.trim()) finish(finalRef.current, secs);
     };
     recRef.current = r;
 
-    if (keepAudio && navigator.mediaDevices?.getUserMedia) {
+    if (navigator.mediaDevices?.getUserMedia) {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const mr = new MediaRecorder(stream);
-        chunksRef.current = [];
-        mr.ondataavailable = (ev) => ev.data.size && chunksRef.current.push(ev.data);
-        mr.onstop = () => {
-          stream.getTracks().forEach((t) => t.stop());
-          setAudioUrl(URL.createObjectURL(new Blob(chunksRef.current, { type: mr.mimeType || "audio/webm" })));
-        };
-        mr.start();
-        mediaRef.current = mr;
+        setAudioStream(stream);
+        if (keepAudio) {
+          const mr = new MediaRecorder(stream);
+          chunksRef.current = [];
+          mr.ondataavailable = (ev) => ev.data.size && chunksRef.current.push(ev.data);
+          mr.onstop = () => {
+            setAudioUrl(URL.createObjectURL(new Blob(chunksRef.current, { type: mr.mimeType || "audio/webm" })));
+          };
+          mr.start();
+          mediaRef.current = mr;
+        }
       } catch {
-        setError("নিজের রেকর্ডিং চালু করা যায়নি; ট্রান্সক্রিপ্ট তবুও কাজ করবে।");
+        setError("মাইক্রোফোন অডিও ভিজ্যুয়ালাইজার চালু করা যায়নি; ট্রান্সক্রিপ্ট কাজ করবে।");
       }
     }
 
@@ -171,7 +188,47 @@ export default function ProbahoPage() {
     }
   };
 
-  const stop = () => recRef.current?.stop();
+  const stop = () => {
+    recRef.current?.stop();
+    if (audioStream) {
+      audioStream.getTracks().forEach((t) => t.stop());
+      setAudioStream(null);
+    }
+  };
+
+  const handleCreateCustom = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!customPrompt.trim()) return;
+    const keywordsArr = customKeywords
+      .split(/[,،]+/)
+      .map((k) => k.trim())
+      .filter(Boolean);
+    const newQ = createCustomQuestion({
+      prompt: customPrompt,
+      track: customTrack,
+      targetSeconds: customDuration,
+      keywords: keywordsArr.length > 0 ? keywordsArr : undefined,
+    });
+    setCustomQuestions((prev) => [newQ, ...prev]);
+    setTrack(newQ.track);
+    setQid(newQ.id);
+    setCustomOpen(false);
+    setCustomPrompt("");
+    setCustomKeywords("");
+    reset();
+  };
+
+  const openEditModal = () => {
+    setEditText(finalText);
+    setEditModalOpen(true);
+  };
+
+  const saveEditedTranscript = () => {
+    setFinalText(editText);
+    finalRef.current = editText;
+    setEditModalOpen(false);
+    finish(editText, recordedSeconds);
+  };
 
   const progress = useMemo(() => progressSummary(history), [history]);
   const streak = useMemo(() => practiceStreak(history, new Date().toISOString().slice(0, 10)), [history]);
@@ -207,17 +264,91 @@ export default function ProbahoPage() {
           <section aria-labelledby="q-h" className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5">
             <div className="flex flex-wrap gap-1.5" role="tablist" aria-label="ট্র্যাক">
               {TRACKS.map((t) => (
-                <button key={t.id} role="tab" aria-selected={track === t.id} onClick={() => { setTrack(t.id); pickQuestion(QUESTIONS.find((x) => x.track === t.id)!.id); }} className={`rounded-lg px-3 py-1.5 text-[12px] font-bold ${track === t.id ? "bg-violet-600 text-white" : "bg-slate-100 text-slate-600"}`}>
+                <button key={t.id} role="tab" aria-selected={track === t.id} onClick={() => { setTrack(t.id); pickQuestion(allQuestions.find((x) => x.track === t.id)?.id ?? allQuestions[0].id); }} className={`rounded-lg px-3 py-1.5 text-[12px] font-bold ${track === t.id ? "bg-violet-600 text-white" : "bg-slate-100 text-slate-600"}`}>
                   {t.label}
                 </button>
               ))}
             </div>
-            <label className="block text-[12px] font-bold text-slate-600">
-              প্রশ্ন
-              <select value={qid} onChange={(e) => pickQuestion(e.target.value)} className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-2 py-2 text-[13px] font-normal">
+            <div>
+              <div className="flex items-center justify-between">
+                <label htmlFor="q-select" className="block text-[12px] font-bold text-slate-600">
+                  প্রশ্ন
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setCustomOpen(!customOpen)}
+                  className="inline-flex items-center gap-1 text-[12px] font-bold text-violet-700 hover:text-violet-900"
+                >
+                  <Plus size={14} aria-hidden /> {customOpen ? "কাস্টম ফরম বন্ধ" : "+ কাস্টম প্রশ্ন তৈরি"}
+                </button>
+              </div>
+              <select id="q-select" value={qid} onChange={(e) => pickQuestion(e.target.value)} className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-2 py-2 text-[13px] font-normal">
                 {questionsInTrack.map((x) => <option key={x.id} value={x.id}>[{x.level}] {x.prompt}</option>)}
               </select>
-            </label>
+            </div>
+
+            {customOpen && (
+              <form onSubmit={handleCreateCustom} className="space-y-3 rounded-xl border border-violet-200 bg-violet-50/50 p-4 text-[13px]">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-bold text-violet-900">নিজের কাস্টম প্রশ্ন তৈরি করুন</h3>
+                  <button type="button" onClick={() => setCustomOpen(false)} className="text-slate-400 hover:text-slate-600"><X size={16} /></button>
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-600">প্রশ্নের বিবরণ (Prompt)</label>
+                  <textarea
+                    rows={2}
+                    required
+                    value={customPrompt}
+                    onChange={(e) => setCustomPrompt(e.target.value)}
+                    placeholder="যেমন: Compare optimistic locking vs pessimistic locking in high concurrency systems."
+                    className="mt-1 w-full rounded-lg border border-slate-200 bg-white p-2 text-[13px] outline-none focus:border-violet-600"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-600">ট্র্যাক</label>
+                    <select
+                      value={customTrack}
+                      onChange={(e) => setCustomTrack(e.target.value as Question["track"])}
+                      className="mt-1 block w-full rounded-lg border border-slate-200 bg-white p-1.5 text-[12px]"
+                    >
+                      {TRACKS.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-600">সময় সীমা (সেকেন্ড)</label>
+                    <select
+                      value={customDuration}
+                      onChange={(e) => setCustomDuration(Number(e.target.value))}
+                      className="mt-1 block w-full rounded-lg border border-slate-200 bg-white p-1.5 text-[12px]"
+                    >
+                      <option value={30}>৩০ সেকেন্ড</option>
+                      <option value={60}>৬০ সেকেন্ড</option>
+                      <option value={90}>৯০ সেকেন্ড</option>
+                      <option value={120}>১২০ সেকেন্ড</option>
+                      <option value={180}>১৮০ সেকেন্ড</option>
+                    </select>
+                  </div>
+                  <div className="col-span-2 sm:col-span-1">
+                    <label className="block text-[11px] font-bold text-slate-600">বিষয়/কিওয়ার্ড (কমা দিয়ে, ঐচ্ছিক)</label>
+                    <input
+                      type="text"
+                      value={customKeywords}
+                      onChange={(e) => setCustomKeywords(e.target.value)}
+                      placeholder="version, lock, conflicts"
+                      className="mt-1 block w-full rounded-lg border border-slate-200 bg-white p-1.5 text-[12px]"
+                    />
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  disabled={!customPrompt.trim()}
+                  className="rounded-lg bg-violet-600 px-4 py-2 text-[12px] font-bold text-white hover:bg-violet-700 disabled:opacity-40"
+                >
+                  প্রশ্ন তৈরি করে শুরু করুন
+                </button>
+              </form>
+            )}
             <div id="q-h" className="rounded-xl border border-violet-200 bg-violet-50/60 p-4">
               <span className="text-[11px] font-bold uppercase text-violet-800">প্রশ্ন · লক্ষ্য সময় {q.targetSeconds} সেকেন্ড</span>
               <p className="mt-1 text-[17px] font-bold leading-snug">{q.prompt}</p>
@@ -254,7 +385,14 @@ export default function ProbahoPage() {
                     নিজের রেকর্ডিং পরে শুনতে চাই (শুধু এই পেজে, সংরক্ষণ হয় না)
                   </label>
                 </div>
-                {recording && <div className="h-1.5 overflow-hidden rounded-full bg-slate-100"><div className={`h-full ${over ? "bg-amber-500" : "bg-violet-500"}`} style={{ width: `${Math.min(100, (elapsed / q.targetSeconds) * 100)}%` }} /></div>}
+                {recording && (
+                  <div className="space-y-2">
+                    <div className="h-1.5 overflow-hidden rounded-full bg-slate-100">
+                      <div className={`h-full ${over ? "bg-amber-500" : "bg-violet-500"}`} style={{ width: `${Math.min(100, (elapsed / q.targetSeconds) * 100)}%` }} />
+                    </div>
+                    <AudioWaveformVisualizer stream={audioStream} active={recording} />
+                  </div>
+                )}
               </div>
             )}
 
@@ -270,7 +408,18 @@ export default function ProbahoPage() {
 
             {mode === "speak" && (shownText || recording) && (
               <div className="min-h-[100px] rounded-xl border border-slate-200 bg-slate-50 p-3 text-[14px] leading-relaxed" aria-live="polite">
-                <span className="mb-1 block text-[11px] font-bold uppercase text-slate-400">যা শোনা গেছে (স্বয়ংক্রিয় — ভুল থাকতে পারে)</span>
+                <div className="mb-1.5 flex items-center justify-between">
+                  <span className="block text-[11px] font-bold uppercase text-slate-400">যা শোনা গেছে (স্বয়ংক্রিয় — ভুল থাকতে পারে)</span>
+                  {!recording && finalText && (
+                    <button
+                      type="button"
+                      onClick={openEditModal}
+                      className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-bold text-violet-700 shadow-sm hover:bg-violet-50"
+                    >
+                      <Pencil size={11} aria-hidden /> এডিট করুন
+                    </button>
+                  )}
+                </div>
                 {finalText}<span className="text-slate-400"> {interim}</span>
               </div>
             )}
@@ -281,7 +430,52 @@ export default function ProbahoPage() {
               </div>
             )}
             {mode === "speak" && analysis && finalText && (
-              <p className="text-[11px] text-slate-500">ট্রান্সক্রিপ্টে ভুল শব্দ থাকলে “লিখে উত্তর” মোডে ঠিক করে আবার মূল্যায়ন করতে পারেন: <button className="underline" onClick={() => { setTyped(finalText); setMode("type"); setAnalysis(null); }}>ট্রান্সক্রিপ্ট এডিট করুন</button></p>
+              <p className="text-[11px] text-slate-500">
+                ট্রান্সক্রিপ্টে ভুল শব্দ থাকলে ঠিক করে আসল রেকর্ডিং সময় ধরে পুনর্মূল্যায়ন করুন:{" "}
+                <button className="font-semibold text-violet-700 underline" onClick={openEditModal}>
+                  ট্রান্সক্রিপ্ট এডিট করুন
+                </button>
+              </p>
+            )}
+
+            {/* Inline Transcript Edit Modal */}
+            {editModalOpen && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+                <div className="w-full max-w-lg space-y-4 rounded-2xl bg-white p-5 shadow-xl">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-[16px] font-bold text-slate-900">ট্রান্সক্রিপ্ট সংশোধন</h3>
+                    <button onClick={() => setEditModalOpen(false)} className="rounded-lg p-1 text-slate-400 hover:bg-slate-100">
+                      <X size={18} />
+                    </button>
+                  </div>
+                  <p className="text-[12px] text-slate-500">
+                    স্পিচ-টু-টেক্সটের ভুল শব্দগুলো সংশোধন করুন। আপনার আসল রেকর্ডিং সময় {recordedSeconds ? `(${Math.round(recordedSeconds)} সেকেন্ড)` : ""} ও অডিও ফাইল বহাল থাকবে।
+                  </p>
+                  <textarea
+                    rows={6}
+                    value={editText}
+                    onChange={(e) => setEditText(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 p-3 text-[14px] outline-none focus:border-violet-600"
+                  />
+                  <div className="flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setEditModalOpen(false)}
+                      className="rounded-lg border border-slate-200 px-3 py-1.5 text-[13px] font-bold text-slate-700"
+                    >
+                      বাতিল
+                    </button>
+                    <button
+                      type="button"
+                      onClick={saveEditedTranscript}
+                      disabled={!editText.trim()}
+                      className="rounded-lg bg-violet-600 px-4 py-1.5 text-[13px] font-bold text-white hover:bg-violet-700 disabled:opacity-40"
+                    >
+                      সংরক্ষণ ও পুনর্মূল্যায়ন
+                    </button>
+                  </div>
+                </div>
+              </div>
             )}
           </section>
 
@@ -489,6 +683,117 @@ function AiCoach({ questionId, answer, lang }: { questionId: string; answer: str
           <p className="text-[10px] text-slate-500">{isAi ? (en ? "Each quoted strength was checked against your answer text." : "প্রতিটি উদ্ধৃতি আপনার উত্তরের লেখার সাথে মিলিয়ে দেখা হয়েছে।") : en ? "Model unavailable, so this is built from the rule-based analysis." : "মডেল পাওয়া যায়নি, তাই নিয়মভিত্তিক বিশ্লেষণ থেকে তৈরি।"}</p>
         </div>
       )}
+    </div>
+  );
+}
+
+function AudioWaveformVisualizer({ stream, active }: { stream: MediaStream | null; active: boolean }) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const animRef = useRef<number | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const [webAudioFailed, setWebAudioFailed] = useState(false);
+
+  useEffect(() => {
+    if (!active || !stream) {
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+      if (audioCtxRef.current && audioCtxRef.current.state !== "closed") {
+        try { audioCtxRef.current.close(); } catch {}
+      }
+      return;
+    }
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let stopped = false;
+    const AudioCtxClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    if (!AudioCtxClass) {
+      setWebAudioFailed(true);
+      return;
+    }
+
+    try {
+      const audioCtx = new AudioCtxClass();
+      audioCtxRef.current = audioCtx;
+      const source = audioCtx.createMediaStreamSource(stream);
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 128;
+      analyser.smoothingTimeConstant = 0.8;
+      source.connect(analyser);
+
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      const draw = () => {
+        if (stopped) return;
+        animRef.current = requestAnimationFrame(draw);
+        analyser.getByteFrequencyData(dataArray);
+
+        const width = canvas.width;
+        const height = canvas.height;
+        ctx.clearRect(0, 0, width, height);
+
+        const barCount = 28;
+        const barWidth = (width / barCount) - 2;
+        const step = Math.floor(bufferLength / barCount) || 1;
+
+        for (let i = 0; i < barCount; i++) {
+          const val = dataArray[i * step] || 0;
+          const barHeight = Math.max(3, (val / 255) * height);
+          const x = i * (barWidth + 2);
+          const y = (height - barHeight) / 2;
+
+          const gradient = ctx.createLinearGradient(0, y, 0, y + barHeight);
+          gradient.addColorStop(0, "#8b5cf6");
+          gradient.addColorStop(1, "#4f46e5");
+
+          ctx.fillStyle = gradient;
+          if (typeof ctx.roundRect === "function") {
+            ctx.beginPath();
+            ctx.roundRect(x, y, barWidth, barHeight, 2);
+            ctx.fill();
+          } else {
+            ctx.fillRect(x, y, barWidth, barHeight);
+          }
+        }
+      };
+
+      draw();
+    } catch {
+      setWebAudioFailed(true);
+    }
+
+    return () => {
+      stopped = true;
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+      if (audioCtxRef.current && audioCtxRef.current.state !== "closed") {
+        try { audioCtxRef.current.close(); } catch {}
+      }
+    };
+  }, [active, stream]);
+
+  if (webAudioFailed) {
+    return (
+      <div className="flex items-center justify-center gap-1.5 h-10 rounded-xl bg-violet-50/50 p-2">
+        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+          <div key={i} className="w-1.5 bg-violet-500 rounded-full animate-pulse" style={{ height: `${12 + (i % 4) * 6}px`, animationDelay: `${i * 120}ms` }} />
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center rounded-xl border border-violet-100 bg-violet-50/50 p-2.5">
+      <div className="flex items-center gap-2 mb-1.5">
+        <span className="relative flex h-2.5 w-2.5">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+        </span>
+        <span className="text-[11px] font-bold uppercase tracking-wider text-violet-800">মাইক্রোফোন লাইভ অডিও স্পেকট্রাম</span>
+      </div>
+      <canvas ref={canvasRef} width={340} height={42} className="w-full max-w-[360px] h-10 rounded-lg" />
     </div>
   );
 }

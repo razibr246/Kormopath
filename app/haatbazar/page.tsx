@@ -7,6 +7,7 @@ import { AgriculturalLifecycle } from "@/components/AgriculturalLifecycle";
 import { HaatMarket } from "@/components/HaatMarket";
 import {
   tripMargin, shareTruck, priceAgeDays, seasonForMonth, SEASONS, RICE_SEASONS, DISTRICTS, CROP_DISEASES, CROPS, KG_PER_MAUND,
+  calculateSensitivityCurve, type SensitivityPoint,
   type PriceNote, type WeatherHour, type SprayWindow,
 } from "@/lib/haatbazar";
 import { usePersistentState, storageKey, todayLocal } from "@/lib/clientStore";
@@ -110,7 +111,13 @@ export default function HaatBazarPage() {
 function TripCalculator({ notes }: { notes: StoredNote[] }) {
   const [v, setV] = useState({ quantityKg: 1000, localPricePerKg: 38, distantPricePerKg: 46, transportPerMaund: 65, commissionPct: 5, labourPerMaund: 10, lossPct: 2, otherCosts: 300 });
   const [touched, setTouched] = useState(false);
+  const [sensitivityDelta, setSensitivityDelta] = useState(0);
   const r = useMemo(() => tripMargin(v), [v]);
+  const sensitivityCurve = useMemo(() => calculateSensitivityCurve(v), [v]);
+  const activePoint = useMemo(
+    () => sensitivityCurve.find((p) => p.deltaPct === sensitivityDelta) ?? sensitivityCurve.find((p) => p.deltaPct === 0)!,
+    [sensitivityCurve, sensitivityDelta]
+  );
   const set = (k: keyof typeof v) => (e: React.ChangeEvent<HTMLInputElement>) => { setTouched(true); setV({ ...v, [k]: Math.max(0, Number(e.target.value) || 0) }); };
   const [farmers, setFarmers] = useState("10, 10, 5");
   const [fare, setFare] = useState(4500);
@@ -173,6 +180,98 @@ function TripCalculator({ notes }: { notes: StoredNote[] }) {
           আড়তে সব খরচের পর হাতে থাকে <strong className="font-mono">৳{r0(r.distantNet)}</strong>। লাভ পেতে আড়তে অন্তত <strong>৳{Number.isFinite(r.breakEvenDistantPrice) ? r.breakEvenDistantPrice.toFixed(2) : "—"}/কেজি</strong> পাইকারি দাম লাগবে।
         </p>
         <p className="mt-1 text-[11px] text-stone-500">শুধু আপনার দেওয়া সংখ্যার হিসাব। পৌঁছানোর দিনে দাম বদলে যেতে পারে — লাভের নিশ্চয়তা নয়।</p>
+      </div>
+
+      {/* Profit Sensitivity Section */}
+      <div className="rounded-xl border border-stone-200 bg-white p-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 className="text-[14px] font-bold text-stone-900">পাইকারি দর সংবেদনশীলতা (Profit Sensitivity)</h3>
+            <p className="text-[12px] text-stone-500">
+              মোকামে পৌঁছানোর পর যদি পাইকারি দর কমে বা বাড়ে, তবে আপনার আসল লাভ কেমন থাকবে?
+            </p>
+          </div>
+          <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${activePoint.worthIt ? "bg-green-100 text-green-800" : "bg-amber-100 text-amber-800"}`}>
+            {sensitivityDelta > 0 ? `+${sensitivityDelta}%` : `${sensitivityDelta}%`} দর তারতম্য
+          </span>
+        </div>
+
+        <div className="mt-3">
+          <div className="flex items-center justify-between text-[11px] font-bold text-stone-600">
+            <span className="text-red-700">-১৫% দর পতন</span>
+            <span className="text-stone-700">বর্তমান দর (৳{v.distantPricePerKg}/কেজি)</span>
+            <span className="text-green-700">+১৫% দর বৃদ্ধি</span>
+          </div>
+          <input
+            type="range"
+            min={-15}
+            max={15}
+            step={5}
+            value={sensitivityDelta}
+            onChange={(e) => setSensitivityDelta(Number(e.target.value))}
+            className="mt-1.5 h-2 w-full cursor-pointer appearance-none rounded-lg bg-stone-200 accent-green-800"
+            aria-label="পাইকারি দর তারতম্য স্লাইডার"
+          />
+        </div>
+
+        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4 rounded-lg bg-stone-50 p-2.5 text-[12px]">
+          <div>
+            <span className="text-stone-500">পরিবর্তিত দর:</span>
+            <p className="font-mono font-bold">৳{activePoint.adjustedWholesalePrice.toFixed(2)}/কেজি</p>
+          </div>
+          <div>
+            <span className="text-stone-500">আড়তে নিট আয়:</span>
+            <p className="font-mono font-bold">৳{r0(activePoint.distantNet)}</p>
+          </div>
+          <div>
+            <span className="text-stone-500">হাটের চেয়ে পার্থক্য:</span>
+            <p className={`font-mono font-bold ${activePoint.extraVsLocal >= 0 ? "text-green-700" : "text-amber-700"}`}>
+              {activePoint.extraVsLocal >= 0 ? `+৳${r0(activePoint.extraVsLocal)}` : `−৳${r0(-activePoint.extraVsLocal)}`}
+            </p>
+          </div>
+          <div>
+            <span className="text-stone-500">সিদ্ধান্ত:</span>
+            <p className={`font-bold ${activePoint.worthIt ? "text-green-800" : "text-amber-800"}`}>
+              {activePoint.worthIt ? "মোকামে লাভজনক" : "হাটেই বিক্রি শ্রেয়"}
+            </p>
+          </div>
+        </div>
+
+        {/* Responsive compact curve matrix */}
+        <div className="mt-3 overflow-x-auto">
+          <table className="w-full min-w-[480px] text-left text-[12px]">
+            <thead className="border-b border-stone-200 text-[10px] uppercase text-stone-500">
+              <tr>
+                <th className="py-1">দর তারতম্য</th>
+                <th>পাইকারি দর</th>
+                <th>আড়তে নিট</th>
+                <th>পার্থক্য</th>
+                <th>সিদ্ধান্ত</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-stone-100">
+              {sensitivityCurve.map((pt) => (
+                <tr
+                  key={pt.deltaPct}
+                  onClick={() => setSensitivityDelta(pt.deltaPct)}
+                  className={`cursor-pointer transition-colors ${pt.deltaPct === sensitivityDelta ? "bg-green-50/70 font-semibold" : "hover:bg-stone-50"}`}
+                >
+                  <td className="py-1 font-mono">{pt.deltaPct > 0 ? `+${pt.deltaPct}%` : pt.deltaPct === 0 ? "০% (ভিত্তি)" : `${pt.deltaPct}%`}</td>
+                  <td className="font-mono">৳{pt.adjustedWholesalePrice.toFixed(2)}</td>
+                  <td className="font-mono">৳{r0(pt.distantNet)}</td>
+                  <td className={`font-mono ${pt.extraVsLocal >= 0 ? "text-green-700" : "text-amber-700"}`}>
+                    {pt.extraVsLocal >= 0 ? `+৳${r0(pt.extraVsLocal)}` : `−৳${r0(-pt.extraVsLocal)}`}
+                  </td>
+                  <td>
+                    <span className={`inline-block rounded px-1.5 py-0.5 text-[10px] font-bold ${pt.worthIt ? "bg-green-100 text-green-800" : "bg-amber-100 text-amber-800"}`}>
+                      {pt.worthIt ? "লাভজনক" : "ঝুঁকিপূর্ণ"}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div className="rounded-xl bg-stone-50 p-3">

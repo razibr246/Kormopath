@@ -1,4 +1,3 @@
-import "server-only";
 import { createHmac, timingSafeEqual } from "crypto";
 import { z } from "zod";
 
@@ -35,8 +34,9 @@ export function issue(p: Passport): { token: string; id: string } {
 }
 
 export function check(token: string): { valid: boolean; passport?: Passport | SharedPassport; id?: string; reason?: string } {
-  const [body, sig] = token.split(".");
-  if (!body || !sig) return { valid: false, reason: "Malformed passport link." };
+  const parts = token.split(".");
+  if (parts.length !== 2 || !parts[0] || !parts[1]) return { valid: false, reason: "Malformed passport link." };
+  const [body, sig] = parts;
   const expected = sign(body);
   const a = Buffer.from(sig);
   const b = Buffer.from(expected);

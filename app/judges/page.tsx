@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Compass, ShieldCheck } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
+import { LiveAssertionHarness } from "@/components/LiveAssertionHarness";
 
 export const metadata: Metadata = {
   title: "Judge tour",
@@ -52,6 +53,10 @@ export default function JudgesPage() {
               </li>
             ))}
           </ol>
+        </section>
+
+        <section aria-labelledby="harness-h" className="rounded-2xl border border-slate-200 bg-white p-5">
+          <LiveAssertionHarness />
         </section>
 
         <section aria-labelledby="apps-h" className="space-y-3">

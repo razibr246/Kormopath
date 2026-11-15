@@ -9,7 +9,23 @@
 // - It does not recommend switching brands or changing doses. That is for the prescriber
 //   or pharmacist.
 
-export type DrugClass = "analgesic" | "ppi" | "antibiotic" | "antihistamine" | "leukotriene" | "antidiabetic" | "antacid";
+export type DrugClass =
+  | "analgesic"
+  | "ppi"
+  | "antibiotic"
+  | "antihistamine"
+  | "leukotriene"
+  | "antidiabetic"
+  | "antacid"
+  | "antihypertensive"
+  | "statin"
+  | "prokinetic"
+  | "electrolyte"
+  | "antiprotozoal"
+  | "bronchodilator"
+  | "antiemetic"
+  | "oral-rehydration"
+  | "substance";
 
 export interface DrugItem {
   id: string;
@@ -22,6 +38,8 @@ export interface DrugItem {
   whatItIsForBn: string;
   generalNotesBn: string;
 }
+
+export type DrugInfo = DrugItem;
 
 /** Reviewed: 2026-11-05. General information only; see docs/mediscan-research-and-plan.md. */
 export const DRUG_REFERENCE: DrugItem[] = [
@@ -114,6 +132,114 @@ export const DRUG_REFERENCE: DrugItem[] = [
     drugClass: "antacid",
     whatItIsForBn: "পেটের অ্যাসিড সাময়িকভাবে নিষ্ক্রিয় করে বুক জ্বালা কমায়।",
     generalNotesBn: "অনেক ওষুধের শোষণ কমিয়ে দেয় — অন্য ওষুধের সাথে সময়ের ব্যবধান রাখতে হয় কি না ফার্মাসিস্টকে জিজ্ঞেস করুন।",
+  },
+  {
+    id: "ciprofloxacin",
+    aliases: ["ciprocin", "neofloxin", "cipro", "cpro", "flontin", "beuflox", "ciprofloxacin"],
+    genericName: "Ciprofloxacin",
+    ingredients: ["ciprofloxacin"],
+    drugClass: "antibiotic",
+    whatItIsForBn: "ব্যাকটেরিয়াজনিত সংক্রমণ (যেমন প্রস্রাবের সংক্রমণ, ডায়রিয়া, টাইফয়েড ও শ্বাসনালীর সংক্রমণ) নিরাময়ে ব্যবহৃত ফ্লুরোকুইনোলোন অ্যান্টিবায়োটিক।",
+    generalNotesBn: "ক্যালসিয়াম, ম্যাগনেসিয়াম বা অ্যালুমিনিয়ামযুক্ত অ্যান্টাসিড খাওয়ার অন্তত ২ ঘণ্টা আগে বা ৪-৬ ঘণ্টা পরে খান, অন্যথায় শোষণ ব্যাহত হয়। ডাক্তারের পরামর্শমতো পুরো কোর্স শেষ করুন।",
+  },
+  {
+    id: "amoxicillin-clavulanic",
+    aliases: ["moxaclav", "clavupen", "amoxiclav", "co-amoxiclav", "co amoxiclav", "tyclav", "amoxicillin + clavulanic acid", "amoxicillin+clavulanic acid"],
+    genericName: "Amoxicillin + Clavulanic acid",
+    ingredients: ["amoxicillin", "clavulanic acid"],
+    drugClass: "antibiotic",
+    whatItIsForBn: "কান, গলা, ফুসফুস ও মূত্রনালীর প্রতিরোধী ব্যাকটেরিয়াজনিত সংক্রমণের অ্যান্টিবায়োটিক।",
+    generalNotesBn: "পেটের অস্বস্তি এড়াতে প্রধান খাবারের শুরুতে খান। পেনিসিলিনে অ্যালার্জি থাকলে ডাক্তারকে জানান এবং সম্পূর্ণ কোর্স শেষ করুন।",
+  },
+  {
+    id: "cefixime",
+    aliases: ["cef-3", "cef 3", "cef3", "triocav", "denvar", "cefutic", "triocim", "cefixime"],
+    genericName: "Cefixime",
+    ingredients: ["cefixime"],
+    drugClass: "antibiotic",
+    whatItIsForBn: "টাইফয়েড জ্বর, শ্বাসতন্ত্র ও মূত্রনালীর তীব্র ব্যাকটেরিয়াজনিত সংক্রমণের ৩য় প্রজন্মের সেফালোস্পোরিন অ্যান্টিবায়োটিক।",
+    generalNotesBn: "জ্বর কমে গেলেও ডাক্তারের নির্দেশিত পুরো কোর্স শেষ করুন; মাঝপথে বন্ধ করলে ব্যাকটেরিয়াল রেজিস্ট্যান্স হতে পারে।",
+  },
+  {
+    id: "losartan",
+    aliases: ["osartil", "angilock", "losar", "prosan", "losan", "losartan potassium", "losartan"],
+    genericName: "Losartan Potassium",
+    ingredients: ["losartan"],
+    drugClass: "antihypertensive",
+    whatItIsForBn: "উচ্চ রক্তচাপ নিয়ন্ত্রণে এবং ডায়াবেটিক রোগীদের কিডনি সুরক্ষায় ব্যবহৃত ARB শ্রেণির ওষুধ।",
+    generalNotesBn: "প্রতিদিন একই সময়ে খাওয়া উচিত। নিজে থেকে হঠাৎ ওষুধ বন্ধ করবেন না। গর্ভাবস্থায় এই ওষুধ খাওয়া নিষেধ।",
+  },
+  {
+    id: "amlodipine",
+    aliases: ["camlodin", "amocal", "lodipin", "amdocal", "amlocab", "amlodipine besylate", "amlodipine"],
+    genericName: "Amlodipine",
+    ingredients: ["amlodipine"],
+    drugClass: "antihypertensive",
+    whatItIsForBn: "উচ্চ রক্তচাপ নিয়ন্ত্রণ ও হৃদরোগে রক্তনালী প্রসারিত করে রক্ত চলাচল স্বাভাবিক রাখতে ব্যবহৃত ক্যালসিয়াম চ্যানেল ব্লকার।",
+    generalNotesBn: "নিয়মিত রক্তচাপ মাপুন। পা বা গোড়ালি ফুলে গেলে বা হঠাৎ মাথা ঘুরলে ডাক্তারকে জানান।",
+  },
+  {
+    id: "atorvastatin",
+    aliases: ["atova", "lipicon", "tiginor", "atorva", "anzitor", "atorvastatin calcium", "atorvastatin"],
+    genericName: "Atorvastatin",
+    ingredients: ["atorvastatin"],
+    drugClass: "statin",
+    whatItIsForBn: "রক্তে অতিরিক্ত কোলেস্টেরল কমিয়ে হার্ট অ্যাটাক ও স্ট্রোকের ঝুঁকি কমাতে ব্যবহৃত স্ট্যাটিন।",
+    generalNotesBn: "সাধারণত রাতে শোয়ার আগে খাওয়া ভালো। মাংসপেশিতে তীব্র ব্যথা বা দুর্বলতা অনুভব করলে দ্রুত ডাক্তারকে জানান।",
+  },
+  {
+    id: "cetirizine",
+    aliases: ["alatrol", "cetron", "atrizin", "cetrizin", "citrosin", "rhinil", "cetirizine"],
+    genericName: "Cetirizine",
+    ingredients: ["cetirizine"],
+    drugClass: "antihistamine",
+    whatItIsForBn: "নাক দিয়ে পানি পড়া, হাঁচি, চুলকানি ও অ্যালার্জি নিরাময়ে ব্যবহৃত ২য় প্রজন্মের অ্যান্টিহিস্টামিন।",
+    generalNotesBn: "কিছু মানুষের ক্ষেত্রে ঘুম ঘুম ভাব তৈরি করতে পারে; গাড়ি চালানো বা ঝুঁকিপূর্ণ কাজের সময় সতর্ক থাকুন।",
+  },
+  {
+    id: "domperidone",
+    aliases: ["motigut", "omidon", "don-a", "don a", "motidon", "domper", "domperidone"],
+    genericName: "Domperidone",
+    ingredients: ["domperidone"],
+    drugClass: "prokinetic",
+    whatItIsForBn: "বমি বমি ভাব, বমি, পেট ফাঁপা ও বদহজম দূর করতে ব্যবহৃত প্রোকাইনেটিক ওষুধ।",
+    generalNotesBn: "সাধারণত খাবারের ১৫ থেকে ৩০ মিনিট আগে খেতে হয়। হৃদযন্ত্রের অস্বাভাবিক ছন্দ (arrhythmia) থাকলে আগে ডাক্তারকে জানান।",
+  },
+  {
+    id: "ors",
+    aliases: ["orsaline", "orsaline-n", "orsaline n", "or saline", "oral saline", "smc orsaline", "ors powder", "ors"],
+    genericName: "Oral Rehydration Salts (ORS)",
+    ingredients: ["sodium chloride", "potassium chloride", "sodium citrate", "glucose"],
+    drugClass: "electrolyte",
+    whatItIsForBn: "ডায়রিয়া, বমি বা তীব্র গরমে শরীরে পানির ঘাটতি ও ইলেক্ট্রোলাইট ভারসাম্যহীনতা পূরণে ব্যবহৃত খাবার স্যালাইন।",
+    generalNotesBn: "নির্দিষ্ট পরিমাণ (সাধারণত ৫০০ মি.লি.) ফুটানো ঠান্ডা পানিতে পুরো প্যাকেট গুলিয়ে তৈরি করুন। কম পানিতে স্যালাইন গুলবেন না। প্রস্তুতকৃত স্যালাইন ১২ ঘণ্টার বেশি রাখবেন না।",
+  },
+  {
+    id: "metronidazole",
+    aliases: ["filmet", "flamet", "amodiadis", "metrodex", "flamyd", "amodis", "metryl", "metronidazole"],
+    genericName: "Metronidazole",
+    ingredients: ["metronidazole"],
+    drugClass: "antiprotozoal",
+    whatItIsForBn: "অ্যামিবায়াসিস, পেটের আমাশয়, দাঁতের ইনফেকশন ও অ্যানারোবিক ব্যাকটেরিয়ার সংক্রমণে ব্যবহৃত ওষুধ।",
+    generalNotesBn: "এই ওষুধ চলাকালীন এবং কোর্স শেষ হওয়ার অন্তত ৪৮ থেকে ৭২ ঘণ্টা পর্যন্ত যেকোনো ধরনের অ্যালকোহল বা মদ সম্পূর্ণরূপে পরিহার করুন।",
+  },
+  {
+    id: "salbutamol",
+    aliases: ["ventolin", "asmasol", "sultolin", "salbutamol"],
+    genericName: "Salbutamol",
+    ingredients: ["salbutamol"],
+    drugClass: "bronchodilator",
+    whatItIsForBn: "হাঁপানি ও সিওপিডি (COPD) রোগীদের হঠাৎ তীব্র শ্বাসকষ্ট উপশমে দ্রুত কার্যকর ব্রঙ্কোডাইলেটর।",
+    generalNotesBn: "হঠাৎ শ্বাসকষ্টের সময় ইনহেলার ব্যবহারবিধি মেনে নিন। ব্যবহারের পর হৃদস্পন্দন সাময়িক বেড়ে যেতে পারে।",
+  },
+  {
+    id: "alcohol",
+    aliases: ["alcohol", "ethanol", "wine", "beer", "whisky", "vodka", "spirits", "মদ", "অ্যালকোহল"],
+    genericName: "Alcohol / Ethanol (অ্যালকোহল)",
+    ingredients: ["ethanol"],
+    drugClass: "substance",
+    whatItIsForBn: "অ্যালকোহলযুক্ত পানীয় বা পদার্থ (পারস্পরিক প্রতিক্রিয়া পর্যালোচনার রেফারেন্স)।",
+    generalNotesBn: "মেট্রোনিডাজল ও সিডেটিভ ওষুধের সাথে তীব্র বিষাক্ত প্রতিক্রিয়া সৃষ্টি করে।",
   },
 ];
 
@@ -299,6 +425,24 @@ const PAIR_RULES: { a: string | DrugClass; b: string | DrugClass; titleBn: strin
     titleBn: "অ্যান্টাসিড অ্যান্টিবায়োটিকের শোষণ কমাতে পারে",
     adviceBn: "অ্যাজিথ্রোমাইসিনের প্রোডাক্ট লিফলেটে অ্যালুমিনিয়াম/ম্যাগনেসিয়ামযুক্ত অ্যান্টাসিড একই সময়ে না খেতে বলা হয়। কতক্ষণ ব্যবধান রাখবেন তা ফার্মাসিস্টের কাছে নিশ্চিত হোন।",
   },
+  {
+    a: "ciprofloxacin",
+    b: "antacid",
+    titleBn: "অ্যান্টাসিড সিপ্রোফ্লক্সাসিনের শোষণ উল্লেখযোগ্যভাবে কমিয়ে দেয় (চিলেশন ঝুঁকি)",
+    adviceBn: "অ্যালুমিনিয়াম বা ম্যাগনেসিয়ামযুক্ত অ্যান্টাসিড সিপ্রোফ্লক্সাসিনের সাথে চিলেশন (রাসায়নিক বন্ধন) তৈরি করে রক্তে এর শোষণ ৯০% পর্যন্ত কমিয়ে দেয়। অ্যান্টাসিড খাওয়ার অন্তত ২ ঘণ্টা আগে বা ৪-৬ ঘণ্টা পরে সিপ্রোফ্লক্সাসিন খান।",
+  },
+  {
+    a: "metronidazole",
+    b: "alcohol",
+    titleBn: "মেট্রোনিডাজল ও অ্যালকোহলে মারাত্মক বিষক্রিয়ার ঝুঁকি (ডাইসালফিরাম-সদৃশ প্রতিক্রিয়া)",
+    adviceBn: "মেট্রোনিডাজল চলাকালীন এবং কোর্স শেষ হওয়ার অন্তত ৪৮–৭২ ঘণ্টা পর্যন্ত কোনো ধরনের অ্যালকোহল/মদ গ্রহণ সম্পূর্ণরূপে নিষেধ। ডাইসালফিরাম-সদৃশ প্রতিক্রিয়ায় তীব্র বমি, অসহ্য মাথাব্যথা, বুক ধড়ফড় ও রক্তচাপ কমে যেতে পারে।",
+  },
+  {
+    a: "ciprofloxacin",
+    b: "azithromycin",
+    titleBn: "হৃদযন্ত্রের কিউটি (QT) ব্যবধান বাড়ার ঝুঁকি",
+    adviceBn: "উভয় অ্যান্টিবায়োটিকই হৃদযন্ত্রের বৈদ্যুতিক ছন্দ (QT Interval) দীর্ঘায়িত করতে পারে। একসাথে সেবনে অ্যারিথমিয়ার ঝুঁকি বাড়ে। বুক ধড়ফড় করলে অবিলম্বে চিকিৎসকের পরামর্শ নিন।",
+  },
 ];
 
 const matches = (d: DrugItem, key: string | DrugClass) => d.id === key || d.drugClass === key;
@@ -356,6 +500,147 @@ export function checkAllPairs(ids: string[]): InteractionNote[] {
     }
   }
   return out;
+}
+
+export type InteractionSeverity = "critical" | "warning" | "info" | "no-data";
+
+export interface InteractionResult {
+  pair: [string, string];
+  severity: InteractionSeverity;
+  mechanism: string;
+  recommendation: string;
+  titleBn?: string;
+  adviceBn?: string;
+}
+
+/**
+ * Validates clinical interactions across provided drugs.
+ * Invariant: Unknown pairs return severity: "no-data", NEVER "safe".
+ */
+export function checkInteractions(drugs: (DrugItem | string)[]): InteractionResult[] {
+  const resolved = drugs
+    .map((d) => (typeof d === "string" ? drugById(d) : d))
+    .filter((d): d is DrugItem => !!d);
+
+  const results: InteractionResult[] = [];
+  if (resolved.length < 2) return results;
+
+  for (let i = 0; i < resolved.length; i++) {
+    for (let j = i + 1; j < resolved.length; j++) {
+      const a = resolved[i];
+      const b = resolved[j];
+      const pair: [string, string] = [a.id, b.id];
+
+      // 1. Same drug
+      if (a.id === b.id) {
+        results.push({
+          pair,
+          severity: "warning",
+          mechanism: "Duplicate prescription of identical active ingredient",
+          recommendation: "Avoid duplicate dosing of identical medicines to prevent toxicity.",
+          titleBn: "একই ওষুধ দুবার",
+          adviceBn: "একই ওষুধ দুবার নির্বাচন করা হয়েছে। প্রেসক্রিপশনে দুবার থাকলে ডাক্তার বা ফার্মাসিস্টকে জিজ্ঞেস করুন।",
+        });
+        continue;
+      }
+
+      // 2. Shared ingredients
+      const shared = a.ingredients.filter((x) => b.ingredients.includes(x));
+      if (shared.length > 0) {
+        results.push({
+          pair,
+          severity: "warning",
+          mechanism: `Shared active ingredients: ${shared.join(", ")}`,
+          recommendation: "Monitor cumulative dose to avoid accidental overdose.",
+          titleBn: `একই উপাদান দুটিতেই আছে (${shared.join(", ")})`,
+          adviceBn: "দুটি ভিন্ন নামের ওষুধে একই উপাদান থাকলে মোট মাত্রা বেশি হয়ে যেতে পারে। একসাথে খাওয়ার আগে ডাক্তার বা ফার্মাসিস্টকে জিজ্ঞেস করুন।",
+        });
+        continue;
+      }
+
+      // 3. Duplicate PPI
+      if (a.drugClass === "ppi" && b.drugClass === "ppi") {
+        results.push({
+          pair,
+          severity: "warning",
+          mechanism: "Concurrent therapy with multiple proton pump inhibitors (PPIs)",
+          recommendation: "Multiple PPIs are rarely indicated concurrently; verify with prescriber.",
+          titleBn: "একই ধরনের দুটি অ্যাসিড-কমানোর ওষুধ (PPI)",
+          adviceBn: "সাধারণত একসাথে দুটি PPI দেওয়া হয় না। ভুল করে দুটি কিনেছেন কি না ফার্মাসিস্টকে দেখান।",
+        });
+        continue;
+      }
+
+      // 4. Metronidazole + Alcohol (disulfiram-like reaction - CRITICAL)
+      const isMetro = a.id === "metronidazole" || b.id === "metronidazole";
+      const isAlcohol = a.id === "alcohol" || b.id === "alcohol";
+      if (isMetro && isAlcohol) {
+        results.push({
+          pair,
+          severity: "critical",
+          mechanism: "Disulfiram-like reaction caused by metronidazole inhibiting aldehyde dehydrogenase, resulting in toxic acetaldehyde accumulation.",
+          recommendation: "Strictly avoid all alcohol consumption during metronidazole therapy and for 48-72 hours after completion.",
+          titleBn: "মেট্রোনিডাজল ও অ্যালকোহলে মারাত্মক বিষক্রিয়ার ঝুঁকি (ডাইসালফিরাম-সদৃশ প্রতিক্রিয়া)",
+          adviceBn: "মেট্রোনিডাজল চলাকালীন এবং কোর্স শেষ হওয়ার অন্তত ৪৮–৭২ ঘণ্টা পর্যন্ত কোনো ধরনের অ্যালকোহল/মদ গ্রহণ সম্পূর্ণরূপে নিষেধ। ডাইসালফিরাম-সদৃশ প্রতিক্রিয়ায় তীব্র বমি, অসহ্য মাথাব্যথা, বুক ধড়ফড় ও রক্তচাপ কমে যেতে পারে।",
+        });
+        continue;
+      }
+
+      // 5. Ciprofloxacin + Antacids (chelation risk)
+      const isCipro = a.id === "ciprofloxacin" || b.id === "ciprofloxacin";
+      const isAntacid = a.drugClass === "antacid" || b.drugClass === "antacid";
+      if (isCipro && isAntacid) {
+        results.push({
+          pair,
+          severity: "warning",
+          mechanism: "Chelation of ciprofloxacin by polyvalent cations (Al3+, Mg2+) in antacids, markedly reducing oral bioavailability.",
+          recommendation: "Administer ciprofloxacin at least 2 hours before or 4-6 hours after taking antacids.",
+          titleBn: "অ্যান্টাসিড সিপ্রোফ্লক্সাসিনের শোষণ উল্লেখযোগ্যভাবে কমিয়ে দেয় (চিলেশন ঝুঁকি)",
+          adviceBn: "অ্যালুমিনিয়াম বা ম্যাগনেসিয়ামযুক্ত অ্যান্টাসিড সিপ্রোফ্লক্সাসিনের সাথে চিলেশন তৈরি করে রক্তে এর শোষণ ৯০% পর্যন্ত কমিয়ে দেয়। অ্যান্টাসিড খাওয়ার অন্তত ২ ঘণ্টা আগে বা ৪-৬ ঘণ্টা পরে সিপ্রোফ্লক্সাসিন খান।",
+        });
+        continue;
+      }
+
+      // 6. Azithromycin + Antacid
+      const isAzithro = a.id === "azithromycin" || b.id === "azithromycin";
+      if (isAzithro && isAntacid) {
+        results.push({
+          pair,
+          severity: "warning",
+          mechanism: "Aluminium and magnesium antacids reduce peak serum concentration (Cmax) of azithromycin.",
+          recommendation: "Separate administration times or consult pharmacist.",
+          titleBn: "অ্যান্টাসিড অ্যান্টিবায়োটিকের শোষণ কমাতে পারে",
+          adviceBn: "অ্যাজিথ্রোমাইসিনের প্রোডাক্ট লিফলেটে অ্যালুমিনিয়াম/ম্যাগনেসিয়ামযুক্ত অ্যান্টাসিড একই সময়ে না খেতে বলা হয়। কতক্ষণ ব্যবধান রাখবেন তা ফার্মাসিস্টের কাছে নিশ্চিত হোন।",
+        });
+        continue;
+      }
+
+      // 7. Ciprofloxacin + Azithromycin (QT Prolongation)
+      if (isCipro && isAzithro) {
+        results.push({
+          pair,
+          severity: "warning",
+          mechanism: "Additive prolongation of the QT interval, increasing the risk of cardiac arrhythmias.",
+          recommendation: "Use with caution in patients with cardiac risk factors; monitor ECG or consult prescriber.",
+          titleBn: "হৃদযন্ত্রের কিউটি (QT) ব্যবধান বাড়ার ঝুঁকি",
+          adviceBn: "উভয় অ্যান্টিবায়োটিকই হৃদযন্ত্রের বৈদ্যুতিক ছন্দ (QT Interval) দীর্ঘায়িত করতে পারে। একসাথে সেবনে অ্যারিথমিয়ার ঝুঁকি বাড়ে। বুক ধড়ফড় করলে অবিলম্বে চিকিৎসকের পরামর্শ নিন।",
+        });
+        continue;
+      }
+
+      // 8. Unknown pair (Strictly "no-data", never "safe")
+      results.push({
+        pair,
+        severity: "no-data",
+        mechanism: "No documented interaction in reference catalog.",
+        recommendation: "Lack of recorded interaction in our reference database does not mean combination is safe. Always consult a licensed doctor or pharmacist.",
+        titleBn: "আমাদের তালিকায় এই জোড়ার তথ্য নেই",
+        adviceBn: "এর মানে এই নয় যে একসাথে খাওয়া নিরাপদ। আমাদের তালিকা খুব ছোট। ফার্মাসিস্ট বা ডাক্তারের কাছে নিশ্চিত হোন।",
+      });
+    }
+  }
+
+  return results;
 }
 
 export interface RedFlag {

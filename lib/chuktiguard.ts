@@ -8,13 +8,9 @@
  * 3. Deterministic milestone progress & FinOps disbursement engine with 2.5% Bangladesh Bank incentive
  */
 
-export function fmtBdt(n: number): string {
-  const neg = n < 0;
-  const s = Math.round(Math.abs(n)).toString();
-  const last3 = s.slice(-3);
-  const rest = s.slice(0, -3).replace(/\B(?=(\d{2})+(?!\d))/g, ",");
-  return (neg ? "−" : "") + "৳" + (rest ? rest + "," + last3 : last3);
-}
+export { milestoneAmounts } from "./contract.ts";
+
+export { fmtBdt, calculateInvoiceFinOps, type PaymentRail, type InvoiceFinOpsResult } from "./finops.ts";
 
 export interface InvoiceMilestone {
   id: string;
@@ -115,67 +111,7 @@ ${client} একমত পোষণ করছেন যে, অবকাঠা�
   return { en, bn };
 }
 
-/**
- * Reconcile total milestone sums and compute expected Net BDT with Bangladesh Bank 2.5% incentive
- */
-export function calculateInvoiceFinOps(
-  milestones: InvoiceMilestone[],
-  usdBdtRate: number,
-  rail: "swift" | "payoneer" | "wise" | "bkash_remit" = "swift"
-) {
-  const totalUsd = milestones.reduce((sum, m) => sum + (Number(m.amountUsd) || 0), 0);
-  const grossBdt = Math.round(totalUsd * usdBdtRate);
 
-  // Government 2.5% Cash Incentive (eligible for SWIFT and direct MFS inward remittance)
-  const incentiveRate = rail === "swift" || rail === "bkash_remit" ? 0.025 : 0;
-  const incentiveGainBdt = Math.round(grossBdt * incentiveRate);
-
-  // Fee deductions by payment rail
-  let processingFeeUsd = 0;
-  let processingFeeBdt = 0;
-  let fxSpreadPct = 0;
-
-  switch (rail) {
-    case "swift":
-      // Standard incoming wire receiving fee ~ $15, FX spread ~ 1.2%
-      processingFeeUsd = 15;
-      fxSpreadPct = 0.012;
-      break;
-    case "payoneer":
-      // Direct receiving free or 1%, FX spread 2%
-      processingFeeUsd = totalUsd * 0.01;
-      fxSpreadPct = 0.02;
-      break;
-    case "wise":
-      // Wise receiving fee ~ 0.5% + minimal FX spread ~ 0.5%
-      processingFeeUsd = totalUsd * 0.005;
-      fxSpreadPct = 0.006;
-      break;
-    case "bkash_remit":
-      // Direct MFS conversion spread ~ 1.5%
-      processingFeeUsd = 0;
-      fxSpreadPct = 0.015;
-      break;
-  }
-
-  const feeBdt = Math.round(processingFeeUsd * usdBdtRate);
-  const fxDrainBdt = Math.round(grossBdt * fxSpreadPct);
-  const netBdt = grossBdt - feeBdt - fxDrainBdt + incentiveGainBdt;
-  const keptPct = totalUsd > 0 ? Number(((netBdt / grossBdt) * 100).toFixed(1)) : 100;
-
-  return {
-    totalUsd,
-    grossBdt,
-    incentiveGainBdt,
-    feeBdt,
-    fxDrainBdt,
-    netBdt,
-    keptPct,
-    formattedGross: fmtBdt(grossBdt),
-    formattedIncentive: fmtBdt(incentiveGainBdt),
-    formattedNet: fmtBdt(netBdt),
-  };
-}
 
 /**
  * Sample contracts for instant demonstration

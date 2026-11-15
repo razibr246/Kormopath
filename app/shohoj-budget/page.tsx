@@ -4,6 +4,7 @@ import Link from "next/link";
 import {
   Wallet, Mic, MicOff, Trash2, Pencil, Check, X, AlertTriangle, Download, Undo2,
   TrendingDown, TrendingUp, Repeat, Users, Copy, MessageSquareText, Info, Search, ExternalLink, Target, PiggyBank,
+  Smartphone,
 } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { playClick, playCoinSound } from "@/lib/sound";
@@ -11,8 +12,9 @@ import {
   CATEGORIES, categoryById, parseEntry, parseSms, summarizeMonth, budgetPace, splitBill, toCsv,
   sanitizeTransactions, migrateLegacy, unusualExpenses, toPoisha, parseAmount,
   categoryBudgetStatus, sanitizeCategoryBudgets, goalProgress, sanitizeGoals,
+  CATEGORY_STYLES, calculateMfsCashoutFee, defaultMfsProvider, MFS_FEE_RATES,
   type CategoryBudgets, type SavingsGoal, type MonthSummary,
-  type Transaction, type TxType, type CategoryId, type Method,
+  type Transaction, type TxType, type CategoryId, type Method, type MfsProvider,
 } from "@/lib/budget";
 import { usePersistentState, storageKey, readStored, removeStored, downloadText, todayLocal } from "@/lib/clientStore";
 
@@ -276,6 +278,28 @@ export default function ShohojBudgetPage() {
     setLastDeleted(t);
   };
 
+  const handleQuickAmount = (val: number) => {
+    playClick();
+    if (draft) {
+      const cur = parseFloat(draft.amount.replace(/,/g, "")) || 0;
+      const next = Math.round((cur + val) * 100) / 100;
+      setDraft({ ...draft, amount: String(next) });
+    } else {
+      setDraft({
+        editingId: null,
+        type: "expense",
+        amount: String(val),
+        categoryId: "other",
+        method: "Cash",
+        date: today,
+        note: "দ্রুত এন্ট্রি",
+        source: "manual",
+        matched: [],
+        issues: ["খাত নিশ্চিত নয় — সঠিক খাত বেছে নিন।"],
+      });
+    }
+  };
+
   const duplicateTrx = draft?.trxId ? txs.find((t) => t.trxId === draft.trxId && t.id !== draft.editingId) : undefined;
 
   const summary = useMemo(() => summarizeMonth(txs, month), [txs, month]);
@@ -496,6 +520,24 @@ export default function ShohojBudgetPage() {
               <p className="text-[11px] leading-relaxed text-slate-500">
                 ভয়েস ব্রাউজারের স্পিচ সার্ভিস ব্যবহার করে (Chrome-এ অডিও Google-এর সার্ভারে প্রক্রিয়া হয়)। আমরা অডিও সংরক্ষণ করি না। যা বুঝেছি তা আগে দেখাব — আপনি নিশ্চিত না করলে কিছুই সংরক্ষণ হবে না।
               </p>
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="text-[11px] font-bold text-slate-500">দ্রুত যোগ:</span>
+                {[
+                  { bn: "+৳৫০", val: 50 },
+                  { bn: "+৳১০০", val: 100 },
+                  { bn: "+৳৫০০", val: 500 },
+                  { bn: "+৳১০০০", val: 1000 },
+                ].map((q) => (
+                  <button
+                    key={q.val}
+                    type="button"
+                    onClick={() => handleQuickAmount(q.val)}
+                    className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[12px] font-semibold text-slate-700 shadow-sm hover:border-emerald-500 hover:bg-emerald-50"
+                  >
+                    {q.bn}
+                  </button>
+                ))}
+              </div>
               <div className="flex flex-wrap gap-1.5">
                 {EXAMPLES.map((ex) => (
                   <button key={ex} onClick={() => { setInput(ex); openDraftFromText(ex, "text"); playClick(); }} className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-[12px] text-slate-700 hover:border-emerald-500">
@@ -546,17 +588,47 @@ export default function ShohojBudgetPage() {
                       ))}
                     </div>
                   </fieldset>
-                  <label className="text-[12px] font-bold text-slate-600">
-                    পরিমাণ (৳)
-                    <input
-                      autoFocus={!draft.amount}
-                      inputMode="decimal"
-                      value={draft.amount}
-                      onChange={(e) => setDraft({ ...draft, amount: e.target.value.replace(/[^0-9.,০-৯]/g, "").replace(/[০-৯]/g, (d) => String("০১২৩৪৫৬৭৮৯".indexOf(d))) })}
-                      aria-invalid={draftAmountPoisha <= 0}
-                      className={`mt-1 block w-full rounded-lg border px-3 py-2 text-[18px] font-extrabold ${draftAmountPoisha > 0 ? "border-slate-200" : "border-red-400 bg-red-50"}`}
-                    />
-                  </label>
+                  <div className="space-y-1">
+                    <label className="text-[12px] font-bold text-slate-600">
+                      পরিমাণ (৳)
+                      <input
+                        autoFocus={!draft.amount}
+                        inputMode="decimal"
+                        value={draft.amount}
+                        onChange={(e) => setDraft({ ...draft, amount: e.target.value.replace(/[^0-9.,০-৯]/g, "").replace(/[০-৯]/g, (d) => String("০১২৩৪৫৬৭৮৯".indexOf(d))) })}
+                        aria-invalid={draftAmountPoisha <= 0}
+                        className={`mt-1 block w-full rounded-lg border px-3 py-2 text-[18px] font-extrabold ${draftAmountPoisha > 0 ? "border-slate-200" : "border-red-400 bg-red-50"}`}
+                      />
+                    </label>
+                    <div className="flex flex-wrap gap-1">
+                      {[50, 100, 500, 1000].map((val) => (
+                        <button
+                          key={val}
+                          type="button"
+                          onClick={() => {
+                            playClick();
+                            const cur = parseFloat(draft.amount.replace(/,/g, "")) || 0;
+                            const next = Math.round((cur + val) * 100) / 100;
+                            setDraft({ ...draft, amount: String(next) });
+                          }}
+                          className="rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-bold text-slate-700 hover:border-emerald-500 hover:bg-emerald-50"
+                        >
+                          +৳{val}
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          playClick();
+                          setDraft({ ...draft, amount: "" });
+                        }}
+                        className="rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-bold text-slate-500 hover:bg-slate-100"
+                        title="পরিমাণ মুছুন"
+                      >
+                        C
+                      </button>
+                    </div>
+                  </div>
                   <label className="text-[12px] font-bold text-slate-600">
                     তারিখ
                     <input type="date" value={draft.date} max="2100-12-31" onChange={(e) => setDraft({ ...draft, date: e.target.value })} className="mt-1 block w-full rounded-lg border border-slate-200 px-3 py-2 text-[14px]" />
@@ -577,6 +649,47 @@ export default function ShohojBudgetPage() {
                     নোট
                     <input value={draft.note} maxLength={300} onChange={(e) => setDraft({ ...draft, note: e.target.value })} className="mt-1 block w-full rounded-lg border border-slate-200 px-3 py-2 text-[14px]" />
                   </label>
+
+                  {/* MFS Cash-out fee auto-calc helper */}
+                  {draft.type === "expense" && (draft.method === "bKash" || draft.method === "Nagad" || draft.method === "Rocket") && (() => {
+                    const defaultProvider = defaultMfsProvider(draft.method);
+                    if (!defaultProvider) return null;
+                    const numAmount = parseFloat(draft.amount.replace(/,/g, "")) || 0;
+                    if (numAmount <= 0) return null;
+                    const feeResult = calculateMfsCashoutFee(numAmount, defaultProvider);
+                    const feeTaka = feeResult.feePoisha / 100;
+                    const totalTaka = feeResult.totalWithFeePoisha / 100;
+                    const config = MFS_FEE_RATES[defaultProvider];
+
+                    const handleAddFee = () => {
+                      playClick();
+                      const noteWithoutFee = draft.note.replace(/\s*\[ক্যাশআউট চার্জ: ৳[0-9.]+\]/g, "");
+                      setDraft({
+                        ...draft,
+                        amount: totalTaka.toFixed(2),
+                        note: `${noteWithoutFee} [ক্যাশআউট চার্জ: ৳${feeTaka.toFixed(2)}]`.trim(),
+                      });
+                    };
+
+                    return (
+                      <div className="rounded-xl border border-sky-200 bg-sky-50/70 p-3 sm:col-span-2">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="text-[12px]">
+                            <span className="font-bold text-sky-900">{config.nameBn} ক্যাশআউট চার্জ:</span>
+                            <span className="ml-1.5 font-mono font-bold text-sky-700">৳{feeTaka.toFixed(2)}</span>
+                            <span className="ml-2 text-slate-500">(মোট লাগবে ৳{totalTaka.toFixed(2)})</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={handleAddFee}
+                            className="rounded-lg bg-sky-600 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-sky-700"
+                          >
+                            ফি যোগ করুন (+৳{feeTaka.toFixed(2)})
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
                 {draft.matched.length > 0 && (
                   <p className="text-[11px] text-slate-500">যে শব্দ দেখে অনুমান করেছি: {draft.matched.map((m) => `"${m}"`).join(", ")}</p>
@@ -664,19 +777,7 @@ export default function ShohojBudgetPage() {
               {summary.byCategory.length === 0 ? (
                 <p className="text-[13px] text-slate-500">খরচ যোগ করলে খাতভিত্তিক হিসাব এখানে দেখাবে।</p>
               ) : (
-                <ul className="space-y-2.5">
-                  {summary.byCategory.map((c) => (
-                    <li key={c.id}>
-                      <div className="flex justify-between text-[13px]">
-                        <span>{categoryById(c.id).bn}</span>
-                        <span className="font-semibold">{tk(c.poisha)} <span className="text-slate-400">({c.pct}%)</span></span>
-                      </div>
-                      <div className="mt-1 h-2 overflow-hidden rounded-full bg-slate-100">
-                        <div className="h-full rounded-full bg-emerald-500" style={{ width: `${c.pct}%` }} />
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+                <SpendingDonutChart summary={summary} />
               )}
               {summary.byCategory[0] && summary.byCategory[0].pct >= 40 && (
                 <p className="mt-3 rounded-lg bg-amber-50 p-2 text-[12px] text-amber-900">
@@ -736,6 +837,9 @@ export default function ShohojBudgetPage() {
                 <Copy size={13} aria-hidden /> {copied ? "কপি হয়েছে" : "মেসেজ কপি করুন"}
               </button>
             </section>
+
+            {/* MFS cash-out calculator panel */}
+            <MfsFeeCalculatorPanel />
 
             <p className="text-[11px] leading-relaxed text-slate-500">
               সব হিসাব এই ডিভাইসের ব্রাউজারে থাকে, অফলাইনেও কাজ করে (ভয়েস ছাড়া)। অনুমান ও পরামর্শ সাধারণ তথ্য, আর্থিক পরামর্শ নয়।{" "}
@@ -945,4 +1049,169 @@ function exampleMonth(today: string): Transaction[] {
     mk("5", "expense", 80, "transport", "Cash", "রিকশা ভাড়া", 4),
     mk("6", "expense", 650, "food", "Nagad", "বন্ধুদের সাথে খাওয়া", 4),
   ];
+}
+
+function SpendingDonutChart({ summary }: { summary: MonthSummary }) {
+  const [hoveredId, setHoveredId] = useState<CategoryId | null>(null);
+  const total = summary.expensePoisha;
+  const radius = 70;
+  const circumference = 2 * Math.PI * radius; // ~439.823
+
+  let accumulated = 0;
+  const slices = summary.byCategory.map((c) => {
+    const ratio = total > 0 ? c.poisha / total : 0;
+    const strokeDash = ratio * circumference;
+    const offset = accumulated;
+    accumulated += strokeDash;
+    return {
+      ...c,
+      strokeDasharray: `${strokeDash} ${circumference}`,
+      strokeDashoffset: -offset,
+      color: CATEGORY_STYLES[c.id]?.hex ?? "#64748b",
+    };
+  });
+
+  const activeCategory = summary.byCategory.find((c) => c.id === hoveredId);
+
+  return (
+    <div className="space-y-4">
+      {/* SVG Donut Visualizer */}
+      <div className="relative flex items-center justify-center">
+        <svg
+          viewBox="0 0 200 200"
+          className="h-48 w-48 -rotate-90 transform"
+          role="img"
+          aria-label="বিভাগভিত্তিক ব্যয়ের চার্ট"
+        >
+          <circle cx="100" cy="100" r={radius} stroke="#f1f5f9" strokeWidth="24" fill="none" />
+          {slices.map((slice) => (
+            <circle
+              key={slice.id}
+              cx="100"
+              cy="100"
+              r={radius}
+              stroke={slice.color}
+              strokeWidth={hoveredId === slice.id ? 28 : 24}
+              strokeDasharray={slice.strokeDasharray}
+              strokeDashoffset={slice.strokeDashoffset}
+              fill="none"
+              className="cursor-pointer transition-all duration-200"
+              onMouseEnter={() => setHoveredId(slice.id)}
+              onMouseLeave={() => setHoveredId(null)}
+              tabIndex={0}
+              role="button"
+              aria-label={`${categoryById(slice.id).bn}: ${tk(slice.poisha)} (${slice.pct}%)`}
+              onFocus={() => setHoveredId(slice.id)}
+              onBlur={() => setHoveredId(null)}
+            />
+          ))}
+        </svg>
+
+        {/* Center Dynamic HUD */}
+        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
+          {activeCategory ? (
+            <>
+              <span className="text-[12px] font-bold text-slate-600">{categoryById(activeCategory.id).bn}</span>
+              <span className="text-[16px] font-extrabold text-slate-900">{tk(activeCategory.poisha)}</span>
+              <span className="text-[11px] font-semibold text-emerald-600">{activeCategory.pct}%</span>
+            </>
+          ) : (
+            <>
+              <span className="text-[11px] font-medium text-slate-500">মোট খরচ</span>
+              <strong className="text-[17px] font-extrabold text-slate-900">{tk(total)}</strong>
+              <span className="text-[11px] text-slate-400">{summary.count}টি লেনদেন</span>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Segmented Progress Bar */}
+      <div className="flex h-3 w-full overflow-hidden rounded-full bg-slate-100 shadow-inner">
+        {summary.byCategory.map((c) => (
+          <div
+            key={c.id}
+            style={{ width: `${c.pct}%`, backgroundColor: CATEGORY_STYLES[c.id]?.hex ?? "#64748b" }}
+            className={`transition-all duration-200 ${hoveredId === c.id ? "brightness-110" : ""}`}
+            title={`${categoryById(c.id).bn}: ${tk(c.poisha)} (${c.pct}%)`}
+            onMouseEnter={() => setHoveredId(c.id)}
+            onMouseLeave={() => setHoveredId(null)}
+          />
+        ))}
+      </div>
+
+      {/* Accessible Interactive Category Legend */}
+      <ul className="space-y-2">
+        {summary.byCategory.map((c) => {
+          const style = CATEGORY_STYLES[c.id] ?? CATEGORY_STYLES.other;
+          const isHovered = hoveredId === c.id;
+          return (
+            <li
+              key={c.id}
+              onMouseEnter={() => setHoveredId(c.id)}
+              onMouseLeave={() => setHoveredId(null)}
+              className={`flex items-center justify-between rounded-lg p-1.5 text-[13px] transition-colors cursor-pointer ${
+                isHovered ? "bg-slate-50 font-bold" : ""
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <span className="h-3 w-3 rounded-full shrink-0" style={{ backgroundColor: style.hex }} />
+                <span>{categoryById(c.id).bn}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-slate-800">{tk(c.poisha)}</span>
+                <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[11px] text-slate-500 font-mono">
+                  {c.pct}%
+                </span>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+function MfsFeeCalculatorPanel() {
+  const [calcAmount, setCalcAmount] = useState(1000);
+  const providers: MfsProvider[] = ["bkash_app", "bkash_ussd", "nagad_app", "nagad_ussd", "rocket_app", "rocket_atm"];
+
+  return (
+    <section aria-labelledby="mfs-h" className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5">
+      <h2 id="mfs-h" className="flex items-center gap-1.5 text-[16px] font-bold">
+        <Smartphone size={17} aria-hidden /> এমএফএস ক্যাশ-আউট ক্যালকুলেটর
+      </h2>
+      <p className="text-[12px] text-slate-500">
+        বিকাশ, নগদ ও রকেট এজেন্ট বা এটিএম থেকে টাকা তোলার প্রকৃত সরকারি চার্জ হিসাব করুন।
+      </p>
+      <div>
+        <label className="text-[11px] font-bold text-slate-600">
+          উত্তোলনের পরিমাণ (৳)
+          <input
+            type="number"
+            min={0}
+            value={calcAmount}
+            onChange={(e) => setCalcAmount(Math.max(0, Number(e.target.value) || 0))}
+            className="mt-1 block w-full rounded-lg border border-slate-200 px-3 py-1.5 text-[14px] font-bold font-mono"
+          />
+        </label>
+      </div>
+      <div className="space-y-2">
+        {providers.map((p) => {
+          const res = calculateMfsCashoutFee(calcAmount, p);
+          const config = MFS_FEE_RATES[p];
+          return (
+            <div key={p} className="flex items-center justify-between rounded-lg bg-slate-50 p-2 text-[12px]">
+              <div>
+                <span className="font-semibold text-slate-800">{config.nameBn}</span>
+              </div>
+              <div className="text-right">
+                <span className="font-bold text-slate-900 font-mono">চার্জ: ৳{(res.feePoisha / 100).toFixed(2)}</span>
+                <span className="block text-[10px] text-slate-500 font-mono">মোট: ৳{(res.totalWithFeePoisha / 100).toFixed(2)}</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
 }

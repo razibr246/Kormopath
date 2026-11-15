@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import {
   parseAmount, parseEntry, parseSms, bnToAsciiDigits, summarizeMonth, budgetPace, splitBill,
   toCsv, sanitizeTransactions, migrateLegacy, unusualExpenses, type Transaction,
+  calculateMfsCashoutFee, defaultMfsProvider, MFS_FEE_RATES, CATEGORIES,
+  CATEGORY_STYLES, sanitizeCsvCell,
 } from "../lib/budget.ts";
 
 test("Bengali digits convert and the user's example parses to 1200, not 200", () => {
@@ -122,4 +124,77 @@ test("Unusual expense flagged only with enough history", () => {
   const base = [tx({ id: "a" }), tx({ id: "b" }), tx({ id: "c" })];
   assert.deepEqual(unusualExpenses([...base, tx({ id: "big", amountPoisha: 50000 })]), ["big"]);
   assert.deepEqual(unusualExpenses([tx({ id: "a" }), tx({ id: "big", amountPoisha: 50000 })]), []);
+});
+
+test("MFS Cash-Out Fee: computes exact integer poisha for all major providers", () => {
+  // ৳1,000 withdrawal (100,000 poisha)
+  const bkashApp = calculateMfsCashoutFee(1000, "bkash_app");
+  assert.equal(bkashApp.feePoisha, 1490, "bKash App 1.49% is exactly 1490 poisha (৳14.90)");
+  assert.equal(bkashApp.totalWithFeePoisha, 101490);
+
+  const bkashUssd = calculateMfsCashoutFee(1000, "bkash_ussd");
+  assert.equal(bkashUssd.feePoisha, 1850, "bKash USSD 1.85% is exactly 1850 poisha (৳18.50)");
+  assert.equal(bkashUssd.totalWithFeePoisha, 101850);
+
+  const nagadApp = calculateMfsCashoutFee(1000, "nagad_app");
+  assert.equal(nagadApp.feePoisha, 1250, "Nagad App 1.25% is exactly 1250 poisha (৳12.50)");
+  assert.equal(nagadApp.totalWithFeePoisha, 101250);
+
+  const rocketApp = calculateMfsCashoutFee(1000, "rocket_app");
+  assert.equal(rocketApp.feePoisha, 1670, "Rocket App 1.67% is exactly 1670 poisha (৳16.70)");
+  assert.equal(rocketApp.totalWithFeePoisha, 101670);
+
+  const rocketAtm = calculateMfsCashoutFee(1000, "rocket_atm");
+  assert.equal(rocketAtm.feePoisha, 900, "Rocket ATM 0.90% is exactly 900 poisha (৳9.00)");
+  assert.equal(rocketAtm.totalWithFeePoisha, 100900);
+});
+
+test("MFS Cash-Out Fee: ceil invariant guarantees no lost fractional poisha", () => {
+  // ৳333 at 1.49%: 33300 * 0.0149 = 496.17 poisha -> Math.ceil gives 497 poisha (৳4.97)
+  const fee = calculateMfsCashoutFee(333, "bkash_app");
+  assert.equal(fee.feePoisha, 497);
+  assert.equal(fee.totalWithFeePoisha, 33300 + 497);
+
+  // Zero amount gives zero fee without error
+  const zero = calculateMfsCashoutFee(0, "bkash_app");
+  assert.equal(zero.feePoisha, 0);
+  assert.equal(zero.totalWithFeePoisha, 0);
+
+  // Negative amount clamped cleanly to zero
+  const neg = calculateMfsCashoutFee(-500, "bkash_app");
+  assert.equal(neg.feePoisha, 0);
+});
+
+test("MFS Provider Resolution: maps methods to canonical default providers", () => {
+  assert.equal(defaultMfsProvider("bKash"), "bkash_app");
+  assert.equal(defaultMfsProvider("Nagad"), "nagad_app");
+  assert.equal(defaultMfsProvider("Rocket"), "rocket_app");
+  assert.equal(defaultMfsProvider("Cash"), null);
+  assert.equal(defaultMfsProvider("Bank"), null);
+});
+
+test("CSV Sanitization: neutralizes leading whitespace injection and pipe syntax", () => {
+  // Leading whitespace before formula
+  assert.equal(sanitizeCsvCell("   =1+1"), "'   =1+1");
+  assert.equal(sanitizeCsvCell("\t@SUM(A1:A5)"), "'\t@SUM(A1:A5)");
+  assert.equal(sanitizeCsvCell("  |cmd.exe"), "'  |cmd.exe");
+
+  // Normal numbers and plain text untouched
+  assert.equal(sanitizeCsvCell("1250.00"), "1250.00");
+  assert.equal(sanitizeCsvCell("-50.25"), "-50.25");
+  assert.equal(sanitizeCsvCell("বাজার খরচ"), "বাজার খরচ");
+
+  // UTF-8 BOM is present at file start
+  const csv = toCsv([]);
+  assert.ok(csv.startsWith("\uFEFF"), "CSV must start with UTF-8 BOM for Excel rendering");
+});
+
+test("Category Styles: every declared category has a valid hex color and Tailwind classes", () => {
+  for (const cat of CATEGORIES) {
+    const style = CATEGORY_STYLES[cat.id];
+    assert.ok(style, `Missing style for category ${cat.id}`);
+    assert.ok(/^#[0-9a-f]{6}$/i.test(style.hex), `Invalid hex color for ${cat.id}`);
+    assert.ok(style.twBg.startsWith("bg-"));
+    assert.ok(style.twText.startsWith("text-"));
+  }
 });

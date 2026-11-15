@@ -21,10 +21,12 @@ export interface Clause {
 }
 
 export function milestoneAmounts(valueUsd: number, ms: { pct: number }[]): number[] {
+  if (!Array.isArray(ms) || ms.length === 0) return [];
   // Integer cents, remainder goes to the last milestone so the parts always sum to the total.
-  const cents = Math.round(valueUsd * 100);
-  const parts = ms.map((m) => Math.floor((cents * m.pct) / 100));
-  parts[parts.length - 1] += cents - parts.reduce((a, b) => a + b, 0);
+  const cents = Math.round(Math.max(0, Number(valueUsd) || 0) * 100);
+  const parts = ms.map((m) => Math.floor((cents * (Number(m.pct) || 0)) / 100));
+  const allocated = parts.reduce((a, b) => a + b, 0);
+  parts[parts.length - 1] += cents - allocated;
   return parts.map((c) => c / 100);
 }
 

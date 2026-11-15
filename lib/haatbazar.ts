@@ -171,6 +171,7 @@ export interface DistrictPoint {
 
 // Approximate district-town coordinates, used only to fetch a forecast.
 export const DISTRICTS: DistrictPoint[] = [
+  // Existing 13 districts
   { id: "bogura", nameBn: "বগুড়া", lat: 24.85, lon: 89.37 },
   { id: "jashore", nameBn: "যশোর", lat: 23.17, lon: 89.21 },
   { id: "rajshahi", nameBn: "রাজশাহী", lat: 24.37, lon: 88.6 },
@@ -184,6 +185,48 @@ export const DISTRICTS: DistrictPoint[] = [
   { id: "khulna", nameBn: "খুলনা", lat: 22.82, lon: 89.55 },
   { id: "chattogram", nameBn: "চট্টগ্রাম", lat: 22.36, lon: 91.78 },
   { id: "dhaka", nameBn: "ঢাকা", lat: 23.81, lon: 90.41 },
+
+  // 24 New Agricultural Hub Districts
+  // Rajshahi Division Hubs
+  { id: "natore", nameBn: "নাটোর", lat: 24.41, lon: 89.00 },
+  { id: "pabna", nameBn: "পাবনা", lat: 24.01, lon: 89.24 },
+  { id: "naogaon", nameBn: "নওগাঁ", lat: 24.81, lon: 88.94 },
+  { id: "chapainawabganj", nameBn: "চাঁপাইনবাবগঞ্জ", lat: 24.60, lon: 88.27 },
+  { id: "sirajganj", nameBn: "সিরাজগঞ্জ", lat: 24.46, lon: 89.71 },
+
+  // Khulna Division Hubs
+  { id: "kushtia", nameBn: "কুষ্টিয়া", lat: 23.90, lon: 89.12 },
+  { id: "meherpur", nameBn: "মেহেরপুর", lat: 23.77, lon: 88.63 },
+  { id: "chuadanga", nameBn: "চুয়াডাঙ্গা", lat: 23.64, lon: 88.85 },
+  { id: "satkhira", nameBn: "সাতক্ষীরা", lat: 22.72, lon: 89.07 },
+  { id: "jhenaidah", nameBn: "ঝিনাইদহ", lat: 23.54, lon: 89.15 },
+
+  // Rangpur Division Hubs
+  { id: "gaibandha", nameBn: "গাইবান্ধা", lat: 25.33, lon: 89.54 },
+  { id: "nilphamari", nameBn: "নীলফামারী", lat: 25.93, lon: 88.85 },
+  { id: "kurigram", nameBn: "কুড়িগ্রাম", lat: 25.81, lon: 89.64 },
+  { id: "panchagarh", nameBn: "পঞ্চগড়", lat: 26.33, lon: 88.55 },
+
+  // Mymensingh Division Hubs
+  { id: "jamalpur", nameBn: "জামালপুর", lat: 24.93, lon: 89.94 },
+  { id: "netrokona", nameBn: "নেত্রকোণা", lat: 24.88, lon: 90.73 },
+
+  // Dhaka Division Hubs
+  { id: "kishoreganj", nameBn: "কিশোরগঞ্জ", lat: 24.43, lon: 90.78 },
+  { id: "narsingdi", nameBn: "নরসিংদী", lat: 23.92, lon: 90.72 },
+  { id: "tangail", nameBn: "টাঙ্গাইল", lat: 24.25, lon: 89.92 },
+  { id: "munshiganj", nameBn: "মুন্সীগঞ্জ", lat: 23.54, lon: 90.53 },
+
+  // Chattogram Division Hubs
+  { id: "brahmanbaria", nameBn: "ব্রাহ্মণবাড়িয়া", lat: 23.96, lon: 91.11 },
+  { id: "coxsbazar", nameBn: "কক্সবাজার", lat: 21.43, lon: 91.98 },
+  { id: "noakhali", nameBn: "নোয়াখালী", lat: 22.87, lon: 91.10 },
+
+  // Sylhet & Barishal Division Hubs
+  { id: "habiganj", nameBn: "হবিগঞ্জ", lat: 24.38, lon: 91.42 },
+  { id: "sunamganj", nameBn: "সুনামগঞ্জ", lat: 25.07, lon: 91.40 },
+  { id: "bhola", nameBn: "ভোলা", lat: 22.69, lon: 90.65 },
+  { id: "patuakhali", nameBn: "পটুয়াখালী", lat: 22.36, lon: 90.33 },
 ];
 
 export interface CropDisease {
@@ -246,6 +289,50 @@ export const CROP_DISEASES: CropDisease[] = [
     nonChemicalBn: "ফল সংগ্রহের পর সঠিক পদ্ধতিতে গরম পানিতে শোধন — তাপমাত্রা ও সময় কৃষি অফিস থেকে জেনে নিন।",
     chemicalNoteBn: CHEMICAL_NOTE,
   },
+  {
+    id: "tomato-bacterial-wilt",
+    cropNameBn: "টমেটো",
+    diseaseNameBn: "ব্যাকটেরিয়াজনিত ঢলে পড়া (ব্যাকটেরিয়াল উইল্ট)",
+    symptomsBn: "সবুজ থাকা অবস্থাতেই গাছ হঠাৎ নিস্তেজ হয়ে ঢলে পড়ে; কাণ্ড কাটলে ভেতর বাদামি দেখায় এবং পরিষ্কার পানিতে কাণ্ড ডোবালে সাদা সুতার মতো ব্যাকটেরিয়ার ধারা (ওজ) বের হয়।",
+    severity: "high",
+    favouredByBn: "উচ্চ তাপমাত্রা (৩০–৩৫°C), অধিক আর্দ্রতা এবং জমিতে পানি জমে থাকা; নেমাটোড বা শিকড়ে আঘাত।",
+    preventiveActionBn: "প্রতিরোধী জাত বা গ্রাফটিং করা চারা ব্যবহার, রোগমুক্ত প্রত্যয়িত বীজ, উঁচু বেড তৈরি এবং জমিতে উন্নত নিষ্কাশন ব্যবস্থা রাখা।",
+    nonChemicalBn: "আক্রান্ত গাছ শিকড়সহ সাবধানে তুলে দূরে পুড়িয়ে বা মাটিতে পুঁতে ফেলা; আক্রান্ত জমিতে সোলানেসি গোত্রের ফসল বাদ দিয়ে ধান বা ভুট্টা দিয়ে শস্য পর্যায় (Crop Rotation) অনুসরণ করা; চুন বা জৈব সার প্রয়োগ।",
+    chemicalNoteBn: CHEMICAL_NOTE,
+  },
+  {
+    id: "onion-purple-blotch",
+    cropNameBn: "পেঁয়াজ",
+    diseaseNameBn: "পার্পল ব্লচ (বেগুনি দাগ রোগ)",
+    symptomsBn: "পাতায় ও বীজের ডাঁটায় প্রথমে ছোট পানিভেজা দাগ, যা দ্রুত বড় হয়ে কেন্দ্রে বেগুনি বা বাদামি বর্ণ ধারণ করে এবং চারপাশে হলুদ বলয় তৈরি হয়; পাতা ভেঙে পড়ে।",
+    severity: "high",
+    favouredByBn: "উষ্ণ ও আর্দ্র আবহাওয়া (২৫–৩০°C), ঘন কুয়াশা, বৃষ্টি বা পাতায় দীর্ঘ সময় শিশির জমে থাকা; থ্রিপস পোকার আক্রমণ।",
+    preventiveActionBn: "সুস্থ ও প্রত্যয়িত পেঁয়াজ কন্দ বা বীজ ব্যবহার, পরিমিত দূরত্বে রোপণ যাতে বাতাস চলাচল করে, অতিরিক্ত সেচ পরিহার এবং পরিচ্ছন্ন চাষ।",
+    nonChemicalBn: "রোগাক্রান্ত পাতা ও অবশিষ্টাংশ সংগ্রহ করে ধ্বংস করা; থ্রিপস দমনে হলুদ আঠালো ফাঁদ ব্যবহার; পেঁয়াজ তোলার পর জমিতে গভীর চাষ দিয়ে রোদ লাগানো।",
+    chemicalNoteBn: CHEMICAL_NOTE,
+  },
+  {
+    id: "jute-stem-rot",
+    cropNameBn: "পাট",
+    diseaseNameBn: "কাণ্ড পচা রোগ (স্টেম রট)",
+    symptomsBn: "গাছের কাণ্ডে বা পাতার সংযোগস্থলে কালচে বা বাদামি ক্ষতের দাগ, ক্ষতস্থান ফেটে যাওয়া এবং কাণ্ডের আঁশ কালো হয়ে পচে শুকিয়ে যাওয়া; গাছ সহজে ভেঙে পড়ে।",
+    severity: "high",
+    favouredByBn: "অতিবৃষ্টি, জলাবদ্ধতা, স্যাঁতসেঁতে মেঘলা আবহাওয়া এবং মাটিতে পটাশের ঘাটতি।",
+    preventiveActionBn: "প্রমাণিত রোগমুক্ত বীজ বপন, সুষম সার ব্যবহার (বিশেষ করে পরিমিত পটাশ প্রয়োগ), দ্রুত পানি নিষ্কাশনের নালা রাখা।",
+    nonChemicalBn: "আক্রান্ত গাছ দেখামাত্র তুলে সরিয়ে ফেলা; ফসল কাটার পর গোড়া ও শিকড় পুড়িয়ে ফেলা; জমিতে চুন প্রয়োগ এবং পাটের পর ধান বা ডাল জাতীয় ফসলের শস্য পর্যায় অবলম্বন।",
+    chemicalNoteBn: CHEMICAL_NOTE,
+  },
+  {
+    id: "rice-brown-planthopper",
+    cropNameBn: "ধান",
+    diseaseNameBn: "বাদামি গাছফড়িং (কারেন্ট পোকা / বিপিএইচ)",
+    symptomsBn: "ধান গাছের গোড়ায় দলবদ্ধভাবে রস চুষে খায়; আক্রান্ত অংশের ধান গাছ গোল হয়ে দ্রুত পুড়ে যাওয়ার মতো শুকিয়ে মারা যায় (হপার বার্ন বা Hopper Burn)।",
+    severity: "high",
+    favouredByBn: "ঘন করে চারা রোপণ, জমিতে সার্বক্ষণিক দাঁড়িয়ে থাকা পানি, অতিরিক্ত ইউরিয়া সার প্রয়োগ এবং মেঘলা গুমোট আবহাওয়া।",
+    preventiveActionBn: "বিপিএইচ প্রতিরোধী বা সহনশীল জাত চাষ, নির্দিষ্ট দূরত্ব বজায় রেখে চারা লাগানো, জমিতে ১০-১২ সারি পর পর ১ সারি ফাঁকা (বিলি/অ্যালি পদ্ধতি) রাখা যাতে আলো-বাতাস ঢোকে, সুষম ইউরিয়া প্রয়োগ।",
+    nonChemicalBn: "আক্রমণ দেখা দিলে জমির পানি শুকিয়ে ২-৩ দিন শুকনা রাখা (পর্যায়ক্রমিক ভেজানো ও শুকানো - AWD); হাঁস ছেড়ে পোকা দমন; আলোক ফাঁদ (Light trap) ব্যবহার করে পোকার উপস্থিতি পর্যবেক্ষণ; মাকড়সা ও ড্রাগনফ্লাইয়ের মতো বন্ধু পোকা সংরক্ষণ।",
+    chemicalNoteBn: CHEMICAL_NOTE,
+  },
 ];
 
 export interface CropOption {
@@ -265,3 +352,38 @@ export const CROPS: CropOption[] = [
   { id: "mango", nameBn: "আম" },
   { id: "maize", nameBn: "ভুট্টা" },
 ];
+
+export interface SensitivityPoint {
+  deltaPct: number; // e.g. -15, -10, -5, 0, 5, 10, 15
+  adjustedWholesalePrice: number; // Wholesale price per kg after applying delta
+  distantNet: number; // Net earnings at distant market
+  extraVsLocal: number; // Net profit difference vs selling locally
+  worthIt: boolean; // True if distant market earns more than local haat
+}
+
+export const DEFAULT_SENSITIVITY_DELTAS = [-15, -10, -5, 0, 5, 10, 15];
+
+/**
+ * Calculates net return and profit difference across wholesale price variations.
+ * Pure and deterministic: models price fluctuations without guessing or forecasting.
+ */
+export function calculateSensitivityCurve(
+  input: TripInput,
+  deltas: number[] = DEFAULT_SENSITIVITY_DELTAS
+): SensitivityPoint[] {
+  return deltas.map((deltaPct) => {
+    const factor = 1 + deltaPct / 100;
+    const adjustedPrice = r2(Math.max(0, input.distantPricePerKg * factor));
+    const res = tripMargin({
+      ...input,
+      distantPricePerKg: adjustedPrice,
+    });
+    return {
+      deltaPct,
+      adjustedWholesalePrice: adjustedPrice,
+      distantNet: res.distantNet,
+      extraVsLocal: res.extraVsLocal,
+      worthIt: res.worthIt,
+    };
+  });
+}

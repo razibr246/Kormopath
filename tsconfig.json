@@ -15,6 +15,7 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "allowImportingTsExtensions": true,
     "jsx": "preserve",
     "incremental": true,
     "plugins": [
@@ -31,9 +32,9 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
+    ".next-test/types/**/*.ts",
     ".next/types/**/*.ts",
-    "next-env.d.ts",
-    ".next-test/types/**/*.ts"
+    "next-env.d.ts"
   ],
   "exclude": [
     "node_modules",

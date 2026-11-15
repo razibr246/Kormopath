@@ -3,11 +3,15 @@
 
 export type Verdict = "verified" | "partial" | "unverified";
 
+const BN_DIGITS = "০১২৩৪৫৬৭৮৯";
+const toAsciiDigits = (s: string) => s.replace(/[০-৯]/g, (d) => String(BN_DIGITS.indexOf(d)));
+
 export function normalize(s: string): string {
   return s
+    .normalize("NFC")
     .toLowerCase()
     .replace(/[‘’“”"'`]/g, "")
-    .replace(/[^\p{L}\p{N}+#./%$-]+/gu, " ")
+    .replace(/[^\p{L}\p{M}\p{N}+#./%$-]+/gu, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -45,13 +49,15 @@ export function verifyEvidence(evidence: string, source: string): { verdict: Ver
 
 /** A number the model reports (e.g. a receipt amount) must literally appear in the OCR text. */
 export function numberAppears(value: number, source: string): boolean {
-  const plain = source.replace(/,/g, "");
+  const normalized = source.normalize("NFC");
+  const plain = toAsciiDigits(normalized).replace(/,/g, "");
   const candidates = [value.toFixed(2), value.toString(), Math.round(value).toString()];
-  return candidates.some((c) => new RegExp(`(^|[^0-9.])${c.replace(".", "\\.")}([^0-9]|$)`).test(plain));
+  return candidates.some((c) => new RegExp(`(^|[^0-9.])${c.replace(".", "\\.")}(?![0-9]|(\\.[0-9]))([^0-9]|$)`).test(plain));
 }
 
 /** Every dollar amount in generated text must be one we gave the model. */
 export function unknownAmounts(text: string, allowed: number[]): number[] {
-  const found = [...text.matchAll(/\$\s?([0-9][0-9,]*(?:\.[0-9]+)?)/g)].map((m) => Number(m[1].replace(/,/g, "")));
+  const normalized = text.normalize("NFC");
+  const found = [...normalized.matchAll(/\$\s?([0-9][0-9,]*(?:\.[0-9]+)?)/g)].map((m) => Number(m[1].replace(/,/g, "")));
   return found.filter((n) => !allowed.some((a) => Math.abs(a - n) < 0.5));
 }

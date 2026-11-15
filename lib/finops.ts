@@ -14,6 +14,19 @@ export interface FeeValues {
   freelancerIncentive: number; // %
 }
 
+export const DEFAULT_FEES: FeeValues = {
+  fiverrFee: 20,
+  fiverrWithdraw: 3,
+  upworkFee: 10,
+  upworkWithdraw: 2,
+  payoneerFx: 2,
+  payoneerBkashFx: 3,
+  payoneerBkashFlat: 1,
+  wireFlat: 20,
+  bankFx: 0.8,
+  freelancerIncentive: 2.5,
+};
+
 export interface FinInput {
   invoiceUsd: number; // per month
   withdrawals: number; // withdrawals or wires per month
@@ -36,6 +49,88 @@ export interface Channel {
   grossBdt: number;
   netBdt: number;
   keptPct: number;
+}
+
+export type PaymentRail = "swift" | "payoneer" | "wise" | "bkash_remit";
+
+export interface InvoiceFinOpsResult {
+  totalUsd: number;
+  grossBdt: number;
+  incentiveGainBdt: number;
+  feeBdt: number;
+  fxDrainBdt: number;
+  netBdt: number;
+  keptPct: number;
+  formattedGross: string;
+  formattedIncentive: string;
+  formattedNet: string;
+}
+
+export function calculateInvoiceFinOps(
+  milestones: Array<{ amountUsd: number }>,
+  usdBdtRate: number,
+  rail: PaymentRail = "swift",
+  fees: FeeValues = DEFAULT_FEES
+): InvoiceFinOpsResult {
+  const totalUsd = milestones.reduce((sum, m) => sum + (Number(m.amountUsd) || 0), 0);
+  if (totalUsd <= 0 || usdBdtRate <= 0) {
+    return {
+      totalUsd: Math.max(0, totalUsd),
+      grossBdt: 0,
+      incentiveGainBdt: 0,
+      feeBdt: 0,
+      fxDrainBdt: 0,
+      netBdt: 0,
+      keptPct: 100,
+      formattedGross: fmtBdt(0),
+      formattedIncentive: fmtBdt(0),
+      formattedNet: fmtBdt(0),
+    };
+  }
+
+  const grossBdt = Math.round(totalUsd * usdBdtRate);
+  const incentiveRate = rail === "swift" || rail === "bkash_remit" ? fees.freelancerIncentive / 100 : 0;
+  const incentiveGainBdt = Math.round(grossBdt * incentiveRate);
+
+  let processingFeeUsd = 0;
+  let fxSpreadPct = 0;
+
+  switch (rail) {
+    case "swift":
+      processingFeeUsd = Math.min(totalUsd, fees.wireFlat);
+      fxSpreadPct = fees.bankFx / 100;
+      break;
+    case "payoneer":
+      processingFeeUsd = totalUsd * 0.01;
+      fxSpreadPct = fees.payoneerFx / 100;
+      break;
+    case "wise":
+      processingFeeUsd = totalUsd * 0.005;
+      fxSpreadPct = 0.006;
+      break;
+    case "bkash_remit":
+      processingFeeUsd = 0;
+      fxSpreadPct = 0.015;
+      break;
+  }
+
+  const feeBdt = Math.round(processingFeeUsd * usdBdtRate);
+  const fxDrainBdt = Math.round(grossBdt * fxSpreadPct);
+  const netBdt = grossBdt - feeBdt - fxDrainBdt + incentiveGainBdt;
+  const keptPct = grossBdt > 0 ? Number(((netBdt / grossBdt) * 100).toFixed(1)) : 100;
+
+  return {
+    totalUsd,
+    grossBdt,
+    incentiveGainBdt,
+    feeBdt,
+    fxDrainBdt,
+    netBdt,
+    keptPct,
+    formattedGross: fmtBdt(grossBdt),
+    formattedIncentive: fmtBdt(incentiveGainBdt),
+    formattedNet: fmtBdt(netBdt),
+  };
 }
 
 const r2 = (n: number) => Math.round(n * 100) / 100;

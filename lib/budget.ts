@@ -36,6 +36,31 @@ export const CATEGORIES: Category[] = [
 
 export const categoryById = (id: CategoryId): Category => CATEGORIES.find((c) => c.id === id) ?? CATEGORIES[10];
 
+export interface CategoryStyle {
+  hex: string;
+  twBg: string;
+  twText: string;
+  twBorder: string;
+}
+
+export const CATEGORY_STYLES: Record<CategoryId, CategoryStyle> = {
+  grocery: { hex: "#10b981", twBg: "bg-emerald-500", twText: "text-emerald-700", twBorder: "border-emerald-500" },
+  food: { hex: "#f59e0b", twBg: "bg-amber-500", twText: "text-amber-700", twBorder: "border-amber-500" },
+  transport: { hex: "#0ea5e9", twBg: "bg-sky-500", twText: "text-sky-700", twBorder: "border-sky-500" },
+  utilities: { hex: "#8b5cf6", twBg: "bg-violet-500", twText: "text-violet-700", twBorder: "border-violet-500" },
+  rent: { hex: "#6366f1", twBg: "bg-indigo-500", twText: "text-indigo-700", twBorder: "border-indigo-500" },
+  health: { hex: "#f43f5e", twBg: "bg-rose-500", twText: "text-rose-700", twBorder: "border-rose-500" },
+  education: { hex: "#3b82f6", twBg: "bg-blue-500", twText: "text-blue-700", twBorder: "border-blue-500" },
+  mobile: { hex: "#06b6d4", twBg: "bg-cyan-500", twText: "text-cyan-700", twBorder: "border-cyan-500" },
+  shopping: { hex: "#d946ef", twBg: "bg-fuchsia-500", twText: "text-fuchsia-700", twBorder: "border-fuchsia-500" },
+  family: { hex: "#f97316", twBg: "bg-orange-500", twText: "text-orange-700", twBorder: "border-orange-500" },
+  other: { hex: "#64748b", twBg: "bg-slate-500", twText: "text-slate-700", twBorder: "border-slate-500" },
+  salary: { hex: "#059669", twBg: "bg-emerald-600", twText: "text-emerald-800", twBorder: "border-emerald-600" },
+  freelance: { hex: "#0284c7", twBg: "bg-sky-600", twText: "text-sky-800", twBorder: "border-sky-600" },
+  gift: { hex: "#ec4899", twBg: "bg-pink-500", twText: "text-pink-700", twBorder: "border-pink-500" },
+  other_income: { hex: "#475569", twBg: "bg-slate-600", twText: "text-slate-800", twBorder: "border-slate-600" },
+};
+
 const BN_DIGITS = "০১২৩৪৫৬৭৮৯";
 
 /** Convert Bengali digits to ASCII so "১২০০" becomes "1200". */
@@ -351,11 +376,76 @@ export function splitBill(totalTaka: number, people: number): number[] {
   return Array.from({ length: n }, (_, i) => fromPoisha(base + (i < extra ? 1 : 0)));
 }
 
-const csvCell = (v: string | number) => {
+export type MfsProvider =
+  | "bkash_app"
+  | "bkash_ussd"
+  | "nagad_app"
+  | "nagad_ussd"
+  | "rocket_app"
+  | "rocket_atm";
+
+export interface MfsFeeConfig {
+  id: MfsProvider;
+  nameBn: string;
+  nameEn: string;
+  ratePct: number;
+  channel: "App" | "USSD" | "ATM";
+  method: Method;
+}
+
+export const MFS_FEE_RATES: Record<MfsProvider, MfsFeeConfig> = {
+  bkash_app: { id: "bkash_app", nameBn: "বিকাশ অ্যাপ (১.৪৯%)", nameEn: "bKash App (1.49%)", ratePct: 1.49, channel: "App", method: "bKash" },
+  bkash_ussd: { id: "bkash_ussd", nameBn: "বিকাশ ইউএসএসডি (*২৪৭#) (১.৮৫%)", nameEn: "bKash USSD (*247#) (1.85%)", ratePct: 1.85, channel: "USSD", method: "bKash" },
+  nagad_app: { id: "nagad_app", nameBn: "নগদ অ্যাপ (১.২৫%)", nameEn: "Nagad App (1.25%)", ratePct: 1.25, channel: "App", method: "Nagad" },
+  nagad_ussd: { id: "nagad_ussd", nameBn: "নগদ ইউএসএসডি (*১৬৭#) (১.৫০%)", nameEn: "Nagad USSD (*167#) (1.50%)", ratePct: 1.50, channel: "USSD", method: "Nagad" },
+  rocket_app: { id: "rocket_app", nameBn: "রকেট অ্যাপ (১.৬৭%)", nameEn: "Rocket App (1.67%)", ratePct: 1.67, channel: "App", method: "Rocket" },
+  rocket_atm: { id: "rocket_atm", nameBn: "রকেট ডিবিবিএল এটিএম (০.৯০%)", nameEn: "Rocket DBBL ATM (0.90%)", ratePct: 0.90, channel: "ATM", method: "Rocket" },
+};
+
+export interface MfsFeeResult {
+  amountPoisha: number;
+  feePoisha: number;
+  totalWithFeePoisha: number;
+  ratePct: number;
+  provider: MfsProvider;
+}
+
+/**
+ * Calculate MFS cash-out fee in integer poisha with ceiling.
+ * Banking invariant: Fractional poisha rounds UP so neither customer nor agent under-accounts.
+ * Math: Math.ceil((amountPoisha * ratePct) / 100).
+ */
+export function calculateMfsCashoutFee(amountTakaOrPoisha: number, provider: MfsProvider, isPoisha = false): MfsFeeResult {
+  const amountPoisha = isPoisha ? Math.max(0, Math.round(amountTakaOrPoisha)) : toPoisha(Math.max(0, amountTakaOrPoisha));
+  const config = MFS_FEE_RATES[provider] ?? MFS_FEE_RATES.bkash_app;
+  const feePoisha = amountPoisha > 0 ? Math.ceil((amountPoisha * config.ratePct) / 100) : 0;
+  return {
+    amountPoisha,
+    feePoisha,
+    totalWithFeePoisha: amountPoisha + feePoisha,
+    ratePct: config.ratePct,
+    provider: config.id,
+  };
+}
+
+/** Resolve default MFS provider for a payment method. */
+export function defaultMfsProvider(method: Method): MfsProvider | null {
+  if (method === "bKash") return "bkash_app";
+  if (method === "Nagad") return "nagad_app";
+  if (method === "Rocket") return "rocket_app";
+  return null;
+}
+
+const UTF8_BOM = "\uFEFF";
+
+export const sanitizeCsvCell = (v: string | number): string => {
   const s = String(v);
-  // Neutralise spreadsheet formula injection and quote when needed.
-  const safe = /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? "'" + s : s;
-  return /[",\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
+  const trimmed = s.trimStart();
+  // Neutralize formula injection including leading whitespace, tabs, and pipes
+  const isNumber = /^-?\d+(\.\d+)?$/.test(trimmed);
+  const isFormula = /^[=+\-@\t\r|]/.test(trimmed) && !isNumber;
+  const safe = isFormula ? "'" + s : s;
+  return /[",\n\r]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
 };
 
 export function toCsv(txs: Transaction[]): string {
@@ -363,7 +453,7 @@ export function toCsv(txs: Transaction[]): string {
   const rows = [...txs]
     .sort((a, b) => a.date.localeCompare(b.date) || a.createdAt.localeCompare(b.createdAt))
     .map((t) => [t.date, t.type, (t.amountPoisha / 100).toFixed(2), categoryById(t.categoryId).en, t.method, t.note, t.trxId ?? "", t.source, t.createdAt, t.updatedAt]);
-  return [header, ...rows].map((r) => r.map(csvCell).join(",")).join("\n");
+  return UTF8_BOM + [header, ...rows].map((r) => r.map(sanitizeCsvCell).join(",")).join("\n");
 }
 
 /** Validate untrusted data read back from storage. Drops anything malformed instead of crashing. */

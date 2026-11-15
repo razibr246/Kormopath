@@ -261,18 +261,18 @@ export default function ChuktiGuardPage() {
             <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-xs">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Invoiced</span>
               <div className="text-[20px] font-extrabold text-slate-900">${finops.totalUsd}</div>
-              <span className="text-[11px] text-slate-500 font-mono">≈ ৳{finops.formattedGross}</span>
+              <span className="text-[11px] text-slate-500 font-mono">≈ {finops.formattedGross}</span>
             </div>
 
             <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3 shadow-xs">
               <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700">+2.5% Cash Incentive</span>
-              <div className="text-[20px] font-extrabold text-emerald-800">+৳{finops.formattedIncentive}</div>
+              <div className="text-[20px] font-extrabold text-emerald-800">+{finops.formattedIncentive}</div>
               <span className="text-[11px] text-emerald-600">Bangladesh Bank FE Circular 02</span>
             </div>
 
             <div className="rounded-xl border border-indigo-200 bg-indigo-50/70 p-3 shadow-xs">
               <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-700">Net Retained Take-Home</span>
-              <div className="text-[20px] font-extrabold text-indigo-900">৳{finops.formattedNet}</div>
+              <div className="text-[20px] font-extrabold text-indigo-900">{finops.formattedNet}</div>
               <span className="text-[11px] text-indigo-600 font-semibold">{finops.keptPct}% kept ({invoice.paymentRail.toUpperCase()})</span>
             </div>
 
@@ -432,7 +432,7 @@ export default function ChuktiGuardPage() {
                   </div>
                   <div className="flex justify-between text-[12px] text-slate-500 font-mono">
                     <span>Converted @ ৳{usdBdt.toFixed(1)}:</span>
-                    <span>৳{finops.formattedGross}</span>
+                    <span>{finops.formattedGross}</span>
                   </div>
                 </div>
               </div>

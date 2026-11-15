@@ -363,6 +363,159 @@ export const UNIVERSITIES: University[] = [
     waiverInfo: "সরকারি ভর্তুকিযুক্ত টিউশন। সঠিক ফি ও বৃত্তির তথ্য ভর্তি সার্কুলারে দেখুন।",
     rankingBd: 16,
   },
+  {
+    id: "ju",
+    name: "Jahangirnagar University",
+    shortName: "JU",
+    type: "public",
+    minGpaSsc: 4.0,
+    minGpaHsc: 4.0,
+    minGpaTotal: 8.0,
+    minBudgetPerSemester: 4000,
+    maxBudgetPerSemester: 12000,
+    location: "Savar, Dhaka",
+    programs: ["CSE", "IIT", "Pharmacy", "Biochemistry", "Economics", "Physics", "Chemistry", "Law"],
+    applicationDeadline: null,
+    website: "https://www.juniv.edu",
+    waiverInfo: "সম্পূর্ণ আবাসিক সরকারি বিশ্ববিদ্যালয়। বিভাগভিত্তিক শর্ত ও ভর্তি পরীক্ষার বিস্তারিত অফিসিয়াল সার্কুলারে দেখুন।",
+    rankingBd: 17,
+  },
+  {
+    id: "ru",
+    name: "University of Rajshahi",
+    shortName: "RU",
+    type: "public",
+    minGpaSsc: 3.5,
+    minGpaHsc: 3.5,
+    minGpaTotal: 7.5,
+    minBudgetPerSemester: 4000,
+    maxBudgetPerSemester: 12000,
+    location: "Rajshahi",
+    programs: ["CSE", "ICE", "EEE", "BBA", "Economics", "Law", "Pharmacy", "Fisheries"],
+    applicationDeadline: null,
+    website: "https://www.ru.ac.bd",
+    waiverInfo: "দেশের দ্বিতীয় বৃহত্তম সরকারি বিশ্ববিদ্যালয়। দ্বিতীয়বার পরীক্ষার সুযোগ ও ইউনিট শর্ত সার্কুলার দেখুন।",
+    rankingBd: 18,
+  },
+  {
+    id: "bu",
+    name: "University of Barishal",
+    shortName: "BU",
+    type: "public",
+    minGpaSsc: 3.5,
+    minGpaHsc: 3.5,
+    minGpaTotal: 7.5,
+    minBudgetPerSemester: 4000,
+    maxBudgetPerSemester: 11000,
+    location: "Barishal",
+    programs: ["CSE", "EEE", "BBA", "Economics", "English", "Chemistry", "Law"],
+    applicationDeadline: null,
+    website: "https://bu.ac.bd",
+    waiverInfo: "সাধারণত GST গুচ্ছের অন্তর্ভুক্ত সরকারি সাধারণ বিশ্ববিদ্যালয়। আসন ও আবেদন প্রক্রিয়া সার্কুলার অনুযায়ী।",
+    rankingBd: 19,
+  },
+  {
+    id: "cou",
+    name: "Comilla University",
+    shortName: "CoU",
+    type: "public",
+    minGpaSsc: 3.5,
+    minGpaHsc: 3.5,
+    minGpaTotal: 7.5,
+    minBudgetPerSemester: 4000,
+    maxBudgetPerSemester: 11000,
+    location: "Cumilla",
+    programs: ["CSE", "ICT", "Pharmacy", "BBA", "Economics", "Physics"],
+    applicationDeadline: null,
+    website: "https://www.cou.ac.bd",
+    waiverInfo: "সরকারি সাধারণ বিশ্ববিদ্যালয় (সাধারণত GST গুচ্ছভুক্ত)। ভর্তি শর্ত ও ফি অফিসিয়াল পোর্টালে দেখুন।",
+    rankingBd: 20,
+  },
+  {
+    id: "iu",
+    name: "Islamic University, Bangladesh",
+    shortName: "IU",
+    type: "public",
+    minGpaSsc: 3.5,
+    minGpaHsc: 3.5,
+    minGpaTotal: 7.0,
+    minBudgetPerSemester: 3500,
+    maxBudgetPerSemester: 10000,
+    location: "Kushtia",
+    programs: ["CSE", "ICE", "Biotechnology", "BBA", "Economics", "Law", "Al-Quran & Islamic Studies"],
+    applicationDeadline: null,
+    website: "https://www.iu.ac.bd",
+    waiverInfo: "সরকারি বিশ্ববিদ্যালয়। প্রকৌশল, বিজ্ঞান, ব্যবসায় প্রশাসন ও ধর্মতত্ত্ব অনুষদভিত্তিক ভর্তি পরীক্ষা অনুষ্ঠিত হয়।",
+    rankingBd: 21,
+  },
+  {
+    id: "butex",
+    name: "Bangladesh University of Textiles",
+    shortName: "BUTEX",
+    type: "public",
+    minGpaSsc: 4.5,
+    minGpaHsc: 4.5,
+    minGpaTotal: 9.0,
+    minBudgetPerSemester: 5000,
+    maxBudgetPerSemester: 14000,
+    location: "Dhaka",
+    programs: ["Textile Engineering", "Textile Machinery", "Apparel Engineering", "Wet Process Engineering", "Dyes & Chemical Engineering"],
+    applicationDeadline: null,
+    website: "https://www.butex.edu.bd",
+    waiverInfo: "টেক্সটাইল প্রকৌশল শিক্ষায় দেশের একমাত্র বিশেষায়িত পাবলিক বিশ্ববিদ্যালয়। একক ভর্তি পরীক্ষার মাধ্যমে ভর্তি।",
+    rankingBd: 22,
+  },
+  {
+    id: "bsmrau",
+    name: "Bangabandhu Sheikh Mujibur Rahman Agricultural University",
+    shortName: "BSMRAU",
+    type: "public",
+    minGpaSsc: 4.0,
+    minGpaHsc: 4.0,
+    minGpaTotal: 8.5,
+    minBudgetPerSemester: 4500,
+    maxBudgetPerSemester: 12000,
+    location: "Gazipur",
+    programs: ["Agriculture", "Fisheries", "Veterinary Medicine", "Agricultural Economics"],
+    applicationDeadline: null,
+    website: "https://bsmrau.edu.bd",
+    waiverInfo: "কৃষি গুচ্ছ (Agricultural Cluster) ভুক্ত শীর্ষ গবেষণাভিত্তিক কৃষি বিশ্ববিদ্যালয়। কেন্দ্রীয় সার্কুলার দেখুন।",
+    rankingBd: 23,
+  },
+  {
+    id: "dmc",
+    name: "Dhaka Medical College (DGHS Medical Cluster)",
+    shortName: "DMC",
+    type: "public",
+    minGpaSsc: 4.0,
+    minGpaHsc: 4.0,
+    minGpaTotal: 9.0,
+    minBudgetPerSemester: 3000,
+    maxBudgetPerSemester: 10000,
+    location: "Dhaka",
+    programs: ["MBBS", "BDS"],
+    applicationDeadline: null,
+    website: "https://dgme.portal.gov.bd",
+    waiverInfo: "স্বাস্থ্য শিক্ষা অধিদপ্তর (DGME/DGHS) নিয়ন্ত্রিত কেন্দ্রীয় মেডিকেল ভর্তি পরীক্ষা। নামমাত্র সরকারি চিকিৎসা শিক্ষা ফি।",
+    rankingBd: 24,
+  },
+  {
+    id: "ku",
+    name: "Khulna University",
+    shortName: "KU",
+    type: "public",
+    minGpaSsc: 4.0,
+    minGpaHsc: 4.0,
+    minGpaTotal: 8.0,
+    minBudgetPerSemester: 4000,
+    maxBudgetPerSemester: 12000,
+    location: "Khulna",
+    programs: ["CSE", "ECE", "BBA", "Economics", "Biotechnology", "Architecture", "Environmental Science"],
+    applicationDeadline: null,
+    website: "https://ku.ac.bd",
+    waiverInfo: "সরকারি সাধারণ বিশ্ববিদ্যালয়। রাজনীতিমুক্ত সুশৃঙ্খল ক্যাম্পাস। ভর্তি বিজ্ঞপ্তি অফিসিয়াল সাইটে দেখুন।",
+    rankingBd: 25,
+  },
 ];
 
 export function deadlinesFor(universityId: string, userDeadlines: UserDeadline[]): UserDeadline[] {
@@ -672,6 +825,18 @@ export function answerCounselorQuery(query: string, matches: MatchResult[]): str
     const du = byShort("du")!;
     return `University of Dhaka-র ভর্তি তথ্য ও সার্কুলার অফিসিয়াল ওয়েবসাইটে (${du.website}) প্রকাশিত হয়। আমরা কোনো তারিখ বা কাট-অফ অনুমান করি না।`;
   }
+  if (has(q, "medical", "মেডিকেল", "mbbs", "bds", "dghs", "dgme")) {
+    const dmc = byShort("dmc")!;
+    return `সরকারি মেডিকেল কলেজসমূহে ভর্তি পরীক্ষা স্বাস্থ্য শিক্ষা অধিদপ্তর (DGME/DGHS) কেন্দ্রীয়ভাবে আয়োজন করে (${dmc.website})। ন্যূনতম মোট GPA ৯.০০ (এসএসসি ও এইচএসসিতে জীববিজ্ঞানে ন্যূনতম জিপিএ থাকতে হয়)। সঠিক তারিখ অফিসিয়াল সার্কুলার থেকে Deadlines ট্যাবে যোগ করুন।`;
+  }
+  if (has(q, "agriculture", "কৃষি", "কৃষি গুচ্ছ", "agri", "agricultural")) {
+    const bsmrau = byShort("bsmrau")!;
+    return `কৃষি গুচ্ছের আওতায় BSMRAU, BAU সহ কৃষি বিশ্ববিদ্যালয়সমূহে কেন্দ্রীয়ভাবে ভর্তি পরীক্ষা হয় (${bsmrau.website})। বিস্তারিত শর্ত অফিসিয়াল সার্কুলারে দেখুন।`;
+  }
+  if (has(q, "textile", "টেক্সটাইল")) {
+    const butex = byShort("butex")!;
+    return `${butex.name} (${butex.shortName}): টেক্সটাইল ইঞ্জিনিয়ারিংয়ে বিশেষায়িত পাবলিক বিশ্ববিদ্যালয়। প্রোগ্রাম: ${butex.programs.join(", ")}। অফিসিয়াল সাইট: ${butex.website}।`;
+  }
   if (has(q, "scholarship", "waiver", "stipend", "বৃত্তি", "উপবৃত্তি", "ওয়েভার", "কম খরচ")) {
     const pm = OFFICIAL_RESOURCES[1];
     return `খরচ কমানোর পথ: (১) সরকারি বিশ্ববিদ্যালয়ে টিউশন ভর্তুকিযুক্ত। (২) বেসরকারি বিশ্ববিদ্যালয়ে মেধা/আর্থিক ওয়েভার থাকে — হার ও শর্ত প্রতিটি বিশ্ববিদ্যালয়ের ওয়েবসাইটে দেখুন। (৩) স্নাতক পর্যায়ের সরকারি উপবৃত্তি: ${pm.label} — ${pm.url}। কোনো বৃত্তির শর্ত আমরা নিশ্চিত না করে বলি না।`;
@@ -782,4 +947,114 @@ export function sanitizeStatuses(input: unknown): ApplicationStatus[] | null {
       note: typeof x.note === "string" ? x.note.slice(0, 200) : "",
     }))
     .slice(0, 100);
+}
+
+/**
+ * Generates a clean, structured Markdown admission roadmap summary.
+ * Fully deterministic (no floating point drift, zero invented dates, strict honesty).
+ */
+export function toRoadmapMarkdown(
+  profile: StudentProfile,
+  shortlisted: University[],
+  tasks: DeadlineItem[],
+  balance?: ListBalanceReport,
+  userDeadlines: UserDeadline[] = [],
+  statuses: ApplicationStatus[] = [],
+  today = "1970-01-01"
+): string {
+  const lines: string[] = [];
+  const studentName = profile.name?.trim() || "ভর্তিচ্ছু শিক্ষার্থী";
+  const statusMap = new Map(statuses.map((s) => [s.universityId, s]));
+
+  // 1. Title & Header
+  lines.push("# KormoPath AdmitBuddy — বিশ্ববিদ্যালয় ভর্তি রোডম্যাপ");
+  lines.push(`> প্রস্তুতের তারিখ: ${today} | প্রস্তুতকারী: ${studentName}`);
+  lines.push("");
+
+  // 2. Student Profile Summary
+  lines.push("## ১. শিক্ষার্থীর প্রোফাইল ও প্রাথমিক যোগ্যতা");
+  lines.push(`- **শিক্ষার্থীর নাম:** ${studentName}`);
+  lines.push(`- **মাধ্যমিক (SSC) GPA:** ${profile.sscGpa.toFixed(2)}`);
+  lines.push(`- **উচ্চ মাধ্যমিক (HSC) GPA:** ${profile.hscGpa.toFixed(2)} (মোট GPA: ${(profile.sscGpa + profile.hscGpa).toFixed(2)})`);
+  lines.push(`- **শাখা / গ্রুপ:** ${profile.group}`);
+  lines.push(`- **প্রতি সেমিস্টারে সর্বোচ্চ বাজেট:** ৳${profile.maxBudgetPerSemester.toLocaleString("en-IN")}`);
+  if (profile.preferredLocations && profile.preferredLocations.length > 0) {
+    lines.push(`- **পছন্দের এলাকা:** ${profile.preferredLocations.join(", ")}`);
+  }
+  if (profile.interests && profile.interests.length > 0) {
+    lines.push(`- **আগ্রহের বিষয়:** ${profile.interests.join(", ")}`);
+  }
+  lines.push("");
+
+  // 3. CollegeVine List Balance Analysis
+  if (balance) {
+    lines.push("## ২. শর্টলিস্ট পোর্টফোলিও ভারসাম্য (CollegeVine 2-3-2 মানদণ্ড)");
+    lines.push(`- **মোট শর্টলিস্টেড বিশ্ববিদ্যালয়:** ${balance.total}টি`);
+    lines.push(`  - **Reach (প্রতিযোগিতাপূর্ণ):** ${balance.reaches}টি`);
+    lines.push(`  - **Match (টার্গেট):** ${balance.matches}টি`);
+    lines.push(`  - **Safety / Waiver (নিরাপদ বিকল্প):** ${balance.safeties}টি`);
+    lines.push(`- **ভারসাম্য মূল্যায়ন:** ${balance.statusBn}`);
+    lines.push(`- **পরামর্শ:** ${balance.recommendationBn}`);
+    lines.push("");
+  }
+
+  // 4. Shortlisted Universities Detailed Table
+  lines.push("## ৩. শর্টলিস্টেড বিশ্ববিদ্যালয় ও আবেদনের বর্তমান অগ্রগতি");
+  if (shortlisted.length === 0) {
+    lines.push("*এখনো কোনো বিশ্ববিদ্যালয় শর্টলিস্ট করা হয়নি।*");
+  } else {
+    lines.push("| বিশ্ববিদ্যালয় | ধরন | অবস্থান | বর্তমান ধাপ | ফিট/ক্যাটাগরি | অফিসিয়াল ওয়েবসাইট |");
+    lines.push("| :--- | :--- | :--- | :--- | :--- | :--- |");
+    for (const u of shortlisted) {
+      const st = statusMap.get(u.id);
+      const stageName = st ? stageInfo(st.stage).label : "পরিকল্পনা";
+      const typeLabel = u.type === "public" ? "সরকারি" : u.type === "private" ? "বেসরকারি" : "আন্তর্জাতিক";
+      lines.push(`| **${u.shortName}** — ${u.name} | ${typeLabel} | ${u.location} | ${stageName} | আনুমানিক GPA ${u.minGpaTotal} | [ওয়েবসাইট](${u.website}) |`);
+    }
+  }
+  lines.push("");
+
+  // 5. Actionable Deadlines & Task Timeline (Honest Invariant: 0 invented dates)
+  lines.push("## ৪. ভর্তি পরীক্ষার সময়সূচি ও করণীয় তালিকা");
+  const datedTasks = tasks.filter((t) => t.dueDate);
+  const undatedTasks = tasks.filter((t) => !t.dueDate);
+
+  if (datedTasks.length > 0) {
+    lines.push("### ঘোষিত / আপনার যোগ করা তারিখসমূহ (উৎসসহ)");
+    lines.push("| তারিখ | বিশ্ববিদ্যালয় | কাজের বিবরণ | অবস্থা | সার্কুলার উৎস নোট |");
+    lines.push("| :--- | :--- | :--- | :--- | :--- |");
+    for (const t of datedTasks) {
+      const statusIcon = t.isDone ? "[x] সম্পন্ন" : "[ ] বাকি";
+      lines.push(`| ${t.dueDate} | ${t.universityName} | ${t.title} | ${statusIcon} | ${t.sourceNote || "ব্যবহারকারীর দেওয়া"} |`);
+    }
+    lines.push("");
+  }
+
+  if (undatedTasks.length > 0) {
+    lines.push("### অফিসিয়াল সার্কুলার অপেক্ষমাণ কাজ (অঘোষিত তারিখ)");
+    lines.push("> *সতর্কবার্তা: কোনো তারিখ বা কাট-অফ অনুমান করা হয়নি (0 Invented Dates Invariant)। সার্কুলার প্রকাশিত হলে অ্যাপে তারিখ যোগ করুন।*");
+    for (const t of undatedTasks) {
+      const statusIcon = t.isDone ? "[x]" : "[ ]";
+      lines.push(`- ${statusIcon} **${t.universityName}**: ${t.title}`);
+    }
+    lines.push("");
+  }
+
+  // 6. Document Checklist
+  lines.push("## ৫. প্রয়োজনীয় কাগজপত্র ও সনদের চেকলিস্ট");
+  for (const doc of DOCUMENT_CHECKLIST) {
+    lines.push(`- [ ] ${doc.label}`);
+  }
+  lines.push("");
+
+  // 7. Important Disclaimers and Official Portals
+  lines.push("## ৬. গুরুত্বপূর্ণ অফিসিয়াল পোর্টাল ও আইনি নোটিশ");
+  for (const r of OFFICIAL_RESOURCES) {
+    lines.push(`- **${r.label}:** ${r.url}  \n  *(${r.note})*`);
+  }
+  lines.push("");
+  lines.push("> **আইনি নোটিশ:** ন্যূনতম GPA ও ফি সংক্রান্ত তথ্যসমূহ আনুমানিক। সরকারি বিশ্ববিদ্যালয়ে আসন বণ্টন সম্পূর্ণ ভর্তি পরীক্ষার মেধার ভিত্তিতে হয়। যেকোনো সিদ্ধান্তের পূর্বে মূল অফিসিয়াল সার্কুলার যাচাই করে নিন।");
+  lines.push("");
+
+  return lines.join("\n");
 }

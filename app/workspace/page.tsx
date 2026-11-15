@@ -594,6 +594,15 @@ export default function Home() {
 
   const done = [Boolean(audit), Boolean(passport), Boolean(pitch), ledger.length > 0 || stage === 4];
 
+  const groundingDiffData = useMemo(() => {
+    if (!audit) return undefined;
+    return {
+      sourceText: cv || audit.extraction.ocr_text || "",
+      skills: audit.skills,
+      candidateName: audit.extraction.name || persona?.name || null,
+    };
+  }, [audit, cv, persona]);
+
   return (
     <>
       <Navbar
@@ -886,6 +895,7 @@ export default function Home() {
               steps={trace}
               inspect={Object.values(inspect)}
               live={persona ? `Active Persona: ${persona.name}` : "Waiting for pipeline trigger"}
+              groundingDiff={groundingDiffData}
             />
           </div>
         </section>

@@ -57,6 +57,9 @@ export default function MediScanPage() {
   const [consent, setConsent] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadMsg, setUploadMsg] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewType, setPreviewType] = useState<string | null>(null);
+  const [previewFileName, setPreviewFileName] = useState<string | null>(null);
   const [saved, setSaved] = usePersistentState<SavedRx[]>(storageKey("mediscan", "savedPrescriptions"), [], sanitizeSaved);
   const [saveLabel, setSaveLabel] = useState("");
   const [pairA, setPairA] = useState("azithromycin");
@@ -90,12 +93,19 @@ export default function MediScanPage() {
     }
     setUploading(true);
     try {
-      const base64 = await new Promise<string>((resolve, reject) => {
+      const dataUrl = await new Promise<string>((resolve, reject) => {
         const r = new FileReader();
-        r.onload = () => resolve(String(r.result).split(",")[1] ?? "");
+        r.onload = () => resolve(String(r.result));
         r.onerror = () => reject(new Error("read failed"));
         r.readAsDataURL(file);
       });
+
+      // Strict in-memory privacy: preview is kept only in component state, never persisted
+      setPreviewUrl(dataUrl);
+      setPreviewType(file.type);
+      setPreviewFileName(file.name);
+
+      const base64 = dataUrl.split(",")[1] ?? "";
       const res = await fetch("/api/mediscan/ocr", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -108,7 +118,7 @@ export default function MediScanPage() {
         setUploadMsg({ kind: "error", text: "ছবিতে পড়ার মতো প্রেসক্রিপশন পাওয়া যায়নি। আরও পরিষ্কার ছবি দিন বা টাইপ করুন।" });
       } else {
         setText(data.text);
-        setUploadMsg({ kind: "ok", text: "ছবি থেকে লেখা বের করা হয়েছে। এটি স্বয়ংক্রিয় পাঠ — ভুল থাকতে পারে। মূল প্রেসক্রিপশনের সাথে মিলিয়ে নিচের বক্সে ঠিক করে নিন।" });
+        setUploadMsg({ kind: "ok", text: "ছবি থেকে লেখা বের করা হয়েছে। এটি স্বয়ংক্রিয় পাঠ — ভুল থাকতে পারে। মূল প্রেসক্রিপশনের সাথে মিলিয়ে পাশের বক্সে ঠিক করে নিন।" });
       }
     } catch {
       setUploadMsg({ kind: "error", text: "নেটওয়ার্ক সমস্যা। লেখা টাইপ করে দিন — সেটি সম্পূর্ণ এই ডিভাইসেই কাজ করে।" });
@@ -210,15 +220,75 @@ export default function MediScanPage() {
           {/* Input */}
           <section aria-labelledby="in-h" className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5">
             <h2 id="in-h" className="text-[17px] font-bold">১. প্রেসক্রিপশনের লেখা দিন</h2>
-            <label htmlFor="rx" className="sr-only">প্রেসক্রিপশনের লেখা</label>
-            <textarea
-              id="rx"
-              rows={8}
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder={"প্রতিটি ওষুধ আলাদা লাইনে লিখুন, যেমন:\nTab. Napa Extra 500mg 1+0+1 x 3 days p.c."}
-              className="w-full rounded-xl border border-slate-200 p-3 font-mono text-[13px] leading-relaxed outline-none focus:border-sky-600"
-            />
+            {previewUrl ? (
+              <div className="space-y-3 rounded-xl border border-sky-200 bg-sky-50/40 p-3">
+                <div className="flex items-center justify-between border-b border-sky-100 pb-2">
+                  <span className="flex items-center gap-1.5 text-[13px] font-bold text-slate-800">
+                    <Pill size={15} className="text-sky-600" aria-hidden /> মূল প্রেসক্রিপশন ও স্বয়ংক্রিয় পাঠ পাশাপাশি মিলিয়ে দেখুন
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPreviewUrl(null);
+                      setPreviewType(null);
+                      setPreviewFileName(null);
+                    }}
+                    className="rounded px-2 py-0.5 text-[11px] font-semibold text-red-600 hover:bg-red-50 hover:underline"
+                  >
+                    প্রিভিউ বন্ধ করুন
+                  </button>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {/* Left: Original document thumbnail */}
+                  <div className="space-y-1.5">
+                    <span className="block text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                      মূল প্রেসক্রিপশন {previewFileName ? `(${previewFileName})` : ""}
+                    </span>
+                    <div className="relative aspect-[3/4] max-h-72 w-full overflow-hidden rounded-lg border border-slate-200 bg-white shadow-inner">
+                      {previewType === "application/pdf" ? (
+                        <iframe src={previewUrl} title="প্রেসক্রিপশন PDF" className="h-full w-full" />
+                      ) : (
+                        <img
+                          src={previewUrl}
+                          alt="আপলোড করা প্রেসক্রিপশনের ছবি"
+                          className="h-full w-full object-contain"
+                        />
+                      )}
+                    </div>
+                    <p className="text-[10px] text-slate-500">
+                      ছবিটি শুধুমাত্র এই ট্যাবের মেমোরিতে আছে (ইন-মেমোরি প্রাইভেসি); কোনো ডেটাবেস বা লোকাল স্টোরেজে সংরক্ষণ করা হয় না।
+                    </p>
+                  </div>
+
+                  {/* Right: Editable transcription text */}
+                  <div className="space-y-1.5">
+                    <label htmlFor="rx" className="block text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                      স্বয়ংক্রিয় পাঠ (ছবির সাথে মিলিয়ে ঠিক করে নিন)
+                    </label>
+                    <textarea
+                      id="rx"
+                      rows={10}
+                      value={text}
+                      onChange={(e) => setText(e.target.value)}
+                      placeholder={"প্রতিটি ওষুধ আলাদা লাইনে লিখুন..."}
+                      className="h-72 w-full rounded-xl border border-slate-200 p-3 font-mono text-[13px] leading-relaxed outline-none focus:border-sky-600"
+                    />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <label htmlFor="rx" className="sr-only">প্রেসক্রিপশনের লেখা</label>
+                <textarea
+                  id="rx"
+                  rows={8}
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  placeholder={"প্রতিটি ওষুধ আলাদা লাইনে লিখুন, যেমন:\nTab. Napa Extra 500mg 1+0+1 x 3 days p.c."}
+                  className="w-full rounded-xl border border-slate-200 p-3 font-mono text-[13px] leading-relaxed outline-none focus:border-sky-600"
+                />
+              </div>
+            )}
             <div>
               <span className="mb-1.5 block text-[11px] font-bold uppercase text-slate-400">কাল্পনিক নমুনা দিয়ে চেষ্টা করুন</span>
               <div className="flex flex-wrap gap-1.5">

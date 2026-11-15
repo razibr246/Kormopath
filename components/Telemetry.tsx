@@ -1,12 +1,25 @@
 "use client";
 import { useState } from "react";
 import type { TraceStep } from "@/lib/trace";
-import { X, Braces, Activity, ShieldCheck, Terminal } from "lucide-react";
+import { X, Braces, Activity, ShieldCheck, Terminal, Download, Scale, Check, AlertCircle } from "lucide-react";
 
 export interface Inspectable {
   label: string;
   validated: unknown;
   raw: string | null;
+}
+
+export interface GroundingDiffData {
+  sourceText: string;
+  skills: {
+    name: string;
+    level: string;
+    evidence: string;
+    verdict: "verified" | "partial" | "unverified";
+    score: number;
+    origin?: string;
+  }[];
+  candidateName?: string | null;
 }
 
 const DOT: Record<TraceStep["status"], string> = {
@@ -76,9 +89,54 @@ function Log({ steps }: { steps: TraceStep[] }) {
   );
 }
 
-export function Telemetry({ steps, inspect, live }: { steps: TraceStep[]; inspect: Inspectable[]; live: string }) {
+export function Telemetry({
+  steps,
+  inspect,
+  live,
+  groundingDiff,
+}: {
+  steps: TraceStep[];
+  inspect: Inspectable[];
+  live: string;
+  groundingDiff?: GroundingDiffData;
+}) {
   const [open, setOpen] = useState(false);
+  const [diffOpen, setDiffOpen] = useState(false);
   const [sheet, setSheet] = useState(false);
+
+  const exportTraceJson = () => {
+    const exportData = {
+      version: "1.0",
+      exportedAt: new Date().toISOString(),
+      totalSteps: steps.length,
+      summary: {
+        modelCalls: steps.filter((s) => s.tool.startsWith("gemini") || s.tool.includes("vision")).length,
+        codeMathSteps: steps.filter((s) => !s.tool.startsWith("gemini") && s.tool !== "zod").length,
+        evidenceChecks: steps.filter((s) => s.tool === "evidence-check" && s.status === "warn").length,
+        fallbacks: steps.filter((s) => s.status === "fallback").length,
+      },
+      steps: steps.map((s, index) => ({
+        id: index + 1,
+        agent: s.agent,
+        tool: s.tool,
+        detail: s.detail,
+        ms: s.ms,
+        status: s.status,
+        timestamp: s.at ?? Date.now(),
+      })),
+    };
+
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `kormopath-telemetry-trace-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   const body = (
     <div className="flex h-full flex-col gap-2.5">
       <div className="flex items-center justify-between gap-2 border-b border-line pb-2">
@@ -86,14 +144,32 @@ export function Telemetry({ steps, inspect, live }: { steps: TraceStep[]; inspec
           <Terminal size={16} className="text-kept" />
           <h2 className="display text-[16px] font-bold text-ink">Live Telemetry &amp; Guardrails</h2>
         </div>
-        <button
-          onClick={() => setOpen(true)}
-          disabled={!inspect.length}
-          className="inline-flex items-center gap-1 rounded-md border border-line bg-white px-2 py-1 text-[11px] font-bold hover:border-kept transition-colors disabled:opacity-40"
-          title="Inspect raw model outputs vs validated JSON schema"
-        >
-          <Braces size={12} /> Inspect Raw JSON
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={exportTraceJson}
+            disabled={!steps.length}
+            className="inline-flex items-center gap-1 rounded-md border border-line bg-white px-2 py-1 text-[11px] font-bold hover:border-kept transition-colors disabled:opacity-40"
+            title="Export all execution trace events as JSON"
+          >
+            <Download size={12} /> Export Trace JSON
+          </button>
+          <button
+            onClick={() => setDiffOpen(true)}
+            disabled={!groundingDiff?.skills?.length}
+            className="inline-flex items-center gap-1 rounded-md border border-line bg-white px-2 py-1 text-[11px] font-bold hover:border-kept transition-colors disabled:opacity-40"
+            title="Inspect side-by-side Grounding Diff of original CV vs extracted skills"
+          >
+            <Scale size={12} /> Grounding Diff
+          </button>
+          <button
+            onClick={() => setOpen(true)}
+            disabled={!inspect.length}
+            className="inline-flex items-center gap-1 rounded-md border border-line bg-white px-2 py-1 text-[11px] font-bold hover:border-kept transition-colors disabled:opacity-40"
+            title="Inspect raw model outputs vs validated JSON schema"
+          >
+            <Braces size={12} /> Inspect JSON
+          </button>
+        </div>
       </div>
 
       <div className="flex items-center justify-between text-[12px]">
@@ -132,9 +208,141 @@ export function Telemetry({ steps, inspect, live }: { steps: TraceStep[]; inspec
           {body}
         </div>
       )}
+
+      {/* Grounding Diff Modal */}
+      {diffOpen && groundingDiff && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 p-4 backdrop-blur-xs"
+          role="dialog"
+          aria-label="Inspect Grounding Diff"
+          onClick={() => setDiffOpen(false)}
+        >
+          <div
+            className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl border border-line"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-4 flex items-center justify-between border-b border-line pb-3">
+              <div className="flex items-center gap-2">
+                <Scale size={20} className="text-kept" />
+                <div>
+                  <h3 className="display text-[20px] font-bold text-ink">
+                    Grounding Diff Inspector {groundingDiff.candidateName ? `· ${groundingDiff.candidateName}` : ""}
+                  </h3>
+                  <p className="text-[12px] text-muted">
+                    Deterministic verification: Every skill must literally quote the source text word-for-word.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setDiffOpen(false)}
+                aria-label="Close"
+                className="rounded-md border border-line p-1.5 hover:bg-paper"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              {/* Left Column: Source Document */}
+              <div className="flex flex-col rounded-xl border border-line bg-paper p-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-[12px] font-bold uppercase tracking-wider text-muted">
+                    Source Text (CV / Profile / OCR)
+                  </span>
+                  <span className="font-mono text-[11px] text-muted">
+                    {groundingDiff.sourceText.length} chars
+                  </span>
+                </div>
+                <div className="max-h-[500px] overflow-y-auto rounded-lg border border-line bg-white p-3 font-mono text-[12px] leading-relaxed text-ink whitespace-pre-wrap select-text">
+                  {groundingDiff.sourceText || "No source text available."}
+                </div>
+              </div>
+
+              {/* Right Column: Grounded Skills & Evidence */}
+              <div className="flex flex-col rounded-xl border border-line bg-paper p-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-[12px] font-bold uppercase tracking-wider text-kept">
+                    Extracted Skills &amp; Quoted Evidence ({groundingDiff.skills.length})
+                  </span>
+                  <span className="text-[11px] text-muted">Strict NFC Normalization</span>
+                </div>
+
+                <div className="max-h-[500px] space-y-2.5 overflow-y-auto pr-1">
+                  {groundingDiff.skills.map((s, idx) => {
+                    const isVerified = s.verdict === "verified";
+                    const isPartial = s.verdict === "partial";
+                    return (
+                      <div
+                        key={idx}
+                        className={`rounded-xl border p-3 bg-white text-[13px] shadow-2xs ${
+                          isVerified
+                            ? "border-kept/40"
+                            : isPartial
+                            ? "border-haldi/40"
+                            : "border-leak/40"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="font-bold text-ink text-[14px]">{s.name}</span>
+                          <span
+                            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                              isVerified
+                                ? "bg-kept-soft text-kept-dark"
+                                : isPartial
+                                ? "bg-haldi-soft text-haldi"
+                                : "bg-leak-soft text-leak"
+                            }`}
+                          >
+                            {isVerified ? (
+                              <Check size={11} className="stroke-[3]" />
+                            ) : (
+                              <AlertCircle size={11} />
+                            )}
+                            {s.verdict} ({Math.round(s.score * 100)}%)
+                          </span>
+                        </div>
+                        <div className="text-[11px] text-muted mb-1.5">
+                          <span>Level: <strong className="text-ink">{s.level}</strong></span>
+                          {s.origin && <span className="ml-2 font-mono">[{s.origin}]</span>}
+                        </div>
+                        <div className="rounded border border-line/60 bg-paper/70 p-2 font-mono text-[11px] text-ink leading-tight">
+                          <span className="font-semibold text-muted">Quoted Evidence:</span>
+                          <p className="mt-0.5 italic text-ink/90">
+                            {s.evidence ? `“${s.evidence}”` : "(No verbatim evidence provided)"}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 flex items-center justify-between border-t border-line pt-3 text-[12px] text-muted">
+              <span>Grounding status derived via <code>lib/grounding.ts::verifyEvidence</code></span>
+              <button
+                onClick={() => setDiffOpen(false)}
+                className="rounded-lg bg-ink px-4 py-1.5 text-[13px] font-bold text-white hover:bg-ink/90"
+              >
+                Close Inspector
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Raw JSON Schema Modal */}
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 p-4 backdrop-blur-xs" role="dialog" aria-label="Inspect Raw JSON Schema" onClick={() => setOpen(false)}>
-          <div className="max-h-[85vh] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl border border-line" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 p-4 backdrop-blur-xs"
+          role="dialog"
+          aria-label="Inspect Raw JSON Schema"
+          onClick={() => setOpen(false)}
+        >
+          <div
+            className="max-h-[85vh] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl border border-line"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="mb-3 flex items-center justify-between border-b border-line pb-3">
               <div className="flex items-center gap-2">
                 <ShieldCheck size={20} className="text-kept" />
