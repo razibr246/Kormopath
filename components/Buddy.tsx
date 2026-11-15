@@ -6,7 +6,6 @@ import {
   MessageCircle,
   Send,
   X,
-  Sparkles,
   Volume2,
   VolumeX,
   Keyboard,
@@ -157,7 +156,7 @@ const APP_TASKS: Record<AppId, Array<{ title: string; desc: string; href?: strin
 };
 
 /**
- * 3D Siri-Style Iridescent Glowing Metallic Sphere Orb
+ * Glossy, planet-like KormoPath voice orb.
  */
 function SiriOrb({
   size = "md",
@@ -180,7 +179,7 @@ function SiriOrb({
       onClick={onClick}
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
-      aria-label="Siri Voice Orb"
+      aria-label="Buddy voice orb"
       className={`relative grid shrink-0 place-items-center rounded-full siri-sphere-bezel ${dimensions} ${
         onClick ? "cursor-pointer hover:scale-105 active:scale-95" : ""
       }`}
@@ -192,14 +191,6 @@ function SiriOrb({
       >
         <div className="siri-sphere-inner" />
         <div className="siri-sphere-sheen" />
-        {/* Soft center sparkle reflection */}
-        <div className="absolute inset-0 grid place-items-center z-10 pointer-events-none">
-          <Sparkles
-            size={size === "sm" ? 13 : size === "lg" ? 22 : 16}
-            strokeWidth={1.8}
-            className="text-amber-100/90 drop-shadow-[0_0_8px_rgba(45,212,191,0.8)]"
-          />
-        </div>
       </div>
     </div>
   );
