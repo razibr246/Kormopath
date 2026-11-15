@@ -207,8 +207,10 @@ main section.rounded-2xl.border[class*="bg-white"],main section.rounded-3xl.bord
   background:
     radial-gradient(ellipse at 48% 0%,rgba(255,255,255,.92) 0%,rgba(190,246,235,.74) 4%,rgba(89,218,204,.53) 9%,transparent 27%),
     linear-gradient(180deg,rgba(15,34,39,.24),rgba(91,136,132,.82) 30%,rgba(25,100,101,.93) 63%,rgba(5,26,31,.98));
+  background-size:180% 180%,150% 150%;
+  background-position:0% 20%,50% 50%;
   filter:saturate(1.08);
-  animation:buddy-planet-current 7s ease-in-out infinite alternate, buddy-planet-color 18s linear infinite;
+  animation:buddy-planet-current 7s ease-in-out infinite alternate, buddy-planet-color 10s linear infinite;
 }
 
 .siri-sphere-sheen {
@@ -283,7 +285,11 @@ main section.rounded-2xl.border[class*="bg-white"],main section.rounded-3xl.bord
   50% { transform:translate(1.5%,-1%) scale(1.04); }
   100% { transform:translate(3%,1.5%) scale(1.02); }
 }
-@keyframes buddy-planet-color { to { filter:hue-rotate(24deg) saturate(1.14); } }
+@keyframes buddy-planet-color {
+  0% { background-position:0% 20%,50% 50%; filter:hue-rotate(0deg) saturate(1.05); }
+  50% { background-position:78% 75%,20% 80%; filter:hue-rotate(110deg) saturate(1.3); }
+  100% { background-position:0% 20%,50% 50%; filter:hue-rotate(360deg) saturate(1.05); }
+}
 @keyframes buddy-planet-horizon {
   0% { transform:translate(-2%,1%) rotate(-4deg); opacity:.82; }
   50% { transform:translate(1%,-1%) rotate(-1deg); opacity:1; }
@@ -297,6 +303,9 @@ main section.rounded-2xl.border[class*="bg-white"],main section.rounded-3xl.bord
 }
 @media (prefers-reduced-motion: reduce) {
   .buddy-launcher::before, .buddy-launcher-orb .siri-sphere { animation:none; }
+  /* Keep the aurora's color drift while removing spatial movement. */
+  .siri-sphere-inner::before { animation-name:buddy-planet-color!important; animation-duration:30s!important; animation-timing-function:linear!important; animation-iteration-count:infinite!important; animation-direction:normal!important; }
+  .siri-sphere-sheen { animation:none!important; }
 }
 
 /* Cursor Buddy: a small KormoPath signal with a gently delayed light ring. */
