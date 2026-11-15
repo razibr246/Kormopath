@@ -8,7 +8,6 @@ import "./globals.css";
 import { StorageNotice } from "@/components/StorageNotice";
 import { CommandPalette } from "@/components/CommandPalette";
 import { Buddy } from "@/components/Buddy";
-import { CursorBuddy } from "@/components/CursorBuddy";
 import { BuildathonSticker } from "@/components/BuildathonSticker";
 
 export const metadata: Metadata = {
@@ -111,7 +110,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <CommandPalette />
         <Buddy />
-        <CursorBuddy />
       </body>
     </html>
   );
