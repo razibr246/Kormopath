@@ -15,22 +15,28 @@ import {
   Layers,
   ArrowRight,
   ExternalLink,
+  Globe,
 } from "lucide-react";
 
 const APPS = [
-  { id: "kormopath", name: "KormoPath Core", tag: "Platform", route: "/" },
-  { id: "path", name: "My Path Board", tag: "Career", route: "/opportunities" },
-  { id: "chuktiguard", name: "ChuktiGuard", tag: "Contracts", route: "/chuktiguard" },
-  { id: "feeguard", name: "FeeGuard BD", tag: "FinOps", route: "/feeguard" },
-  { id: "admitbuddy", name: "AdmitBuddy", tag: "Admissions", route: "/admitbuddy" },
-  { id: "mediscan", name: "MediScan BD", tag: "Health Rx", route: "/mediscan" },
-  { id: "shohoj", name: "Shohoj Budget", tag: "Personal Finance", route: "/shohoj-budget" },
-  { id: "haatbazar", name: "HaatBazar AI", tag: "Agriculture", route: "/haatbazar" },
-  { id: "probaho", name: "Probaho Coach", tag: "Viva Prep", route: "/probaho" },
+  { id: "kormopath", name: "KormoPath", tag: "মূল সহায়তা", route: "/" },
+  { id: "path", name: "My Path", tag: "কর্মজীবন", route: "/opportunities" },
+  { id: "chuktiguard", name: "ChuktiGuard", tag: "চুক্তি", route: "/chuktiguard" },
+  { id: "feeguard", name: "FeeGuard BD", tag: "পেমেন্ট ও ফি", route: "/feeguard" },
+  { id: "admitbuddy", name: "AdmitBuddy", tag: "ভর্তি", route: "/admitbuddy" },
+  { id: "mediscan", name: "MediScan BD", tag: "স্বাস্থ্যতথ্য", route: "/mediscan" },
+  { id: "shohoj", name: "Shohoj Budget", tag: "পারিবারিক বাজেট", route: "/shohoj-budget" },
+  { id: "haatbazar", name: "HaatBazar AI", tag: "কৃষি", route: "/haatbazar" },
+  { id: "probaho", name: "Probaho Coach", tag: "কথা বলার অনুশীলন", route: "/probaho" },
 ] as const;
 
 type AppId = (typeof APPS)[number]["id"];
-type Message = { role: "user" | "assistant"; content: string };
+type Message = {
+  role: "user" | "assistant";
+  content: string;
+  unverified?: boolean;
+  sources?: Array<{ title: string; url: string }>;
+};
 type AssistantTab = "talk" | "tasks" | "apps" | "security";
 type AssistantMode = "manual" | "agent";
 
@@ -48,110 +54,109 @@ function appForPath(path: string | null): AppId {
 
 const APP_SUGGESTIONS: Record<AppId, string[]> = {
   haatbazar: [
-    "What to plant?",
-    "Compare the options",
-    "Water today?",
-    "Harvest date?",
-    "Next crop?",
-    "Report a problem",
-    "Talk to my officer",
+    "কী চাষ করব?",
+    "বিকল্পগুলো তুলনা করুন",
+    "আজ পানি দেব?",
+    "ফসল কাটার সময় কখন?",
+    "পরের ফসল বাছুন",
+    "সমস্যা জানান",
+    "কৃষি কর্মকর্তার সঙ্গে কথা বলুন",
   ],
   admitbuddy: [
-    "What university fits me?",
-    "Compare the options",
-    "Check list balance",
-    "Analyze SOP readability",
-    "Verified circular deadlines",
-    "Export roadmap (.md)",
+    "আমার জন্য কোন বিশ্ববিদ্যালয় মানানসই?",
+    "বিকল্পগুলো তুলনা করুন",
+    "আবেদনের তালিকা দেখুন",
+    "ব্যক্তিগত বিবৃতির পাঠযোগ্যতা দেখুন",
+    "অফিসিয়াল বিজ্ঞপ্তির শেষ তারিখ",
+    "ভর্তির পরিকল্পনা ডাউনলোড করুন",
   ],
   mediscan: [
-    "Explain dosage code",
-    "Check drug interactions",
-    "Generic savings comparison",
-    "Emergency red flags",
-    "How to take with meals?",
+    "প্রেসক্রিপশনের লেখা বুঝিয়ে বলুন",
+    "ওষুধের মিথস্ক্রিয়া সম্পর্কে জানান",
+    "জরুরি লক্ষণগুলো কী?",
+    "খাবারের সঙ্গে কীভাবে নিতে হয়?",
   ],
   shohoj: [
-    "Daily safe spend",
-    "bKash cash-out fee",
-    "Nagad cash-out fee",
-    "Split group bill",
-    "Budget pace this month",
+    "আজ কত খরচ করা যাবে?",
+    "বিকাশে ক্যাশ আউটের খরচ",
+    "নগদে ক্যাশ আউটের খরচ",
+    "দলের বিল ভাগ করুন",
+    "এই মাসের বাজেটের অবস্থা",
   ],
   probaho: [
-    "Start technical viva",
-    "Practice STAR answer",
-    "Check speaking pace",
-    "Filler words advice",
-    "Custom viva question",
+    "প্রযুক্তিগত ভাইভা শুরু করুন",
+    "উত্তর বলার অনুশীলন",
+    "কথার গতি দেখুন",
+    "অপ্রয়োজনীয় শব্দ কমান",
+    "নিজের প্রশ্ন লিখুন",
   ],
   feeguard: [
-    "Fiverr vs Direct SWIFT",
-    "2.5% Cash incentive",
-    "Best payout route",
-    "Check reality calculation",
+    "মার্কেটপ্লেস ও সরাসরি পেমেন্ট তুলনা",
+    "সরকারি নগদ প্রণোদনা",
+    "পেমেন্টের ভালো পথ কোনটি?",
+    "হিসাবটি যাচাই করুন",
   ],
   chuktiguard: [
-    "Generate B2B agreement",
-    "Clause 4 Blackout SLA",
-    "NBR ITES tax notice",
-    "Split contract milestones",
+    "ব্যবসায়িক চুক্তির খসড়া",
+    "চুক্তির ইন্টারনেট-বিভ্রাট ধারা",
+    "কর অব্যাহতির নোটিশ",
+    "চুক্তির ধাপগুলো ভাগ করুন",
   ],
   path: [
-    "Verify skill passport",
-    "AI obsolescence risk",
-    "Track my applications",
-    "Check next milestone",
+    "দক্ষতার পাসপোর্ট যাচাই",
+    "দক্ষতার ভবিষ্যৎ ঝুঁকি",
+    "আমার আবেদনগুলো দেখুন",
+    "পরের কাজটি কী?",
   ],
   kormopath: [
-    "What to explore?",
-    "Explain 5-stage workspace",
-    "How deterministic guards work",
-    "Open 6 apps ecosystem",
+    "কোন টুল দিয়ে শুরু করব?",
+    "কর্মপরিকল্পনার ধাপগুলো বুঝিয়ে বলুন",
+    "নির্ভরযোগ্য হিসাব কীভাবে কাজ করে?",
+    "সবগুলো অ্যাপ দেখুন",
   ],
 };
 
 const APP_TASKS: Record<AppId, Array<{ title: string; desc: string; href?: string }>> = {
   haatbazar: [
-    { title: "Check 6-Hour Spray Window", desc: "Ensure no rain (>40%) or wind (>15 km/h) before spraying." },
-    { title: "Calculate Truck Share Fare", desc: "Proportionally split shared haulage cost across farmers." },
-    { title: "Wholesale Price Sensitivity", desc: "Model profit margin across ±15% wholesale price shocks." },
+    { title: "ওষুধ ছিটানোর উপযুক্ত সময়", desc: "ছিটানোর আগে বৃষ্টি ও বাতাসের পূর্বাভাস দেখুন। পণ্যের লেবেল মেনে চলুন।" },
+    { title: "ট্রাকভাড়া ভাগের হিসাব", desc: "কৃষকদের মধ্যে পণ্য পরিবহনের খরচ ভাগ করুন।" },
+    { title: "পাইকারি দামের প্রভাব", desc: "দাম বাড়া বা কমায় সম্ভাব্য লাভের পরিবর্তন দেখুন।" },
   ],
   admitbuddy: [
-    { title: "Evaluate CollegeVine 2-3-2 Ratio", desc: "Check portfolio balance across Reach, Match, and Safety." },
-    { title: "Set Official Circular Deadlines", desc: "Verify official university dates with zero invented data." },
-    { title: "Export Admission Roadmap", desc: "Download structured Markdown checklist for applications." },
+    { title: "বিশ্ববিদ্যালয়ের পছন্দের ভারসাম্য", desc: "উচ্চ, মাঝারি ও নিরাপদ পছন্দগুলো গুছিয়ে নিন।" },
+    { title: "অফিসিয়াল বিজ্ঞপ্তির তারিখ যোগ করুন", desc: "তারিখ ও শর্ত মূল বিজ্ঞপ্তি থেকে নিশ্চিত করুন।" },
+    { title: "ভর্তির পরিকল্পনা নামিয়ে নিন", desc: "আবেদনের কাজগুলোর তালিকা ডাউনলোড করুন।" },
   ],
   mediscan: [
-    { title: "Verify Handwritten Prescription", desc: "Cross-check OCR output side-by-side with original scan." },
-    { title: "Scan for Chelation & Toxicity", desc: "Audit Ciprofloxacin + Antacids and Metronidazole combinations." },
-    { title: "Export 30-Day Medication Calendar", desc: "Sync .ics medication reminders to your mobile device." },
+    { title: "হাতে লেখা প্রেসক্রিপশন মিলিয়ে দেখুন", desc: "ছবি ও পড়ে পাওয়া লেখাটি পাশাপাশি যাচাই করুন।" },
+    { title: "ওষুধের সতর্কতা দেখুন", desc: "অজানা তথ্যকে নিরাপদ ধরে নেবেন না।" },
+    { title: "ওষুধের ক্যালেন্ডার নামিয়ে নিন", desc: "আপনার দেওয়া সময় অনুযায়ী অনুস্মারক সাজান।" },
   ],
   shohoj: [
-    { title: "Log Today's Living Expenses", desc: "Use Bangla voice or 1-tap quick keypad for integer poisha logging." },
-    { title: "Audit bKash / Nagad Cash-Outs", desc: "Calculate exact ceiling fees down to the poisha before withdrawal." },
-    { title: "Check Monthly Spend Velocity", desc: "Verify daily safe burn rate against remaining days." },
+    { title: "আজকের খরচ লিখুন", desc: "বাংলায় বলে বা কিবোর্ডে লিখে খরচ যোগ করুন; সংরক্ষণের আগে যাচাই করুন।" },
+    { title: "বিকাশ ও নগদের খরচ দেখুন", desc: "টাকা তোলার আগে নির্ধারিত ফি যাচাই করুন।" },
+    { title: "মাসিক খরচের গতি দেখুন", desc: "বাকি দিনের সঙ্গে বাজেটের হিসাব মিলিয়ে নিন।" },
   ],
   probaho: [
-    { title: "1-Minute Viva Practice", desc: "Answer technical or behavioral prompt within target duration." },
-    { title: "Review STAR Method Structure", desc: "Verify Situation, Task, Action, and Result coverage." },
-    { title: "Audit Filler Word Density", desc: "Keep speech cadence near 130 WPM with under 3% filler words." },
+    { title: "এক মিনিটের ভাইভা অনুশীলন", desc: "নির্ধারিত সময়ের মধ্যে প্রশ্নের উত্তর দিন।" },
+    { title: "উত্তরের গঠন পর্যালোচনা", desc: "পরিস্থিতি, কাজ, পদক্ষেপ ও ফলাফল উল্লেখ করুন।" },
+    { title: "কথার অপ্রয়োজনীয় শব্দ খেয়াল করুন", desc: "স্বাভাবিক ও পরিষ্কার গতিতে কথা বলার অনুশীলন করুন।" },
   ],
   feeguard: [
-    { title: "Audit Marketplace Commission Drain", desc: "Calculate exact savings switching to direct client wire." },
-    { title: "Claim 2.5% Government Incentive", desc: "Verify Bangladesh Bank FE Circular 02 compliance." },
+    { title: "মার্কেটপ্লেসের ফি তুলনা করুন", desc: "পেমেন্টের পথভেদে ফি ও হাতে পাওয়া অর্থ যাচাই করুন।" },
+    { title: "সরকারি প্রণোদনার শর্ত দেখুন", desc: "প্রযোজ্যতার জন্য মূল নির্দেশনা যাচাই করুন।" },
   ],
   chuktiguard: [
-    { title: "Issue 48h Blackout Protected Contract", desc: "Include Clause 4 internet disruption force-majeure shield." },
-    { title: "Include NBR ITES Tax Exemption", desc: "Attach statutory tax exemption certificate to B2B invoices." },
+    { title: "বিভ্রাট সুরক্ষাসহ চুক্তি তৈরি করুন", desc: "পর্যালোচিত নমুনা ধারা থেকে প্রযোজ্য অংশ বাছুন।" },
+    { title: "কর অব্যাহতির নথি যোগ করুন", desc: "চালানে সঠিক সরকারি সনদ সংযুক্ত করুন।" },
   ],
   path: [
-    { title: "Audit Skill Obsolescence", desc: "Run multimodal CV extraction and rule-based skill valuation." },
-    { title: "Issue Cryptographic Skill Passport", desc: "Sign verified competencies with HMAC-SHA256." },
+    { title: "দক্ষতার পরিবর্তনশীল চাহিদা দেখুন", desc: "আপনার দক্ষতার তথ্য ও প্রমাণ পর্যালোচনা করুন।" },
+    { title: "দক্ষতার পাসপোর্ট তৈরি করুন", desc: "যাচাই করা দক্ষতার তথ্য দিয়ে পাসপোর্ট তৈরি করুন।" },
   ],
   kormopath: [
-    { title: "Explore All 6 Applications", desc: "Access Education, Health, Agriculture, Budget, Viva, and FinOps." },
-    { title: "Run Live Judge Assertions", desc: "Test deterministic zero-hallucination guards in real time." },
+    { title: "সবগুলো অ্যাপ ঘুরে দেখুন", desc: "পড়াশোনা, স্বাস্থ্য, কৃষি, বাজেট, অনুশীলন ও পেমেন্ট টুল দেখুন।" },
+    { title: "নির্ভরযোগ্যতার পরীক্ষা দেখুন", desc: "নির্দিষ্ট নিয়ম ও হিসাব কীভাবে ভুল কমায় তা বুঝুন।" },
   ],
 };
 
@@ -174,24 +179,23 @@ function SiriOrb({
       ? "h-16 w-16 sm:h-[72px] sm:w-[72px]"
       : "h-11 w-11";
 
-  return (
-    <div
-      onClick={onClick}
-      role={onClick ? "button" : undefined}
-      tabIndex={onClick ? 0 : undefined}
-      aria-label="Buddy voice orb"
-      className={`relative grid shrink-0 place-items-center rounded-full siri-sphere-bezel ${dimensions} ${
-        onClick ? "cursor-pointer hover:scale-105 active:scale-95" : ""
-      }`}
-    >
-      <div
-        className={`siri-sphere w-full h-full ${
-          active ? "siri-active" : ""
-        }`}
-      >
-        <div className="siri-sphere-inner" />
-        <div className="siri-sphere-sheen" />
-      </div>
+  const sphere = (
+    <div className={`siri-sphere w-full h-full ${active ? "siri-active" : ""}`}>
+      <div className="siri-sphere-inner" />
+      <div className="siri-sphere-sheen" />
+    </div>
+  );
+  const className = `relative grid shrink-0 place-items-center rounded-full siri-sphere-bezel ${dimensions} ${
+    onClick ? "cursor-pointer hover:scale-105 active:scale-95" : ""
+  }`;
+
+  return onClick ? (
+    <button type="button" onClick={onClick} aria-label="বাংলায় কথা বলুন বা বলা থামান" className={`${className} border-0 bg-transparent p-0`}>
+      {sphere}
+    </button>
+  ) : (
+    <div className={className} aria-hidden="true">
+      {sphere}
     </div>
   );
 }
@@ -204,6 +208,7 @@ export function Buddy() {
   const [mode, setMode] = useState<AssistantMode>("manual");
   const [tab, setTab] = useState<AssistantTab>("talk");
   const [deepThinking, setDeepThinking] = useState(true);
+  const [browseEnabled, setBrowseEnabled] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -215,6 +220,10 @@ export function Buddy() {
 
   const chatScrollRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<unknown>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const speechUrlRef = useRef<string | null>(null);
+  const speechAbortRef = useRef<AbortController | null>(null);
+  const [speechLoading, setSpeechLoading] = useState(false);
 
   const appMeta = useMemo(() => APPS.find((a) => a.id === selectedApp) ?? APPS[0], [selectedApp]);
   const suggestions = useMemo(() => APP_SUGGESTIONS[selectedApp] ?? APP_SUGGESTIONS.kormopath, [selectedApp]);
@@ -230,33 +239,71 @@ export function Buddy() {
     }
   }, [messages, loading]);
 
-  // Text-To-Speech (SpeechSynthesis)
-  const speak = (text: string) => {
-    if (!voiceEnabled || typeof window === "undefined" || !("speechSynthesis" in window)) return;
+  // Generate Bangla audio on the server so the browser never substitutes an English voice.
+  const speak = async (text: string) => {
+    if (!voiceEnabled || typeof window === "undefined") return;
+    stopSpeaking();
+    const controller = new AbortController();
+    speechAbortRef.current = controller;
+    setSpeechLoading(true);
     try {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = "bn-BD";
-      utterance.rate = 1.05;
-      utterance.onstart = () => setIsSpeaking(true);
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = () => setIsSpeaking(false);
-      window.speechSynthesis.speak(utterance);
-    } catch {
-      setIsSpeaking(false);
+      const response = await fetch("/api/buddy/speech", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ text }),
+        signal: controller.signal,
+      });
+      const data = (await response.json().catch(() => ({}))) as { audio?: string; error?: string; mimeType?: string };
+      if (!response.ok || !data.audio) throw new Error(data.error || "বাংলা কণ্ঠ তৈরি করা যায়নি।");
+      const bytes = Uint8Array.from(atob(data.audio), (char) => char.charCodeAt(0));
+      const blob = new Blob([bytes], { type: data.mimeType || "audio/wav" });
+      const url = URL.createObjectURL(blob);
+      speechUrlRef.current = url;
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      audio.onplay = () => setIsSpeaking(true);
+      audio.onended = () => stopSpeaking();
+      audio.onerror = () => {
+        setError("বাংলা অডিও চালানো যায়নি। আবার চেষ্টা করুন।");
+        stopSpeaking();
+      };
+      await audio.play();
+    } catch (err) {
+      if (!(err instanceof DOMException && err.name === "AbortError")) {
+        setError(err instanceof Error ? err.message : "বাংলা কণ্ঠে সমস্যা হয়েছে। আবার চেষ্টা করুন।");
+        setIsSpeaking(false);
+      }
+    } finally {
+      if (speechAbortRef.current === controller) {
+        speechAbortRef.current = null;
+        setSpeechLoading(false);
+      }
     }
   };
 
   const stopSpeaking = () => {
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
+    speechAbortRef.current?.abort();
+    speechAbortRef.current = null;
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = "";
+      audioRef.current = null;
     }
+    if (speechUrlRef.current) URL.revokeObjectURL(speechUrlRef.current);
+    speechUrlRef.current = null;
+    setSpeechLoading(false);
+    setIsSpeaking(false);
   };
+
+  useEffect(() => () => {
+    speechAbortRef.current?.abort();
+    audioRef.current?.pause();
+    if (speechUrlRef.current) URL.revokeObjectURL(speechUrlRef.current);
+  }, []);
 
   // Speech-To-Text (Web Speech API)
   const toggleListening = () => {
-    if (isSpeaking) {
+    if (isSpeaking || speechLoading) {
       stopSpeaking();
       return;
     }
@@ -332,17 +379,28 @@ export function Buddy() {
           appId: selectedApp,
           mode,
           deepThinking,
+          browse: browseEnabled && selectedApp !== "mediscan",
           messages: nextMessages.slice(-8),
         }),
       });
 
-      const data = (await response.json().catch(() => ({}))) as { reply?: string; error?: string };
+      const data = (await response.json().catch(() => ({}))) as {
+        reply?: string;
+        error?: string;
+        sources?: Array<{ title: string; url: string }>;
+        unverified?: boolean;
+      };
       if (!response.ok || typeof data.reply !== "string") {
         throw new Error(data.error || "এখন উত্তর পাওয়া গেল না।");
       }
 
       const reply = data.reply;
-      setMessages((current) => [...current, { role: "assistant", content: reply }]);
+      setMessages((current) => [...current, {
+        role: "assistant",
+        content: reply,
+        sources: data.sources,
+        unverified: data.unverified,
+      }]);
       speak(reply);
     } catch (err) {
       setError(err instanceof Error ? err.message : "সংযোগে সমস্যা হয়েছে। আবার চেষ্টা করুন।");
@@ -359,14 +417,14 @@ export function Buddy() {
   };
 
   return (
-    <aside aria-label="Buddy field assistant" className="buddy-root fixed bottom-4 right-4 z-[70] print:hidden font-sans">
+    <aside aria-label="কর্মোপথ সহায়ক" className="buddy-root fixed bottom-4 right-4 z-[70] print:hidden font-sans">
       {open ? (
         <section
-          aria-label="KormoPath Buddy assistant window"
-          className="flex h-[min(730px,88dvh)] w-[min(440px,calc(100vw-2rem))] flex-col overflow-hidden rounded-[28px] border border-white/10 bg-[#0d141b]/95 text-white shadow-2xl shadow-black/70 backdrop-blur-2xl transition-all"
+          aria-label="কর্মোপথ Buddy সহকারী"
+          className="buddy-panel flex h-[min(730px,88dvh)] w-[min(440px,calc(100vw-2rem))] flex-col overflow-hidden rounded-[24px] border border-slate-700 bg-[#0d141b] text-white shadow-xl shadow-black/40"
         >
           {/* macOS Style Window Titlebar */}
-          <header className="flex items-center justify-between border-b border-white/5 bg-[#101821]/90 px-4 py-3">
+          <header className="flex items-center justify-between border-b border-slate-700 bg-[#101821] px-4 py-3">
             {/* Traffic Lights */}
             <div className="flex items-center gap-2">
               <button
@@ -376,7 +434,7 @@ export function Buddy() {
                   setOpen(false);
                 }}
                 className="h-3 w-3 rounded-full bg-[#ff5f56] border border-[#e0443e] hover:brightness-110"
-                aria-label="Close"
+                aria-label="বন্ধ করুন"
               />
               <span className="h-3 w-3 rounded-full bg-[#ffbd2e] border border-[#dea123] opacity-80" />
               <span className="h-3 w-3 rounded-full bg-[#27c93f] border border-[#1aab29] opacity-80" />
@@ -386,54 +444,54 @@ export function Buddy() {
             <div className="flex items-center gap-2">
               <SiriOrb size="sm" active={isSpeaking || isListening} />
               <div className="text-center">
-                <span className="block text-[14px] font-bold tracking-tight text-white leading-none">
-                  KormoPath Buddy
+                <span className="block text-[15px] font-bold tracking-tight text-white leading-tight">
+                  কর্মোপথ সহকারী
                 </span>
-                <span className="block text-[10px] text-slate-400 leading-none mt-0.5">
-                  {appMeta.name} • Field Assistant
+                <span className="block text-[12px] text-slate-300 leading-tight mt-0.5">
+                  {appMeta.name} · {appMeta.tag}
                 </span>
               </div>
             </div>
 
             {/* Status Chip */}
             <div className="flex items-center gap-1.5">
-              <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[10px] font-semibold text-slate-300">
+              <span className="inline-flex items-center gap-1 rounded-full border border-slate-600 bg-slate-800 px-2.5 py-1 text-[12px] font-semibold text-slate-100">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                {mode === "manual" ? "Manual" : "Agent"}
+                {mode === "manual" ? "সহায়তা" : "পরিকল্পনা"}
               </span>
             </div>
           </header>
 
           {/* Segmented Control: [Manual] vs [Agent] */}
-          <div className="px-5 pt-3 pb-2 text-center border-b border-white/5 bg-[#0b1117]">
-            <div className="inline-flex rounded-full bg-[#141e26] p-1 border border-white/5 shadow-inner">
+          <div className="px-5 pt-3 pb-2 text-center border-b border-slate-700 bg-[#0b1117]">
+            <div className="inline-flex rounded-full bg-[#141e26] p-1 border border-slate-600">
               <button
                 type="button"
                 onClick={() => setMode("manual")}
-                className={`rounded-full px-6 py-1.5 text-[12px] font-bold transition-all ${
+                className={`rounded-full px-5 py-2 text-[13px] font-bold transition-colors ${
                   mode === "manual"
-                    ? "bg-white text-slate-900 shadow-md scale-[1.02]"
-                    : "text-slate-400 hover:text-white"
+                    ? "bg-white text-slate-900"
+                    : "text-slate-200 hover:bg-slate-700"
                 }`}
               >
-                Manual
+                সহায়তা
               </button>
               <button
                 type="button"
                 onClick={() => setMode("agent")}
-                className={`rounded-full px-6 py-1.5 text-[12px] font-bold transition-all ${
+                className={`rounded-full px-5 py-2 text-[13px] font-bold transition-colors ${
                   mode === "agent"
-                    ? "bg-white text-slate-900 shadow-md scale-[1.02]"
-                    : "text-slate-400 hover:text-white"
+                    ? "bg-white text-slate-900"
+                    : "text-slate-200 hover:bg-slate-700"
                 }`}
               >
-                Agent
+                পরিকল্পনা
               </button>
             </div>
-            <p className="mt-1.5 text-[11px] text-slate-400 leading-tight">
+            <p className="mt-1.5 text-[12px] text-slate-300 leading-snug">
               {mode === "manual"
-                ? "The agent only suggests; you do every step yourself."
-                : "Autonomous mode active; deterministic guardrails enforce zero drift."}
+                ? "Buddy পথ দেখায়—কাজের নিয়ন্ত্রণ আপনার হাতে।"
+                : "Buddy ধাপে ধাপে পরিকল্পনা সাজায়; কোনো কাজ নিজে করে না।"}
             </p>
 
             {/* Deep Thinking Mode Chip */}
@@ -441,31 +499,32 @@ export function Buddy() {
               <button
                 type="button"
                 onClick={() => setDeepThinking(!deepThinking)}
-                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold border transition-all ${
+                aria-pressed={deepThinking}
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-semibold border transition-colors ${
                   deepThinking
-                    ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300 shadow-xs shadow-emerald-500/20"
-                    : "border-white/10 bg-white/5 text-slate-400 hover:text-slate-200"
+                    ? "border-emerald-500 bg-emerald-950 text-emerald-200"
+                    : "border-slate-600 bg-slate-800 text-slate-200 hover:bg-slate-700"
                 }`}
               >
                 <Brain size={13} className={deepThinking ? "text-emerald-400" : "text-slate-400"} />
-                <span>Deep thinking (Gemini 2.5)</span>
+                <span>{deepThinking ? "উত্তর যাচাই চালু" : "উত্তর যাচাই বন্ধ"}</span>
               </button>
             </div>
           </div>
 
           {/* Horizontal Navigation: Talk | Tasks | Apps | Security */}
-          <nav aria-label="Assistant navigation" className="flex border-b border-white/5 bg-[#0e161f] px-4 text-[12px] font-semibold text-slate-400">
+          <nav aria-label="সহকারীর বিভাগ" className="flex border-b border-slate-700 bg-[#0e161f] px-4 text-[13px] font-semibold text-slate-300">
             <button
               type="button"
               onClick={() => setTab("talk")}
               className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 transition-colors ${
                 tab === "talk"
                   ? "border-amber-400 text-amber-300 font-bold"
-                  : "border-transparent hover:text-white"
+                  : "border-transparent text-slate-300 hover:text-white"
               }`}
             >
               <MessageCircle size={14} />
-              <span>Talk</span>
+              <span>কথা</span>
             </button>
             <button
               type="button"
@@ -473,11 +532,11 @@ export function Buddy() {
               className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 transition-colors ${
                 tab === "tasks"
                   ? "border-amber-400 text-amber-300 font-bold"
-                  : "border-transparent hover:text-white"
+                  : "border-transparent text-slate-300 hover:text-white"
               }`}
             >
               <CheckSquare size={14} />
-              <span>Tasks {tasks.length > 0 && <span className="rounded-full bg-white/10 px-1.5 text-[10px]">{tasks.length}</span>}</span>
+              <span>কাজ {tasks.length > 0 && <span className="rounded-full bg-slate-700 px-1.5 text-[11px]">{tasks.length}</span>}</span>
             </button>
             <button
               type="button"
@@ -485,11 +544,11 @@ export function Buddy() {
               className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 transition-colors ${
                 tab === "apps"
                   ? "border-amber-400 text-amber-300 font-bold"
-                  : "border-transparent hover:text-white"
+                  : "border-transparent text-slate-300 hover:text-white"
               }`}
             >
               <Layers size={14} />
-              <span>Apps</span>
+              <span>অ্যাপ</span>
             </button>
             <button
               type="button"
@@ -497,11 +556,11 @@ export function Buddy() {
               className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 transition-colors ${
                 tab === "security"
                   ? "border-amber-400 text-amber-300 font-bold"
-                  : "border-transparent hover:text-white"
+                  : "border-transparent text-slate-300 hover:text-white"
               }`}
             >
               <ShieldCheck size={14} />
-              <span>Security</span>
+              <span>গোপনীয়তা</span>
             </button>
           </nav>
 
@@ -509,18 +568,33 @@ export function Buddy() {
           {tab === "talk" && (
             <div className="flex-1 flex flex-col min-h-0">
               {/* Suggestion Chips */}
-              <div className="p-3 border-b border-white/5 bg-[#0a1016]/80 flex flex-wrap gap-1.5 max-h-32 overflow-y-auto">
+              <div className="p-3 border-b border-slate-700 bg-[#0a1016] flex flex-wrap gap-1.5 max-h-36 overflow-y-auto">
                 {suggestions.map((chip) => (
                   <button
                     key={chip}
                     type="button"
                     disabled={loading}
                     onClick={() => void send(undefined, chip)}
-                    className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] font-medium text-slate-200 hover:border-emerald-400/60 hover:bg-emerald-500/10 hover:text-emerald-200 transition-all active:scale-95 disabled:opacity-50"
+                    className="rounded-full border border-slate-600 bg-slate-800 px-3 py-1.5 text-[12px] font-medium text-slate-100 hover:border-emerald-400 hover:bg-slate-700 transition-colors disabled:opacity-50"
                   >
                     {chip}
                   </button>
                 ))}
+                <button
+                  type="button"
+                  aria-pressed={browseEnabled}
+                  disabled={selectedApp === "mediscan" || loading}
+                  title={selectedApp === "mediscan" ? "ওষুধ ও ব্যক্তিগত স্বাস্থ্যতথ্যের জন্য ওয়েব খোঁজ বন্ধ" : "সূত্রসহ ওয়েবে খুঁজুন"}
+                  onClick={() => setBrowseEnabled(!browseEnabled)}
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+                    browseEnabled
+                      ? "border-sky-300 bg-sky-900 text-sky-100"
+                      : "border-slate-500 bg-slate-900 text-slate-100 hover:bg-slate-700"
+                  }`}
+                >
+                  <Globe size={14} />
+                  ওয়েবে খুঁজুন
+                </button>
               </div>
 
               {/* Chat Message Scroll */}
@@ -530,12 +604,12 @@ export function Buddy() {
                 aria-live="polite"
               >
                 {messages.length === 0 ? (
-                  <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-4 text-center">
-                    <p className="text-[14px] leading-relaxed text-slate-200 font-medium">
+                  <div className="buddy-intro rounded-2xl border border-slate-700 bg-[#111c30] p-4 text-center">
+                    <p className="text-[15px] leading-relaxed text-slate-100 font-medium">
                       হ্যালো, আমি <strong className="text-emerald-400">Buddy</strong>। {appMeta.name} নিয়ে কীভাবে সাহায্য করতে পারি?
                     </p>
-                    <p className="mt-2 text-[11px] leading-relaxed text-slate-400">
-                      নিচের সাজেস্টেড প্রশ্নে ট্যাপ করুন অথবা <strong>Siri Orb</strong> চেপে ভয়েসে কথা বলুন।
+                    <p className="mt-2 text-[13px] leading-relaxed text-slate-300">
+                      নিচের প্রশ্ন বেছে নিন অথবা নিচের গোলকটি চেপে বাংলায় কথা বলুন।
                     </p>
                   </div>
                 ) : (
@@ -545,17 +619,33 @@ export function Buddy() {
                       className={`max-w-[90%] rounded-2xl px-3.5 py-2.5 text-[13px] leading-relaxed ${
                         message.role === "user"
                           ? "ml-auto bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-sm"
-                          : "mr-auto border border-white/10 bg-white/[0.05] text-slate-100 shadow-xs"
+                          : "buddy-reply mr-auto border border-slate-700 bg-[#111c30] text-slate-100"
                       }`}
                     >
+                      {message.unverified && <span className="mb-1.5 block text-[11px] font-bold text-amber-200">ওয়েবের তথ্য—যাচাই করা নয়</span>}
                       {message.content}
+                      {message.sources && message.sources.length > 0 && (
+                        <div className="mt-2 border-t border-slate-600 pt-2">
+                          <span className="block text-[11px] font-semibold text-slate-200">সূত্র</span>
+                          <ul className="mt-1 space-y-1">
+                            {message.sources.map((source) => (
+                              <li key={source.url}>
+                                <a href={source.url} target="_blank" rel="noreferrer" className="inline-flex items-start gap-1 text-[12px] text-sky-300 underline decoration-sky-700 underline-offset-2 hover:text-sky-100">
+                                  <ExternalLink size={12} className="mt-1 shrink-0" />
+                                  <span>{source.title}</span>
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
                   ))
                 )}
                 {loading && (
                   <div className="flex items-center gap-2 text-[12px] text-emerald-400 py-1" role="status">
                     <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
-                    <span>Buddy ভাবছে…</span>
+                  <span>উত্তর তৈরি হচ্ছে…</span>
                   </div>
                 )}
                 {error && (
@@ -613,6 +703,7 @@ export function Buddy() {
                     type="button"
                     onClick={() => {
                       setSelectedApp(a.id);
+                      if (a.id === "mediscan") setBrowseEnabled(false);
                       setTab("talk");
                       setMessages([]);
                     }}
@@ -641,7 +732,7 @@ export function Buddy() {
               <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3">
                 <span className="flex items-center gap-1.5 font-bold text-emerald-300 text-[13px]">
                   <ShieldCheck size={16} />
-                  <span>ডিভাইস-ফার্স্ট গোপনীয়তা (Strict Privacy)</span>
+                  <span>আপনার গোপনীয়তা</span>
                 </span>
                 <p className="mt-1.5 text-[11px] text-slate-300 leading-relaxed">
                   আপনার বাজেট, প্রেসক্রিপশন, সিভি এবং ইনভয়েস ডেটা ব্রাউজারের নিজস্ব লোকালস্টোরেজে থাকে।
@@ -652,7 +743,7 @@ export function Buddy() {
               <div className="rounded-xl border border-white/5 bg-white/[0.03] p-3 space-y-2 text-[11px] text-slate-400">
                 <p>• <strong>প্রেসক্রিপশন সুরক্ষা</strong>: কোনো মেডিকেল ডেটা সংরক্ষণ করা হয় না।</p>
                 <p>• <strong>আর্থিক সততা</strong>: ফিনান্সিয়াল হিসাব ১০০% অপরিবর্তনশীল পূর্ণসংখ্যা পয়সা নিয়মে গণনা হয়।</p>
-                <p>• <strong>এআই লিমিট</strong>: শুধুমাত্র নির্দেশিত প্রম্পট প্রসেসিংয়ের জন্য নিরাপদ জেমিনি এপিআই ব্যবহৃত হয়।</p>
+                <p>• <strong>এআই ব্যবহার</strong>: উত্তরের জন্য সার্ভারের নিরাপদ জেমিনি সংযোগ ব্যবহৃত হয়; গোপন চাবি ব্রাউজারে পাঠানো হয় না।</p>
               </div>
             </div>
           )}
@@ -677,7 +768,7 @@ export function Buddy() {
               <button
                 type="submit"
                 disabled={!input.trim() || loading}
-                aria-label="Send message"
+                aria-label="বার্তা পাঠান"
                 className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-bold hover:brightness-110 disabled:opacity-40"
               >
                 <Send size={15} />
@@ -692,10 +783,10 @@ export function Buddy() {
               <button
                 type="button"
                 onClick={() => {
-                  if (isSpeaking) stopSpeaking();
+                  if (isSpeaking || speechLoading) stopSpeaking();
                   setVoiceEnabled(!voiceEnabled);
                 }}
-                title={voiceEnabled ? "Mute voice response" : "Enable voice response"}
+                title={voiceEnabled ? "বাংলা কণ্ঠ বন্ধ করুন" : "বাংলা কণ্ঠ চালু করুন"}
                 className={`grid h-10 w-10 place-items-center rounded-full border transition-all ${
                   voiceEnabled
                     ? "border-white/15 bg-white/10 text-slate-200 hover:bg-white/20"
@@ -716,7 +807,7 @@ export function Buddy() {
               <button
                 type="button"
                 onClick={() => setShowKeyboard(!showKeyboard)}
-                title="Toggle text input"
+                title="কিবোর্ডে লিখুন"
                 className={`grid h-10 w-10 place-items-center rounded-full border transition-all ${
                   showKeyboard
                     ? "border-emerald-500/50 bg-emerald-500/20 text-emerald-300"
@@ -731,13 +822,15 @@ export function Buddy() {
             <div className="mt-2 text-center">
               <span className="block text-[12px] font-semibold text-slate-300">
                 {isSpeaking
-                  ? "Speaking… tap orb to stop"
+                  ? "বাংলায় বলছি… থামাতে গোলকে চাপ দিন"
+                  : speechLoading
+                  ? "বাংলা কণ্ঠ তৈরি হচ্ছে…"
                   : isListening
-                  ? "Listening… speak your question"
-                  : "Ready… tap orb to talk"}
+                  ? "শুনছি… বাংলায় বলুন"
+                  : "প্রস্তুত… বাংলায় কথা বলতে গোলকে চাপ দিন"}
               </span>
               <span className="block text-[10px] text-amber-300/80 font-medium mt-0.5">
-                {voiceEnabled ? "Natural voice is on; the device voice speaks." : "Voice output muted."}
+                {voiceEnabled ? "বাংলা কণ্ঠ চালু" : "বাংলা কণ্ঠ বন্ধ"}
               </span>
             </div>
           </footer>
@@ -747,7 +840,7 @@ export function Buddy() {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          aria-label="Open KormoPath Buddy assistant"
+          aria-label="কর্মোপথ সহায়ক খুলুন"
           aria-haspopup="dialog"
           aria-expanded={open}
           className="buddy-launcher group grid place-items-center rounded-full border text-white transition-all duration-300"
