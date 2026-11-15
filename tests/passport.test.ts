@@ -189,8 +189,19 @@ test('issueShare() supports all selective field groups ("track", "challenge", "t
 });
 
 test("check() enforces expiration on selective share tokens", () => {
-  const expired = issueShare(samplePassport, ["track"], -1);
-  const res = check(expired.token);
+  // issueShare rejects unsupported lifetimes like -1
+  assert.throws(() => issueShare(samplePassport, ["track"], -1));
+
+  // Construct a validly-signed token that has expired in the past
+  const secret = process.env.PASSPORT_SECRET || "kormopilot-dev-secret-set-PASSPORT_SECRET-in-production";
+  const pastIssued = new Date(Date.now() - 10 * 86_400_000).toISOString();
+  const pastExpired = new Date(Date.now() - 3 * 86_400_000).toISOString();
+  const payload = { v: 2, track: samplePassport.track, issuedAt: pastIssued, expiresAt: pastExpired };
+  const body = Buffer.from(JSON.stringify(payload)).toString("base64url");
+  const sig = createHmac("sha256", secret).update(body).digest("base64url");
+  const token = `${body}.${sig}`;
+
+  const res = check(token);
   assert.equal(res.valid, false);
   assert.equal(res.reason, "This selective share link has expired.");
   assert.equal(res.passport, undefined);

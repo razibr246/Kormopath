@@ -440,10 +440,8 @@ const UTF8_BOM = "\uFEFF";
 
 export const sanitizeCsvCell = (v: string | number): string => {
   const s = String(v);
-  const trimmed = s.trimStart();
-  // Neutralize formula injection including leading whitespace, tabs, fullwidth signs, and pipes
-  const isNumber = /^-?\d+(\.\d+)?$/.test(trimmed);
-  const isFormula = /^[=+\-@\t\r|＝＋－＠]/u.test(trimmed) && !isNumber;
+  const isNumber = /^-?\d+(\.\d+)?$/.test(s.trim());
+  const isFormula = (/^[\s]*[=+\-@＝＋－＠|]/u.test(s) || /^[\t\r\n]/u.test(s)) && !isNumber;
   const safe = isFormula ? "'" + s : s;
   return /[",\r\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
 };

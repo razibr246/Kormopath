@@ -206,4 +206,3 @@ test("CSV blocks formulas after whitespace and full-width formula prefixes", () 
   }
   assert.ok(toCsv([tx({ note: "plain\rtext" })]).includes('"plain\rtext"'));
 });
-});
