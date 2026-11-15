@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Navbar, Footer } from "@/components/Chrome";
 import { EcosystemHub } from "@/components/EcosystemHub";
+import { HeroDevice } from "@/components/HeroDevice";
 import { FX_FALLBACK } from "@/lib/data";
 import {
   GraduationCap,
@@ -147,6 +148,11 @@ export default function HomePage() {
                 <Layers size={16} />
                 <span>9-Dot Launcher</span>
               </button>
+            </div>
+
+            {/* 3D Cinematic Laptop Preview */}
+            <div className="mt-8 sm:mt-12 max-w-4xl mx-auto">
+              <HeroDevice />
             </div>
           </div>
 
@@ -580,14 +586,14 @@ export default function HomePage() {
         </section>
 
         {/* Bottom CTA Banner with Midnight Navy & Glowing Orange Theme */}
-        <section aria-label="Call to Action" className="relative overflow-hidden rounded-3xl border border-slate-800 bg-[#070d1e] p-8 sm:p-14 text-center shadow-2xl text-white">
+        <section aria-label="Call to Action" className="relative overflow-hidden rounded-3xl border border-slate-800 bg-[#070d1e] p-8 sm:p-14 pb-12 sm:pb-16 text-center shadow-2xl text-white">
           <div className="absolute top-0 right-0 -mr-20 -mt-20 h-64 w-64 rounded-full bg-orange-500/15 blur-3xl pointer-events-none" />
           <div className="absolute bottom-0 left-0 -ml-20 -mb-20 h-64 w-64 rounded-full bg-blue-500/15 blur-3xl pointer-events-none" />
-          <div className="relative mx-auto max-w-2xl">
+          <div className="relative mx-auto max-w-2xl pb-2">
             <span className="inline-block rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1 text-[12px] font-bold text-amber-300 uppercase tracking-wider">
               Autonomous AI Platform
             </span>
-            <h2 className="display text-[28px] sm:text-[40px] font-extrabold text-white mt-4 leading-tight">
+            <h2 className="display text-[28px] sm:text-[40px] font-extrabold text-white mt-4 leading-normal sm:leading-snug">
               Ready to Test the Future of Bangladeshi Youth AI?
             </h2>
             <p className="text-[15px] text-slate-300 mt-3.5 leading-relaxed">
@@ -596,14 +602,14 @@ export default function HomePage() {
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3.5">
               <Link
                 href="/admitbuddy"
-                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-orange-600 to-amber-500 px-6 py-3.5 text-[15px] font-bold text-white shadow-lg shadow-orange-600/30 hover:scale-[1.02] transition-all"
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-orange-600 to-amber-500 px-6 py-3.5 text-[15px] font-bold text-white shadow-lg shadow-orange-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
                 <span>Launch AdmitBuddy (Track #1)</span>
                 <ArrowRight size={16} />
               </Link>
               <button
                 onClick={() => setIsEcosystemOpen(true)}
-                className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 hover:bg-white/15 px-5 py-3.5 text-[14px] font-bold text-white transition-all backdrop-blur"
+                className="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/10 hover:bg-white/20 px-5 py-3.5 text-[14px] font-bold text-white transition-all backdrop-blur shadow-sm"
               >
                 <span>Open 9-Dot App Hub</span>
               </button>

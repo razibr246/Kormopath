@@ -1,10 +1,11 @@
 "use client";
+import { useState } from "react";
 import Link from "next/link";
 import { EcosystemLauncherButton } from "@/components/EcosystemHub";
 import { AppSwitcherDropdown } from "@/components/AppSwitcherDropdown";
 import { KormoPathLogo } from "@/components/KormoPathLogo";
 import { FX_FALLBACK } from "@/lib/data";
-import { Globe, ShieldCheck, Compass, Sparkles, ExternalLink, ArrowUpRight } from "lucide-react";
+import { Globe, ShieldCheck, Compass, Sparkles, ExternalLink, ArrowUpRight, Menu, X } from "lucide-react";
 
 export function PlatformBadge() {
   return null;
@@ -19,6 +20,7 @@ export function Navbar(props?: {
   isEcosystemOpen?: boolean;
 }) {
   const { lang = "en", setLang, usdBdt = FX_FALLBACK.usdBdt, fxLive = false, onOpenEcosystem, isEcosystemOpen = false } = props ?? {};
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-[#070d1e]/95 backdrop-blur-md text-white shadow-xl transition-colors">
@@ -53,7 +55,7 @@ export function Navbar(props?: {
         <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
           {/* USD/BDT reference rate; marked live only when the API confirms it */}
           <div
-            className="hidden xl:flex items-center gap-1.5 whitespace-nowrap rounded-xl border border-white/15 bg-white/5 px-2.5 py-1.5 text-[12px] font-mono text-slate-300 shadow-xs"
+            className="hidden md:flex items-center gap-1.5 whitespace-nowrap rounded-xl border border-white/15 bg-white/5 px-2.5 py-1.5 text-[12px] font-mono text-slate-300 shadow-xs"
             title={fxLive ? "Latest available USD/BDT market reference rate" : "Fallback USD/BDT reference rate; live data unavailable"}
           >
             <span className={`h-2 w-2 rounded-full ${fxLive ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
@@ -114,15 +116,87 @@ export function Navbar(props?: {
             <Sparkles size={13} />
             <span>{lang === "bn" ? "ওয়ার্কস্পেস চালান" : "Try the Workspace"}</span>
           </Link>
+
+          {/* Mobile Hamburger Menu Toggle */}
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="lg:hidden grid h-9 w-9 place-items-center rounded-xl border border-white/15 bg-white/5 text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileMenuOpen}
+          >
+            {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile Navigation Dropdown Drawer */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden border-t border-white/10 bg-[#070d1e]/98 px-4 py-4 space-y-3 backdrop-blur-xl animate-fadeIn">
+          <nav className="flex flex-col gap-1 text-[14px] font-semibold text-slate-200">
+            <Link
+              href="/workspace"
+              onClick={() => setMobileMenuOpen(false)}
+              className="rounded-xl px-3 py-2 text-orange-400 hover:bg-white/10 transition-colors flex items-center justify-between"
+            >
+              <span>{lang === "bn" ? "ওয়ার্কস্পেস (Workspace)" : "Workspace Pipeline"}</span>
+              <ArrowUpRight size={14} className="opacity-60" />
+            </Link>
+            <a
+              href="/#apps-showcase"
+              onClick={() => setMobileMenuOpen(false)}
+              className="rounded-xl px-3 py-2 hover:bg-white/10 transition-colors"
+            >
+              {lang === "bn" ? "৬টি বাস্তব অ্যাপস" : "6 Ecosystem Apps"}
+            </a>
+            <Link
+              href="/opportunities"
+              onClick={() => setMobileMenuOpen(false)}
+              className="rounded-xl px-3 py-2 hover:bg-white/10 transition-colors"
+            >
+              {lang === "bn" ? "আমার ক্যারিয়ার পথ" : "My Career Path"}
+            </Link>
+            <Link
+              href="/judges"
+              onClick={() => setMobileMenuOpen(false)}
+              className="rounded-xl px-3 py-2 text-amber-300 hover:bg-white/10 transition-colors"
+            >
+              {lang === "bn" ? "বিচারক গাইড (Judge Tour)" : "Judge Tour"}
+            </Link>
+            <a
+              href="/#faq"
+              onClick={() => setMobileMenuOpen(false)}
+              className="rounded-xl px-3 py-2 hover:bg-white/10 transition-colors"
+            >
+              FAQ
+            </a>
+          </nav>
+
+          {/* Mobile Currency Rate & Fast Action */}
+          <div className="pt-2 border-t border-white/10 flex items-center justify-between">
+            <div className="flex items-center gap-1.5 text-[12px] font-mono text-slate-300">
+              <span className={`h-2 w-2 rounded-full ${fxLive ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
+              <span className="text-slate-400 font-sans">$1 =</span>
+              <span className="font-bold text-white">৳{usdBdt.toFixed(1)}</span>
+            </div>
+            <Link
+              href="/workspace"
+              onClick={() => setMobileMenuOpen(false)}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-orange-600 px-3 py-1.5 text-[12px] font-bold text-white shadow-sm"
+            >
+              <span>{lang === "bn" ? "শুরু করুন" : "Get Started"}</span>
+              <ArrowUpRight size={13} />
+            </Link>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
 
 export function Footer() {
   return (
-    <footer className="mt-20 border-t border-line bg-white">
+    <footer className="mt-20 border-t border-line bg-white pb-20 sm:pb-12">
       <div className="mx-auto max-w-[1400px] px-4 py-12">
         <div className="grid gap-8 md:grid-cols-4 pb-8 border-b border-line text-[14px]">
           {/* Col 1 */}

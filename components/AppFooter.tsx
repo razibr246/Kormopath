@@ -19,7 +19,7 @@ export function AppFooter({
 }: AppFooterProps): React.JSX.Element {
   return (
     <footer
-      className={`mt-16 border-t border-slate-200 bg-white text-slate-700 print:hidden ${className}`}
+      className={`mt-16 border-t border-slate-200 bg-white text-slate-700 pb-20 sm:pb-12 print:hidden ${className}`}
       role="contentinfo"
     >
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">

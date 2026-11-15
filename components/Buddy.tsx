@@ -417,7 +417,7 @@ export function Buddy() {
   };
 
   return (
-    <aside aria-label="কর্মোপথ সহায়ক" className="buddy-root fixed bottom-4 right-4 z-[70] print:hidden font-sans">
+    <aside aria-label="কর্মোপথ সহায়ক" className={`buddy-root fixed bottom-4 right-4 ${open ? "z-50" : "z-30"} print:hidden font-sans`}>
       {open ? (
         <section
           aria-label="কর্মোপথ Buddy সহকারী"
