@@ -234,15 +234,16 @@ main section.rounded-2xl.border[class*="bg-white"],main section.rounded-3xl.bord
 .buddy-launcher {
   position: relative;
   isolation: isolate;
-  min-height: 64px;
-  min-width: 220px;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 7px 17px 7px 8px;
+  display:grid;
+  place-items:center;
+  width:84px;
+  height:84px;
+  padding:5px;
   overflow: visible;
+  border-radius:50%;
   border-color: rgba(76, 190, 164, .48);
-  background: linear-gradient(112deg, rgba(11, 28, 31, .98), rgba(10, 19, 26, .98) 62%, rgba(15, 31, 34, .98));
-  box-shadow: 0 12px 34px rgba(2, 17, 20, .32), 0 0 22px rgba(45, 212, 191, .11), inset 0 1px rgba(255,255,255,.12);
+  background:radial-gradient(circle at 35% 28%,rgba(37,81,75,.98),rgba(8,22,26,.99) 72%);
+  box-shadow:0 10px 30px rgba(2,17,20,.34),0 0 25px rgba(45,212,191,.23),inset 0 1px rgba(255,255,255,.2);
 }
 .buddy-launcher::before {
   content: "";
@@ -250,31 +251,26 @@ main section.rounded-2xl.border[class*="bg-white"],main section.rounded-3xl.bord
   z-index: -1;
   inset: -2px;
   border-radius: inherit;
-  background: linear-gradient(110deg, rgba(45,212,191,.38), rgba(234,179,8,.12) 48%, rgba(45,212,191,.35));
-  filter: blur(12px);
-  opacity: .52;
+  background:conic-gradient(from 0deg,rgba(45,212,191,.44),rgba(234,179,8,.28),rgba(75,162,247,.34),rgba(45,212,191,.44));
+  filter:blur(15px);
+  opacity:.58;
   animation: buddy-launcher-glow 4.8s ease-in-out infinite;
 }
 .buddy-launcher:hover {
-  transform: translateY(-2px);
-  border-color: rgba(94, 234, 212, .82);
-  box-shadow: 0 16px 38px rgba(2,17,20,.38), 0 0 28px rgba(45,212,191,.23), inset 0 1px rgba(255,255,255,.16);
+  transform:scale(1.06);
+  border-color:rgba(94,234,212,.88);
+  box-shadow:0 14px 36px rgba(2,17,20,.4),0 0 34px rgba(45,212,191,.36),inset 0 1px rgba(255,255,255,.22);
 }
-.buddy-launcher:active { transform: scale(.98); }
-.buddy-launcher-orb { display:grid; place-items:center; flex:0 0 auto; width:50px; height:50px; border-radius:50%; border:1px solid rgba(222,211,174,.44); background:linear-gradient(145deg,#273a38,#111a1c); box-shadow:0 0 0 3px rgba(255,255,255,.035), 0 0 18px rgba(45,212,191,.17), inset 0 1px 3px rgba(255,255,255,.19); }
+.buddy-launcher:active { transform:scale(.96); }
+.buddy-launcher-orb { display:grid; place-items:center; width:100%; height:100%; border-radius:50%; }
 .buddy-launcher-orb .siri-sphere { animation: buddy-orb-idle 3.8s ease-in-out infinite; }
 .buddy-launcher-orb .siri-sphere-inner::before { animation-duration:5.4s,14s; }
 .buddy-launcher-orb .siri-sphere-sheen { animation-duration:5.4s; }
-.buddy-launcher-copy { display:flex; flex:1; min-width:0; flex-direction:column; justify-content:center; line-height:1.05; }
-.buddy-launcher-eyebrow { margin-bottom:4px; color:#80d9c2; font-size:8px; font-weight:750; letter-spacing:.18em; }
-.buddy-launcher-name { color:#f7faf9; font-size:18px; font-weight:700; letter-spacing:-.025em; }
-.buddy-launcher-chat { flex:0 0 auto; color:#34d3aa; transition:transform .25s ease, filter .25s ease; }
-.buddy-launcher:hover .buddy-launcher-chat { transform:scale(1.1); filter:drop-shadow(0 0 7px rgba(52,211,170,.7)); }
 .buddy-root { right:max(1rem, env(safe-area-inset-right)); bottom:max(1rem, env(safe-area-inset-bottom)); }
 
 @keyframes buddy-launcher-glow {
-  0%,100% { opacity:.36; filter:blur(11px); }
-  50% { opacity:.72; filter:blur(15px); }
+  0%,100% { opacity:.34; filter:blur(12px) hue-rotate(0deg); }
+  50% { opacity:.76; filter:blur(17px) hue-rotate(90deg); }
 }
 @keyframes buddy-orb-idle {
   0%,100% { transform:scale(1); filter:saturate(.94); }
@@ -297,9 +293,7 @@ main section.rounded-2xl.border[class*="bg-white"],main section.rounded-3xl.bord
 }
 
 @media (max-width: 480px) {
-  .buddy-launcher { min-width: 0; min-height:58px; gap:9px; padding:6px 14px 6px 7px; }
-  .buddy-launcher-orb { width:44px; height:44px; }
-  .buddy-launcher-name { font-size:16px; }
+  .buddy-launcher { width:76px; height:76px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .buddy-launcher::before, .buddy-launcher-orb .siri-sphere { animation:none; }

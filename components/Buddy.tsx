@@ -750,23 +750,11 @@ export function Buddy() {
           aria-label="Open KormoPath Buddy assistant"
           aria-haspopup="dialog"
           aria-expanded={open}
-          className="buddy-launcher group flex items-center gap-2.5 rounded-full border px-3 py-2 text-white backdrop-blur-xl transition-all duration-300"
+          className="buddy-launcher group grid place-items-center rounded-full border text-white transition-all duration-300"
         >
           <div className="buddy-launcher-orb" aria-hidden="true">
-            <SiriOrb size="md" active={false} />
+            <SiriOrb size="lg" active={false} />
           </div>
-
-          <span className="buddy-launcher-copy">
-            <span className="buddy-launcher-eyebrow">KORMOPATH</span>
-            <span className="buddy-launcher-name">Buddy</span>
-          </span>
-
-          <MessageCircle
-            size={21}
-            strokeWidth={1.9}
-            className="buddy-launcher-chat"
-            aria-hidden
-          />
         </button>
       )}
     </aside>
