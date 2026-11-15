@@ -5,6 +5,7 @@ import {
   Pill, Upload, ShieldAlert, AlertTriangle, CheckCircle2, Printer, Phone, Info, Trash2, Save, HelpCircle, Calculator, Video, CalendarDays, CreditCard, UserRound, BellRing,
 } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
+import { AppFooter } from "@/components/AppFooter";
 import {
   parsePrescriptionText, checkAllPairs, checkPair, detectRedFlags, drugById, comparePrices, unitsForCourse,
   DRUG_REFERENCE, buildSchedule, scheduleToIcs, SLOT_BN, type ParsedLine, type ParsedPrescription, type Slot,
@@ -146,9 +147,9 @@ export default function MediScanPage() {
         </div>
       </div>
 
-      <main id="main" className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6">
-        <section className="rounded-2xl border border-sky-100 bg-white p-5">
-          <h1 className="text-[26px] font-extrabold leading-tight tracking-tight sm:text-[32px]">ডাক্তারের প্রেসক্রিপশন সহজ বাংলায় বুঝে নিন</h1>
+      <main id="main" className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 motion-safe:animate-rise-in">
+        <section className="rounded-2xl border border-sky-100/80 bg-white/80 backdrop-blur-md p-5 sm:p-6 shadow-xs hover:shadow-md transition-all">
+          <h1 className="text-[26px] font-extrabold leading-tight tracking-tight text-slate-900 sm:text-[32px]">ডাক্তারের প্রেসক্রিপশন সহজ বাংলায় বুঝে নিন</h1>
           <p className="mt-2 max-w-3xl text-[15px] leading-relaxed text-slate-600">
             প্রেসক্রিপশনে যা লেখা আছে — কোন ওষুধ, দিনে কয়বার, কতদিন, খাবারের আগে না পরে — তা পরিষ্কার করে দেখায়। যা লেখা নেই বা আমরা চিনি না, তা স্পষ্ট করে জানায়। এটি ডাক্তার বা ফার্মাসিস্টের বিকল্প নয়; ডোজ বা ওষুধ নিজে থেকে বদলাবেন না।
           </p>
@@ -445,9 +446,10 @@ export default function MediScanPage() {
             <li>ব্র্যান্ড বদলাতে চাইলে (একই জেনেরিক ও স্ট্রেংথ) ডাক্তার বা ফার্মাসিস্টের সাথে কথা বলুন।</li>
             <li>স্বাস্থ্য বাতায়ন 16263 সেবা অর্থায়ন সংকটে আছে বলে খবর প্রকাশিত হয়েছে; না পেলে নিকটস্থ সরকারি হাসপাতালে যোগাযোগ করুন।</li>
           </ul>
-          <p className="mt-2"><Link href="/settings" className="font-semibold text-sky-700 underline">সংরক্ষিত ডেটা দেখুন বা মুছুন</Link></p>
+          <p className="mt-2"><Link href="/settings" className="font-semibold text-sky-700 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] rounded">সংরক্ষিত ডেটা দেখুন বা মুছুন</Link></p>
         </section>
       </main>
+      <AppFooter lang="bn" />
     </div>
   );
 }

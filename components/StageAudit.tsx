@@ -28,11 +28,35 @@ export function StageAudit({
   const fileRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   const v = result?.valuation;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setFileName(file.name);
+      setSelectedFile(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file && (file.type.startsWith("image/") || file.type === "application/pdf")) {
       setFileName(file.name);
       setSelectedFile(file);
     }
@@ -68,38 +92,79 @@ export function StageAudit({
           </div>
           <p className="mb-2 text-[14px] text-muted">Paste CV text, or upload a CV photo, PDF or a Fiverr/Upwork profile screenshot.</p>
           <p className="mb-3 rounded-lg bg-paper px-3 py-2 text-[12px] text-muted">Uploaded documents are processed through Vision OCR. Every claimed skill must strictly quote your source text or it gets rejected.</p>
-          <textarea
-            value={cv}
-            onChange={(e) => setCv(e.target.value)}
-            rows={12}
-            className={`${inputCls} ledger-rule font-sans leading-8`}
-            placeholder="Paste your CV, bio, technical stack, or project summary here…"
-            aria-label="CV text"
-          />
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            <label className="relative flex min-w-[180px] flex-1 items-center gap-2 rounded-lg border border-line bg-white px-3 py-2">
-              <Github size={16} className="text-muted" aria-hidden />
-              <input
-                value={gh}
-                onChange={(e) => setGh(e.target.value.replace(/^@/, ""))}
-                placeholder="GitHub username (optional)"
-                className="w-full text-[15px] outline-none"
-                aria-label="GitHub username"
-              />
-            </label>
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/*,application/pdf"
-              className="hidden"
-              onChange={handleFileChange}
+
+          {/* Pulse Scanning Animation indicator when busy */}
+          {busy && (
+            <div className="relative overflow-hidden rounded-xl border border-kept/40 bg-kept-soft/40 p-3 mb-3 shadow-2xs">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-kept/20 to-transparent animate-pulse" />
+              <div className="flex items-center gap-2 text-[13px] font-bold text-kept relative z-10">
+                <Loader2 size={16} className="animate-spin" />
+                <span>Multimodal Scanner Active · Grounding skills against source text...</span>
+              </div>
+            </div>
+          )}
+
+          <div
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={`rounded-xl transition-all ${isDragging ? "ring-2 ring-kept bg-kept-soft/20 p-1" : ""}`}
+          >
+            <textarea
+              value={cv}
+              onChange={(e) => setCv(e.target.value)}
+              rows={12}
+              className={`${inputCls} ledger-rule font-sans leading-8`}
+              placeholder="Paste your CV, bio, technical stack, or project summary here (or drag & drop a PDF/screenshot file)..."
+              aria-label="CV text"
             />
-            <Btn variant="ghost" onClick={() => fileRef.current?.click()} disabled={busy}>
-              <Upload size={16} /> Upload Screenshot/PDF
-            </Btn>
-            <Btn onClick={() => selectedFile ? onFile(selectedFile, gh || undefined) : onRun(gh || undefined)} disabled={busy || (!selectedFile && !cv.trim()) || !consented}>
-              {busy ? <Loader2 size={16} className="animate-spin" /> : null} Audit with Compass
-            </Btn>
+          </div>
+          <div
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={`mt-3 rounded-xl border-2 border-dashed p-3 transition-colors ${
+              isDragging
+                ? "border-kept bg-kept-soft/40"
+                : "border-slate-200 bg-slate-50/50 hover:border-slate-300"
+            }`}
+          >
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+              <span className="text-[12px] font-semibold text-slate-600 flex items-center gap-1.5">
+                <Upload size={14} className="text-kept" />
+                Drag &amp; drop CV screenshot or PDF here
+              </span>
+              {fileName && (
+                <span className="text-[11px] font-mono text-kept font-bold truncate max-w-[200px]">
+                  {fileName}
+                </span>
+              )}
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <label className="relative flex min-w-[180px] flex-1 items-center gap-2 rounded-lg border border-line bg-white px-3 py-2">
+                <Github size={16} className="text-muted" aria-hidden />
+                <input
+                  value={gh}
+                  onChange={(e) => setGh(e.target.value.replace(/^@/, ""))}
+                  placeholder="GitHub username (optional)"
+                  className="w-full text-[15px] outline-none"
+                  aria-label="GitHub username"
+                />
+              </label>
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/*,application/pdf"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+              <Btn variant="ghost" onClick={() => fileRef.current?.click()} disabled={busy}>
+                <Upload size={16} /> Upload Screenshot/PDF
+              </Btn>
+              <Btn onClick={() => selectedFile ? onFile(selectedFile, gh || undefined) : onRun(gh || undefined)} disabled={busy || (!selectedFile && !cv.trim()) || !consented}>
+                {busy ? <Loader2 size={16} className="animate-spin" /> : null} Audit with Compass
+              </Btn>
+            </div>
           </div>
           <label className="mt-3 flex items-start gap-2 rounded-lg border border-haldi/40 bg-haldi-soft p-3 text-[12px] leading-relaxed text-ink">
             <input type="checkbox" checked={consented} onChange={(e) => setConsented(e.target.checked)} className="mt-0.5 accent-kept" />
@@ -166,16 +231,29 @@ export function StageAudit({
                       <li
                         key={s.name + s.origin}
                         title={`${V.label}${s.origin === "github" ? " (GitHub)" : ""}: “${s.evidence}”`}
-                        className={`inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[13px] font-semibold ${V.cls}`}
+                        className={`group relative inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[13px] font-semibold cursor-help transition-all hover:scale-105 hover:shadow-xs ${V.cls}`}
                       >
                         <V.icon size={13} aria-hidden /> {s.name}
                         {s.origin === "github" && <Github size={12} aria-label="from GitHub" />}
+                        {/* Interactive floating tooltip quote card */}
+                        <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-30 w-64 rounded-xl border border-slate-700 bg-[#070d1e] p-2.5 text-left text-white shadow-xl backdrop-blur-md">
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-amber-400">
+                            {V.label} {s.origin === "github" ? "(GitHub)" : ""}
+                          </p>
+                          <p className="mt-1 font-mono text-[11px] text-slate-200 leading-tight italic">
+                            {s.evidence ? `“${s.evidence}”` : "(No verbatim quote found in source)"}
+                          </p>
+                          <div className="mt-1.5 flex items-center justify-between border-t border-slate-700/80 pt-1 text-[10px] text-slate-400">
+                            <span>Score: {Math.round(s.score * 100)}%</span>
+                            <span>Level: {s.level}</span>
+                          </div>
+                        </div>
                       </li>
                     );
                   })}
                 </ul>
                 <p className="mt-2 text-[12px] text-muted">
-                  Hover any skill tag to view the exact verbatim line quoted from your CV. Skills not found in your document are struck out.
+                  Hover or tap any skill tag to view the exact verbatim line quoted from your CV. Skills not found in your document are struck out.
                 </p>
               </Panel>
 

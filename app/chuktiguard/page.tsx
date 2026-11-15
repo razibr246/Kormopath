@@ -1,7 +1,8 @@
 "use client";
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { AppSwitcherDropdown } from "@/components/AppSwitcherDropdown";
+import { AppHeader } from "@/components/AppHeader";
+import { AppFooter } from "@/components/AppFooter";
 import { FX_FALLBACK } from "@/lib/data";
 import { fmtBdt, splitMilestoneUsd } from "@/lib/finops";
 import { storageKey, usePersistentState } from "@/lib/clientStore";
@@ -151,33 +152,16 @@ export default function ChuktiGuardPage() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased print:bg-white print:text-black">
       {/* Top Navbar */}
-      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur-md print:hidden">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
-          <div className="flex items-center gap-4">
-            <Link href="/chuktiguard" className="flex items-center gap-2.5">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-blue-700 text-white shadow-md">
-                <ShieldCheck size={22} />
-              </span>
-              <div>
-                <span className="text-[19px] font-extrabold tracking-tight text-slate-900 block leading-tight">
-                  ChuktiGuard
-                </span>
-                <span className="text-[11px] font-semibold text-indigo-700 block leading-none">
-                  বি২বি ইনভয়েস ও ইন্টারনেট ব্ল্যাকআউট শিল্ড
-                </span>
-              </div>
-            </Link>
-
-            <Link
-              href="/"
-              className="hidden lg:flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-[12px] font-medium text-slate-600 hover:border-indigo-600 hover:text-indigo-700 transition-colors"
-            >
-              <img src="/kormopath-logo.jpg" alt="" className="h-4 w-auto rounded" />
-              <span>← KormoPath</span>
-            </Link>
-          </div>
-
-          <div className="flex items-center gap-2.5">
+      <AppHeader
+        appId="chuktiguard"
+        href="/chuktiguard"
+        name="ChuktiGuard"
+        taglineBn="বি২বি ইনভয়েস ও ইন্টারনেট ব্ল্যাকআউট শিল্ড"
+        taglineEn="B2B Invoices & Contract Studio"
+        icon={<ShieldCheck size={22} />}
+        accent="from-indigo-600 to-blue-700"
+        right={
+          <div className="flex items-center gap-2">
             <div className="hidden sm:flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-[12px] font-mono text-slate-700">
               <span className="text-slate-400">$1 =</span>
               <span className="font-bold text-indigo-700">৳{usdBdt.toFixed(1)}</span>
@@ -200,11 +184,9 @@ export default function ChuktiGuardPage() {
               {copiedLink ? <Check size={15} /> : <Copy size={15} />}
               <span className="hidden sm:inline">{copiedLink ? "Copied Link!" : "Share Link"}</span>
             </button>
-
-            <AppSwitcherDropdown currentAppId="chuktiguard" lang="bn" variant="light" />
           </div>
-        </div>
-      </header>
+        }
+      />
 
       {/* Hero / Action Bar */}
       <section className="border-b border-slate-200 bg-gradient-to-b from-indigo-50/70 via-white to-white px-4 py-6 sm:px-6 print:hidden">
@@ -886,6 +868,7 @@ export default function ChuktiGuardPage() {
           </div>
         )}
       </main>
+      <AppFooter lang="bn" />
     </div>
   );
 }

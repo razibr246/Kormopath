@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Mic, Square, Keyboard, Play, RotateCcw, CheckCircle2, XCircle, Lightbulb, MessageCircleQuestion, Trash2, TrendingUp, Info, Sparkles, Quote, Pencil, Plus, X } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
+import { AppFooter } from "@/components/AppFooter";
 import { QUESTIONS, analyzeAnswer, progressSummary, starCheck, practiceStreak, createCustomQuestion, evaluateViva, type Question, type Analysis, type SessionRecord } from "@/lib/speech";
 import { usePersistentState, storageKey, readStored, writeStored } from "@/lib/clientStore";
 
@@ -242,16 +243,16 @@ export default function ProbahoPage() {
     <div className="min-h-screen bg-[#f8f7fc] text-slate-900 antialiased">
       <AppHeader taglineEn="Interview & viva speaking coach" appId="probaho" href="/probaho" name="Probaho Coach" taglineBn="ভাইভা ও ইন্টারভিউ বলার অনুশীলন" icon={<Mic size={22} />} accent="from-violet-600 to-indigo-700" />
 
-      <main id="main" className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6">
-        <section className="flex flex-wrap items-end justify-between gap-4 rounded-2xl border border-violet-100 bg-white p-5">
+      <main id="main" className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 motion-safe:animate-rise-in">
+        <section className="flex flex-wrap items-end justify-between gap-4 rounded-2xl border border-violet-100/80 bg-white/80 backdrop-blur-md p-5 sm:p-6 shadow-xs hover:shadow-md transition-all">
           <div className="max-w-2xl">
-            <h1 className="text-[26px] font-extrabold leading-tight tracking-tight sm:text-[32px]">প্রশ্নের উত্তর বলুন, কোথায় ভালো হলো আর কী বাদ পড়ল দেখুন</h1>
+            <h1 className="text-[26px] font-extrabold leading-tight tracking-tight text-slate-900 sm:text-[32px]">প্রশ্নের উত্তর বলুন, কোথায় ভালো হলো আর কী বাদ পড়ল দেখুন</h1>
             <p className="mt-2 text-[15px] leading-relaxed text-slate-600">
               প্রতিটি প্রশ্নে কোন বিষয়গুলো একজন পরীক্ষক শুনতে চান তা আগে থেকে ঠিক করা আছে। আপনার উত্তর সেগুলো ছুঁয়েছে কি না, উদাহরণ ও সারসংক্ষেপ আছে কি না, ফিলার শব্দ কত — সব স্বচ্ছভাবে দেখায়। উচ্চারণ বা অ্যাকসেন্টের জন্য নম্বর কাটে না।
             </p>
           </div>
           {progress && (
-            <div className="min-w-[240px] rounded-2xl border border-violet-200 bg-violet-50 p-4 text-[13px]">
+            <div className="min-w-[240px] rounded-2xl border border-violet-200/80 bg-violet-50/90 backdrop-blur-md p-4 text-[13px] shadow-xs">
               <span className="flex items-center gap-1 text-[11px] font-bold uppercase text-violet-800"><TrendingUp size={13} aria-hidden /> আপনার অগ্রগতি</span>
               <p className="mt-1"><strong>{progress.sessions}</strong>টি চেষ্টা, <strong>{progress.daysPractised}</strong> দিন অনুশীলন</p>
               <p>সাম্প্রতিক গড়: <strong>{progress.recentAvg}</strong> (প্রথম দিকে {progress.earlyAvg})</p>
@@ -539,11 +540,12 @@ export default function ProbahoPage() {
           )}
         </section>
 
-        <p className="text-[11px] text-slate-500">
-          <Info size={12} className="mr-1 inline" aria-hidden />
-          স্কোর একটি স্বয়ংক্রিয় অনুশীলন-নির্দেশক, পরীক্ষার ফল নয়। স্পিচ-টু-টেক্সট ভুল শুনলে ফলাফলও ভুল হতে পারে; বাংলা স্বীকৃতি ইংরেজির চেয়ে কম নির্ভুল হতে পারে। দক্ষতা যাচাইসহ স্কিল পাসপোর্ট চাইলে <Link href="/workspace" className="font-semibold text-violet-700 underline">KormoPath Workspace</Link>।
+        <p className="text-[12px] text-slate-600">
+          <Info size={12} className="mr-1 inline text-slate-500" aria-hidden />
+          স্কোর একটি স্বয়ংক্রিয় অনুশীলন-নির্দেশক, পরীক্ষার ফল নয়। স্পিচ-টু-টেক্সট ভুল শুনলে ফলাফলও ভুল হতে পারে; বাংলা স্বীকৃতি ইংরেজির চেয়ে কম নির্ভুল হতে পারে। দক্ষতা যাচাইসহ স্কিল পাসপোর্ট চাইলে <Link href="/workspace" className="font-semibold text-violet-700 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] rounded">KormoPath Workspace</Link>।
         </p>
       </main>
+      <AppFooter lang="bn" />
     </div>
   );
 }

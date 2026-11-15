@@ -65,8 +65,11 @@ export default function HomePage() {
         {/* =========================================================
             HERO SECTION: Modern, Clean & High-Impact
             ========================================================= */}
-        <section aria-label="Hero" className="home-hero relative pt-4 sm:pt-8 pb-6">
-          <div className="mx-auto max-w-4xl text-center">
+        <section aria-label="Hero" className="home-hero relative pt-4 sm:pt-8 pb-6 overflow-hidden">
+          {/* Ambient radial illumination backdrop */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] max-w-[90vw] h-[340px] bg-gradient-to-r from-orange-500/15 via-amber-400/10 to-blue-500/12 rounded-full blur-3xl pointer-events-none -z-10" />
+
+          <div className="relative mx-auto max-w-4xl text-center">
             {/* Official KormoPath Logo Emblem */}
             <div className="flex justify-center mb-6">
               <div className="inline-flex items-center gap-3.5 p-2 pr-6 rounded-2xl bg-white/95 border border-slate-200/90 shadow-md shadow-slate-200/40 backdrop-blur-md hover:scale-[1.01] transition-all">
@@ -92,7 +95,7 @@ export default function HomePage() {
             </div>
 
             {/* Main Headline */}
-            <h1 className="display text-[38px] sm:text-[58px] font-extrabold tracking-tight text-[#070d1e] leading-[1.08]">
+            <h1 className="display text-[clamp(30px,5.5vw,56px)] font-extrabold tracking-tight text-[#070d1e] leading-[1.08]">
               {lang === "bn" ? (
                 <>
                   বাংলাদেশের তরুণদের জন্য <br className="hidden sm:inline" />
@@ -123,7 +126,7 @@ export default function HomePage() {
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
               <a
                 href="#apps-showcase"
-                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-orange-600 via-amber-500 to-orange-600 px-6 py-3.5 text-[15px] font-bold text-white shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/35 hover:scale-[1.02] active:scale-[0.99] transition-all"
+                className="w-full sm:w-auto min-h-[48px] inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-orange-600 via-amber-500 to-orange-600 px-6 py-3.5 text-[15px] font-bold text-white shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/35 hover:scale-[1.02] active:scale-[0.99] transition-all"
               >
                 <span>{lang === "bn" ? "৬টি অ্যাপ দেখুন" : "Explore all 6 apps"}</span>
                 <ArrowRight size={16} />
@@ -131,7 +134,7 @@ export default function HomePage() {
 
               <Link
                 href="/admitbuddy"
-                className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3.5 text-[15px] font-bold text-slate-900 hover:border-orange-500 hover:text-orange-600 transition-all shadow-xs"
+                className="w-full sm:w-auto min-h-[48px] inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3.5 text-[15px] font-bold text-slate-900 hover:border-orange-500 hover:text-orange-600 transition-all shadow-xs"
               >
                 <GraduationCap size={18} className="text-indigo-600" />
                 <span>{lang === "bn" ? "এডমিট-বাডি (টপ পিক)" : "AdmitBuddy (Top Pick)"}</span>
@@ -139,7 +142,7 @@ export default function HomePage() {
 
               <button
                 onClick={() => setIsEcosystemOpen(true)}
-                className="inline-flex items-center gap-2 rounded-xl bg-slate-100 hover:bg-slate-200 px-5 py-3.5 text-[14px] font-semibold text-slate-700 transition-colors"
+                className="w-full sm:w-auto min-h-[48px] inline-flex items-center justify-center gap-2 rounded-xl bg-slate-100 hover:bg-slate-200 px-5 py-3.5 text-[14px] font-semibold text-slate-700 transition-colors"
               >
                 <Layers size={16} />
                 <span>9-Dot Launcher</span>
@@ -148,18 +151,18 @@ export default function HomePage() {
           </div>
 
           {/* Clean Ecosystem Status Cards Row */}
-          <div className="home-app-quick mt-12 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 text-left">
+          <div className="home-app-quick mt-12 grid grid-cols-2 gap-2.5 sm:gap-3 sm:grid-cols-3 lg:grid-cols-6 text-left">
             <Link
               href="/admitbuddy"
-              className="home-app-quick-card group rounded-2xl border border-line bg-white p-3.5 hover:border-indigo-500 hover:shadow-sm transition-all"
+              className="home-app-quick-card group rounded-2xl border border-line bg-white p-3 sm:p-3.5 hover:border-indigo-500 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200"
             >
               <div className="flex items-center justify-between mb-2">
                 <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
                   <GraduationCap size={18} />
                 </span>
-                <ArrowUpRight size={15} className="home-app-arrow text-slate-400 transition-transform" aria-hidden />
+                <ArrowUpRight size={15} className="home-app-arrow text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200" aria-hidden />
               </div>
-              <h4 className="text-[14px] font-bold text-ink group-hover:text-indigo-600 transition-colors">
+              <h4 className="text-[13px] sm:text-[14px] font-bold text-ink group-hover:text-indigo-600 transition-colors">
                 AdmitBuddy
               </h4>
               <p className="text-[11px] text-muted">Education Track</p>
@@ -167,15 +170,15 @@ export default function HomePage() {
 
             <Link
               href="/mediscan"
-              className="home-app-quick-card group rounded-2xl border border-line bg-white p-3.5 hover:border-rose-500 hover:shadow-sm transition-all"
+              className="home-app-quick-card group rounded-2xl border border-line bg-white p-3 sm:p-3.5 hover:border-rose-500 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200"
             >
               <div className="flex items-center justify-between mb-2">
                 <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
                   <Pill size={18} />
                 </span>
-                <ArrowUpRight size={15} className="home-app-arrow text-slate-400 transition-transform" aria-hidden />
+                <ArrowUpRight size={15} className="home-app-arrow text-slate-400 group-hover:text-rose-600 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200" aria-hidden />
               </div>
-              <h4 className="text-[14px] font-bold text-ink group-hover:text-rose-600 transition-colors">
+              <h4 className="text-[13px] sm:text-[14px] font-bold text-ink group-hover:text-rose-600 transition-colors">
                 MediScan BD
               </h4>
               <p className="text-[11px] text-muted">Health Track</p>
@@ -183,15 +186,15 @@ export default function HomePage() {
 
             <Link
               href="/shohoj-budget"
-              className="home-app-quick-card group rounded-2xl border border-line bg-white p-3.5 hover:border-amber-500 hover:shadow-sm transition-all"
+              className="home-app-quick-card group rounded-2xl border border-line bg-white p-3 sm:p-3.5 hover:border-amber-500 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200"
             >
               <div className="flex items-center justify-between mb-2">
                 <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
                   <Wallet size={18} />
                 </span>
-                <ArrowUpRight size={15} className="home-app-arrow text-slate-400 transition-transform" aria-hidden />
+                <ArrowUpRight size={15} className="home-app-arrow text-slate-400 group-hover:text-amber-600 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200" aria-hidden />
               </div>
-              <h4 className="text-[14px] font-bold text-ink group-hover:text-amber-600 transition-colors">
+              <h4 className="text-[13px] sm:text-[14px] font-bold text-ink group-hover:text-amber-600 transition-colors">
                 Shohoj Budget
               </h4>
               <p className="text-[11px] text-muted">Voice Finance</p>
@@ -199,15 +202,15 @@ export default function HomePage() {
 
             <Link
               href="/haatbazar"
-              className="home-app-quick-card group rounded-2xl border border-line bg-white p-3.5 hover:border-emerald-600 hover:shadow-sm transition-all"
+              className="home-app-quick-card group rounded-2xl border border-line bg-white p-3 sm:p-3.5 hover:border-emerald-600 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200"
             >
               <div className="flex items-center justify-between mb-2">
                 <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700">
                   <Sprout size={18} />
                 </span>
-                <ArrowUpRight size={15} className="home-app-arrow text-slate-400 transition-transform" aria-hidden />
+                <ArrowUpRight size={15} className="home-app-arrow text-slate-400 group-hover:text-emerald-700 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200" aria-hidden />
               </div>
-              <h4 className="text-[14px] font-bold text-ink group-hover:text-emerald-700 transition-colors">
+              <h4 className="text-[13px] sm:text-[14px] font-bold text-ink group-hover:text-emerald-700 transition-colors">
                 HaatBazar AI
               </h4>
               <p className="text-[11px] text-muted">Agriculture Track</p>
@@ -215,15 +218,15 @@ export default function HomePage() {
 
             <Link
               href="/probaho"
-              className="home-app-quick-card group rounded-2xl border border-line bg-white p-3.5 hover:border-blue-600 hover:shadow-sm transition-all"
+              className="home-app-quick-card group rounded-2xl border border-line bg-white p-3 sm:p-3.5 hover:border-blue-600 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200"
             >
               <div className="flex items-center justify-between mb-2">
                 <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
                   <Mic size={18} />
                 </span>
-                <ArrowUpRight size={15} className="home-app-arrow text-slate-400 transition-transform" aria-hidden />
+                <ArrowUpRight size={15} className="home-app-arrow text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200" aria-hidden />
               </div>
-              <h4 className="text-[14px] font-bold text-ink group-hover:text-blue-600 transition-colors">
+              <h4 className="text-[13px] sm:text-[14px] font-bold text-ink group-hover:text-blue-600 transition-colors">
                 Probaho Coach
               </h4>
               <p className="text-[11px] text-muted">Viva Speaking</p>
@@ -231,15 +234,15 @@ export default function HomePage() {
 
             <Link
               href="/feeguard"
-              className="home-app-quick-card group rounded-2xl border border-line bg-white p-3.5 hover:border-teal-600 hover:shadow-sm transition-all"
+              className="home-app-quick-card group rounded-2xl border border-line bg-white p-3 sm:p-3.5 hover:border-teal-600 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200"
             >
               <div className="flex items-center justify-between mb-2">
                 <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-50 text-teal-700">
                   <Percent size={18} />
                 </span>
-                <ArrowUpRight size={15} className="home-app-arrow text-slate-400 transition-transform" aria-hidden />
+                <ArrowUpRight size={15} className="home-app-arrow text-slate-400 group-hover:text-teal-700 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200" aria-hidden />
               </div>
-              <h4 className="text-[14px] font-bold text-ink group-hover:text-teal-700 transition-colors">
+              <h4 className="text-[13px] sm:text-[14px] font-bold text-ink group-hover:text-teal-700 transition-colors">
                 FeeGuard BD
               </h4>
               <p className="text-[11px] text-muted">20% Fee Saver</p>
@@ -274,11 +277,11 @@ export default function HomePage() {
 
           <div className="home-app-grid grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {/* 1. AdmitBuddy */}
-            <div className="home-app-card group rounded-3xl border border-line bg-white p-6 shadow-xs hover:border-indigo-500 hover:shadow-md transition-all flex flex-col justify-between">
+            <div className="home-app-card card-premium group rounded-3xl border border-line bg-white p-6 shadow-xs hover:border-indigo-500 hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 text-[22px]">
-                    🏆
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-50 to-indigo-100/60 border border-indigo-200/50 shadow-xs text-indigo-600">
+                    <GraduationCap size={22} />
                   </span>
                   <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
@@ -310,11 +313,11 @@ export default function HomePage() {
             </div>
 
             {/* 2. MediScan BD */}
-            <div className="home-app-card group rounded-3xl border border-line bg-white p-6 shadow-xs hover:border-rose-500 hover:shadow-md transition-all flex flex-col justify-between">
+            <div className="home-app-card card-premium group rounded-3xl border border-line bg-white p-6 shadow-xs hover:border-rose-500 hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-rose-600 text-[22px]">
-                    💊
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-50 to-rose-100/60 border border-rose-200/50 shadow-xs text-rose-600">
+                    <Pill size={22} />
                   </span>
                   <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
@@ -346,11 +349,11 @@ export default function HomePage() {
             </div>
 
             {/* 3. Shohoj Budget */}
-            <div className="home-app-card group rounded-3xl border border-line bg-white p-6 shadow-xs hover:border-amber-500 hover:shadow-md transition-all flex flex-col justify-between">
+            <div className="home-app-card card-premium group rounded-3xl border border-line bg-white p-6 shadow-xs hover:border-amber-500 hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 text-[22px]">
-                    💰
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-50 to-amber-100/60 border border-amber-200/50 shadow-xs text-amber-600">
+                    <Wallet size={22} />
                   </span>
                   <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
@@ -382,11 +385,11 @@ export default function HomePage() {
             </div>
 
             {/* 4. HaatBazar AI */}
-            <div className="home-app-card group rounded-3xl border border-line bg-white p-6 shadow-xs hover:border-emerald-600 hover:shadow-md transition-all flex flex-col justify-between">
+            <div className="home-app-card card-premium group rounded-3xl border border-line bg-white p-6 shadow-xs hover:border-emerald-600 hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 text-[22px]">
-                    🌾
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-50 to-emerald-100/60 border border-emerald-200/50 shadow-xs text-emerald-700">
+                    <Sprout size={22} />
                   </span>
                   <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
@@ -418,11 +421,11 @@ export default function HomePage() {
             </div>
 
             {/* 5. Probaho Speaking Coach */}
-            <div className="home-app-card group rounded-3xl border border-line bg-white p-6 shadow-xs hover:border-blue-600 hover:shadow-md transition-all flex flex-col justify-between">
+            <div className="home-app-card card-premium group rounded-3xl border border-line bg-white p-6 shadow-xs hover:border-blue-600 hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 text-[22px]">
-                    🗣️
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100/60 border border-blue-200/50 shadow-xs text-blue-600">
+                    <Mic size={22} />
                   </span>
                   <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
@@ -454,11 +457,11 @@ export default function HomePage() {
             </div>
 
             {/* 6. FeeGuard BD */}
-            <div className="home-app-card group rounded-3xl border border-line bg-white p-6 shadow-xs hover:border-teal-600 hover:shadow-md transition-all flex flex-col justify-between">
+            <div className="home-app-card card-premium group rounded-3xl border border-line bg-white p-6 shadow-xs hover:border-teal-600 hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-50 text-teal-700 text-[22px]">
-                    💸
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-50 to-teal-100/60 border border-teal-200/50 shadow-xs text-teal-700">
+                    <Percent size={22} />
                   </span>
                   <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
@@ -508,9 +511,9 @@ export default function HomePage() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-3">
-            <div className="rounded-2xl border border-line bg-paper/50 p-6 space-y-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-kept-soft text-kept font-bold text-[18px]">
-                🛡️
+            <div className="rounded-2xl border border-line bg-paper/50 p-6 space-y-3 hover:border-orange-300 hover:bg-white hover:shadow-md transition-all duration-200">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 border border-orange-200/60 text-orange-600 shadow-xs">
+                <ShieldCheck size={20} />
               </span>
               <h3 className="font-extrabold text-[17px] text-ink">Grounded, Checked Output</h3>
               <p className="text-[13px] text-muted leading-relaxed">
@@ -518,9 +521,9 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-line bg-paper/50 p-6 space-y-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-700 font-bold text-[18px]">
-                🇧🇩
+            <div className="rounded-2xl border border-line bg-paper/50 p-6 space-y-3 hover:border-indigo-300 hover:bg-white hover:shadow-md transition-all duration-200">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 border border-indigo-200/60 text-indigo-600 shadow-xs">
+                <Globe size={20} />
               </span>
               <h3 className="font-extrabold text-[17px] text-ink">Native Bangla Language AI</h3>
               <p className="text-[13px] text-muted leading-relaxed">
@@ -528,9 +531,9 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-line bg-paper/50 p-6 space-y-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-700 font-bold text-[18px]">
-                ⚡
+            <div className="rounded-2xl border border-line bg-paper/50 p-6 space-y-3 hover:border-amber-300 hover:bg-white hover:shadow-md transition-all duration-200">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 border border-amber-200/60 text-amber-600 shadow-xs">
+                <Zap size={20} />
               </span>
               <h3 className="font-extrabold text-[17px] text-ink">Offline-Resilient Architecture</h3>
               <p className="text-[13px] text-muted leading-relaxed">
@@ -556,7 +559,7 @@ export default function HomePage() {
           <div className="space-y-3">
             <details className="group rounded-2xl border border-line bg-paper/40 p-4 transition-all" open>
               <summary className="flex cursor-pointer items-center justify-between font-bold text-[16px] text-ink list-none">
-                <span>Are all 5 applications actually functional or just mockups?</span>
+                <span>Are all 6 applications actually functional or just mockups?</span>
                 <ChevronDown size={18} className="text-muted group-open:rotate-180 transition-transform" />
               </summary>
               <p className="mt-3 text-[14px] text-muted leading-relaxed">

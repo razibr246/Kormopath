@@ -10,7 +10,7 @@ export function Panel({ children, className = "" }: { children: ReactNode; class
 export function Btn({ variant = "primary", className = "", ...p }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "ghost" | "quiet" }) {
   const v =
     variant === "primary"
-      ? "bg-kept text-white hover:bg-[#08583f] disabled:bg-muted/40"
+      ? "bg-kept text-white hover:bg-orange-700 hover:bg-brand-orange-hover disabled:bg-muted/40"
       : variant === "ghost"
         ? "border border-ink/20 bg-white text-ink hover:border-ink/50 disabled:opacity-50"
         : "text-kept underline underline-offset-4 hover:text-ink disabled:opacity-50";

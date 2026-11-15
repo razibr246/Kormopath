@@ -24,10 +24,10 @@ function Waterfall({ c, scale, isBest, isCurrent }: { c: Channel; scale: number;
         <p className="display num text-[22px] font-bold text-ink">{fmtBdt(c.netBdt)}</p>
       </div>
       <p className="text-[13px] text-muted">{c.route} · you keep {c.keptPct}% of invoice</p>
-      <div className="mt-2.5 flex h-4 w-full overflow-hidden rounded-full bg-paper" role="img" aria-label={`${c.name}: keeps ${fmtBdt(c.netBdt)} of ${fmtBdt(c.grossBdt)}`}>
-        <div className="bar-grow h-full bg-kept" style={{ width: pct(keptBase) }} />
-        {gains.map((g) => <div key={g.label} className="h-full bg-haldi" style={{ width: pct(g.bdt) }} title={g.label} />)}
-        {leaks.map((l, i) => <div key={l.label} className="h-full" style={{ width: pct(l.bdt), background: LEAK_SHADES[i] }} title={l.label} />)}
+      <div className="mt-2.5 flex h-4 w-full overflow-hidden rounded-full bg-slate-100 p-0.5 shadow-inner" role="img" aria-label={`${c.name}: keeps ${fmtBdt(c.netBdt)} of ${fmtBdt(c.grossBdt)}`}>
+        <div className="bar-grow h-full rounded-l-full bg-kept transition-all duration-500 ease-out" style={{ width: pct(keptBase) }} />
+        {gains.map((g) => <div key={g.label} className="h-full bg-amber-400 transition-all duration-500 ease-out" style={{ width: pct(g.bdt) }} title={g.label} />)}
+        {leaks.map((l, i) => <div key={l.label} className="h-full transition-all duration-500 ease-out" style={{ width: pct(l.bdt), background: LEAK_SHADES[i] }} title={l.label} />)}
       </div>
       <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-0.5 text-[12px]">
         {c.steps.map((s, i) => (
@@ -111,34 +111,39 @@ export function StageMoney(props: {
 
       {/* 3-Route Architecture Cards */}
       <div className="grid gap-3 sm:grid-cols-3">
-        <div className="rounded-xl border border-red-200 bg-red-50/40 p-3.5">
+        <div className="rounded-2xl border border-red-200/90 bg-red-50/50 p-4 shadow-xs hover:shadow-sm transition-all">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold text-red-700 uppercase">Option A: Marketplace</span>
             <span className="text-[11px] text-leak font-mono font-bold">-20% Cut</span>
           </div>
-          <strong className="block text-[15px] text-ink mt-1">Fiverr / Upwork</strong>
+          <strong className="block text-[15px] text-ink font-bold mt-1">Fiverr / Upwork</strong>
           <p className="text-[12px] text-muted">20% commission + 2% FX conversion drain</p>
           <p className="mt-2 font-mono text-[18px] font-bold text-leak">{fmtBdt(optA.netBdt)}</p>
         </div>
 
-        <div className="rounded-xl border border-blue-200 bg-blue-50/40 p-3.5">
+        <div className="rounded-2xl border border-blue-200/90 bg-blue-50/50 p-4 shadow-xs hover:shadow-sm transition-all">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold text-blue-700 uppercase">Option B: Direct Payoneer</span>
             <span className="text-[11px] text-blue-800 font-mono font-bold">0% Cut</span>
           </div>
-          <strong className="block text-[15px] text-ink mt-1">Direct Client + Payoneer</strong>
+          <strong className="block text-[15px] text-ink font-bold mt-1">Direct Client + Payoneer</strong>
           <p className="text-[12px] text-muted">Eliminates 20% commission; 2% payout conversion</p>
           <p className="mt-2 font-mono text-[18px] font-bold text-blue-900">{fmtBdt(optB.netBdt)}</p>
         </div>
 
-        <div className="rounded-xl border-2 border-kept bg-kept-soft/50 p-3.5 shadow-sm">
+        <div className="rounded-2xl border-2 border-emerald-500 bg-gradient-to-br from-emerald-50/90 via-teal-50/50 to-white p-4 shadow-lg shadow-emerald-500/10 ring-2 ring-emerald-500/20 relative overflow-hidden transition-all hover:scale-[1.01]">
+          <div className="absolute top-0 right-0 -mr-6 -mt-6 h-20 w-20 rounded-full bg-emerald-400/20 blur-xl pointer-events-none" />
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-kept uppercase">Option C: Optimal Direct</span>
-            <span className="rounded bg-kept px-1.5 py-0.2 text-[10px] font-bold text-white uppercase">+2.5% Incentive</span>
+            <span className="text-[11px] font-extrabold text-emerald-800 uppercase tracking-wider flex items-center gap-1">
+              <Trophy size={13} className="text-emerald-600" /> Option C: Optimal Direct
+            </span>
+            <span className="rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 px-2 py-0.5 text-[10px] font-extrabold text-white uppercase tracking-wider shadow-xs">
+              +2.5% Incentive
+            </span>
           </div>
-          <strong className="block text-[15px] text-ink mt-1">Bank Wire / Wise + BB Incentive</strong>
+          <strong className="block text-[16px] text-ink font-bold mt-1.5">Bank Wire / Wise + BB Incentive</strong>
           <p className="text-[12px] text-muted">Direct SWIFT + 2.5% Bangladesh Bank cash incentive</p>
-          <p className="mt-2 font-mono text-[20px] font-extrabold text-kept">{fmtBdt(optC.netBdt)}</p>
+          <p className="mt-2.5 font-mono text-[22px] font-black text-emerald-700 tracking-tight">{fmtBdt(optC.netBdt)}</p>
         </div>
       </div>
 

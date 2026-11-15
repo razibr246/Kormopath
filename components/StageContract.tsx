@@ -87,13 +87,29 @@ export function StageContract({
               </Field>
             </div>
             <div>
-              <p className="mb-1 text-[14px] font-semibold">Milestone Billing Schedule</p>
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-[14px] font-semibold">Milestone Billing Schedule</p>
+                <span className={`text-[12px] font-mono font-bold ${pctSum === 100 ? "text-emerald-700" : "text-leak"}`}>
+                  {pctSum}% Allocated
+                </span>
+              </div>
+              {/* Milestone Timeline Progress Bar */}
+              <div className="mb-2.5 h-2 w-full overflow-hidden rounded-full bg-slate-100 flex shadow-inner">
+                {c.milestones.map((m, i) => (
+                  <div
+                    key={i}
+                    className={`h-full transition-all duration-300 ${i === 0 ? "bg-orange-500" : i === 1 ? "bg-amber-500" : "bg-blue-500"}`}
+                    style={{ width: `${Math.min(100, m.pct)}%` }}
+                    title={`${m.label}: ${m.pct}% ($${(amounts[i] ?? 0).toFixed(2)})`}
+                  />
+                ))}
+              </div>
               <ul className="space-y-1.5">
                 {c.milestones.map((m, i) => (
                   <li key={i} className="flex items-center gap-2">
                     <input className={`${inputCls} flex-1`} value={m.label} aria-label={`Milestone ${i + 1} name`} onChange={(e) => set({ milestones: c.milestones.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)) })} />
                     <input type="number" min={1} max={100} className={`${inputCls} num w-20`} value={m.pct} aria-label={`Milestone ${i + 1} percent`} onChange={(e) => set({ milestones: c.milestones.map((x, j) => (j === i ? { ...x, pct: Math.max(1, Number(e.target.value) || 1) } : x)) })} />
-                    <span className="num w-20 text-right text-[14px] text-muted font-mono">${amounts[i].toFixed(2)}</span>
+                    <span className="num w-20 text-right text-[14px] text-muted font-mono">${(amounts[i] ?? 0).toFixed(2)}</span>
                   </li>
                 ))}
               </ul>
@@ -154,14 +170,29 @@ export function StageContract({
             </div>
           </div>
 
-          <article id="contract-print" className="px-5 py-6 sm:px-8" lang={lang}>
-            <div className="flex items-center justify-between border-b border-line pb-3">
-              <h3 className="display text-[22px] font-bold text-ink">{doc.title}</h3>
-              <span className="rounded bg-kept-soft px-2.5 py-0.5 text-[11px] font-bold text-kept">
-                KormoPath Legal SLA
+          <article id="contract-print" className="relative overflow-hidden px-5 py-6 sm:px-8 bg-white" lang={lang}>
+            {/* Official Legal Watermark Stamp */}
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden select-none" aria-hidden="true">
+              <span className="rotate-[-25deg] text-[36px] sm:text-[48px] font-black uppercase tracking-[0.2em] text-slate-900/[0.03] text-center">
+                OFFICIAL B2B AGREEMENT · CLAUSE 4 PROTECTED
               </span>
             </div>
-            <ol className="mt-4 space-y-4">
+
+            <div className="relative z-10 flex flex-wrap items-center justify-between gap-2 border-b border-line pb-3">
+              <div>
+                <h3 className="display text-[22px] font-bold text-ink">{doc.title}</h3>
+                <p className="text-[11px] font-mono text-muted mt-0.5">Ref: KP-AGR-{new Date().getFullYear()}-{c.valueUsd}USD</p>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="rounded bg-kept-soft border border-kept/40 px-2.5 py-0.5 text-[11px] font-bold text-kept shadow-2xs">
+                  KormoPath Legal SLA
+                </span>
+                <span className="rounded bg-slate-100 border border-slate-200 px-2 py-0.5 text-[10px] font-mono font-bold text-slate-700">
+                  SEAL VALID
+                </span>
+              </div>
+            </div>
+            <ol className="relative z-10 mt-4 space-y-4">
               {doc.clauses.map((cl, i) => (
                 <li key={i} className={cl.highlight ? "rounded-lg border-2 border-kept/50 bg-kept-soft/50 py-3 pl-4 pr-3 shadow-sm" : ""}>
                   <div className="flex items-center gap-2">
@@ -172,11 +203,11 @@ export function StageContract({
                 </li>
               ))}
             </ol>
-            <div className="mt-10 grid grid-cols-2 gap-8 text-[14px]">
+            <div className="relative z-10 mt-10 grid grid-cols-2 gap-8 text-[14px]">
               <div className="border-t border-ink pt-1.5 font-semibold">{c.client || "Client Representative"}</div>
               <div className="border-t border-ink pt-1.5 font-semibold">{c.freelancer || "Independent Contractor"}</div>
             </div>
-            <p className="mt-6 text-[12px] text-muted">
+            <p className="relative z-10 mt-6 text-[12px] text-muted">
               {lang === "en" ? "Fixed reviewed template. Grounded in deterministic rules. Model output never alters legal clauses." : "পর্যালোচিত নির্দিষ্ট চুক্তি কাঠামো। মডেল আউটপুট আইনি ধারা পরিবর্তন করে না।"}
             </p>
           </article>

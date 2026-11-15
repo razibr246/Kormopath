@@ -616,28 +616,40 @@ export default function Home() {
 
       <main id="main" className="mx-auto max-w-[1400px] px-4 space-y-12">
         {/* Macro Stats Verified 2026 Bar */}
-        <section aria-label="Macro Statistics" className="mt-4 overflow-hidden rounded-xl border border-line bg-white shadow-xs">
+        <section aria-label="Macro Statistics" className="mt-4 overflow-hidden rounded-2xl border border-slate-200/80 bg-white/90 backdrop-blur-md shadow-xs">
           <div className="grid grid-cols-2 divide-x divide-line text-[12px] sm:grid-cols-4">
-            <div className="p-3.5 text-center sm:text-left">
-              <span className="block text-muted">Active BD Freelancers</span>
-              <strong className="block text-[15px] text-ink font-bold">{MACRO_STATS_2026.activeFreelancers}</strong>
-              <span className="text-[11px] text-muted">$550M–$650M Annual Flow</span>
+            <div className="p-3.5 sm:p-4 text-center sm:text-left">
+              <span className="flex items-center justify-center sm:justify-start gap-1.5 text-muted">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                Active BD Freelancers
+              </span>
+              <strong className="block text-[16px] text-ink font-mono font-extrabold tabular-nums mt-0.5">{MACRO_STATS_2026.activeFreelancers}</strong>
+              <span className="text-[11px] text-muted font-mono">$550M–$650M Annual Flow</span>
             </div>
-            <div className="p-3.5 text-center sm:text-left">
-              <span className="block text-muted">Unemployed Youth Pool</span>
-              <strong className="block text-[15px] text-leak font-bold">{MACRO_STATS_2026.unemployedYouthPool}</strong>
+            <div className="p-3.5 sm:p-4 text-center sm:text-left">
+              <span className="flex items-center justify-center sm:justify-start gap-1.5 text-muted">
+                <span className="h-2 w-2 rounded-full bg-rose-500" />
+                Unemployed Youth Pool
+              </span>
+              <strong className="block text-[16px] text-leak font-mono font-extrabold tabular-nums mt-0.5">{MACRO_STATS_2026.unemployedYouthPool}</strong>
               <span className="text-[11px] text-muted">Vulnerable to basic AI</span>
             </div>
-            <div className="p-3.5 text-center sm:text-left">
-              <span className="block text-muted">Direct Contract Upside</span>
-              <strong className="block text-[15px] text-kept font-bold">+25%–30% Income</strong>
+            <div className="p-3.5 sm:p-4 text-center sm:text-left">
+              <span className="flex items-center justify-center sm:justify-start gap-1.5 text-muted">
+                <span className="h-2 w-2 rounded-full bg-orange-500" />
+                Direct Contract Upside
+              </span>
+              <strong className="block text-[16px] text-kept font-mono font-extrabold tabular-nums mt-0.5">+25%–30% Income</strong>
               <Link href="/feeguard" className="text-[11px] text-kept font-semibold hover:underline">
                 Audit via FeeGuard BD →
               </Link>
             </div>
-            <div className="p-3.5 text-center sm:text-left">
-              <span className="block text-muted">Clause 4 Outage SLA Buffer</span>
-              <strong className="block text-[15px] text-kept font-bold">48 Hours + ৳12.5k UPS</strong>
+            <div className="p-3.5 sm:p-4 text-center sm:text-left">
+              <span className="flex items-center justify-center sm:justify-start gap-1.5 text-muted">
+                <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                Clause 4 Outage SLA Buffer
+              </span>
+              <strong className="block text-[16px] text-kept font-mono font-extrabold tabular-nums mt-0.5">48 Hours + ৳12.5k UPS</strong>
               <span className="text-[11px] text-kept font-medium">Blackout Protection Active</span>
             </div>
           </div>
@@ -683,7 +695,7 @@ export default function Home() {
                 <span className="flex h-3 w-3 rounded-full bg-kept animate-ping" />
                 <h3 className="font-bold text-[16px] text-ink">Zero-Login Judge Sandbox Mode</h3>
               </div>
-              <span className="rounded bg-haldi px-2 py-0.5 text-[11px] font-bold text-ink">
+              <span className="rounded-full bg-amber-100/80 border border-amber-300/60 px-2.5 py-0.5 text-[11px] font-bold text-amber-900 shadow-2xs">
                 1-Click Test Presets
               </span>
             </div>
@@ -696,11 +708,11 @@ export default function Home() {
                   <button
                     onClick={() => autopilot(p)}
                     disabled={auto?.running}
-                    className={`group flex w-full items-center gap-3 rounded-xl border bg-paper/60 px-3.5 py-3 text-left transition-all hover:border-kept hover:bg-white disabled:opacity-60 ${
-                      persona?.id === p.id ? "border-kept bg-white ring-2 ring-kept/20" : "border-line"
+                    className={`group flex w-full items-center gap-3 rounded-xl border px-3.5 py-3 text-left transition-all hover:border-kept hover:shadow-sm disabled:opacity-60 ${
+                      persona?.id === p.id ? "border-kept bg-white ring-2 ring-kept/20 shadow-xs" : "border-slate-200/90 bg-slate-50/70 hover:bg-white"
                     }`}
                   >
-                    <span className="display flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-kept-soft text-[15px] font-bold text-kept">
+                    <span className="display flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-orange-50 to-amber-100 border border-orange-200/60 text-[14px] font-extrabold text-orange-700 shadow-2xs">
                       {p.name.split(" ").map((w) => w[0]).join("")}
                     </span>
                     <span className="min-w-0 flex-1">
@@ -710,8 +722,8 @@ export default function Home() {
                     {auto?.running && persona?.id === p.id ? (
                       <Loader2 size={18} className="animate-spin text-kept shrink-0" />
                     ) : (
-                      <span className="flex items-center gap-1 text-[13px] font-bold text-kept group-hover:underline shrink-0">
-                        Run <ArrowRight size={14} />
+                      <span className="inline-flex items-center gap-1 rounded-full bg-orange-100/80 px-2.5 py-1 text-[11px] font-bold text-orange-700 group-hover:bg-orange-600 group-hover:text-white transition-colors shrink-0">
+                        Run in 5s <ArrowRight size={12} />
                       </span>
                     )}
                   </button>
@@ -722,9 +734,9 @@ export default function Home() {
               <span>No signup or login required.</span>
               <button
                 onClick={() => setIsEcosystemOpen(true)}
-                className="text-kept font-bold hover:underline flex items-center gap-1"
+                className="text-kept font-bold hover:underline inline-flex items-center gap-1 min-h-[44px] py-1"
               >
-                Open 9-Dot Hub (5 Apps) →
+                Open 9-Dot Hub (6 Apps) →
               </button>
             </div>
           </div>
@@ -755,7 +767,7 @@ export default function Home() {
               )}
 
               {/* Stage Nav Tabs */}
-              <nav aria-label="KormoPath 4-Stage Pipeline" className="mb-5 grid grid-cols-2 gap-2 md:grid-cols-4">
+              <nav aria-label="KormoPath 4-Stage Pipeline" className="mb-5 grid grid-cols-2 gap-2 md:grid-cols-4 rounded-2xl border border-slate-200/90 bg-slate-100/70 p-1.5 shadow-2xs">
                 {STAGES.map((s, i) => {
                   const Icon = s.icon;
                   return (
@@ -763,26 +775,26 @@ export default function Home() {
                       key={s.n}
                       onClick={() => setStage(s.n)}
                       aria-current={stage === s.n ? "step" : undefined}
-                      className={`flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left transition-all ${
+                      className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left transition-all ${
                         stage === s.n
-                          ? "border-ink bg-ink text-white shadow-sm"
-                          : "border-line bg-white hover:border-ink/40"
+                          ? "border border-slate-800 bg-[#070d1e] text-white shadow-md ring-1 ring-slate-700/50"
+                          : "border border-transparent bg-white/70 hover:bg-white text-slate-800 hover:shadow-xs"
                       }`}
                     >
                       <span
-                        className={`display flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[14px] font-bold ${
+                        className={`display flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[14px] font-bold transition-colors ${
                           done[i]
-                            ? "bg-kept text-white"
+                            ? "bg-emerald-500 text-white shadow-xs"
                             : stage === s.n
-                            ? "bg-white text-ink"
-                            : "bg-paper text-muted"
+                            ? "bg-white/15 text-white border border-white/20"
+                            : "bg-slate-100 text-slate-500 border border-slate-200/60"
                         }`}
                       >
-                        {done[i] ? <Check size={16} /> : <Icon size={16} />}
+                        {done[i] ? <Check size={16} className="stroke-[2.5]" /> : <Icon size={16} />}
                       </span>
                       <span className="min-w-0">
                         <span className="block text-[14px] font-bold leading-tight truncate">{s.title}</span>
-                        <span className={`block text-[11px] truncate ${stage === s.n ? "text-white/80" : "text-muted"}`}>
+                        <span className={`block text-[11px] truncate ${stage === s.n ? "text-slate-300" : "text-slate-500"}`}>
                           {s.sub}
                         </span>
                       </span>
@@ -944,17 +956,22 @@ export default function Home() {
 
         {/* Head-to-Head Comparison Table: Fiverr vs Direct Path */}
         <section id="comparison" aria-label="Marketplace vs Direct Comparison" className="rounded-2xl border border-line bg-white p-6 shadow-xs">
-          <div className="mb-6">
-            <span className="text-[12px] font-bold text-kept uppercase tracking-wider">Financial Transparency</span>
-            <h2 className="display text-[26px] font-extrabold text-ink mt-0.5">
-              Marketplace Drain vs. KormoPath Direct Path
-            </h2>
-            <p className="text-[14px] text-muted">
-              Why top Bangladeshi engineers transition from marketplace dependency to verified direct agreements.
-            </p>
+          <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
+            <div>
+              <span className="text-[12px] font-bold text-kept uppercase tracking-wider">Financial Transparency</span>
+              <h2 className="display text-[26px] font-extrabold text-ink mt-0.5">
+                Marketplace Drain vs. KormoPath Direct Path
+              </h2>
+              <p className="text-[14px] text-muted">
+                Why top Bangladeshi engineers transition from marketplace dependency to verified direct agreements.
+              </p>
+            </div>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 border border-slate-200/80 px-3 py-1 text-[11px] font-semibold text-slate-600 sm:hidden">
+              Swipe horizontally to compare →
+            </span>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="relative overflow-x-auto rounded-xl border border-line/80 shadow-2xs">
             <table className="w-full min-w-[700px] text-left text-[14px]">
               <thead className="bg-paper text-[13px] text-muted border-b border-line">
                 <tr>

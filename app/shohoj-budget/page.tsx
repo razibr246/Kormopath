@@ -7,6 +7,7 @@ import {
   Smartphone,
 } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
+import { AppFooter } from "@/components/AppFooter";
 import { playClick, playCoinSound } from "@/lib/sound";
 import {
   CATEGORIES, categoryById, parseEntry, parseSms, summarizeMonth, budgetPace, splitBill, toCsv,
@@ -368,16 +369,16 @@ export default function ShohojBudgetPage() {
         accent="from-emerald-500 to-teal-700"
       />
 
-      <main id="main" className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6">
-        <section aria-labelledby="product-search-title" className="space-y-3 rounded-2xl border border-emerald-200 bg-white p-5 shadow-sm">
+      <main id="main" className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 motion-safe:animate-rise-in">
+        <section aria-labelledby="product-search-title" className="space-y-3 rounded-2xl border border-emerald-200/80 bg-white/80 backdrop-blur-md p-5 sm:p-6 shadow-xs hover:shadow-md transition-all">
           <div>
-            <h1 id="product-search-title" className="flex items-center gap-2 text-[20px] font-extrabold"><Search size={21} className="text-emerald-700" aria-hidden /> পণ্যের দাম ও তথ্য খুঁজুন</h1>
+            <h1 id="product-search-title" className="flex items-center gap-2 text-[20px] font-extrabold text-slate-900"><Search size={21} className="text-emerald-700" aria-hidden /> পণ্যের দাম ও তথ্য খুঁজুন</h1>
             <p className="mt-1 text-[13px] text-slate-600">পণ্যের নাম বা মডেল লিখুন। AI ওয়েবে খুঁজে পাওয়া অফার, দাম এবং পণ্যের ভালো-মন্দ দিক উৎসসহ সাজিয়ে দেবে।</p>
           </div>
           <form onSubmit={searchProduct} className="flex flex-col gap-2 sm:flex-row">
             <label htmlFor="product-query" className="sr-only">কোন পণ্য খুঁজবেন</label>
-            <input id="product-query" value={productQuery} maxLength={160} onChange={(event) => setProductQuery(event.target.value)} placeholder="যেমন: Redmi Note 14 8/256 GB" className="min-w-0 flex-1 rounded-xl border border-slate-200 px-4 py-3 text-[14px] outline-none focus:border-emerald-600" />
-            <button type="submit" disabled={productSearching || productQuery.trim().length < 2} className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 text-[14px] font-bold text-white hover:bg-emerald-800 disabled:cursor-wait disabled:opacity-50"><Search size={16} aria-hidden />{productSearching ? "ওয়েবে খোঁজা হচ্ছে…" : "দাম তুলনা করুন"}</button>
+            <input id="product-query" value={productQuery} maxLength={160} onChange={(event) => setProductQuery(event.target.value)} placeholder="যেমন: Redmi Note 14 8/256 GB" className="min-w-0 flex-1 rounded-xl border border-slate-200 px-4 py-3 text-[14px] outline-none focus:border-emerald-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff]" />
+            <button type="submit" disabled={productSearching || productQuery.trim().length < 2} className="min-h-[44px] inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 text-[14px] font-bold text-white hover:bg-emerald-800 disabled:cursor-wait disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] focus-visible:ring-offset-2 transition-all"><Search size={16} aria-hidden />{productSearching ? "ওয়েবে খোঁজা হচ্ছে…" : "দাম তুলনা করুন"}</button>
           </form>
           <p className="text-[11px] leading-relaxed text-slate-500">দারাজসহ ওয়েবে পাওয়া সাইট থেকে তথ্য আসতে পারে, তবে সব দোকান বা পুরো ইন্টারনেট কভার হয় না। দাম/স্টক বদলাতে পারে; কেনার আগে বিক্রেতার সাইটে যাচাই করুন।</p>
           {productSearchError && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-[13px] text-red-800">{productSearchError}</p>}
@@ -841,13 +842,14 @@ export default function ShohojBudgetPage() {
             {/* MFS cash-out calculator panel */}
             <MfsFeeCalculatorPanel />
 
-            <p className="text-[11px] leading-relaxed text-slate-500">
+            <p className="text-[12px] leading-relaxed text-slate-600">
               সব হিসাব এই ডিভাইসের ব্রাউজারে থাকে, অফলাইনেও কাজ করে (ভয়েস ছাড়া)। অনুমান ও পরামর্শ সাধারণ তথ্য, আর্থিক পরামর্শ নয়।{" "}
-              <Link href="/settings" className="font-semibold text-emerald-700 underline">ডেটা এক্সপোর্ট বা মুছুন</Link>
+              <Link href="/settings" className="font-semibold text-emerald-700 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] rounded">ডেটা এক্সপোর্ট বা মুছুন</Link>
             </p>
           </aside>
         </div>
       </main>
+      <AppFooter lang="bn" />
     </div>
   );
 }

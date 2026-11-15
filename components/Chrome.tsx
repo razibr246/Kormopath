@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { EcosystemLauncherButton } from "@/components/EcosystemHub";
 import { AppSwitcherDropdown } from "@/components/AppSwitcherDropdown";
+import { KormoPathLogo } from "@/components/KormoPathLogo";
 import { FX_FALLBACK } from "@/lib/data";
 import { Globe, ShieldCheck, Compass, Sparkles, ExternalLink, ArrowUpRight } from "lucide-react";
 
@@ -24,23 +25,8 @@ export function Navbar(props?: {
       <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between gap-4 px-4 sm:px-6">
         {/* Left: Official Brand & Logo */}
         <div className="flex min-w-0 items-center gap-5">
-          <Link href="/" className="flex items-center gap-2.5 group shrink-0">
-            <div className="relative h-10 w-10 overflow-hidden rounded-xl border border-white/15 bg-[#0a1226] p-0.5 shadow-sm group-hover:scale-105 transition-transform">
-              <img
-                src="/kormopath-logo.jpg"
-                alt="KormoPath Logo"
-                className="h-full w-full object-contain rounded-lg"
-              />
-            </div>
-            <div className="flex flex-col whitespace-nowrap">
-              <span className="display text-[20px] font-extrabold leading-none tracking-tight">
-                <span className="text-white">Kormo</span>
-                <span className="bg-gradient-to-r from-orange-500 via-amber-400 to-orange-400 bg-clip-text text-transparent">Path</span>
-              </span>
-              <span className="text-[10px] font-semibold text-slate-400 leading-tight mt-0.5">
-                কর্মপথ • Autonomous AI
-              </span>
-            </div>
+          <Link href="/" className="flex items-center group shrink-0" aria-label="KormoPath Home">
+            <KormoPathLogo theme="dark" variant="full" size="md" />
           </Link>
 
           {/* Center navigation: a few top-level destinations; individual apps live in the Ecosystem launcher. */}
@@ -141,20 +127,9 @@ export function Footer() {
         <div className="grid gap-8 md:grid-cols-4 pb-8 border-b border-line text-[14px]">
           {/* Col 1 */}
           <div className="space-y-3 md:col-span-1">
-            <div className="flex items-center gap-3">
-              <img
-                src="/kormopath-logo.jpg"
-                alt="KormoPath Logo"
-                className="h-10 w-auto rounded-lg object-contain shadow-xs border border-slate-200"
-              />
-              <div>
-                <span className="display text-[21px] font-extrabold block leading-tight">
-                  <span className="text-[#070d1e]">Kormo</span>
-                  <span className="bg-gradient-to-r from-orange-600 via-amber-500 to-orange-500 bg-clip-text text-transparent">Path</span>
-                </span>
-                <span className="text-[11px] font-medium text-slate-500 block leading-none">কর্মপথ • KormoPath</span>
-              </div>
-            </div>
+            <Link href="/" className="inline-block group" aria-label="KormoPath Home">
+              <KormoPathLogo theme="light" variant="full" size="md" />
+            </Link>
             <p className="text-[13px] text-muted leading-relaxed">
               The Autonomous Skill-to-Income, Legal &amp; FinOps Path for Bangladeshi Youth. Protecting 700K+ freelancers from commission drain and infrastructure blackouts.
             </p>

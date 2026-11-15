@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Percent, Download, Copy, CheckCircle2, AlertTriangle, RefreshCw, Scale, Trash2, Save, Info } from "lucide-react";
 import { AppHeader, SourceTag } from "@/components/AppHeader";
+import { AppFooter } from "@/components/AppFooter";
 import { FEES, FX_FALLBACK, TAX_RULES, MACRO, type Source } from "@/lib/data";
 import {
   compareChannels, best, checkInvariants, batchingSaving, effectiveCost, channelsToCsv, fmtBdt,
@@ -87,42 +88,42 @@ export default function FeeGuardPage() {
         }
       />
 
-      <main id="main" className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6">
-        <section className="flex flex-wrap items-end justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5">
+      <main id="main" className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 motion-safe:animate-rise-in">
+        <section className="flex flex-wrap items-end justify-between gap-4 rounded-2xl border border-slate-200/80 bg-white/80 backdrop-blur-md p-5 sm:p-6 shadow-xs hover:shadow-md transition-all">
           <div className="max-w-2xl">
-            <h1 className="text-[26px] font-extrabold leading-tight tracking-tight sm:text-[32px]">আপনার ইনভয়েসের কত টাকা আসলে হাতে আসে?</h1>
+            <h1 className="text-[26px] font-extrabold leading-tight tracking-tight text-slate-900 sm:text-[32px]">আপনার ইনভয়েসের কত টাকা আসলে হাতে আসে?</h1>
             <p className="mt-2 text-[15px] leading-relaxed text-slate-600">
               Fiverr-এর ২০% সার্ভিস ফি, Upwork-এর পরিবর্তনশীল ফি, উইথড্রয়াল চার্জ ও কারেন্সি রূপান্তর — প্রতিটি ধাপ আলাদা করে দেখায়। সব সংখ্যা নিচের উৎস থেকে, প্রয়োজনে নিজে বদলাতে পারবেন। এগুলো <strong>অনুমান</strong>; আসল খরচ মিলিয়ে দেখতে নিচের “বাস্তব যাচাই” ব্যবহার করুন।
             </p>
           </div>
-          <div className="min-w-[260px] rounded-2xl border-2 border-emerald-500 bg-emerald-50 p-4">
+          <div className="min-w-[260px] rounded-2xl border-2 border-emerald-500 bg-emerald-50/90 backdrop-blur-md p-4 shadow-xs">
             <span className="block text-[11px] font-bold uppercase tracking-wide text-emerald-800">এই ইনপুটে সবচেয়ে বেশি থাকে</span>
             <strong className="block text-[22px] font-extrabold text-emerald-800">{top.name}</strong>
-            <span className="text-[13px] text-emerald-900">{fmtBdt(top.netBdt)} · ইনভয়েসের {top.keptPct}%</span>
-            <span className="mt-1 block text-[11px] text-emerald-900/80">আনুমানিক, শর্ত নিচে দেখুন</span>
+            <span className="text-[13px] font-bold text-emerald-900">{fmtBdt(top.netBdt)} · ইনভয়েসের {top.keptPct}%</span>
+            <span className="mt-1 block text-[11px] text-emerald-800">আনুমানিক, শর্ত নিচে দেখুন</span>
           </div>
         </section>
 
         {/* Inputs */}
-        <section aria-label="ইনপুট" className="grid gap-5 rounded-2xl border border-slate-200 bg-white p-5 md:grid-cols-3">
+        <section aria-label="ইনপুট" className="grid gap-5 rounded-2xl border border-slate-200/80 bg-white/80 backdrop-blur-md p-5 shadow-xs md:grid-cols-3">
           <div className="space-y-2">
-            <label htmlFor="inv" className="flex items-center justify-between text-[14px] font-bold">
+            <label htmlFor="inv" className="flex items-center justify-between text-[14px] font-bold text-slate-900">
               মাসিক ইনভয়েস (USD)
-              <input id="inv" type="number" min={1} max={100000} value={invoiceUsd} onChange={(e) => setInvoiceUsd(Math.min(100000, Math.max(0, Number(e.target.value) || 0)))} className="w-28 rounded-lg border border-slate-200 px-2 py-1 text-right font-mono text-[16px] font-bold text-emerald-700" />
+              <input id="inv" type="number" min={1} max={100000} value={invoiceUsd} onChange={(e) => setInvoiceUsd(Math.min(100000, Math.max(0, Number(e.target.value) || 0)))} className="w-28 rounded-lg border border-slate-200 px-2 py-1 text-right font-mono text-[16px] font-bold text-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff]" />
             </label>
-            <input type="range" min={50} max={5000} step={50} value={Math.min(5000, invoiceUsd)} onChange={(e) => setInvoiceUsd(Number(e.target.value))} className="w-full accent-emerald-600" aria-label="ইনভয়েস স্লাইডার" />
+            <input type="range" min={50} max={5000} step={50} value={Math.min(5000, invoiceUsd)} onChange={(e) => setInvoiceUsd(Number(e.target.value))} className="w-full accent-emerald-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff]" aria-label="ইনভয়েস স্লাইডার" />
           </div>
           <div className="space-y-2">
-            <span className="block text-[14px] font-bold">মাসে কতবার টাকা তোলেন</span>
+            <span className="block text-[14px] font-bold text-slate-900">মাসে কতবার টাকা তোলেন</span>
             <div className="grid grid-cols-3 gap-2" role="group" aria-label="উইথড্রয়াল সংখ্যা">
               {[1, 2, 4].map((w) => (
-                <button key={w} aria-pressed={withdrawals === w} onClick={() => setWithdrawals(w)} className={`rounded-xl border py-2 text-[13px] font-bold ${withdrawals === w ? "border-emerald-600 bg-emerald-600 text-white" : "border-slate-200 bg-slate-50 text-slate-700"}`}>
+                <button key={w} aria-pressed={withdrawals === w} onClick={() => setWithdrawals(w)} className={`min-h-[44px] rounded-xl border py-2 text-[13px] font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] focus-visible:ring-offset-2 transition-all ${withdrawals === w ? "border-emerald-600 bg-emerald-600 text-white shadow-xs" : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"}`}>
                   {w === 1 ? "মাসে ১" : w === 2 ? "মাসে ২" : "সাপ্তাহিক"}
                 </button>
               ))}
             </div>
             {batching.savedBdt > 0 && (
-              <p className="text-[11px] text-slate-500">Fiverr-এ সাপ্তাহিকের বদলে মাসে একবার তুললে উইথড্রয়াল ফি-তে প্রায় {fmtBdt(batching.savedBdt)} কম যায়।</p>
+              <p className="text-[11px] text-slate-600">Fiverr-এ সাপ্তাহিকের বদলে মাসে একবার তুললে উইথড্রয়াল ফি-তে প্রায় {fmtBdt(batching.savedBdt)} কম যায়।</p>
             )}
           </div>
           <div className="space-y-2">
@@ -185,20 +186,20 @@ export default function FeeGuardPage() {
           </div>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {channels.map((c) => (
-              <article key={c.id} className={`flex flex-col rounded-2xl border-2 bg-white p-4 ${c.id === top.id ? "border-emerald-500 shadow-md" : CHANNEL_STYLE[c.id]}`}>
+              <article key={c.id} className={`flex flex-col rounded-2xl border-2 bg-white/90 backdrop-blur-md p-5 transition-all hover:shadow-md ${c.id === top.id ? "border-emerald-500 shadow-md ring-1 ring-emerald-400" : CHANNEL_STYLE[c.id]}`}>
                 <div className="flex items-center justify-between">
-                  <span className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase ${c.marketplace ? "bg-slate-100 text-slate-700" : "bg-emerald-100 text-emerald-800"}`}>{c.marketplace ? "মার্কেটপ্লেস" : "সরাসরি ক্লায়েন্ট"}</span>
+                  <span className={`rounded px-2.5 py-1 text-[11px] font-bold uppercase ${c.marketplace ? "bg-slate-100 text-slate-700" : "bg-emerald-100 text-emerald-800"}`}>{c.marketplace ? "মার্কেটপ্লেস" : "সরাসরি ক্লায়েন্ট"}</span>
                   {c.id === top.id && <span className="text-[11px] font-bold text-emerald-700">সবচেয়ে বেশি থাকে</span>}
                 </div>
-                <h3 className="mt-2 text-[16px] font-extrabold">{c.name}</h3>
-                <p className="text-[12px] text-slate-500">{c.route}</p>
+                <h3 className="mt-2 text-[16px] font-extrabold text-slate-900">{c.name}</h3>
+                <p className="text-[12px] text-slate-600">{c.route}</p>
                 <div className="mt-3 border-b border-slate-100 pb-3">
-                  <span className="block text-[11px] text-slate-500">আনুমানিক হাতে আসে</span>
-                  <strong className="font-mono text-[24px] font-extrabold">{fmtBdt(c.netBdt)}</strong>
-                  <span className="block text-[12px] font-semibold text-slate-500">ইনভয়েসের {c.keptPct}% · কাটা যায় {fmtBdt(c.grossBdt - c.netBdt)}</span>
+                  <span className="block text-[11px] text-slate-600 font-medium">আনুমানিক হাতে আসে</span>
+                  <strong className="font-mono text-[24px] font-extrabold text-slate-900">{fmtBdt(c.netBdt)}</strong>
+                  <span className="block text-[12px] font-semibold text-slate-600">ইনভয়েসের {c.keptPct}% · কাটা যায় {fmtBdt(c.grossBdt - c.netBdt)}</span>
                 </div>
                 <dl className="mt-3 flex-1 space-y-1.5 text-[12px]">
-                  <div className="flex justify-between"><dt className="text-slate-600">মোট ইনভয়েস</dt><dd className="font-mono font-bold">{fmtBdt(c.grossBdt)}</dd></div>
+                  <div className="flex justify-between"><dt className="text-slate-600">মোট ইনভয়েস</dt><dd className="font-mono font-bold text-slate-900">{fmtBdt(c.grossBdt)}</dd></div>
                   {c.steps.map((s) => (
                     <div key={s.label} className={`flex justify-between gap-2 ${s.bdt < 0 ? "text-red-700" : "font-bold text-emerald-700"}`}>
                       <dt>{s.label}</dt>
@@ -284,10 +285,11 @@ export default function FeeGuardPage() {
           </section>
         </div>
 
-        <p className="text-[12px] text-slate-500">
-          চুক্তি ও মাইলস্টোন ইনভয়েস দরকার? <Link href="/chuktiguard" className="font-semibold text-emerald-700 underline">ChuktiGuard</Link> · পুরো স্কিল-থেকে-আয় পাইপলাইন: <Link href="/workspace" className="font-semibold text-emerald-700 underline">KormoPath Workspace</Link>
+        <p className="text-[12px] text-slate-600">
+          চুক্তি ও মাইলস্টোন ইনভয়েস দরকার? <Link href="/chuktiguard" className="font-semibold text-emerald-700 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] rounded">ChuktiGuard</Link> · পুরো স্কিল-থেকে-আয় পাইপলাইন: <Link href="/workspace" className="font-semibold text-emerald-700 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] rounded">KormoPath Workspace</Link>
         </p>
       </main>
+      <AppFooter lang="bn" />
     </div>
   );
 }

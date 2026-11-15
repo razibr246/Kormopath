@@ -18,6 +18,7 @@ import {
   Sparkles,
   Zap,
   Code2,
+  ShieldCheck,
 } from "lucide-react";
 
 type SR = {
@@ -280,15 +281,37 @@ export function StageViva(props: {
 
         <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
           <div>
-            <textarea
-              value={props.code}
-              onChange={(e) => props.setCode(e.target.value)}
-              onKeyDown={onKey}
-              spellCheck={false}
-              rows={16}
-              className="w-full rounded-lg border border-ink/80 bg-[#14202f] p-3 font-mono text-[13px] leading-relaxed text-[#e6f0ea] outline-none focus:border-haldi"
-              aria-label="Code editor"
-            />
+            <div className="rounded-xl border border-slate-700/80 bg-[#0d1626] overflow-hidden shadow-lg">
+              {/* Line-numbered code editor chrome bar */}
+              <div className="flex items-center justify-between border-b border-slate-700/70 bg-[#08101e] px-4 py-2">
+                <div className="flex items-center gap-2">
+                  <span className="h-2.5 w-2.5 rounded-full bg-rose-500/80 inline-block" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-amber-500/80 inline-block" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-500/80 inline-block" />
+                  <span className="ml-2 font-mono text-[12px] font-semibold text-slate-300">
+                    {ch.title.toLowerCase().replace(/\s+/g, "-")}.ts
+                  </span>
+                </div>
+                <span className="text-[11px] font-mono text-slate-400">TypeScript · Web Worker Sandbox</span>
+              </div>
+              <div className="flex">
+                {/* Line numbers gutter */}
+                <div className="select-none py-3 pl-3 pr-2 font-mono text-[13px] leading-relaxed text-slate-500 text-right bg-[#09111f] border-r border-slate-800" aria-hidden="true">
+                  {Array.from({ length: Math.max(16, props.code.split("\n").length) }, (_, i) => (
+                    <div key={i + 1}>{i + 1}</div>
+                  ))}
+                </div>
+                <textarea
+                  value={props.code}
+                  onChange={(e) => props.setCode(e.target.value)}
+                  onKeyDown={onKey}
+                  spellCheck={false}
+                  rows={16}
+                  className="w-full bg-transparent p-3 font-mono text-[13px] leading-relaxed text-[#e6f0ea] outline-none focus:ring-1 focus:ring-kept/50 resize-y"
+                  aria-label="Code editor"
+                />
+              </div>
+            </div>
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <Btn onClick={props.onRun} disabled={props.running}>
                 {props.running ? <Loader2 size={16} className="animate-spin" /> : <Play size={16} />} Run Sandboxed Tests
@@ -335,31 +358,35 @@ export function StageViva(props: {
                 return (
                   <li
                     key={t.name}
-                    className={`rounded-lg border px-2.5 py-1.5 text-[13px] ${
+                    className={`rounded-xl border px-3 py-2 text-[13px] transition-all duration-200 hover:scale-[1.01] ${
                       !r
-                        ? "border-line bg-white"
+                        ? "border-line bg-white shadow-2xs"
                         : r.pass
-                        ? "border-kept/40 bg-kept-soft"
-                        : "border-leak/30 bg-leak-soft"
+                        ? "border-emerald-300 bg-emerald-50/60 shadow-xs"
+                        : "border-rose-300 bg-rose-50/60 shadow-xs"
                     }`}
                   >
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-2">
                       {r ? (
                         r.pass ? (
-                          <Check size={14} className="text-kept" />
+                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-white shrink-0">
+                            <Check size={13} className="stroke-[3]" />
+                          </span>
                         ) : (
-                          <X size={14} className="text-leak" />
+                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-white shrink-0">
+                            <X size={13} className="stroke-[3]" />
+                          </span>
                         )
                       ) : (
-                        <span className="h-3.5 w-3.5 rounded-full border border-line" />
+                        <span className="h-5 w-5 rounded-full border border-slate-300 bg-slate-50 shrink-0" />
                       )}
-                      <span className="font-semibold">{t.name}</span>
-                      <span className="ml-auto text-[11px] text-muted">
+                      <span className="font-semibold text-ink">{t.name}</span>
+                      <span className="ml-auto font-mono text-[11px] text-muted font-medium">
                         {t.kind}
                         {r ? ` · ${Math.round(r.ms)} ms` : ""}
                       </span>
                     </div>
-                    {r?.error && <p className="mt-0.5 pl-5 font-mono text-[11px] text-leak">{r.error}</p>}
+                    {r?.error && <p className="mt-1 pl-7 font-mono text-[11px] text-leak">{r.error}</p>}
                   </li>
                 );
               })}
@@ -395,43 +422,59 @@ export function StageViva(props: {
         </div>
       </Panel>
 
-      <Panel className="p-4 sm:p-5">
+      <Panel className={`p-4 sm:p-5 transition-all ${props.passport ? "passport-hologram rounded-2xl border-2 border-orange-400/50 shadow-xl relative overflow-hidden backdrop-blur-md" : ""}`}>
         {props.passport ? (
-          <div className="flex flex-wrap items-center gap-4">
-            <BadgeCheck size={44} className="text-kept" aria-hidden />
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <p className="display text-[20px] font-bold">KormoPath Verified Skill Passport {props.passport.id}</p>
-                <span className="rounded bg-kept px-2 py-0.5 text-[11px] font-bold text-white uppercase">
-                  SHA-256 Verified
-                </span>
+          <div className="relative">
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/30">
+                <BadgeCheck size={36} className="stroke-[2.2]" />
               </div>
-              <p className="text-[14px] text-muted">
-              HMAC স্বাক্ষরিত প্রমাণ। শেয়ার লিংকে নাম ও code fingerprint ডিফল্টভাবে গোপন থাকে।
-              </p>
-              <div className="mt-3 flex flex-wrap gap-3 text-xs">
-                {[ ["track", "Track"], ["challenge", "Challenge"], ["tests", "Test summary"], ["viva", "Viva score"] ].map(([key, label]) => <label key={key} className="inline-flex items-center gap-1"><input type="checkbox" checked={shareFields.includes(key)} onChange={(e) => setShareFields((f) => e.target.checked ? [...f, key] : f.filter((x) => x !== key))} />{label}</label>)}
-                <label className="inline-flex items-center gap-1">মেয়াদ <select value={shareDays} onChange={(e) => setShareDays(Number(e.target.value))} className="rounded border px-1"><option value={1}>১ দিন</option><option value={7}>৭ দিন</option><option value={30}>৩০ দিন</option></select></label>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="display text-[22px] font-extrabold text-[#070d1e] tracking-tight">
+                    KormoPath Verified Skill Passport {props.passport.id}
+                  </p>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2.5 py-0.5 text-[11px] font-extrabold text-white uppercase tracking-wider shadow-xs">
+                    <ShieldCheck size={12} /> SHA-256 Verified
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-slate-900 px-2 py-0.5 text-[10px] font-mono font-bold text-amber-300 uppercase">
+                    HMAC SEAL
+                  </span>
+                </div>
+                <p className="text-[14px] text-slate-700 mt-1 font-medium">
+                  HMAC স্বাক্ষরিত প্রমাণ। শেয়ার লিংকে নাম ও code fingerprint ডিফল্টভাবে গোপন থাকে।
+                </p>
+                <div className="mt-3 flex flex-wrap gap-3 text-xs font-medium text-slate-800">
+                  {[ ["track", "Track"], ["challenge", "Challenge"], ["tests", "Test summary"], ["viva", "Viva score"] ].map(([key, label]) => (
+                    <label key={key} className="inline-flex items-center gap-1.5 cursor-pointer">
+                      <input type="checkbox" checked={shareFields.includes(key)} onChange={(e) => setShareFields((f) => e.target.checked ? [...f, key] : f.filter((x) => x !== key))} className="accent-kept" />
+                      {label}
+                    </label>
+                  ))}
+                  <label className="inline-flex items-center gap-1 font-semibold text-slate-800">
+                    মেয়াদ <select value={shareDays} onChange={(e) => setShareDays(Number(e.target.value))} className="rounded-md border border-slate-300 bg-white px-2 py-0.5 text-xs"><option value={1}>১ দিন</option><option value={7}>৭ দিন</option><option value={30}>৩০ দিন</option></select>
+                  </label>
+                </div>
+                <p className="mt-1.5 text-xs text-slate-500">নাম, সাহায্য নেওয়ার তথ্য ও code fingerprint প্রকাশ হবে না। লিংক মেয়াদ শেষে অকার্যকর।</p>
+                {shareError && <p role="alert" className="mt-1 text-xs text-red-700 font-semibold">{shareError}</p>}
+                {link && <p className="mt-2 break-all font-mono text-[12px] text-slate-700 bg-white/80 p-2 rounded-lg border border-slate-200/80">{link}</p>}
               </div>
-              <p className="mt-1 text-xs text-muted">নাম, সাহায্য নেওয়ার তথ্য ও code fingerprint প্রকাশ হবে না। লিংক মেয়াদ শেষে অকার্যকর।</p>
-              {shareError && <p role="alert" className="mt-1 text-xs text-red-700">{shareError}</p>}
-              {link && <p className="mt-1 break-all font-mono text-[12px] text-muted">{link}</p>}
-            </div>
-            <div className="flex gap-2">
-              <Btn
-                variant="ghost"
-                onClick={() => link ? navigator.clipboard?.writeText(link).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1500); }) : void createShareLink()}
-              >
-                <Copy size={15} /> {copied ? "Copied" : link ? "Copy Link" : "Create share link"}
-              </Btn>
-              <a
-                href={link || undefined}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center rounded-lg bg-kept px-4 py-2.5 text-[15px] font-semibold text-white"
-              >
-                {link ? "View share proof" : "Create share link first"}
-              </a>
+              <div className="flex gap-2">
+                <Btn
+                  variant="ghost"
+                  onClick={() => link ? navigator.clipboard?.writeText(link).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1500); }) : void createShareLink()}
+                >
+                  <Copy size={15} /> {copied ? "Copied" : link ? "Copy Link" : "Create share link"}
+                </Btn>
+                <a
+                  href={link || undefined}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center rounded-xl bg-kept px-4 py-2.5 text-[15px] font-bold text-white shadow-md shadow-kept/30 hover:scale-[1.02] transition-all"
+                >
+                  {link ? "View share proof" : "Create share link first"}
+                </a>
+              </div>
             </div>
           </div>
         ) : (

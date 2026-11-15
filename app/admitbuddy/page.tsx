@@ -6,6 +6,7 @@ import {
   FileText, Bot, Info, AlertTriangle, ListChecks, Compass, Search,
 } from "lucide-react";
 import { AppHeader, SourceTag } from "@/components/AppHeader";
+import { AppFooter } from "@/components/AppFooter";
 import { saveUserProfile } from "@/lib/profile";
 import {
   UNIVERSITIES, OFFICIAL_RESOURCES, DOCUMENT_CHECKLIST, calculateMatches, generateDeadlines, validateUserDeadline,
@@ -106,34 +107,34 @@ export default function AdmitBuddyPage() {
     <div className="min-h-screen bg-[#f7f7fd] text-slate-900 antialiased">
       <AppHeader taglineEn="University admission planner" appId="admitbuddy" href="/admitbuddy" name="AdmitBuddy" taglineBn="বিশ্ববিদ্যালয় ভর্তির পরিকল্পনা ও ট্র্যাকার" icon={<GraduationCap size={22} />} accent="from-indigo-600 to-blue-700" />
 
-      <main id="main" className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6">
-        <section className="flex flex-wrap items-start justify-between gap-4 rounded-2xl border border-indigo-100 bg-white p-5">
+      <main id="main" className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 motion-safe:animate-rise-in">
+        <section className="flex flex-wrap items-start justify-between gap-4 rounded-2xl border border-indigo-100/80 bg-white/80 backdrop-blur-md p-5 sm:p-6 shadow-xs hover:shadow-md transition-all">
           <div className="max-w-2xl">
-            <h1 className="text-[26px] font-extrabold leading-tight tracking-tight sm:text-[32px]">কোথায় আবেদন করবেন, কবে, কী কী লাগবে — এক জায়গায়</h1>
+            <h1 className="text-[26px] font-extrabold leading-tight tracking-tight sm:text-[32px] text-slate-900">কোথায় আবেদন করবেন, কবে, কী কী লাগবে — এক জায়গায়</h1>
             <p className="mt-2 text-[15px] leading-relaxed text-slate-600">
               আপনার GPA, বাজেট ও পছন্দ অনুযায়ী {UNIVERSITIES.length}টি বিশ্ববিদ্যালয় সাজিয়ে দেখায়। ভর্তির তারিখ আমরা অনুমান করি না: অফিসিয়াল সার্কুলার প্রকাশিত হলে আপনি তারিখ ও উৎস যোগ করবেন, আমরা মনে করিয়ে দেব ও ক্যালেন্ডারে পাঠাব।
             </p>
           </div>
-          <div className="min-w-[250px] rounded-2xl border border-slate-200 bg-slate-50 p-4 text-[13px]">
+          <div className="min-w-[250px] rounded-2xl border border-slate-200/80 bg-slate-50/90 backdrop-blur-md p-4 text-[13px] shadow-xs">
             <div className="flex items-center justify-between">
-              <strong>{profile.name || "আপনার প্রোফাইল"}</strong>
-              <button onClick={() => setEditingProfile(!editingProfile)} className="text-[12px] font-bold text-indigo-700">{editingProfile ? "বন্ধ" : "এডিট"}</button>
+              <strong className="text-slate-900">{profile.name || "আপনার প্রোফাইল"}</strong>
+              <button onClick={() => setEditingProfile(!editingProfile)} className="text-[12px] font-bold text-indigo-700 hover:text-indigo-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] rounded">{editingProfile ? "বন্ধ" : "এডিট"}</button>
             </div>
             <p className="text-slate-600">SSC {profile.sscGpa.toFixed(2)} · HSC {profile.hscGpa.toFixed(2)} · {profile.group}</p>
             <p className="text-slate-600">বাজেট: ৳{profile.maxBudgetPerSemester.toLocaleString("en-IN")}/সেমিস্টার</p>
             {nextTask ? (
-              <p className="mt-2 rounded-lg bg-indigo-50 p-2 text-indigo-900">পরের কাজ: <strong>{nextTask.title}</strong> — {nextTask.dueDate}</p>
+              <p className="mt-2 rounded-lg bg-indigo-50 border border-indigo-100 p-2 text-indigo-900 font-medium">পরের কাজ: <strong>{nextTask.title}</strong> — {nextTask.dueDate}</p>
             ) : (
-              <p className="mt-2 text-[12px] text-slate-500">শর্টলিস্ট করে তারিখ যোগ করলে পরের কাজ এখানে দেখাবে।</p>
+              <p className="mt-2 text-[12px] text-slate-600">শর্টলিস্ট করে তারিখ যোগ করলে পরের কাজ এখানে দেখাবে।</p>
             )}
           </div>
         </section>
 
         {(editingProfile || profileEmpty) && <ProfileForm profile={profile} setProfile={setProfile} onDone={() => setEditingProfile(false)} />}
 
-        <nav className="flex gap-1 overflow-x-auto rounded-xl border border-slate-200 bg-white p-1" role="tablist" aria-label="AdmitBuddy">
+        <nav className="flex gap-1.5 overflow-x-auto scrollbar-none rounded-xl border border-slate-200/80 bg-white/80 backdrop-blur-md p-1.5 shadow-xs" role="tablist" aria-label="AdmitBuddy">
           {TABS.map((t) => (
-            <button key={t.id} role="tab" aria-selected={tab === t.id} onClick={() => setTab(t.id)} className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-[13px] font-bold ${tab === t.id ? "bg-indigo-600 text-white" : "text-slate-600 hover:bg-slate-100"}`}>
+            <button key={t.id} role="tab" aria-selected={tab === t.id} onClick={() => setTab(t.id)} className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3.5 py-2 text-[13px] font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] focus-visible:ring-offset-2 transition-all ${tab === t.id ? "bg-indigo-600 text-white shadow-xs" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"}`}>
               {t.icon} {t.label}
             </button>
           ))}
@@ -262,10 +263,11 @@ export default function AdmitBuddyPage() {
           </section>
         )}
 
-        <p className="text-[11px] text-slate-500">
-          সব তথ্য এই ডিভাইসে থাকে। ভর্তির সিদ্ধান্তের আগে প্রতিটি তথ্য অফিসিয়াল উৎসে মিলিয়ে নিন। <Link href="/settings" className="font-semibold text-indigo-700 underline">ডেটা এক্সপোর্ট/মুছুন</Link> · ভাইভা অনুশীলন: <Link href="/probaho" className="font-semibold text-indigo-700 underline">Probaho Coach</Link>
+        <p className="text-[12px] text-slate-600">
+          সব তথ্য এই ডিভাইসে থাকে। ভর্তির সিদ্ধান্তের আগে প্রতিটি তথ্য অফিসিয়াল উৎসে মিলিয়ে নিন। <Link href="/settings" className="font-semibold text-indigo-700 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] rounded">ডেটা এক্সপোর্ট/মুছুন</Link> · ভাইভা অনুশীলন: <Link href="/probaho" className="font-semibold text-indigo-700 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] rounded">Probaho Coach</Link>
         </p>
       </main>
+      <AppFooter lang="bn" />
     </div>
   );
 }

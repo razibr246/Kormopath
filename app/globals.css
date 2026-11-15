@@ -1,21 +1,57 @@
 @import "tailwindcss";
 
 @theme {
+  /* Brand Core Palette */
+  --color-brand-blue: #007aff;
+  --color-brand-blue-hover: #0062cc;
+  --color-brand-navy: #070d1e;
+  --color-brand-orange: #ea580c;
+  --color-brand-orange-light: #f97316;
+  --color-brand-orange-hover: #c2410c;
+  --color-brand-gold: #f59e0b;
+  --color-brand-teal: #0d9488;
+
+  /* Surfaces & Elevations */
   --color-paper: #f8fafc;
   --color-card: #ffffff;
-  --color-ink: #070d1e;
-  --color-muted: #526079;
+  --color-card-elevated: #ffffff;
+  --color-surface-subtle: #f1f5f9;
+  --color-surface-dark: #070d1e;
+  --color-surface-dark-elevated: #0d172c;
+  --color-surface-dark-card: #0a1226;
+  --color-surface-dark-border: rgba(255, 255, 255, 0.12);
   --color-line: #e2e8f0;
+  --color-line-dark: rgba(255, 255, 255, 0.1);
+
+  /* Multi-Color Typography Palette (WCAG AA Compliant) */
+  /* Light Backgrounds */
+  --color-text-primary: #070d1e;       /* 19.3:1 vs white - AAA */
+  --color-text-secondary: #334155;     /* 9.6:1 vs white - AAA */
+  --color-text-muted: #475569;         /* 5.7:1 vs white - AA */
+  --color-text-accent: #c2410c;        /* 5.96:1 vs white - AA (Accessible Orange) */
+  --color-text-interactive: #0369a1;   /* 5.93:1 vs white - AA (Sky-700) */
+  /* Dark Backgrounds */
+  --color-text-inverse-primary: #f8fafc;   /* 18.5:1 vs dark - AAA */
+  --color-text-inverse-secondary: #cbd5e1; /* 12.8:1 vs dark - AAA */
+  --color-text-inverse-muted: #94a3b8;     /* 7.66:1 vs dark - AA */
+  --color-text-inverse-accent: #fb923c;    /* 7.9:1 vs dark - AA */
+  --color-text-inverse-interactive: #38bdf8; /* 9.2:1 vs dark - AAA */
+
+  /* Semantic Feedback & State */
   --color-kept: #ea580c;
   --color-kept-soft: #fff7ed;
   --color-leak: #c62f3b;
   --color-leak-soft: #f9e2e4;
   --color-haldi: #f59e0b;
   --color-haldi-soft: #fef3c7;
-  --color-brand-blue: #007aff;
-  --color-brand-navy: #070d1e;
-  --color-brand-orange: #f97316;
-  --color-brand-gold: #f59e0b;
+  --color-success: #059669;
+  --color-success-soft: #ecfdf5;
+
+  /* Focus & Accessibility */
+  --color-focus-ring: #007aff;
+  --color-focus-ring-dark: #38bdf8;
+
+  /* Typography Stacks */
   --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter Variable", "Segoe UI", "Hind Siliguri", sans-serif;
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter Variable", "Segoe UI", "Hind Siliguri", sans-serif;
   --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
@@ -36,7 +72,7 @@ button, a, input, textarea, select { -webkit-tap-highlight-color: transparent; }
 button { transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease, border-color .18s ease, opacity .18s ease; }
 button:not(:disabled):active { transform: translateY(1px) scale(.99); }
 textarea, input:not([type="checkbox"]):not([type="range"]), select { transition: border-color .18s ease, box-shadow .18s ease; }
-textarea:focus, input:not([type="checkbox"]):not([type="range"]):focus, select:focus { box-shadow: 0 0 0 3px rgba(10, 107, 78, .1); }
+textarea:focus, input:not([type="checkbox"]):not([type="range"]):focus, select:focus { outline: none; border-color: var(--color-focus-ring); box-shadow: 0 0 0 3px rgba(0, 122, 255, .25); }
 .hero-section { position: relative; isolation: isolate; }
 .hero-section h1 { letter-spacing: -.045em; }
 .hero-section > div:first-child { animation: rise-in .7s cubic-bezier(.2,.8,.2,1) both; }
@@ -326,9 +362,42 @@ main section.rounded-2xl.border[class*="bg-white"],main section.rounded-3xl.bord
 @keyframes card-float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-6px); } }
 @keyframes screen-sheen { 0%,55% { transform:translateX(-100%); } 75%,100% { transform:translateX(100%); } }
 
-:focus-visible { outline: 3px solid var(--color-haldi); outline-offset: 2px; border-radius: 6px; }
+:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; border-radius: 6px; }
 .skip-link { position:fixed; z-index:100; top:8px; left:8px; transform:translateY(-160%); border-radius:10px; background:#070d1e; color:#fff; padding:10px 14px; font-weight:700; box-shadow:0 8px 24px rgba(7,13,30,.25); }
-.skip-link:focus { transform:translateY(0); }
+.skip-link:focus { transform:translateY(0); outline: 2px solid var(--color-focus-ring); outline-offset: 2px; }
+
+/* Staggered entrance animations */
+@keyframes fade-slide-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up {
+  animation: fade-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+
+/* Holographic foil shimmer for Skill Passport */
+@keyframes holographic-shimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.passport-hologram {
+  background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(249,115,22,0.12), rgba(59,130,246,0.12), rgba(255,255,255,0.05));
+  background-size: 300% 300%;
+  animation: holographic-shimmer 8s ease infinite;
+}
+
+/* Micro-interactions & elevated cards */
+.card-premium {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.card-premium:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px -8px rgba(7, 13, 30, 0.08), 0 4px 12px -2px rgba(7, 13, 30, 0.03);
+}
 
 /* The site uses frosted light cards globally; Buddy is a dark surface and must stay opaque. */
 .buddy-panel .buddy-intro,
@@ -363,8 +432,16 @@ input[type="range"] { accent-color: var(--color-kept); }
 @keyframes flow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 .bar-grow { transform-origin: left; animation: flow 700ms cubic-bezier(.2,.7,.2,1) both; }
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { scroll-behavior:auto !important; animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
-  .bar-grow { animation: none; }
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .bar-grow, .passport-hologram, .card-premium:hover, .card-premium, .animate-fade-up {
+    animation: none !important;
+    transform: none !important;
+  }
 }
 
 @media (max-width: 640px) {

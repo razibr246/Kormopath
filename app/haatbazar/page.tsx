@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Sprout, Phone, CloudRain, Wind, Thermometer, Truck, NotebookPen, Trash2, AlertTriangle, CheckCircle2, CalendarDays, Bug, Camera, ExternalLink } from "lucide-react";
 import { AppHeader, SourceTag } from "@/components/AppHeader";
+import { AppFooter } from "@/components/AppFooter";
 import { AgriculturalLifecycle } from "@/components/AgriculturalLifecycle";
 import { HaatMarket } from "@/components/HaatMarket";
 import {
@@ -40,14 +41,14 @@ export default function HaatBazarPage() {
         </div>
       </div>
 
-      <main id="main" className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6">
-        <section className="rounded-2xl border border-stone-200 bg-white p-5">
-          <h1 className="text-[26px] font-extrabold leading-tight tracking-tight sm:text-[32px]">দূরের মোকামে নেবেন, নাকি হাটেই বেচবেন? আগে হিসাব করে নিন।</h1>
+      <main id="main" className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 motion-safe:animate-rise-in">
+        <section className="rounded-2xl border border-stone-200/80 bg-white/80 backdrop-blur-md p-5 sm:p-6 shadow-xs hover:shadow-md transition-all">
+          <h1 className="text-[26px] font-extrabold leading-tight tracking-tight text-stone-900 sm:text-[32px]">দূরের মোকামে নেবেন, নাকি হাটেই বেচবেন? আগে হিসাব করে নিন।</h1>
           <p className="mt-2 max-w-3xl text-[15px] leading-relaxed text-stone-600">
             আজ যে দাম শুনেছেন তা লিখে রাখুন, পরিবহন-কমিশন-ঘাটতি বাদ দিয়ে আসল লাভ দেখুন, স্প্রে করার আগে আবহাওয়া দেখুন। আমরা নিজে থেকে কোনো বাজারদর বানাই না; দাম আপনার দেওয়া বা উৎসসহ দেখানো।
           </p>
           {season && (
-            <p className="mt-3 inline-flex flex-wrap items-center gap-2 rounded-xl bg-lime-50 px-3 py-2 text-[13px] text-lime-950">
+            <p className="mt-3 inline-flex flex-wrap items-center gap-2 rounded-xl bg-lime-50/90 border border-lime-200/80 px-3 py-2 text-[13px] text-lime-950 font-medium">
               <CalendarDays size={15} aria-hidden /> এখন <strong>{season.nameBn}</strong> ({season.monthsBn}) — প্রধান ফসল: {season.cropsBn}
             </p>
           )}
@@ -100,10 +101,11 @@ export default function HaatBazarPage() {
           <AgriculturalLifecycle />
         </section>
 
-        <p className="text-[11px] text-stone-500">
-          এটি সাধারণ তথ্য ও হিসাবের যন্ত্র। ফলন বা লাভের নিশ্চয়তা নয়। <Link href="/settings" className="font-semibold text-green-800 underline">সংরক্ষিত ডেটা</Link>
+        <p className="text-[12px] text-stone-600">
+          এটি সাধারণ তথ্য ও হিসাবের যন্ত্র। ফলন বা লাভের নিশ্চয়তা নয়। <Link href="/settings" className="font-semibold text-green-800 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] rounded">সংরক্ষিত ডেটা</Link>
         </p>
       </main>
+      <AppFooter lang="bn" />
     </div>
   );
 }
