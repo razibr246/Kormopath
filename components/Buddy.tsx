@@ -368,7 +368,7 @@ export function Buddy() {
   };
 
   return (
-    <aside aria-label="Buddy field assistant" className="fixed bottom-4 right-4 z-[70] print:hidden font-sans">
+    <aside aria-label="Buddy field assistant" className="buddy-root fixed bottom-4 right-4 z-[70] print:hidden font-sans">
       {open ? (
         <section
           aria-label="KormoPath Buddy assistant window"
@@ -752,28 +752,28 @@ export function Buddy() {
           </footer>
         </section>
       ) : (
-        /* Collapsed Floating Pill Launcher (Matching User Image 3) */
+        /* KormoPath Buddy floating launcher */
         <button
           type="button"
           onClick={() => setOpen(true)}
           aria-label="Open KormoPath Buddy assistant"
-          className="group flex items-center gap-2.5 rounded-full border border-teal-900/60 bg-[#07131b]/95 px-3 py-2 text-white shadow-2xl shadow-teal-950/60 backdrop-blur-xl hover:scale-105 active:scale-95 hover:border-teal-500/40 transition-all duration-200"
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          className="buddy-launcher group flex items-center gap-2.5 rounded-full border px-3 py-2 text-white backdrop-blur-xl transition-all duration-300"
         >
-          {/* Bezel Ring enclosing the Siri Sphere */}
-          <div className="relative">
-            <SiriOrb size="sm" active={false} />
+          <div className="buddy-launcher-orb" aria-hidden="true">
+            <SiriOrb size="md" active={false} />
           </div>
 
-          {/* Buddy Brand Text */}
-          <span className="text-[14px] font-bold text-white tracking-wide pr-0.5">
-            Buddy
+          <span className="buddy-launcher-copy">
+            <span className="buddy-launcher-eyebrow">KORMOPATH</span>
+            <span className="buddy-launcher-name">Buddy</span>
           </span>
 
-          {/* Cyan/Mint Outline Speech Bubble */}
           <MessageCircle
-            size={18}
-            strokeWidth={2}
-            className="text-emerald-400 group-hover:scale-110 transition-transform"
+            size={21}
+            strokeWidth={1.9}
+            className="buddy-launcher-chat"
             aria-hidden
           />
         </button>
