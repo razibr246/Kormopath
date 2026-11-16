@@ -257,7 +257,7 @@ export default function ChuktiGuardPage() {
 
             {/* Presets & Tab Switcher */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-              <div className="flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-100 p-1">
+              <div className="flex max-w-full flex-wrap items-center gap-1 rounded-xl border border-slate-200 bg-slate-100 p-1">
                 <button
                   onClick={() => setActiveTab("preview")}
                   className={`rounded-lg px-3 py-1 text-[13px] font-semibold transition-all ${

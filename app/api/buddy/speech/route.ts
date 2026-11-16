@@ -2,18 +2,18 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 import { Tracer } from "@/lib/trace";
+import { prepareBanglaSpeech, banglaShare } from "@/lib/banglaSpeech";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
 const Body = z.object({
-  text: z.string().trim().min(1).max(1400).superRefine((text, ctx) => {
-    if (!/[\u0980-\u09FF]/.test(text) || /[A-Za-z]/.test(text)) {
-      ctx.addIssue({ code: "custom", message: "শুধু বাংলা অক্ষরের লেখা পড়া যাবে।" });
-    }
-  }),
+  // Replies may mention product names in English; they are rewritten into Bengali script before speaking.
+  text: z.string().trim().min(1).max(4000),
 });
-const MODEL = process.env.GEMINI_TTS_MODEL || "gemini-3.1-flash-tts-preview";
+// Tried in order; a 404 (model not offered to this key) moves on to the next one.
+const MODELS = [...new Set([process.env.GEMINI_TTS_MODEL, "gemini-2.5-flash-preview-tts", "gemini-2.5-pro-preview-tts"].filter((m): m is string => Boolean(m)))];
+const VOICE = process.env.GEMINI_TTS_VOICE || "Kore";
 
 function pcmToWav(pcm: Buffer, sampleRate = 24_000): Buffer {
   if (pcm.length < 2 || pcm.length % 2 !== 0) throw new Error("Gemini returned invalid PCM audio");
@@ -40,7 +40,9 @@ export async function POST(req: Request) {
   if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
 
   const parsed = Body.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return NextResponse.json({ error: "বাংলা কণ্ঠে পড়ার জন্য ১–১৪০০ অক্ষরের লেখা দিন।" }, { status: 400 });
+  if (!parsed.success) return NextResponse.json({ error: "বাংলা কণ্ঠে পড়ার জন্য লেখা দিন।" }, { status: 400 });
+  const spoken = prepareBanglaSpeech(parsed.data.text);
+  if (!spoken || banglaShare(spoken) < 0.6) return NextResponse.json({ error: "শুধু বাংলা লেখা বাংলা কণ্ঠে পড়া হয়।" }, { status: 400 });
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return NextResponse.json({ error: "বাংলা কণ্ঠ চালাতে সার্ভারে GEMINI_API_KEY যোগ করতে হবে।" }, { status: 503 });
 
@@ -49,20 +51,27 @@ export async function POST(req: Request) {
   const timer = setTimeout(() => controller.abort(), 25_000);
   const started = performance.now();
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(MODEL)}:generateContent`, {
-      method: "POST",
-      signal: controller.signal,
-      headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: `বাংলাদেশের প্রমিত বাংলায় উষ্ণ, স্বাভাবিক ও স্পষ্ট কণ্ঠে শুধু নিচের বার্তাটি পড়ুন। ইংরেজি ভাষায় পড়বেন না, কোনো কথা যোগ বা বাদ দেবেন না।\n\nবার্তা:\n${parsed.data.text}` }] }],
-        generationConfig: {
-          responseModalities: ["AUDIO"],
-          speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } } },
-        },
-      }),
-    });
-    if (!response.ok) {
-      tracer.log(MODEL, `Gemini TTS returned HTTP ${response.status}`, "fail", Math.round(performance.now() - started));
+    let response: Response | null = null;
+    let MODEL = MODELS[0];
+    for (const model of MODELS) {
+      MODEL = model;
+      response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+        method: "POST",
+        signal: controller.signal,
+        headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: `বাংলাদেশের প্রমিত চলিত বাংলায়, ঢাকার শিক্ষিত বক্তার স্বাভাবিক উচ্চারণে পড়ুন। কণ্ঠ উষ্ণ, শান্ত ও বন্ধুসুলভ; গতি মাঝারি; প্রতিটি দাঁড়ি ও প্রশ্নবোধক চিহ্নে স্বাভাবিক বিরতি দিন। কলকাতার টান বা ইংরেজি উচ্চারণ নয়। কোনো শব্দ যোগ বা বাদ দেবেন না, শুধু নিচের বার্তাটি পড়ুন।\n\nবার্তা:\n${spoken}` }] }],
+          generationConfig: {
+            responseModalities: ["AUDIO"],
+            speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: VOICE } } },
+          },
+        }),
+      });
+      if (response.status !== 404) break;
+      tracer.log(model, "TTS model not available to this key (HTTP 404); trying the next model", "fail", Math.round(performance.now() - started));
+    }
+    if (!response || !response.ok) {
+      tracer.log(MODEL, `Gemini TTS returned HTTP ${response?.status ?? "none"}${response?.status === 401 || response?.status === 403 ? " (GEMINI_API_KEY rejected)" : ""}`, "fail", Math.round(performance.now() - started));
       return NextResponse.json({ error: "বাংলা কণ্ঠ তৈরি করা যায়নি। একটু পরে আবার চেষ্টা করুন।", trace: tracer.steps }, { status: 502 });
     }
 
@@ -77,7 +86,7 @@ export async function POST(req: Request) {
     tracer.log(MODEL, `Bangla speech generated (${wav.length} bytes)`, "ok", Math.round(performance.now() - started));
     return NextResponse.json({ audio: wav.toString("base64"), mimeType: "audio/wav", model: MODEL, trace: tracer.steps }, { headers: { "Cache-Control": "no-store" } });
   } catch {
-    tracer.log(MODEL, "Gemini TTS request failed", "fail", Math.round(performance.now() - started));
+    tracer.log(MODELS[0], "Gemini TTS request failed", "fail", Math.round(performance.now() - started));
     return NextResponse.json({ error: "বাংলা কণ্ঠে সংযোগ করা যায়নি। আবার চেষ্টা করুন।", trace: tracer.steps }, { status: 502 });
   } finally {
     clearTimeout(timer);

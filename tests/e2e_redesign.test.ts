@@ -255,7 +255,7 @@ describe("Tier 1 - Feature 5: Prefers-Reduced-Motion Compliance", () => {
 
   test("5.4 Buddy launcher glow and orb idle animations silenced in reduced motion", () => {
     const css = readProjectFile("app/globals.css");
-    assert.match(css, /\.buddy-launcher::before[^;]*animation:\s*none|\.buddy-launcher-orb[\s\S]*?animation:\s*none/, "Buddy launcher animations must be disabled in reduced motion");
+    assert.match(css, /prefers-reduced-motion: reduce\)\s*\{\s*\.kp-orb-halo, \.kp-orb-swirl, \.kp-orb-eye, \.kp-orb-active[^}]*animation:\s*none/, "Buddy orb halo, swirl and breathing must be disabled in reduced motion");
   });
 
   test("5.5 Bar growth and float animations disabled in reduced motion", () => {

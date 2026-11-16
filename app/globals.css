@@ -196,214 +196,126 @@ main section.rounded-2xl.border[class~="bg-white"],main section.rounded-3xl.bord
   filter: blur(2px); transform: rotate(-27deg);
 }
 
-/* Glossy 3D Siri / Chakra pearl sphere: a deep obsidian core with specular highlight and lower iridescent aurora (Attachments 2 & 3). */
-.siri-sphere {
+/* Buddy glowing pearl orb: warm KormoPath halo, frosted glass ring, slowly turning pastel core. */
+.kp-orb {
   position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
-  aspect-ratio: 1 / 1;
-  overflow: hidden;
   isolation: isolate;
-  background:
-    /* Top specular highlight */
-    radial-gradient(ellipse at 48% 22%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.4) 10%, rgba(255, 255, 255, 0) 32%),
-    /* Soft diffuse secondary light */
-    radial-gradient(ellipse at 50% 28%, rgba(210, 230, 245, 0.28) 0%, rgba(210, 230, 245, 0) 45%),
-    /* Deep carbon/obsidian sphere gradient */
-    radial-gradient(circle at 48% 38%, #20262e 0%, #13171e 38%, #090c10 72%, #040608 100%);
-  box-shadow:
-    0 12px 28px -4px rgba(0, 0, 0, 0.85),
-    0 0 24px rgba(45, 212, 191, 0.24),
-    0 0 45px rgba(212, 168, 67, 0.16),
-    inset -5px -7px 16px rgba(0, 0, 0, 0.95),
-    inset 1px 2px 5px rgba(255, 255, 255, 0.38);
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
 }
-
-.siri-sphere-bezel {
-  border: 1.5px solid rgba(212, 175, 85, 0.75);
-  box-shadow: 
-    0 0 0 1px rgba(0, 0, 0, 0.85),
-    inset 0 1px 2px rgba(255, 245, 215, 0.6),
-    0 2px 10px rgba(0, 0, 0, 0.7);
+.kp-orb-halo {
+  position: absolute;
+  inset: -42%;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(249, 115, 22, 0.5) 0%, rgba(245, 158, 11, 0.32) 30%, rgba(0, 122, 255, 0.16) 50%, transparent 70%);
+  filter: blur(10px);
+  pointer-events: none;
+  animation: kp-orb-halo 5s ease-in-out infinite;
 }
-
-.siri-sphere-inner {
+.kp-orb-ring {
   position: absolute;
   inset: 0;
-  z-index: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 247, 237, 0.06) 58%, rgba(255, 247, 237, 0.34) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.75), inset 0 -2px 6px rgba(234, 88, 12, 0.12), 0 8px 20px -8px rgba(124, 45, 18, 0.5);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.kp-orb-core {
+  position: absolute;
+  inset: 15%;
   border-radius: 50%;
   overflow: hidden;
-  background:
-    radial-gradient(ellipse at 48% 14%, rgba(255, 255, 255, 0.18), transparent 28%),
-    linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0% 45%, transparent 65%);
-  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.72);
+  background: #fde7d3;
+  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.75), 0 4px 16px rgba(234, 88, 12, 0.38), 0 0 22px rgba(245, 158, 11, 0.3);
 }
-.siri-sphere-inner::before {
-  content: "";
+.kp-orb-swirl {
   position: absolute;
-  left: -22%;
-  bottom: -28%;
-  width: 144%;
-  height: 76%;
-  border-radius: 50% 50% 0 0 / 28% 28% 0 0;
-  background:
-    /* Iridescent aurora: bronze gold left, cyan/teal center, emerald right */
-    radial-gradient(ellipse at 28% 68%, rgba(197, 160, 89, 0.68) 0%, transparent 42%),
-    radial-gradient(ellipse at 50% 50%, rgba(45, 212, 191, 0.78) 0%, transparent 38%),
-    radial-gradient(ellipse at 74% 65%, rgba(16, 185, 129, 0.62) 0%, transparent 42%),
-    linear-gradient(180deg, rgba(12, 28, 32, 0.22) 0%, rgba(32, 105, 98, 0.75) 38%, rgba(16, 62, 58, 0.92) 68%, rgba(5, 20, 22, 0.98) 100%);
-  background-size: 160% 160%;
-  filter: saturate(1.22);
-  animation: buddy-planet-current 7s ease-in-out infinite alternate, buddy-planet-color 12s linear infinite;
+  inset: -20%;
+  background: conic-gradient(from 200deg at 54% 52%, #fed7aa 0deg, #fb923c 50deg, #fcd34d 95deg, #fff7ed 150deg, #c7d2fe 205deg, #6b8cff 250deg, #f5b4c8 305deg, #fed7aa 360deg);
+  filter: blur(1.5px) saturate(1.08);
+  animation: kp-orb-spin 16s linear infinite;
 }
-
-.siri-sphere-sheen {
+.kp-orb-gloss {
   position: absolute;
-  z-index: 2;
-  top: 50%;
-  left: -12%;
-  width: 124%;
-  height: 10%;
+  inset: 0;
   border-radius: 50%;
-  background: linear-gradient(
-    90deg,
-    transparent 1%,
-    rgba(197, 160, 89, 0.25) 18%,
-    rgba(162, 244, 229, 0.82) 38%,
-    #fff8df 50%,
-    rgba(116, 231, 215, 0.84) 62%,
-    rgba(16, 185, 129, 0.3) 82%,
-    transparent 100%
-  );
-  box-shadow: 0 0 6px rgba(190, 255, 245, 0.9), 0 0 18px rgba(45, 212, 191, 0.72), 0 0 32px rgba(212, 175, 85, 0.32);
-  filter: blur(2.2px);
-  transform: rotate(-2.5deg);
-  animation: buddy-planet-horizon 7s ease-in-out infinite alternate;
-  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 34% 24%, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 42%),
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0) 58%, rgba(255, 255, 255, 0.4) 100%);
+  box-shadow: inset 0 -5px 10px rgba(124, 45, 18, 0.14);
+}
+.kp-orb-eye {
+  position: absolute;
+  top: 26%;
+  left: 55%;
+  width: 11%;
+  height: 11%;
+  min-width: 4px;
+  min-height: 4px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.9), inset 0 0 2px rgba(234, 88, 12, 0.45);
+  animation: kp-orb-blink 7s ease-in-out infinite;
+}
+.kp-orb-active { animation: kp-orb-breathe 1.8s ease-in-out infinite; }
+.kp-orb-active .kp-orb-halo { animation-duration: 1.6s; }
+.kp-orb-active .kp-orb-swirl { animation-duration: 3.5s; }
+
+@keyframes kp-orb-halo {
+  0%, 100% { opacity: 0.7; transform: scale(0.96); }
+  50% { opacity: 1; transform: scale(1.06); }
+}
+@keyframes kp-orb-spin { to { transform: rotate(360deg); } }
+@keyframes kp-orb-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+@keyframes kp-orb-blink {
+  0%, 92%, 100% { transform: scale(1); opacity: 1; }
+  95% { transform: scale(0.4); opacity: 0.6; }
 }
 
-/* KormoPath Buddy floating launcher capsule dock (Attachment 4) */
-.buddy-dock {
+/* Collapsed Buddy launcher: the orb itself, with a small Bangla name tag. */
+.buddy-orb-launcher {
   position: relative;
-  isolation: isolate;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 5px 16px 5px 6px;
-  border-radius: 9999px;
-  background: rgba(8, 16, 22, 0.95);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1.5px solid rgba(27, 61, 54, 0.9);
-  box-shadow: 
-    0 12px 30px -4px rgba(0, 0, 0, 0.8),
-    0 0 20px rgba(45, 212, 191, 0.16),
-    inset 0 1px 1px rgba(255, 255, 255, 0.16);
-  transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
-  cursor: pointer;
-}
-.buddy-dock:hover {
-  transform: translateY(-2px) scale(1.05);
-  border-color: rgba(45, 212, 191, 0.65);
-  box-shadow: 
-    0 16px 36px -4px rgba(0, 0, 0, 0.9),
-    0 0 28px rgba(45, 212, 191, 0.3),
-    inset 0 1px 1px rgba(255, 255, 255, 0.26);
-}
-.buddy-dock:active {
-  transform: scale(0.96);
-}
-
-.buddy-dock-lens {
-  position: relative;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(212, 175, 85, 0.85);
-  box-shadow: 0 0 10px rgba(212, 175, 85, 0.35), inset 0 1px 2px rgba(255, 255, 255, 0.3);
-  background: #020608;
-  padding: 1.5px;
   display: grid;
   place-items: center;
-  overflow: hidden;
-  shrink: 0;
+  padding: 10px;
+  border: 0;
+  border-radius: 9999px;
+  background: transparent;
+  cursor: pointer;
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-
-.buddy-dock-sparkle {
+.buddy-orb-launcher:hover { transform: translateY(-2px) scale(1.06); }
+.buddy-orb-launcher:active { transform: scale(0.95); }
+.buddy-orb-label {
   position: absolute;
-  inset: 0;
-  margin: auto;
-  width: 14px;
-  height: 14px;
-  color: #fff8df;
-  filter: drop-shadow(0 0 4px rgba(255, 248, 223, 0.95));
-  pointer-events: none;
-  animation: buddy-sparkle-glow 3s ease-in-out infinite alternate;
-}
-
-@keyframes buddy-sparkle-glow {
-  0% { transform: scale(0.92) rotate(0deg); opacity: 0.85; }
-  50% { transform: scale(1.1) rotate(90deg); opacity: 1; }
-  100% { transform: scale(0.92) rotate(180deg); opacity: 0.85; }
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 1px 9px;
+  border-radius: 9999px;
+  border: 1px solid rgba(245, 158, 11, 0.55);
+  background: rgba(7, 13, 30, 0.88);
+  color: #fff7ed;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.5;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px -4px rgba(7, 13, 30, 0.6);
 }
 
 .buddy-root { right: max(1rem, env(safe-area-inset-right)); bottom: max(1rem, env(safe-area-inset-bottom)); }
 
-@keyframes buddy-launcher-glow {
-  0%,100% { opacity:.34; filter:blur(12px) hue-rotate(0deg); }
-  50% { opacity:.76; filter:blur(17px) hue-rotate(90deg); }
-}
-@keyframes buddy-orb-idle {
-  0%,100% { transform:scale(1); filter:saturate(.94); }
-  50% { transform:scale(1.035); filter:saturate(1.12); }
-}
-@keyframes buddy-planet-current {
-  0% { transform:translate(-2.5%,2%) scale(1.02); }
-  50% { transform:translate(1.5%,-1%) scale(1.04); }
-  100% { transform:translate(3%,1.5%) scale(1.02); }
-}
-@keyframes buddy-planet-color {
-  0% { background-position:0% 20%,50% 50%; filter:hue-rotate(0deg) saturate(1.05); }
-  50% { background-position:78% 75%,20% 80%; filter:hue-rotate(110deg) saturate(1.3); }
-  100% { background-position:0% 20%,50% 50%; filter:hue-rotate(360deg) saturate(1.05); }
-}
-@keyframes buddy-planet-horizon {
-  0% { transform:translate(-2%,1%) rotate(-4deg); opacity:.82; }
-  50% { transform:translate(1%,-1%) rotate(-1deg); opacity:1; }
-  100% { transform:translate(3%,1%) rotate(2deg); opacity:.88; }
-}
-
-@media (max-width: 480px) {
-  .buddy-launcher { width:76px; height:76px; }
-}
 @media (prefers-reduced-motion: reduce) {
-  .buddy-launcher::before, .buddy-launcher-orb .siri-sphere { animation:none; }
-  /* Keep the aurora's color drift while removing spatial movement. */
-  .siri-sphere-inner::before { animation-name:buddy-planet-color!important; animation-duration:30s!important; animation-timing-function:linear!important; animation-iteration-count:infinite!important; animation-direction:normal!important; }
-  .siri-sphere-sheen { animation:none!important; }
-}
-
-@keyframes siri-breathe {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 
-      0 0 24px rgba(45, 212, 191, 0.4),
-      0 0 50px rgba(234, 179, 8, 0.22),
-      inset -6px -8px 16px rgba(0, 0, 0, 0.9),
-      inset 0 3px 6px rgba(255, 255, 255, 0.6);
-  }
-  50% {
-    transform: scale(1.06);
-    box-shadow: 
-      0 0 36px rgba(45, 212, 191, 0.7),
-      0 0 65px rgba(234, 179, 8, 0.38),
-      inset -6px -8px 16px rgba(0, 0, 0, 0.85),
-      inset 0 3px 6px rgba(255, 255, 255, 0.85);
-  }
-}
-
-.siri-active {
-  animation: siri-breathe 2.4s infinite ease-in-out;
+  .kp-orb-halo, .kp-orb-swirl, .kp-orb-eye, .kp-orb-active, .buddy-orb-launcher { animation: none !important; transition: none !important; }
 }
 @keyframes rise-in { from { opacity:0;transform:translateY(12px); } to { opacity:1;transform:translateY(0); } }
 @keyframes stage-in { from { opacity:0; } to { opacity:1; } }

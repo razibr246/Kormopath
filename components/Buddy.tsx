@@ -19,6 +19,7 @@ import {
   Globe,
   Sparkles,
 } from "lucide-react";
+import { banglaShare, prepareBanglaSpeech } from "@/lib/banglaSpeech";
 
 export const CREW_APPS = [
   { id: "haatbazar", name: "HaatBazar AI", tag: "কৃষি ও আবহাওয়া", route: "/haatbazar", icon: "🌾" },
@@ -201,48 +202,54 @@ const APP_TASKS: Record<AppId, Array<{ title: string; desc: string; query: strin
 };
 
 /**
- * Photorealistic 3D Siri / Chakra pearl sphere (Attachments 2 & 3).
+ * Glowing pearl orb: a warm KormoPath halo, a frosted glass ring and a slowly turning
+ * pastel core (orange, haldi gold, brand blue). `active` makes it breathe while Buddy
+ * listens or speaks.
  */
 export function SiriOrb({
   size = "md",
   active = false,
   onClick,
+  label = "Toggle voice speaking or listening",
 }: {
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
   active?: boolean;
   onClick?: () => void;
+  label?: string;
 }) {
   const dimensions =
     size === "sm"
       ? "h-7 w-7"
       : size === "lg"
       ? "h-[68px] w-[68px] sm:h-[76px] sm:w-[76px]"
+      : size === "xl"
+      ? "h-[64px] w-[64px] sm:h-[72px] sm:w-[72px]"
       : "h-11 w-11";
 
-  const sphere = (
-    <div className={`siri-sphere w-full h-full ${active ? "siri-active" : ""}`}>
-      <div className="siri-sphere-inner" />
-      <div className="siri-sphere-sheen" />
-    </div>
+  const orb = (
+    <span className={`kp-orb ${active ? "kp-orb-active" : ""}`} aria-hidden="true">
+      <span className="kp-orb-halo" />
+      <span className="kp-orb-ring" />
+      <span className="kp-orb-core">
+        <span className="kp-orb-swirl" />
+        <span className="kp-orb-gloss" />
+      </span>
+      <span className="kp-orb-eye" />
+    </span>
   );
 
-  const className = `relative grid shrink-0 place-items-center rounded-full siri-sphere-bezel ${dimensions} ${
-    onClick ? "cursor-pointer hover:scale-105 active:scale-95 transition-transform" : ""
+  const className = `relative grid shrink-0 place-items-center rounded-full ${dimensions} ${
+    onClick ? "cursor-pointer transition-transform hover:scale-105 active:scale-95" : ""
   }`;
 
   return onClick ? (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label="Toggle voice speaking or listening"
-      className={`${className} border-0 bg-transparent p-0 outline-none`}
-    >
-      {sphere}
+    <button type="button" onClick={onClick} aria-label={label} className={`${className} border-0 bg-transparent p-0`}>
+      {orb}
     </button>
   ) : (
-    <div className={className} aria-hidden="true">
-      {sphere}
-    </div>
+    <span className={className} aria-hidden="true">
+      {orb}
+    </span>
   );
 }
 
@@ -251,7 +258,7 @@ export function Buddy() {
   const routeApp = appForPath(pathname);
   const [selectedApp, setSelectedApp] = useState<AppId>(routeApp);
   const [open, setOpen] = useState(false);
-  const [mode, setMode] = useState<AssistantMode>("manual");
+  const [mode, setMode] = useState<AssistantMode>("agent");
   const [tab, setTab] = useState<AssistantTab>("talk");
   const [deepThinking, setDeepThinking] = useState(true);
   const [browseEnabled, setBrowseEnabled] = useState(false);
@@ -260,12 +267,15 @@ export function Buddy() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [showKeyboard, setShowKeyboard] = useState(false);
-  const [chipLang, setChipLang] = useState<"en" | "bn">("en");
+  // Bangla first: replies, suggestions, speech recognition and voice all follow this.
+  const [chipLang, setChipLang] = useState<"en" | "bn">("bn");
+  const [voiceNote, setVoiceNote] = useState("");
+  const bn = chipLang === "bn";
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
       content:
-        "First, 0 days to plant mustard. Get seed and fertiliser ready and confirm the plan. Then, Keep an eye on the field problem. If it grows, send a report or consult Krishi 16123.",
+        "আসসালামু আলাইকুম, আমি বাডি, আপনার বাংলা সহকারী। নিচের কোনো প্রশ্ন বেছে নিন, লিখুন, অথবা গোলকটি ছুঁয়ে বাংলায় কথা বলুন।",
     },
   ]);
   const [input, setInput] = useState("");
@@ -317,31 +327,59 @@ export function Buddy() {
 
   const fallbackDeviceVoice = (text: string) => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-      setIsSpeaking(false);
-      setIsNaturalVoice(false);
+      setVoiceNote(chipLang === "bn" ? "এই ব্রাউজারে কণ্ঠ চালানো যায় না।" : "This browser cannot speak.");
+      stopSpeaking();
       return;
     }
-    try {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      const voices = window.speechSynthesis.getVoices();
-      const bnVoice = voices.find((v) => v.lang.startsWith("bn") || v.lang.includes("BD"));
-      if (bnVoice) utterance.voice = bnVoice;
-      utterance.onstart = () => {
-        setIsNaturalVoice(false);
-        setIsSpeaking(true);
-      };
-      utterance.onend = () => stopSpeaking();
-      utterance.onerror = () => stopSpeaking();
-      window.speechSynthesis.speak(utterance);
-    } catch {
-      stopSpeaking();
-    }
+    const isBangla = banglaShare(text) >= 0.5;
+    const synth = window.speechSynthesis;
+    const pickVoice = () => {
+      const voices = synth.getVoices();
+      return isBangla
+        ? voices.find((v) => v.lang === "bn-BD") ?? voices.find((v) => v.lang.toLowerCase().startsWith("bn"))
+        : voices.find((v) => v.lang.toLowerCase().startsWith("en"));
+    };
+    const run = () => {
+      try {
+        synth.cancel();
+        const voice = pickVoice();
+        // An English voice reading Bengali script produces noise, so say so instead of speaking.
+        if (isBangla && !voice) {
+          setVoiceNote("এই ডিভাইসে বাংলা কণ্ঠ নেই; উত্তরটি পড়ে নিন।");
+          stopSpeaking();
+          return;
+        }
+        const utterance = new SpeechSynthesisUtterance(isBangla ? prepareBanglaSpeech(text) : text);
+        utterance.lang = isBangla ? "bn-BD" : "en-US";
+        if (voice) utterance.voice = voice;
+        utterance.rate = isBangla ? 0.95 : 1;
+        utterance.onstart = () => {
+          setIsNaturalVoice(false);
+          setIsSpeaking(true);
+        };
+        utterance.onend = () => stopSpeaking();
+        utterance.onerror = () => stopSpeaking();
+        synth.speak(utterance);
+      } catch {
+        stopSpeaking();
+      }
+    };
+    // Voices load asynchronously on first use in Chrome.
+    if (synth.getVoices().length === 0) {
+      synth.addEventListener("voiceschanged", run, { once: true });
+      window.setTimeout(() => { if (!synth.speaking) run(); }, 800);
+    } else run();
   };
 
   const speak = async (text: string) => {
     if (!voiceEnabled || typeof window === "undefined") return;
     stopSpeaking();
+    setVoiceNote("");
+    // The natural (Gemini) voice is a Bangla voice; English replies use the device voice.
+    if (banglaShare(text) < 0.5) {
+      fallbackDeviceVoice(text);
+      return;
+    }
 
     // 1. Try server Gemini TTS for Bengali audio
     const controller = new AbortController();
@@ -473,6 +511,7 @@ export function Buddy() {
         body: JSON.stringify({
           appId: selectedApp,
           mode,
+          lang: chipLang,
           deepThinking,
           browse: browseEnabled && selectedApp !== "mediscan",
           messages: nextMessages.slice(-8),
@@ -557,10 +596,10 @@ export function Buddy() {
               </div>
               <div className="text-center">
                 <span className="block text-[15px] font-bold tracking-tight text-white leading-tight">
-                  Chakra Agent
+                  {bn ? "বাডি · চক্র এজেন্ট" : "Chakra Agent"}
                 </span>
                 <span className="block text-[12px] text-slate-400 leading-tight mt-0.5">
-                  Your field assistant
+                  {bn ? "আপনার বাংলা সহকারী" : "Your field assistant"}
                 </span>
               </div>
             </div>
@@ -571,7 +610,7 @@ export function Buddy() {
               onClick={() => setMode(mode === "manual" ? "agent" : "manual")}
               className="rounded-full bg-white/10 hover:bg-white/15 px-3 py-1 text-[12px] font-medium text-slate-200 transition-colors cursor-pointer border border-white/5"
             >
-              {mode === "manual" ? "Manual" : "Agent"}
+              {mode === "manual" ? (bn ? "পরামর্শ" : "Manual") : (bn ? "এজেন্ট" : "Agent")}
             </button>
           </header>
 
@@ -587,7 +626,7 @@ export function Buddy() {
                     : "text-slate-300 font-medium hover:text-white"
                 }`}
               >
-                Manual
+                {bn ? "পরামর্শ" : "Manual"}
               </button>
               <button
                 type="button"
@@ -598,15 +637,15 @@ export function Buddy() {
                     : "text-slate-300 font-medium hover:text-white"
                 }`}
               >
-                Agent
+                {bn ? "এজেন্ট" : "Agent"}
               </button>
             </div>
 
             {/* Mode Description Caption */}
             <p className="mt-2 text-[12px] text-slate-400 leading-snug">
               {mode === "manual"
-                ? "The agent only suggests; you do every step yourself."
-                : "The agent plans proactive steps; you review and confirm each action."}
+                ? bn ? "বাডি শুধু পরামর্শ দেয়; প্রতিটি ধাপ আপনি নিজে করেন।" : "The agent only suggests; you do every step yourself."
+                : bn ? "বাডি এগিয়ে থেকে পরের ধাপ সাজায়; প্রতিটি কাজ আপনি দেখে নিশ্চিত করেন।" : "The agent plans proactive steps; you review and confirm each action."}
             </p>
 
             {/* Deep Thinking Mode Chip */}
@@ -622,14 +661,14 @@ export function Buddy() {
                 }`}
               >
                 <Brain size={14} className={deepThinking ? "text-emerald-400" : "text-slate-400"} />
-                <span>Deep thinking</span>
+                <span>{bn ? "গভীর চিন্তা" : "Deep thinking"}</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setChipLang(chipLang === "en" ? "bn" : "en")}
                 className="rounded-full border border-slate-700 bg-slate-800/80 px-2.5 py-1 text-[11px] font-bold text-slate-300 hover:text-white"
-                title="Switch suggestion language"
+                title={bn ? "উত্তর ও কণ্ঠের ভাষা বদলান" : "Switch reply and voice language"}
               >
                 {chipLang === "en" ? "EN" : "বাংলা"}
               </button>
@@ -651,7 +690,7 @@ export function Buddy() {
               }`}
             >
               <MessageCircle size={15} />
-              <span>Talk</span>
+              <span>{bn ? "কথা" : "Talk"}</span>
             </button>
 
             <button
@@ -665,7 +704,7 @@ export function Buddy() {
             >
               <CheckSquare size={15} />
               <span>
-                Tasks <span className="ml-0.5 rounded-full bg-slate-800 border border-slate-700 px-1.5 py-0.2 text-[10px] text-slate-300">1</span>
+                {bn ? "কাজ" : "Tasks"} <span className="ml-0.5 rounded-full bg-slate-800 border border-slate-700 px-1.5 py-0.2 text-[10px] text-slate-300">1</span>
               </span>
             </button>
 
@@ -679,7 +718,7 @@ export function Buddy() {
               }`}
             >
               <Users size={15} />
-              <span>Crew</span>
+              <span>{bn ? "দল" : "Crew"}</span>
             </button>
 
             <button
@@ -692,7 +731,7 @@ export function Buddy() {
               }`}
             >
               <Compass size={15} />
-              <span>Path</span>
+              <span>{bn ? "পথ" : "Path"}</span>
             </button>
 
             <button
@@ -705,7 +744,7 @@ export function Buddy() {
               }`}
             >
               <ShieldCheck size={15} />
-              <span>Security</span>
+              <span>{bn ? "নিরাপত্তা" : "Security"}</span>
             </button>
           </nav>
 
@@ -740,7 +779,7 @@ export function Buddy() {
                   }`}
                 >
                   <Globe size={13} />
-                  <span>Search web</span>
+                  <span>{bn ? "ওয়েবে খুঁজুন" : "Search web"}</span>
                 </button>
               </div>
 
@@ -937,7 +976,7 @@ export function Buddy() {
                 rows={2}
                 onChange={(event) => setInput(event.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask Chakra Agent anything…"
+                placeholder={bn ? "বাংলায় যেকোনো প্রশ্ন লিখুন…" : "Ask Chakra Agent anything…"}
                 className="max-h-24 min-h-10 flex-1 resize-y rounded-xl border border-white/10 bg-slate-900/90 px-3 py-2 text-[12.5px] text-white outline-none placeholder:text-slate-500 focus:border-emerald-400"
               />
               <button
@@ -993,10 +1032,18 @@ export function Buddy() {
               </button>
             </div>
 
-            {/* Status Captions Below Orb (Attachment 2) */}
-            <div className="mt-2.5 text-center">
+            {/* Status captions below the orb */}
+            <div className="mt-2.5 text-center" aria-live="polite">
               <span className="block text-[12.5px] font-semibold text-slate-300 leading-snug">
-                {isSpeaking
+                {chipLang === "bn"
+                  ? isSpeaking
+                    ? "বলছি… থামাতে গোলকটি ছুঁয়ে দিন"
+                    : speechLoading
+                    ? "কণ্ঠ তৈরি হচ্ছে…"
+                    : isListening
+                    ? "শুনছি… এখন বলুন"
+                    : "কথা বলতে গোলকটি ছুঁয়ে দিন"
+                  : isSpeaking
                   ? "Speaking... tap to stop"
                   : speechLoading
                   ? "Preparing voice audio…"
@@ -1004,54 +1051,33 @@ export function Buddy() {
                   ? "Listening... speak now"
                   : "Tap orb to speak"}
               </span>
-              <span className="block text-[11px] text-[#dea123] font-medium mt-0.5 leading-snug">
-                {isSpeaking
+              <span className="block text-[11px] text-[#f5b14a] font-medium mt-0.5 leading-snug">
+                {voiceNote
+                  ? voiceNote
+                  : isSpeaking
                   ? isNaturalVoice
-                    ? "Natural voice speaks."
-                    : "Natural voice is off; the device voice speaks."
+                    ? chipLang === "bn" ? "স্বাভাবিক বাংলা কণ্ঠে বলছি।" : "Natural voice speaks."
+                    : chipLang === "bn" ? "ডিভাইসের কণ্ঠে বলছি।" : "The device voice speaks."
                   : voiceEnabled
-                  ? "Natural voice ready · tap to speak"
-                  : "Voice audio muted"}
+                  ? chipLang === "bn" ? "বাংলা কণ্ঠ চালু" : "Voice on"
+                  : chipLang === "bn" ? "কণ্ঠ বন্ধ" : "Voice muted"}
               </span>
             </div>
           </footer>
         </section>
       ) : (
-        /* Collapsed Floating Launcher Pill Dock (Attachment 4) */
+        /* Collapsed launcher: the glowing Buddy orb */
         <button
           type="button"
           onClick={() => setOpen(true)}
-          aria-label="Open Chakra Agent Buddy"
+          aria-label="বাডি খুলুন (Open Buddy assistant)"
           aria-haspopup="dialog"
           aria-expanded={open}
-          className="buddy-dock group"
+          title="বাডি · বাংলা সহকারী"
+          className="buddy-orb-launcher group"
         >
-          {/* Bezeled Lens with Iridescent 3D Orb & Glowing Star */}
-          <div className="buddy-dock-lens" aria-hidden="true">
-            <SiriOrb size="sm" active={false} />
-            <svg viewBox="0 0 24 24" className="buddy-dock-sparkle" fill="currentColor">
-              <path d="M12 0C12 6.627 6.627 12 0 12C6.627 12 12 17.373 12 24C12 17.373 17.373 12 24 12C17.373 12 12 6.627 12 0Z" />
-            </svg>
-          </div>
-
-          {/* Typography: Buddy */}
-          <span className="text-[15px] font-bold text-white tracking-tight">
-            Buddy
-          </span>
-
-          {/* Mint Green Outline Speech Bubble */}
-          <svg
-            viewBox="0 0 24 24"
-            className="h-4.5 w-4.5 text-[#34d399] transition-transform group-hover:scale-110"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-          </svg>
+          <SiriOrb size="xl" />
+          <span className="buddy-orb-label">বাডি</span>
         </button>
       )}
     </aside>

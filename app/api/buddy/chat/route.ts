@@ -3,6 +3,7 @@ import { z } from "zod";
 import { structured, llmAvailable, modelName } from "@/lib/llm";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 import { Tracer } from "@/lib/trace";
+import { banglaShare } from "@/lib/banglaSpeech";
 
 export const runtime = "nodejs";
 export const maxDuration = 35;
@@ -11,7 +12,8 @@ const AppId = z.enum(["kormopath", "path", "chuktiguard", "feeguard", "admitbudd
 const Body = z.object({
   appId: AppId,
   messages: z.array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().trim().min(1).max(1200) })).min(1).max(10),
-  mode: z.enum(["manual", "agent"]).default("manual"),
+  mode: z.enum(["manual", "agent"]).default("agent"),
+  lang: z.enum(["bn", "en"]).default("bn"),
   deepThinking: z.boolean().default(true),
   browse: z.boolean().default(false),
 });
@@ -29,7 +31,16 @@ const APP_GUIDE: Record<z.infer<typeof AppId>, string> = {
 };
 
 const Reply = z.object({ reply: z.string().trim().min(1).max(3000) });
-const ASSISTANT_SYSTEM = "You are Chakra Agent (KormoPath Buddy), a world-class field assistant for Bangladesh. Respond in the language used by the user (Bengali for Bengali queries, English for English queries). Keep responses concise, helpful, and highly actionable. Never invent facts outside the selected app guide. Never claim to have executed real-world actions, accessed private browser storage, or sent money. Follow domain guidelines strictly: no medical diagnoses, no altered legal templates, no invented admission dates, no pesticide doses (refer to label & Krishi Call Centre 16123). Return JSON with a clean 'reply' string.";
+/** Bangla replies must be written in Bengali script; English drift fails validation and triggers the repair retry. */
+const MIN_BANGLA_SHARE = 0.9;
+const BanglaReply = Reply.superRefine((value, ctx) => {
+  if (banglaShare(value.reply) < MIN_BANGLA_SHARE) {
+    ctx.addIssue({ code: "custom", path: ["reply"], message: "Reply must be pure Bangla in Bengali script. Rewrite every English word in Bangla (product names transliterated, e.g. কর্মপথ, ফি-গার্ড, হাটবাজার)." });
+  }
+});
+const BANGLA_STYLE = "LANGUAGE: Reply ONLY in pure, standard Bangladeshi Bangla (প্রমিত চলিত বাংলা) written in Bengali script, even if the user mixes English or writes Banglish. Do not write English words or Latin letters: write product names in Bengali script (কর্মপথ, ফি-গার্ড, চুক্তিগার্ড, হাটবাজার, মেডিস্ক্যান, সহজ বাজেট, প্রবাহ কোচ, অ্যাডমিট বাডি) and use Bengali digits. Use warm, respectful আপনি form, short sentences that read well aloud, and no markdown symbols, emoji or links.";
+const ENGLISH_STYLE = "LANGUAGE: Reply in clear, simple English. Short sentences that read well aloud; no markdown symbols or emoji.";
+const ASSISTANT_SYSTEM = "You are Chakra Agent (KormoPath Buddy), a world-class field assistant for Bangladesh. Keep responses concise, helpful, and highly actionable. Never invent facts outside the selected app guide. Never claim to have executed real-world actions, accessed private browser storage, or sent money. Follow domain guidelines strictly: no medical diagnoses, no altered legal templates, no invented admission dates, no pesticide doses (refer to label & Krishi Call Centre 16123). Return JSON with a clean 'reply' string.";
 
 export async function POST(req: Request) {
   const rl = checkRateLimit(req, { limit: 20, windowMs: 60_000, bucket: "buddy-chat" });
@@ -39,11 +50,14 @@ export async function POST(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: "বার্তাটি বোঝা যায়নি। ছোট করে আবার লিখুন।" }, { status: 400 });
   if (!llmAvailable()) return NextResponse.json({ error: "Buddy চালাতে সার্ভারে GEMINI_API_KEY সেট করতে হবে।" }, { status: 503 });
 
-  const { appId, messages, mode, deepThinking, browse } = parsed.data;
+  const { appId, messages, mode, deepThinking, browse, lang } = parsed.data;
   const history = messages.slice(-8).map((message) => `${message.role === "user" ? "USER" : "BUDDY"}: ${message.content}`).join("\n\n");
   const tracer = new Tracer("Buddy");
   const system = ASSISTANT_SYSTEM + "\n\nSELECTED APP KNOWLEDGE:\n" + APP_GUIDE[appId]
-    + "\n\n" + (mode === "agent" ? "Give a short proactive action plan but never perform actions or claim that you did." : "Answer the direct question and give clear steps.")
+    + "\n\n" + (lang === "bn" ? BANGLA_STYLE : ENGLISH_STYLE)
+    + "\n\n" + (mode === "agent"
+      ? "ACTIVE AGENT: First answer the question in one or two sentences. Then give at most three numbered next steps the user can do now, each naming the exact app or screen to open in this platform. If something needs a fact you do not have (a price, date, dose, legal term), say plainly that it must be checked and where. End with one short follow-up question that moves the user forward. Never perform actions or claim that you did."
+      : "Answer the direct question and give clear steps.")
     + "\n" + (deepThinking ? "Check the answer against the selected app guide and avoid unsupported claims." : "Keep the answer concise and direct.");
   if (browse) {
     if (appId === "mediscan") return NextResponse.json({ error: "মেডিস্ক্যানে ব্যক্তিগত স্বাস্থ্যতথ্য ও ওষুধের তথ্য নিয়ে ওয়েব খোঁজ বন্ধ রাখা হয়েছে।" }, { status: 400 });
@@ -75,7 +89,7 @@ export async function POST(req: Request) {
       const candidate = data?.candidates?.[0];
       const reply = candidate?.content?.parts?.map((part: { text?: string }) => part.text ?? "").join("").trim();
       if (typeof reply !== "string" || !reply) return NextResponse.json({ error: "ওয়েব থেকে উত্তর পাওয়া যায়নি।", trace: tracer.steps }, { status: 502 });
-      const validReply = Reply.safeParse({ reply });
+      const validReply = (lang === "bn" ? BanglaReply : Reply).safeParse({ reply });
       if (!validReply.success) {
         tracer.log(modelName(), "Grounded result did not meet Bangla-only output requirements", "fail", Math.round(performance.now() - started));
         return NextResponse.json({ error: "ওয়েব থেকে শুদ্ধ বাংলা উত্তর পাওয়া যায়নি। আবার চেষ্টা করুন।", trace: tracer.steps }, { status: 502 });
@@ -102,7 +116,7 @@ export async function POST(req: Request) {
 
   const out = await structured(
     tracer,
-    Reply,
+    lang === "bn" ? BanglaReply : Reply,
     system,
     history,
     undefined,
