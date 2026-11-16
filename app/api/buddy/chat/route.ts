@@ -85,6 +85,6 @@ export async function POST(req: Request) {
     undefined,
     { cache: false },
   );
-  if (!out) return NextResponse.json({ error: "Buddy এখন উত্তর দিতে পারছে না। একটু পরে আবার চেষ্টা করুন।" }, { status: 502 });
+  if (!out) return NextResponse.json({ error: "বাডি এখন উত্তর দিতে পারছে না (এআই সার্ভার ব্যস্ত)। একটু পরে আবার চেষ্টা করুন।", trace: tracer.steps }, { status: 502 });
   return NextResponse.json({ reply: out.data.reply, model: out.model, trace: tracer.steps });
 }

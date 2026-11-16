@@ -16,8 +16,12 @@ import type { Tracer } from "./trace";
 const BASE = "https://generativelanguage.googleapis.com";
 const API_REVISION = "2026-05-20";
 
-export const TEXT_MODELS = [...new Set([process.env.GEMINI_MODEL || "gemini-4-hydrogen", process.env.GEMINI_FALLBACK_MODEL || "gemini-3.5-flash-lite"])];
-export const TTS_MODELS = [...new Set([process.env.GEMINI_TTS_MODEL || "gemini-3.8-flash-tts", "gemini-3.8-flash-lite-tts"])];
+// Retired generations (generateContent-era names) are skipped even if an old env var still names
+// them, and the current models are always appended, so a stale deployment setting cannot break AI.
+const RETIRED = /^gemini-(1\.|2\.|flash-lite-latest$|flash-latest$)/;
+const chain = (...names: Array<string | undefined>) => [...new Set(names.map((n) => n?.trim()).filter((n): n is string => Boolean(n) && !RETIRED.test(n!)))];
+export const TEXT_MODELS = chain(process.env.GEMINI_MODEL, process.env.GEMINI_FALLBACK_MODEL, "gemini-4-hydrogen", "gemini-3.5-flash-lite");
+export const TTS_MODELS = chain(process.env.GEMINI_TTS_MODEL, "gemini-3.8-flash-tts", "gemini-3.8-flash-lite-tts");
 
 /** GEMINI_API_KEY first, then any extra keys in GEMINI_API_KEYS (comma-separated). Never logged. */
 export function geminiKeys(): string[] {
