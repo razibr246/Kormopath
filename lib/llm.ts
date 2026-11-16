@@ -2,15 +2,12 @@ import "server-only";
 import { createHash } from "crypto";
 import { z } from "zod";
 import { Tracer } from "./trace";
+import { TEXT_MODELS, geminiAvailable, interact, outputText, type InputPart } from "./gemini";
 
-const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
-// Used only when the primary model is overloaded or rate-limited (HTTP 429/500/503/504).
-const FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL || "gemini-flash-lite-latest";
-// Timeouts are not retried: a 25 s abort plus retries could outlast the route time limit.
-const TRANSIENT = /Gemini HTTP (429|500|503|504)|fetch failed/i;
+const MODEL = TEXT_MODELS[0];
 const cache = new Map<string, unknown>(); // per-instance cache: identical requests never hit the API twice
 
-export const llmAvailable = () => Boolean(process.env.GEMINI_API_KEY);
+export const llmAvailable = () => geminiAvailable();
 export const modelName = () => MODEL;
 
 export interface FilePart {
@@ -18,59 +15,27 @@ export interface FilePart {
   base64: string;
 }
 
-async function callGemini(model: string, system: string, prompt: string, file?: FilePart): Promise<string> {
-  const parts: unknown[] = [{ text: prompt }];
-  if (file) parts.push({ inline_data: { mime_type: file.mimeType, data: file.base64 } });
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 25_000);
-  try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
-      method: "POST",
-      signal: ctrl.signal,
-      headers: { "content-type": "application/json", "x-goog-api-key": process.env.GEMINI_API_KEY! },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: system }] },
-        contents: [{ role: "user", parts }],
-        generationConfig: { responseMimeType: "application/json", temperature: 0.1 },
-      }),
-    });
-    if (!res.ok) throw new Error(`Gemini HTTP ${res.status}`);
-    const data = await res.json();
-    const text: string | undefined = data?.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text ?? "").join("");
-    if (!text) throw new Error("Gemini returned no text");
-    return text;
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
 /**
- * One model call with resilience against overload: on a transient error, wait briefly and retry
- * the same model once, then try the lighter fallback model. Every attempt is written to the
- * trace so a degraded run is visible, never silent.
+ * One JSON-mode call through the shared Interactions client (lib/gemini.ts), which handles
+ * model and key failover and logs every attempt to the trace.
  */
 async function callWithRetry(tracer: Tracer, system: string, prompt: string, file?: FilePart): Promise<{ raw: string; model: string } | null> {
-  const plan: { model: string; delay: number }[] = [
-    { model: MODEL, delay: 0 },
-    { model: MODEL, delay: 800 },
-    ...(FALLBACK_MODEL && FALLBACK_MODEL !== MODEL ? [{ model: FALLBACK_MODEL, delay: 300 }] : []),
-  ];
-  for (let i = 0; i < plan.length; i++) {
-    const { model, delay } = plan[i];
-    if (delay) await new Promise((r) => setTimeout(r, delay));
-    const t0 = performance.now();
-    try {
-      const raw = await callGemini(model, system, prompt, file);
-      return { raw, model };
-    } catch (e) {
-      const msg = (e as Error).message;
-      const last = i === plan.length - 1 || !TRANSIENT.test(msg);
-      const next = last ? "" : plan[i + 1].model === model ? " — retrying" : ` — switching to ${plan[i + 1].model}`;
-      tracer.log(model, `Call failed: ${msg}${next}`, last ? "fail" : "warn", Math.round(performance.now() - t0));
-      if (last) return null;
-    }
+  const input: InputPart[] | string = file
+    ? [{ type: "text", text: prompt }, { type: file.mimeType === "application/pdf" ? "document" : "image", data: file.base64, mime_type: file.mimeType }]
+    : prompt;
+  const res = await interact(tracer, {
+    input,
+    system_instruction: system,
+    response_format: { type: "text", mime_type: "application/json" },
+    generation_config: { thinking_level: "low" },
+  }, { label: "JSON call" });
+  if (!res) return null;
+  const raw = outputText(res.data);
+  if (!raw) {
+    tracer.log(res.model, "Model returned no text", "fail");
+    return null;
   }
-  return null;
+  return { raw, model: res.model };
 }
 
 function parseJson(text: string): unknown {

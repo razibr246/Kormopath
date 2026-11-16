@@ -11,7 +11,8 @@ import {
   calculateSensitivityCurve, diagnoseCropSymptom, type SensitivityPoint, type CropDiagnosticResult,
   type PriceNote, type WeatherHour, type SprayWindow,
 } from "@/lib/haatbazar";
-import { usePersistentState, storageKey, todayLocal } from "@/lib/clientStore";
+import { usePersistentState, storageKey, todayLocal, downloadText } from "@/lib/clientStore";
+import { allDayIcs, isIsoDate } from "@/lib/ics";
 
 const KIND_BN: Record<PriceNote["kind"], string> = { farmgate: "মাঠ/হাটে কৃষকের দাম", wholesale: "পাইকারি (আড়ত)", retail: "খুচরা" };
 const r0 = (n: number) => Math.round(n).toLocaleString("en-IN");
@@ -337,6 +338,7 @@ function WeatherPanel({ district, setDistrict }: { district: string; setDistrict
             <strong className="block">{data.spray.ok ? "এখন স্প্রে করার মতো আবহাওয়া" : "এখন স্প্রে না করাই ভালো"}</strong>
             <span className="text-[13px]">{data.spray.reasonBn}</span>
           </div>
+          <FarmReminder districtName={DISTRICTS.find((d) => d.id === district)?.nameBn ?? ""} />
           <dl className="grid grid-cols-3 gap-2 text-[12px]">
             <div className="rounded-lg bg-stone-50 p-2"><dt className="flex items-center gap-1 text-stone-500"><CloudRain size={13} aria-hidden /> ২৪ ঘণ্টায় বৃষ্টি</dt><dd className="font-bold">{maxRain}% · {totalRain.toFixed(1)} মিমি</dd></div>
             <div className="rounded-lg bg-stone-50 p-2"><dt className="flex items-center gap-1 text-stone-500"><Thermometer size={13} aria-hidden /> তাপমাত্রা</dt><dd className="font-bold">{Math.round(Math.min(...temps))}–{Math.round(Math.max(...temps))}°C</dd></div>
@@ -354,6 +356,39 @@ function WeatherPanel({ district, setDistrict }: { district: string; setDistrict
         </>
       )}
     </section>
+  );
+}
+
+/** Calendar reminder for a farm-work day the farmer chooses. It never suggests a date or a dose. */
+function FarmReminder({ districtName }: { districtName: string }) {
+  const [date, setDate] = useState("");
+  const [work, setWork] = useState("স্প্রে");
+  const valid = isIsoDate(date);
+  return (
+    <div className="flex flex-wrap items-end gap-2 rounded-xl border border-stone-200 bg-stone-50/70 p-3 text-[13px]">
+      <label className="flex flex-col gap-1 font-semibold">কাজ
+        <select value={work} onChange={(e) => setWork(e.target.value)} className="rounded-lg border border-stone-200 bg-white px-2 py-1.5">
+          {["স্প্রে", "সেচ", "সার দেওয়া", "বীজ বোনা", "ফসল কাটা"].map((w) => <option key={w}>{w}</option>)}
+        </select>
+      </label>
+      <label className="flex flex-col gap-1 font-semibold">কবে
+        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="rounded-lg border border-stone-200 bg-white px-2 py-1.5" />
+      </label>
+      <button
+        type="button"
+        disabled={!valid}
+        onClick={() => downloadText(`haatbazar-${work}-${date}.ics`, allDayIcs([{
+          uid: `${work}-${date}-${districtName}`,
+          date,
+          title: `${work}: ${districtName}`,
+          description: "সেদিন সকালে হাটবাজারে আবহাওয়া আবার দেখুন (বৃষ্টি ও বাতাস)। পণ্যের লেবেলের নির্দেশনা মানুন; প্রশ্ন থাকলে কৃষি কল সেন্টার ১৬১২৩।",
+        }], "HaatBazar"), "text/calendar;charset=utf-8")}
+        className="inline-flex items-center gap-1.5 rounded-lg bg-green-700 px-3 py-2 font-bold text-white disabled:opacity-40"
+      >
+        <CalendarDays size={15} aria-hidden /> ক্যালেন্ডারে মনে করিয়ে দিন
+      </button>
+      <p className="basis-full text-[12px] text-stone-500">তারিখ আপনি বেছে নিন। সেদিনের আবহাওয়া আগাম বলা যায় না, তাই রিমাইন্ডারে সকালে আবার যাচাই করতে বলা থাকবে।</p>
+    </div>
   );
 }
 

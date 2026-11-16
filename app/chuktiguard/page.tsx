@@ -1,11 +1,13 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { AppHeader } from "@/components/AppHeader";
 import { AppFooter } from "@/components/AppFooter";
 import { FX_FALLBACK } from "@/lib/data";
 import { fmtBdt, splitMilestoneUsd } from "@/lib/finops";
-import { storageKey, usePersistentState } from "@/lib/clientStore";
+import { downloadText, storageKey, usePersistentState } from "@/lib/clientStore";
+import { allDayIcs, isIsoDate } from "@/lib/ics";
+import { CalendarPlus } from "lucide-react";
 import { playClick, playSuccessChime } from "@/lib/sound";
 import {
   type ChuktiInvoice,
@@ -47,6 +49,8 @@ export default function ChuktiGuardPage() {
   const [invoice, setInvoice] = useState<ChuktiInvoice>(SAMPLE_CHUKTI_PRESETS[0]);
   const [usdBdt, setUsdBdt] = useState(FX_FALLBACK.usdBdt);
   const [activeTab, setActiveTab] = useState<"editor" | "preview" | "clause4" | "dispute">("preview");
+  // Deep link: /chuktiguard#dncrp opens the consumer-complaint (DNCRP) studio.
+  useEffect(() => { if (window.location.hash === "#dncrp") setActiveTab("dispute"); }, []);
   const [clauseLang, setClauseLang] = useState<"en" | "bn">("en");
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedClause, setCopiedClause] = useState(false);
@@ -217,6 +221,28 @@ export default function ChuktiGuardPage() {
               <span className="text-slate-400">$1 =</span>
               <span className="font-bold text-indigo-700">৳{usdBdt.toFixed(1)}</span>
             </div>
+
+            <button
+              onClick={() => {
+                // Only the due dates entered on this invoice; paid milestones are skipped.
+                const events = invoice.milestones
+                  .filter((m) => m.status !== "paid" && isIsoDate(m.dueDate))
+                  .map((m) => ({
+                    uid: `${invoice.invoiceNumber}-${m.id}`,
+                    date: m.dueDate,
+                    title: `${m.title} · $${m.amountUsd} · ${invoice.client.company || invoice.client.name}`,
+                    description: `Invoice ${invoice.invoiceNumber}. Due date as entered in ChuktiGuard.`,
+                  }));
+                if (!events.length) { alert("ক্যালেন্ডারে যোগ করার মতো কোনো অপরিশোধিত মাইলস্টোনের তারিখ নেই।"); return; }
+                downloadText(`chuktiguard-${invoice.invoiceNumber || "invoice"}-due-dates.ics`, allDayIcs(events, "ChuktiGuard"), "text/calendar;charset=utf-8");
+              }}
+              aria-label="Add unpaid milestone due dates to your calendar"
+              title="অপরিশোধিত মাইলস্টোনের তারিখ ক্যালেন্ডারে (.ics)"
+              className="flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-[12px] font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-xs"
+            >
+              <CalendarPlus size={15} />
+              <span className="hidden md:inline">ক্যালেন্ডার</span>
+            </button>
 
             <button
               onClick={handlePrint}

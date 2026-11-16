@@ -14,7 +14,7 @@ import {
   sanitizeTransactions, migrateLegacy, unusualExpenses, toPoisha, parseAmount,
   categoryBudgetStatus, sanitizeCategoryBudgets, goalProgress, sanitizeGoals,
   CATEGORY_STYLES, calculateMfsCashoutFee, defaultMfsProvider, MFS_FEE_RATES,
-  simulate30DayCashFlow, calculateBakiInstallments, type ScheduledFlow,
+  simulate30DayCashFlow, calculateBakiInstallments, suggestRecurring, type ScheduledFlow,
   type CategoryBudgets, type SavingsGoal, type MonthSummary,
   type Transaction, type TxType, type CategoryId, type Method, type MfsProvider,
 } from "@/lib/budget";
@@ -808,6 +808,7 @@ export default function ShohojBudgetPage() {
             <RecurringPanel
               recurring={recurring}
               setRecurring={setRecurring}
+              suggestions={suggestRecurring(txs, recurring.map((r) => r.note))}
               dueCount={recurringDueThisMonth.length}
               month={month}
               onAddForMonth={addRecurringForMonth}
@@ -859,8 +860,9 @@ export default function ShohojBudgetPage() {
 }
 
 function RecurringPanel({
-  recurring, setRecurring, dueCount, month, onAddForMonth,
+  recurring, setRecurring, dueCount, month, onAddForMonth, suggestions,
 }: {
+  suggestions: ReturnType<typeof suggestRecurring>;
   recurring: Recurring[];
   setRecurring: (r: Recurring[] | ((p: Recurring[]) => Recurring[])) => void;
   dueCount: number;
@@ -868,6 +870,7 @@ function RecurringPanel({
   onAddForMonth: () => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [dismissed, setDismissed] = useState<string[]>([]);
   const [note, setNote] = useState("বাসা ভাড়া");
   const [amount, setAmount] = useState("8000");
   const [day, setDay] = useState(1);
@@ -882,6 +885,24 @@ function RecurringPanel({
         <button onClick={() => setOpen(!open)} className="text-[12px] font-bold text-emerald-700">{open ? "বন্ধ" : "+ নতুন"}</button>
       </div>
       {recurring.length === 0 && !open && <p className="text-[12px] text-slate-500">বাসা ভাড়া, বেতন, ইন্টারনেট বিলের মতো প্রতি মাসের লেনদেন একবার লিখে রাখুন।</p>}
+      {/* Review queue: repeated entries the user may want as a recurring rule. Nothing is saved without a tap. */}
+      {suggestions.filter((sg) => !dismissed.includes(sg.key)).map((sg) => (
+        <div key={sg.key} className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-[13px]">
+          <p className="font-semibold text-amber-950">
+            “{sg.note}” {sg.months.length} মাসে দেখা গেছে, প্রায় {tk(sg.amountPoisha)}। প্রতি মাসের নিয়মিত লেনদেন বানাবেন?
+          </p>
+          <p className="mt-0.5 text-[12px] text-amber-900/80">মাস: {sg.months.join(", ")} · প্রায় {sg.dayOfMonth} তারিখে</p>
+          <div className="mt-2 flex gap-2">
+            <button
+              onClick={() => setRecurring((p) => [...p, { id: Math.random().toString(36).slice(2, 9), type: sg.type, amountPoisha: sg.amountPoisha, categoryId: sg.categoryId, method: sg.method, note: sg.note, dayOfMonth: sg.dayOfMonth }])}
+              className="rounded-lg bg-emerald-700 px-3 py-1.5 text-[12px] font-bold text-white"
+            >
+              হ্যাঁ, যোগ করুন
+            </button>
+            <button onClick={() => setDismissed((d) => [...d, sg.key])} className="rounded-lg border border-amber-300 px-3 py-1.5 text-[12px] font-bold text-amber-900">না</button>
+          </div>
+        </div>
+      ))}
       <ul className="space-y-1 text-[13px]">
         {recurring.map((r) => (
           <li key={r.id} className="flex items-center justify-between">

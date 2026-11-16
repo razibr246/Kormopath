@@ -223,6 +223,13 @@ export function effectiveCost(grossUsd: number, midFx: number, receivedBdt: numb
   return { lostBdt: r2(lost), lostPct: r2((lost / expected) * 100) };
 }
 
+// Effective rate: taka that actually arrives per invoiced dollar, after every fee and FX margin.
+// Compare it with the mid-market rate to see each channel's true cost in one number (Wise-style).
+export function effectiveRate(channel: Channel, invoiceUsd: number): number | null {
+  if (!(invoiceUsd > 0) || !Number.isFinite(channel.netBdt)) return null;
+  return r2(channel.netBdt / invoiceUsd);
+}
+
 // Difference between two channels for the same invoice. Positive = `better` keeps more.
 export function savingBetween(channels: Channel[], better: Channel["id"], worse: Channel["id"]): number {
   const b = channels.find((c) => c.id === better);

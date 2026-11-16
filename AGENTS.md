@@ -23,7 +23,7 @@ npm run test:browser   # Puppeteer journeys in tests/e2e/*.mjs; needs a producti
 
 ## Env (`.env.local`, never commit)
 
-`GEMINI_API_KEY` (optional — without it, every agent uses its rule-based fallback, but image/PDF reading is unavailable), `GEMINI_MODEL` (default `gemini-2.5-flash`), `GEMINI_FALLBACK_MODEL` (default `gemini-flash-lite-latest`, used on 429/5xx), `PASSPORT_SECRET` (outside production, if unset, passports are signed with a public dev key and `usingDevSecret()` is true; with `NODE_ENV=production`, `signingConfigured()` fails closed, so issuing and verifying both refuse, unless the secret is at least 32 characters and is not the dev key).
+`GEMINI_API_KEY` (optional — without it, every agent uses its rule-based fallback, but image/PDF reading is unavailable), `GEMINI_API_KEYS` (optional, comma-separated extra keys tried in order on 401/403/429), `GEMINI_MODEL` (default `gemini-4-hydrogen`), `GEMINI_FALLBACK_MODEL` (default `gemini-3.5-flash-lite`), `GEMINI_TTS_MODEL` (default `gemini-3.8-flash-tts`), `GEMINI_TTS_VOICE` (default `Kore`), `PASSPORT_SECRET` (outside production, if unset, passports are signed with a public dev key and `usingDevSecret()` is true; with `NODE_ENV=production`, `signingConfigured()` fails closed, so issuing and verifying both refuse, unless the secret is at least 32 characters and is not the dev key).
 
 ## Architecture
 
@@ -39,17 +39,20 @@ npm run test:browser   # Puppeteer journeys in tests/e2e/*.mjs; needs a producti
 
 `/verify?t=<token>` is a server component checking a passport token via `lib/passport.check`.
 
+### Gemini client: `lib/gemini.ts` (Interactions API)
+All model calls go through `interact()` in `lib/gemini.ts`: `POST /v1/interactions` (TTS uses `/v1beta`), header `Api-Revision: 2026-05-20`, always `store: false`. It tries models in order and keys in order: 404 → next model, 401/403/429 → next key, 5xx → one retry then next model, timeout → next model. Each attempt is capped (~12 s) so the lighter model still gets a turn inside the ~30 s route limit, and every attempt is logged to the route's `Tracer`. Helpers: `outputText`, `citations` (from `url_citation` annotations), `outputAudio` (TTS returns `audio/wav`), `groundedSearch` (Google Search tool) and `SEARCH_ERROR_BN`. The old `generateContent` endpoint and `gemini-2.5-*` models are not available to new keys; do not reintroduce them. Web search can return 429 when the Google project's tier has no search quota; routes report that honestly.
+
 ### Every model-backed route follows one pattern — read `app/api/pitch/route.ts` first
 1. `checkRateLimit(req, …)` (`lib/rateLimit.ts`, in-memory per-IP buckets) → `rateLimitResponse` on failure.
 2. Validate the body with a Zod schema (bounded string/array sizes) → 400 on failure.
 3. `new Tracer("<Agent>")` (`lib/trace.ts`); log every model call, tool call, check and fallback; return `trace: tracer.steps` in the JSON. The UI renders this log — fallbacks must be visible in it, never silent.
-4. `structured(tracer, schema, system, prompt, file?)` from `lib/llm.ts`: raw `fetch` to Gemini in JSON mode → Zod validation → one repair retry sending the validation errors back → in-memory cache keyed by request hash. Returns `null` when there is no key, the call fails, or output stays invalid. **Every caller must handle `null` with a rule-based or template fallback.**
+4. `structured(tracer, schema, system, prompt, file?)` from `lib/llm.ts`: JSON-mode interaction via `lib/gemini.ts` → Zod validation → one repair retry sending the validation errors back → in-memory cache keyed by request hash. Returns `null` when there is no key, the call fails, or output stays invalid. **Every caller must handle `null` with a rule-based or template fallback.**
 5. Put guardrails *inside* the Zod schema with `superRefine` so violations trigger the repair loop (e.g. `api/pitch` rejects any dollar amount not in the contract, via `unknownAmounts` from `lib/grounding.ts`).
 6. Responses include `engine` (model name or `"template"`) and `raw` (model text or `null`).
 
 `lib/llm.ts` imports `"server-only"`. `lib/sandbox.ts` and `lib/profile.ts` are `"use client"`. `lib/passport.ts` uses Node `crypto` — import it only from server code or tests.
 
-**Exception: web-search routes.** `api/opportunities`, `api/product-search` and `api/haatbazar/market` bypass `structured()` and call Gemini directly with the `google_search` tool (search grounding isn't used with JSON mode here). They return free-text `answer` plus `sources` from `groundingMetadata.groundingChunks`, have **no** rule-based fallback (503 without a key), and the UI must present results as unverified search output with sources — never as confirmed prices or opportunities. `api/buddy/chat` does follow the standard pattern.
+**Exception: web-search routes.** `api/opportunities`, `api/product-search`, `api/haatbazar/market` and Buddy's web mode bypass `structured()` and use `groundedSearch()` (Google Search tool, plain text). They return free-text `answer` plus `sources` from `url_citation` annotations, have **no** rule-based fallback (503 without a key), and the UI must present results as unverified search output with sources — never as confirmed prices or opportunities. `api/buddy/chat` does follow the standard pattern.
 
 ### Ecosystem apps
 Standalone client apps, each with a pure domain module (unit-tested, no imports) and a page:

@@ -119,6 +119,31 @@ function matchTasks(query: string) {
     .slice(0, 5);
 }
 
+/** The life cycle: the same tools, ordered the way a life actually uses them. */
+const LIFECYCLE: Array<{ icon: LucideIcon; tone: string; bn: string; en: string; when: { bn: string; en: string }; links: Array<{ href: string; bn: string; en: string }> }> = [
+  { icon: GraduationCap, tone: "bg-blue-50 text-blue-700 ring-blue-200", bn: "পড়া", en: "Study",
+    when: { bn: "এসএসসি-এইচএসসির পর ভর্তি আর প্রস্তুতি", en: "After SSC/HSC: admission and preparation" },
+    links: [{ href: "/admitbuddy", bn: "ভর্তির পরিকল্পনা", en: "Admission plan" }, { href: "/probaho", bn: "ভাইভা অনুশীলন", en: "Viva practice" }] },
+  { icon: Briefcase, tone: "bg-emerald-50 text-emerald-800 ring-emerald-200", bn: "দক্ষতা ও কাজ", en: "Skills & work",
+    when: { bn: "দক্ষতার প্রমাণ, চাকরি বা ফ্রিল্যান্স", en: "Prove skills, find a job or clients" },
+    links: [{ href: "/workspace", bn: "স্কিল পাসপোর্ট", en: "Skill passport" }, { href: "/opportunities", bn: "সুযোগ খুঁজুন", en: "Find opportunities" }] },
+  { icon: ScrollText, tone: "bg-indigo-50 text-indigo-700 ring-indigo-200", bn: "আয়", en: "Earn",
+    when: { bn: "চুক্তি, ইনভয়েস আর টাকা দেশে আনা", en: "Contracts, invoices, bringing money home" },
+    links: [{ href: "/chuktiguard", bn: "চুক্তি ও ইনভয়েস", en: "Contracts" }, { href: "/feeguard", bn: "পেআউটের ফি", en: "Payout fees" }] },
+  { icon: Wallet, tone: "bg-orange-50 text-orange-700 ring-orange-200", bn: "সংসার", en: "Home & money",
+    when: { bn: "প্রতিদিনের খরচ, বাজেট আর সঞ্চয়", en: "Daily spending, budget and savings" },
+    links: [{ href: "/shohoj-budget", bn: "সহজ বাজেট", en: "Shohoj Budget" }] },
+  { icon: Pill, tone: "bg-rose-50 text-rose-700 ring-rose-200", bn: "স্বাস্থ্য", en: "Health",
+    when: { bn: "পরিবারের প্রেসক্রিপশন বোঝা, জরুরি নম্বর", en: "Understand family prescriptions, emergency numbers" },
+    links: [{ href: "/mediscan", bn: "মেডিস্ক্যান", en: "MediScan" }] },
+  { icon: Sprout, tone: "bg-lime-50 text-lime-800 ring-lime-200", bn: "মাঠ", en: "Field",
+    when: { bn: "ফসল, আবহাওয়া আর হাটের হিসাব", en: "Crops, weather and market maths" },
+    links: [{ href: "/haatbazar", bn: "হাটবাজার", en: "HaatBazar" }] },
+  { icon: ShieldCheck, tone: "bg-amber-50 text-amber-800 ring-amber-200", bn: "সুরক্ষা", en: "Protect",
+    when: { bn: "প্রতারণা চেনা, ভোক্তা অভিযোগ, তথ্যের ব্যাকআপ", en: "Spot scams, consumer complaints, back up data" },
+    links: [{ href: "/probaho#scam", bn: "প্রতারণা চিনুন", en: "Scam practice" }, { href: "/chuktiguard#dncrp", bn: "ভোক্তা অভিযোগ", en: "Consumer complaint" }, { href: "/settings", bn: "লক করা ব্যাকআপ", en: "Locked backup" }] },
+];
+
 const PIPELINE = [
   { n: "০১", bn: "যাচাই", en: "Audit", d: { bn: "সিভি আর পাবলিক গিটহাব থেকে প্রমাণসহ দক্ষতা।", en: "Skills with evidence from your CV and public GitHub." } },
   { n: "০২", bn: "পরীক্ষা", en: "Prove", d: { bn: "ব্রাউজারের স্যান্ডবক্সে কোড চ্যালেঞ্জ আর মুখে ভাইভা।", en: "A sandboxed code challenge and a spoken viva." } },
@@ -261,6 +286,34 @@ export default function HomePage() {
               </span>
             </div>
           ))}
+        </section>
+
+        {/* ============ LIFE CYCLE ============ */}
+        <section aria-labelledby="life-title" className="pt-24">
+          <p className="kp-eyebrow">{bn ? "জীবনের পথ" : "A life, step by step"}</p>
+          <h2 id="life-title" className="mt-3 max-w-3xl text-[clamp(30px,4vw,48px)] font-semibold leading-tight tracking-tight text-slate-900">
+            {bn ? <>পড়া থেকে মাঠ, <em className="kp-em">জীবনের প্রতিটি মোড়ে</em></> : <>From study to the field, <em className="kp-em">at every turn of life</em></>}
+          </h2>
+          <ol className="kp-life mt-10">
+            {LIFECYCLE.map((stage, i) => {
+              const Icon = stage.icon;
+              return (
+                <li key={stage.en} className="kp-life-stop">
+                  <span className={`kp-life-node ring-1 ${stage.tone}`}><Icon size={20} /></span>
+                  <span className="font-mono text-[12px] font-bold text-slate-500">{bn ? `০${"১২৩৪৫৬৭"[i]}` : `0${i + 1}`}</span>
+                  <strong className="mt-1 block font-display text-[21px] font-semibold text-slate-900">{bn ? stage.bn : stage.en}</strong>
+                  <span className="mt-1 block text-[14px] leading-snug text-slate-600">{bn ? stage.when.bn : stage.when.en}</span>
+                  <span className="mt-3 flex flex-wrap gap-1.5">
+                    {stage.links.map((link) => (
+                      <Link key={link.href} href={link.href} className="kp-task !py-1 !text-[13px]">
+                        {bn ? link.bn : link.en} <ArrowUpRight size={12} aria-hidden="true" />
+                      </Link>
+                    ))}
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
         </section>
 
         {/* ============ TOOLS ============ */}

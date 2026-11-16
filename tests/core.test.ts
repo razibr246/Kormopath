@@ -223,3 +223,14 @@ test("FeeGuard: effective cost from what was actually received", async () => {
   assert.equal(csv.split("\n").length, stepCount + 1);
   assert.ok(csv.includes(String(cs[0].netBdt.toFixed(2))));
 });
+
+test("effectiveRate is net taka per invoiced dollar and never beats the mid-market rate on fee-only channels", async () => {
+  const { compareChannels, effectiveRate } = await import("../lib/finops.ts");
+  const channels = compareChannels({ invoiceUsd: 1000, fx: 120, withdrawals: 1, claimIncentive: false, fees: { fiverrFee: 0.2, fiverrWithdraw: 3, upworkFee: 0.1, upworkWithdraw: 2, payoneerFx: 0.02, payoneerBkashFlat: 1, payoneerBkashFx: 0.03, wireFlat: 20, bankFx: 0.008, freelancerIncentive: 0.025 } } as never);
+  for (const c of channels) {
+    const rate = effectiveRate(c, 1000)!;
+    assert.equal(rate, Math.round((c.netBdt / 1000) * 100) / 100);
+    assert.ok(rate <= 120, `${c.id} without incentive cannot exceed the mid-market rate`);
+  }
+  assert.equal(effectiveRate(channels[0], 0), null);
+});

@@ -8,7 +8,6 @@ import {
   Send,
   Volume2,
   VolumeX,
-  Keyboard,
   Brain,
   CheckSquare,
   ShieldCheck,
@@ -17,22 +16,46 @@ import {
   ArrowRight,
   ExternalLink,
   Globe,
-  Sparkles,
+  X,
+  Copy,
+  Mic,
+  Square,
 } from "lucide-react";
 import { banglaShare, prepareBanglaSpeech } from "@/lib/banglaSpeech";
 
 export const CREW_APPS = [
-  { id: "haatbazar", name: "HaatBazar AI", tag: "কৃষি ও আবহাওয়া", route: "/haatbazar", icon: "🌾" },
-  { id: "kormopath", name: "KormoPath Core", tag: "ক্যারিয়ার ও চুক্তি", route: "/", icon: "🧭" },
-  { id: "chuktiguard", name: "ChuktiGuard", tag: "আইন ও বিভ্রাট ধারা", route: "/chuktiguard", icon: "🛡️" },
-  { id: "feeguard", name: "FeeGuard BD", tag: "বৈদেশিক মুদ্রা ও কর", route: "/feeguard", icon: "৳" },
-  { id: "admitbuddy", name: "AdmitBuddy", tag: "বিশ্ববিদ্যালয় ভর্তি", route: "/admitbuddy", icon: "🎓" },
-  { id: "mediscan", name: "MediScan BD", tag: "প্রেসক্রিপশন ও সতর্কতা", route: "/mediscan", icon: "💊" },
-  { id: "shohoj", name: "Shohoj Budget", tag: "পয়সা বাজেট ও হিসাব", route: "/shohoj-budget", icon: "📊" },
-  { id: "probaho", name: "Probaho Coach", tag: "ভাইভা অনুশীলন", route: "/probaho", icon: "🎙️" },
+  { id: "haatbazar", bnName: "হাটবাজার", name: "HaatBazar AI", tag: "কৃষি ও আবহাওয়া", route: "/haatbazar", icon: "🌾" },
+  { id: "kormopath", bnName: "ওয়ার্কস্পেস", name: "KormoPath Workspace", tag: "সিভি থেকে পেমেন্ট", route: "/workspace", icon: "🧭" },
+  { id: "chuktiguard", bnName: "চুক্তিগার্ড", name: "ChuktiGuard", tag: "আইন ও বিভ্রাট ধারা", route: "/chuktiguard", icon: "🛡️" },
+  { id: "feeguard", bnName: "ফি-গার্ড", name: "FeeGuard BD", tag: "বৈদেশিক মুদ্রা ও কর", route: "/feeguard", icon: "৳" },
+  { id: "admitbuddy", bnName: "অ্যাডমিট বাডি", name: "AdmitBuddy", tag: "বিশ্ববিদ্যালয় ভর্তি", route: "/admitbuddy", icon: "🎓" },
+  { id: "mediscan", bnName: "মেডিস্ক্যান", name: "MediScan BD", tag: "প্রেসক্রিপশন ও সতর্কতা", route: "/mediscan", icon: "💊" },
+  { id: "shohoj", bnName: "সহজ বাজেট", name: "Shohoj Budget", tag: "পয়সা বাজেট ও হিসাব", route: "/shohoj-budget", icon: "📊" },
+  { id: "probaho", bnName: "প্রবাহ কোচ", name: "Probaho Coach", tag: "ভাইভা অনুশীলন", route: "/probaho", icon: "🎙️" },
 ] as const;
 
 export type AppId = (typeof CREW_APPS)[number]["id"];
+
+/** Tools a reply names (Bangla or English), so the answer can offer one-tap "open" buttons. */
+const APP_MENTIONS: Array<[AppId, RegExp]> = [
+  ["haatbazar", /হাটবাজার|haat\s*bazar/i],
+  ["kormopath", /ওয়ার্কস্পেস|workspace/i],
+  ["chuktiguard", /চুক্তিগার্ড|chukti\s*guard/i],
+  ["feeguard", /ফি-?গার্ড|fee\s*guard/i],
+  ["admitbuddy", /অ্যাডমিট\s*বাডি|admit\s*buddy/i],
+  ["mediscan", /মেডিস্ক্যান|medi\s*scan/i],
+  ["shohoj", /সহজ\s*বাজেট|shohoj/i],
+  ["probaho", /প্রবাহ|probaho/i],
+];
+/** Put numbered steps (১. ২. or 1. 2.) on their own lines when a reply runs them together. */
+function formatReply(text: string) {
+  return text.replace(/\s+(?=(?:[০-৯]|[0-9])\.\s)/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+
+function mentionedApps(text: string) {
+  const normalized = text.normalize("NFC");
+  return CREW_APPS.filter((app) => APP_MENTIONS.some(([id, re]) => id === app.id && re.test(normalized))).slice(0, 3);
+}
 
 type Message = {
   role: "user" | "assistant";
@@ -166,7 +189,7 @@ const CHIP_SUGGESTIONS_BN: Record<AppId, string[]> = {
 
 const APP_TASKS: Record<AppId, Array<{ title: string; desc: string; query: string }>> = {
   haatbazar: [
-    { title: "কী চাষ করবেন ও সার প্রস্তুত", desc: "০ দিনের মধ্যে সরিষা রোপণের প্রস্তুতি নিন এবং সার ঠিক করুন।", query: "What to plant?" },
+    { title: "কী চাষ করবেন ও সার প্রস্তুত", desc: "মৌসুম, জমি ও বীজের প্রস্তুতি; সারের মাত্রা প্যাকেটের নির্দেশনা বা কৃষি কর্মকর্তার কাছ থেকে নিন।", query: "What to plant?" },
     { title: "ওষুধ ছিটানোর আবহাওয়া দেখুন", desc: "বৃষ্টি ও বাতাসের পূর্বাভাসের উপর ভিত্তি করে স্প্রে উইন্ডো দেখুন।", query: "Water today?" },
     { title: "ট্রাকভাড়া ভাগের হিসাব", desc: "পাইকারি বাজারে পণ্য পরিবহনের খরচ কৃষকদের মধ্যে ভাগ করুন।", query: "Compare the options" },
   ],
@@ -266,10 +289,10 @@ export function Buddy() {
   const [isNaturalVoice, setIsNaturalVoice] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [showKeyboard, setShowKeyboard] = useState(false);
   // Bangla first: replies, suggestions, speech recognition and voice all follow this.
   const [chipLang, setChipLang] = useState<"en" | "bn">("bn");
   const [voiceNote, setVoiceNote] = useState("");
+  const [interim, setInterim] = useState("");
   const bn = chipLang === "bn";
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -461,8 +484,7 @@ export function Buddy() {
       (window as unknown as { webkitSpeechRecognition?: new () => unknown }).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      setError("আপনার ডিভাইসের মাইক্রোফোন সমর্থন মেলেনি। কিবোর্ড আইকন দিয়ে লিখুন।");
-      setShowKeyboard(true);
+      setError(bn ? "এই ব্রাউজারে কথা শুনে লেখার সুবিধা নেই। নিচের ঘরে লিখে জিজ্ঞেস করুন।" : "This browser can't take voice input. Type your question below.");
       return;
     }
 
@@ -471,24 +493,37 @@ export function Buddy() {
         continuous: boolean;
         interimResults: boolean;
         lang: string;
-        onresult: (e: { results: Array<Array<{ transcript: string }>> }) => void;
-        onerror: () => void;
+        onresult: (e: { resultIndex: number; results: ArrayLike<ArrayLike<{ transcript: string }> & { isFinal: boolean }> }) => void;
+        onerror: (e: { error?: string }) => void;
         onend: () => void;
         start: () => void;
         stop: () => void;
       })();
       recognition.continuous = false;
-      recognition.interimResults = false;
+      recognition.interimResults = true;
       recognition.lang = chipLang === "bn" ? "bn-BD" : "en-US";
 
+      // Show words as they are heard; send once the browser marks the phrase final.
       recognition.onresult = (event) => {
-        const transcript = event.results?.[0]?.[0]?.transcript;
-        if (transcript) {
-          void send(undefined, transcript);
+        let live = "";
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const result = event.results[i];
+          const text = result[0]?.transcript ?? "";
+          if (result.isFinal) {
+            setInterim("");
+            if (text.trim()) void send(undefined, text.trim());
+          } else live += text;
+        }
+        if (live) setInterim(live);
+      };
+      recognition.onerror = (e) => {
+        setIsListening(false);
+        setInterim("");
+        if (e?.error === "not-allowed" || e?.error === "service-not-allowed") {
+          setError(bn ? "মাইক্রোফোনের অনুমতি পাওয়া যায়নি। ব্রাউজারের ঠিকানার পাশের তালা চিহ্ন থেকে অনুমতি দিন, অথবা লিখে জিজ্ঞেস করুন।" : "Microphone permission was denied. Allow it from the lock icon in the address bar, or type instead.");
         }
       };
-      recognition.onerror = () => setIsListening(false);
-      recognition.onend = () => setIsListening(false);
+      recognition.onend = () => { setIsListening(false); setInterim(""); };
 
       recognitionRef.current = recognition;
       recognition.start();
@@ -496,7 +531,6 @@ export function Buddy() {
       setError("");
     } catch {
       setIsListening(false);
-      setShowKeyboard(true);
     }
   };
 
@@ -561,516 +595,252 @@ export function Buddy() {
     }
   };
 
+  const busy = loading || isListening || isSpeaking || speechLoading;
+  const status = isListening
+    ? bn ? "শুনছি…" : "Listening…"
+    : loading
+    ? bn ? "ভাবছি…" : "Thinking…"
+    : speechLoading
+    ? bn ? "কণ্ঠ তৈরি হচ্ছে…" : "Preparing voice…"
+    : isSpeaking
+    ? bn ? "বলছি… থামাতে গোলক ছুঁয়ে দিন" : "Speaking… tap the orb to stop"
+    : bn ? "প্রস্তুত" : "Ready";
+  const fresh = messages.length <= 1;
+  const TABS: Array<{ id: AssistantTab; icon: typeof MessageCircle; bn: string; en: string }> = [
+    { id: "talk", icon: MessageCircle, bn: "কথা", en: "Talk" },
+    { id: "tasks", icon: CheckSquare, bn: "কাজ", en: "Tasks" },
+    { id: "crew", icon: Users, bn: "টুল", en: "Tools" },
+    { id: "security", icon: ShieldCheck, bn: "গোপনীয়তা", en: "Privacy" },
+  ];
+
   return (
     <aside
-      aria-label="Chakra Agent Buddy"
+      aria-label={bn ? "বাডি সহকারী" : "Buddy assistant"}
       className={`buddy-root fixed bottom-4 right-4 ${open ? "z-50" : "z-30"} print:hidden font-sans`}
     >
       {open ? (
-        /* Expanded Assistant Modal Window (Attachment 2) */
         <section
-          aria-label="Chakra Agent"
-          className="buddy-panel flex h-[min(730px,90dvh)] w-[min(430px,calc(100vw-2rem))] flex-col overflow-hidden rounded-[26px] border border-slate-700/80 bg-[#1b130e] text-white shadow-2xl shadow-black/90"
+          role="dialog"
+          aria-label={bn ? "বাডি · বাংলা সহকারী" : "Buddy · Bangla assistant"}
+          className="buddy-panel bv2 flex h-[min(740px,calc(100dvh-2rem))] w-[min(440px,calc(100vw-2rem))] flex-col overflow-hidden text-[#fbf3e8]"
         >
-          {/* 1. Window Titlebar with macOS Traffic Lights */}
-          <header className="flex items-center justify-between border-b border-slate-800 bg-[#221810] px-4 py-3">
-            {/* Traffic Lights */}
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  stopSpeaking();
-                  setOpen(false);
-                }}
-                className="h-3 w-3 rounded-full bg-[#ff5f56] border border-[#e0443e] hover:brightness-110 cursor-pointer"
-                aria-label="Close Chakra Agent"
-              />
-              <span className="h-3 w-3 rounded-full bg-[#ffbd2e] border border-[#dea123] opacity-80" />
-              <span className="h-3 w-3 rounded-full bg-[#27c93f] border border-[#1aab29] opacity-80" />
+          {/* Header: identity + live state */}
+          <header className="flex items-center gap-3 px-4 pb-3 pt-4">
+            <SiriOrb size="md" active={busy} />
+            <div className="min-w-0 flex-1">
+              <strong className="block font-display text-[19px] font-semibold leading-tight">{bn ? "বাডি" : "Buddy"}</strong>
+              <span className="flex items-center gap-1.5 text-[12.5px] text-[#d6c5b2]" aria-live="polite">
+                <span className={`h-2 w-2 rounded-full ${busy ? "bg-amber-400 animate-pulse" : "bg-emerald-400"}`} aria-hidden="true" />
+                <span className="truncate">{status}</span>
+              </span>
             </div>
-
-            {/* Title & Circular Chakra Badge */}
-            <div className="flex items-center gap-2.5">
-              <div className="h-6 w-6 rounded-full bg-emerald-950/80 border border-emerald-500/60 grid place-items-center shrink-0 shadow-[0_0_8px_rgba(52,211,153,0.3)]">
-                <svg viewBox="0 0 24 24" className="h-4 w-4 text-emerald-400" fill="currentColor">
-                  <circle cx="12" cy="12" r="3.2" fill="#34d399" />
-                  <path
-                    d="M12 2L13.6 8.5L20 7L15.5 12L20 17L13.6 15.5L12 22L10.4 15.5L4 17L8.5 12L4 7L10.4 8.5L12 2Z"
-                    fill="currentColor"
-                    opacity="0.85"
-                  />
-                </svg>
-              </div>
-              <div className="text-center">
-                <span className="block text-[15px] font-bold tracking-tight text-white leading-tight">
-                  {bn ? "বাডি · চক্র এজেন্ট" : "Chakra Agent"}
-                </span>
-                <span className="block text-[12px] text-slate-400 leading-tight mt-0.5">
-                  {bn ? "আপনার বাংলা সহকারী" : "Your field assistant"}
-                </span>
-              </div>
-            </div>
-
-            {/* Top Right Mode Chip */}
+            <button type="button" onClick={() => setChipLang(bn ? "en" : "bn")} className="bv2-chip" title={bn ? "উত্তর ও কণ্ঠের ভাষা" : "Reply and voice language"}>
+              {bn ? "বাংলা" : "EN"}
+            </button>
             <button
               type="button"
-              onClick={() => setMode(mode === "manual" ? "agent" : "manual")}
-              className="rounded-full bg-white/10 hover:bg-white/15 px-3 py-1 text-[12px] font-medium text-slate-200 transition-colors cursor-pointer border border-white/5"
+              onClick={() => { if (isSpeaking || speechLoading) stopSpeaking(); setVoiceEnabled(!voiceEnabled); }}
+              className="bv2-icon"
+              aria-pressed={voiceEnabled}
+              aria-label={voiceEnabled ? (bn ? "কণ্ঠ বন্ধ করুন" : "Mute voice") : (bn ? "কণ্ঠ চালু করুন" : "Turn voice on")}
             >
-              {mode === "manual" ? (bn ? "পরামর্শ" : "Manual") : (bn ? "এজেন্ট" : "Agent")}
+              {voiceEnabled ? <Volume2 size={17} /> : <VolumeX size={17} />}
+            </button>
+            <button type="button" onClick={() => { stopSpeaking(); setOpen(false); }} className="bv2-icon" aria-label={bn ? "বাডি বন্ধ করুন" : "Close Buddy"}>
+              <X size={18} />
             </button>
           </header>
 
-          {/* 2. Segmented Pill Control: [ Manual | Agent ] */}
-          <div className="px-5 pt-3.5 pb-2.5 text-center border-b border-slate-800 bg-[#170f0b]">
-            <div className="inline-flex rounded-full bg-[#2a1e15] p-1 border border-white/10">
-              <button
-                type="button"
-                onClick={() => setMode("manual")}
-                className={`rounded-full px-8 py-2 text-[14px] transition-all cursor-pointer ${
-                  mode === "manual"
-                    ? "bg-white text-slate-950 font-bold shadow-md"
-                    : "text-slate-300 font-medium hover:text-white"
-                }`}
+          {/* Context: which tool Buddy is helping with, and how it answers */}
+          <div className="flex flex-wrap items-center gap-2 px-4 pb-3">
+            <label className="bv2-select">
+              <span className="sr-only">{bn ? "কোন টুল নিয়ে কথা" : "Tool in focus"}</span>
+              <span aria-hidden="true">{appMeta.icon}</span>
+              <select
+                value={selectedApp}
+                onChange={(e) => { const id = e.target.value as AppId; setSelectedApp(id); if (id === "mediscan") setBrowseEnabled(false); }}
               >
-                {bn ? "পরামর্শ" : "Manual"}
-              </button>
-              <button
-                type="button"
-                onClick={() => setMode("agent")}
-                className={`rounded-full px-8 py-2 text-[14px] transition-all cursor-pointer ${
-                  mode === "agent"
-                    ? "bg-white text-slate-950 font-bold shadow-md"
-                    : "text-slate-300 font-medium hover:text-white"
-                }`}
-              >
-                {bn ? "এজেন্ট" : "Agent"}
-              </button>
+                {CREW_APPS.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
+              </select>
+            </label>
+            <div className="bv2-seg" role="group" aria-label={bn ? "উত্তরের ধরন" : "Answer style"}>
+              <button type="button" aria-pressed={mode === "manual"} onClick={() => setMode("manual")}>{bn ? "পরামর্শ" : "Advice"}</button>
+              <button type="button" aria-pressed={mode === "agent"} onClick={() => setMode("agent")}>{bn ? "এজেন্ট" : "Agent"}</button>
             </div>
-
-            {/* Mode Description Caption */}
-            <p className="mt-2 text-[12px] text-slate-400 leading-snug">
-              {mode === "manual"
-                ? bn ? "বাডি শুধু পরামর্শ দেয়; প্রতিটি ধাপ আপনি নিজে করেন।" : "The agent only suggests; you do every step yourself."
-                : bn ? "বাডি এগিয়ে থেকে পরের ধাপ সাজায়; প্রতিটি কাজ আপনি দেখে নিশ্চিত করেন।" : "The agent plans proactive steps; you review and confirm each action."}
-            </p>
-
-            {/* Deep Thinking Mode Chip */}
-            <div className="mt-2.5 flex justify-center items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setDeepThinking(!deepThinking)}
-                aria-pressed={deepThinking}
-                className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[12px] font-semibold border transition-all cursor-pointer ${
-                  deepThinking
-                    ? "border-emerald-500/60 bg-emerald-950/60 text-emerald-300 shadow-[0_0_10px_rgba(52,211,153,0.15)]"
-                    : "border-slate-700 bg-slate-800/80 text-slate-300 hover:border-slate-600"
-                }`}
-              >
-                <Brain size={14} className={deepThinking ? "text-emerald-400" : "text-slate-400"} />
-                <span>{bn ? "গভীর চিন্তা" : "Deep thinking"}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setChipLang(chipLang === "en" ? "bn" : "en")}
-                className="rounded-full border border-slate-700 bg-slate-800/80 px-2.5 py-1 text-[11px] font-bold text-slate-300 hover:text-white"
-                title={bn ? "উত্তর ও কণ্ঠের ভাষা বদলান" : "Switch reply and voice language"}
-              >
-                {chipLang === "en" ? "EN" : "বাংলা"}
-              </button>
-            </div>
+            <button type="button" aria-pressed={deepThinking} onClick={() => setDeepThinking(!deepThinking)} className={`bv2-chip ${deepThinking ? "bv2-chip-on" : ""}`} title={bn ? "উত্তর অ্যাপের নিয়মের সঙ্গে মিলিয়ে দেখে" : "Checks the answer against the tool's rules"}>
+              <Brain size={13} /> {bn ? "যাচাই" : "Verify"}
+            </button>
+            <button
+              type="button"
+              aria-pressed={browseEnabled}
+              disabled={selectedApp === "mediscan"}
+              onClick={() => setBrowseEnabled(!browseEnabled)}
+              className={`bv2-chip ${browseEnabled ? "bv2-chip-web" : ""}`}
+              title={selectedApp === "mediscan" ? (bn ? "স্বাস্থ্যতথ্যের গোপনীয়তার জন্য বন্ধ" : "Off for medical privacy") : (bn ? "উত্তর ওয়েব থেকে, উৎসসহ" : "Answer from the web, with sources")}
+            >
+              <Globe size={13} /> {bn ? "ওয়েব" : "Web"}
+            </button>
           </div>
 
-          {/* 3. Horizontal Navigation: Talk | Tasks 1 | Crew | Path | Security */}
-          <nav
-            aria-label="Assistant sections"
-            className="flex items-center justify-between border-b border-slate-800 bg-[#1d140e] px-3 text-[13px] font-semibold"
-          >
-            <button
-              type="button"
-              onClick={() => setTab("talk")}
-              className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 transition-all cursor-pointer ${
-                tab === "talk"
-                  ? "border-amber-400 text-amber-300 font-bold"
-                  : "border-transparent text-slate-400 hover:text-slate-200"
-              }`}
-            >
-              <MessageCircle size={15} />
-              <span>{bn ? "কথা" : "Talk"}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setTab("tasks")}
-              className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 transition-all cursor-pointer ${
-                tab === "tasks"
-                  ? "border-amber-400 text-amber-300 font-bold"
-                  : "border-transparent text-slate-400 hover:text-slate-200"
-              }`}
-            >
-              <CheckSquare size={15} />
-              <span>
-                {bn ? "কাজ" : "Tasks"} <span className="ml-0.5 rounded-full bg-slate-800 border border-slate-700 px-1.5 py-0.2 text-[10px] text-slate-300">1</span>
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setTab("crew")}
-              className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 transition-all cursor-pointer ${
-                tab === "crew"
-                  ? "border-amber-400 text-amber-300 font-bold"
-                  : "border-transparent text-slate-400 hover:text-slate-200"
-              }`}
-            >
-              <Users size={15} />
-              <span>{bn ? "দল" : "Crew"}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setTab("path")}
-              className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 transition-all cursor-pointer ${
-                tab === "path"
-                  ? "border-amber-400 text-amber-300 font-bold"
-                  : "border-transparent text-slate-400 hover:text-slate-200"
-              }`}
-            >
-              <Compass size={15} />
-              <span>{bn ? "পথ" : "Path"}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setTab("security")}
-              className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 transition-all cursor-pointer ${
-                tab === "security"
-                  ? "border-amber-400 text-amber-300 font-bold"
-                  : "border-transparent text-slate-400 hover:text-slate-200"
-              }`}
-            >
-              <ShieldCheck size={15} />
-              <span>{bn ? "নিরাপত্তা" : "Security"}</span>
-            </button>
+          <nav className="bv2-tabs" aria-label={bn ? "বাডির অংশ" : "Buddy sections"}>
+            {TABS.map(({ id, icon: Icon, bn: tbn, en }) => (
+              <button key={id} type="button" aria-current={tab === id ? "page" : undefined} onClick={() => setTab(id)}>
+                <Icon size={14} /> {bn ? tbn : en}
+                {id === "tasks" && <span className="bv2-count">{tasks.length}</span>}
+              </button>
+            ))}
           </nav>
 
-          {/* 4. Tab Content */}
-          {/* TAB 1: TALK (Chat, Suggestions & Dialogue) */}
+          {/* TALK */}
           {tab === "talk" && (
-            <div className="flex-1 flex flex-col min-h-0">
-              {/* Quick Action Suggestion Chips (Attachment 2) */}
-              <div className="p-3 border-b border-slate-800 bg-[#160f0a] flex flex-wrap gap-1.5 max-h-36 overflow-y-auto">
-                {suggestions.map((chip) => (
-                  <button
-                    key={chip}
-                    type="button"
-                    disabled={loading}
-                    onClick={() => void send(undefined, chip)}
-                    className="rounded-full border border-white/10 bg-[#2a1e15] px-3.5 py-1.5 text-[12.5px] font-medium text-slate-200 hover:border-emerald-400/60 hover:bg-[#36271b] transition-all cursor-pointer disabled:opacity-50"
-                  >
-                    {chip}
-                  </button>
-                ))}
-
-                <button
-                  type="button"
-                  aria-pressed={browseEnabled}
-                  disabled={selectedApp === "mediscan" || loading}
-                  title={selectedApp === "mediscan" ? "Web search disabled for medical privacy" : "Search web with Google Grounding"}
-                  onClick={() => setBrowseEnabled(!browseEnabled)}
-                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-all cursor-pointer disabled:opacity-40 ${
-                    browseEnabled
-                      ? "border-sky-400/80 bg-sky-950 text-sky-200"
-                      : "border-slate-700 bg-slate-800/80 text-slate-300 hover:bg-slate-700"
-                  }`}
-                >
-                  <Globe size={13} />
-                  <span>{bn ? "ওয়েবে খুঁজুন" : "Search web"}</span>
-                </button>
-              </div>
-
-              {/* Chat Message Scroll */}
-              <div ref={chatScrollRef} className="flex-1 overflow-y-auto p-4 space-y-3" aria-live="polite">
-                {messages.map((message, index) => (
-                  <div
-                    key={`${index}-${message.role}`}
-                    className={`max-w-[92%] rounded-2xl px-4 py-3 text-[13.5px] leading-relaxed ${
-                      message.role === "user"
-                        ? "ml-auto bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md"
-                        : "mr-auto border border-slate-700/80 bg-[#241912] text-slate-100 shadow-sm"
-                    }`}
-                  >
-                    {message.unverified && (
-                      <span className="mb-1.5 block text-[11px] font-bold text-amber-300">
-                        Web result · Verify with source
-                      </span>
-                    )}
-                    <p className="whitespace-pre-wrap">{message.content}</p>
-
-                    {message.sources && message.sources.length > 0 && (
-                      <div className="mt-2.5 border-t border-slate-700 pt-2">
-                        <span className="block text-[11px] font-semibold text-slate-300">Sources</span>
-                        <ul className="mt-1 space-y-1">
-                          {message.sources.map((source) => (
-                            <li key={source.url}>
-                              <a
-                                href={source.url}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="inline-flex items-start gap-1 text-[12px] text-sky-400 underline decoration-sky-700 underline-offset-2 hover:text-sky-200"
-                              >
-                                <ExternalLink size={12} className="mt-1 shrink-0" />
-                                <span>{source.title}</span>
-                              </a>
-                            </li>
+            <div ref={chatScrollRef} className="bv2-scroll flex-1 space-y-4 overflow-y-auto px-4 py-4" aria-live="polite">
+              {fresh ? (
+                <div className="flex flex-col items-center pt-2 text-center">
+                  <SiriOrb size="xl" active={busy} onClick={toggleListening} label={bn ? "কথা বলতে ছুঁয়ে দিন" : "Tap to speak"} />
+                  <p className="mt-5 font-display text-[22px] font-semibold leading-snug">{bn ? "আজ কী করবেন?" : "What shall we do today?"}</p>
+                  <p className="mt-1.5 max-w-[30ch] text-[14px] leading-relaxed text-[#d6c5b2]">{messages[0]?.content}</p>
+                  <div className="mt-5 grid w-full grid-cols-2 gap-2 text-left">
+                    {suggestions.slice(0, 6).map((chip) => (
+                      <button key={chip} type="button" disabled={loading} onClick={() => void send(undefined, chip)} className="bv2-suggest">
+                        {chip}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                messages.slice(1).map((message, index) => (
+                  message.role === "user" ? (
+                    <div key={index} className="bv2-user">{message.content}</div>
+                  ) : (
+                    <div key={index} className="flex gap-2.5">
+                      <span className="mt-1 h-7 w-7 shrink-0"><SiriOrb size="sm" /></span>
+                      <div className="min-w-0 flex-1">
+                        <div className="bv2-reply">
+                          {message.unverified && <span className="mb-1.5 block text-[11.5px] font-bold text-amber-300">{bn ? "ওয়েবের ফল · উৎস খুলে যাচাই করুন" : "Web result · check the sources"}</span>}
+                          <p className="whitespace-pre-wrap">{formatReply(message.content)}</p>
+                          {message.sources && message.sources.length > 0 && (
+                            <ul className="mt-2.5 space-y-1 border-t border-white/10 pt-2">
+                              {message.sources.map((source) => (
+                                <li key={source.url}>
+                                  <a href={source.url} target="_blank" rel="noreferrer" className="inline-flex items-start gap-1 text-[12.5px] text-sky-300 underline decoration-sky-700 underline-offset-2 hover:text-sky-100">
+                                    <ExternalLink size={12} className="mt-1 shrink-0" /> <span>{source.title}</span>
+                                  </a>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                          <button type="button" className="bv2-mini" onClick={() => void speak(message.content)} aria-label={bn ? "উত্তরটি শুনুন" : "Play this answer"}>
+                            <Volume2 size={13} /> {bn ? "শুনুন" : "Play"}
+                          </button>
+                          <button type="button" className="bv2-mini" onClick={() => { void navigator.clipboard?.writeText(message.content).catch(() => {}); }} aria-label={bn ? "উত্তর কপি করুন" : "Copy answer"}>
+                            <Copy size={13} /> {bn ? "কপি" : "Copy"}
+                          </button>
+                          {mentionedApps(message.content).map((app) => (
+                            <Link key={app.id} href={app.route} onClick={() => setOpen(false)} className="bv2-mini bv2-mini-go">
+                              {app.icon} {bn ? `${app.bnName} খুলুন` : `Open ${app.name}`} <ArrowRight size={12} />
+                            </Link>
                           ))}
-                        </ul>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                ))}
+                    </div>
+                  )
+                ))
+              )}
 
-                {loading && (
-                  <div className="flex items-center gap-2 text-[12px] text-emerald-400 py-1" role="status">
-                    <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
-                    <span>Thinking with deep verification…</span>
-                  </div>
-                )}
-
-                {error && (
-                  <p className="rounded-xl border border-rose-500/30 bg-rose-950/40 p-2.5 text-[11px] text-rose-200" role="alert">
-                    {error}
-                  </p>
-                )}
-              </div>
+              {interim && <div className="bv2-user opacity-70" aria-live="polite">{interim}…</div>}
+              {loading && (
+                <div className="flex items-center gap-2.5 text-[13px] text-[#d6c5b2]" role="status">
+                  <span className="h-7 w-7 shrink-0"><SiriOrb size="sm" active /></span>
+                  <span className="bv2-dots" aria-hidden="true"><i /><i /><i /></span>
+                  <span>{deepThinking ? (bn ? "ভাবছি ও যাচাই করছি" : "Thinking and checking") : (bn ? "ভাবছি" : "Thinking")}</span>
+                </div>
+              )}
+              {error && <p className="rounded-xl border border-rose-500/30 bg-rose-950/40 p-3 text-[12.5px] text-rose-100" role="alert">{error}</p>}
             </div>
           )}
 
-          {/* TAB 2: TASKS */}
+          {/* TASKS */}
           {tab === "tasks" && (
-            <div className="flex-1 overflow-y-auto p-4 space-y-2.5">
-              <span className="text-[12px] font-bold text-slate-300 block mb-2">
-                Priority Action Checklist for {appMeta.name}:
-              </span>
-              {tasks.map((t, idx) => (
-                <div
-                  key={idx}
-                  className="rounded-xl border border-white/10 bg-[#241912] p-3.5 hover:border-emerald-500/40 transition-colors"
-                >
-                  <strong className="text-[13.5px] text-emerald-300 block leading-snug">
-                    {t.title}
-                  </strong>
-                  <p className="text-[12px] text-slate-400 mt-1 leading-relaxed">
-                    {t.desc}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setTab("talk");
-                      void send(undefined, t.query);
-                    }}
-                    className="mt-2.5 inline-flex items-center gap-1 text-[12px] font-bold text-amber-300 hover:text-amber-200 cursor-pointer"
-                  >
-                    <span>Execute with Chakra Agent</span>
-                    <ArrowRight size={13} />
+            <div className="bv2-scroll flex-1 space-y-2.5 overflow-y-auto px-4 py-4">
+              <p className="text-[13px] text-[#d6c5b2]">{bn ? `${appMeta.name}-এর জন্য পরের কাজ` : `Next steps in ${appMeta.name}`}</p>
+              {tasks.map((t) => (
+                <div key={t.title} className="bv2-card">
+                  <strong className="block text-[14.5px] leading-snug text-emerald-200">{t.title}</strong>
+                  <p className="mt-1 text-[13px] leading-relaxed text-[#d6c5b2]">{t.desc}</p>
+                  <button type="button" onClick={() => { setTab("talk"); void send(undefined, t.query); }} className="mt-2.5 inline-flex items-center gap-1 text-[13px] font-bold text-amber-300 hover:text-amber-200">
+                    {bn ? "বাডিকে জিজ্ঞেস করুন" : "Ask Buddy"} <ArrowRight size={13} />
                   </button>
                 </div>
               ))}
             </div>
           )}
 
-          {/* TAB 3: CREW (Ecosystem Agents) */}
+          {/* TOOLS */}
           {tab === "crew" && (
-            <div className="flex-1 overflow-y-auto p-4 space-y-2">
-              <span className="text-[12px] font-bold text-slate-300 block mb-2">
-                KormoPath Multi-Agent Ecosystem Crew:
-              </span>
-              <div className="grid grid-cols-1 gap-2">
+            <div className="bv2-scroll flex-1 overflow-y-auto px-4 py-4">
+              <p className="mb-2.5 text-[13px] text-[#d6c5b2]">{bn ? "কোন টুল নিয়ে কথা বলবেন? বাছলে বাডি সেই টুলের নিয়ম মেনে উত্তর দেবে।" : "Pick a tool; Buddy then answers by that tool's rules."}</p>
+              <div className="grid gap-2">
                 {CREW_APPS.map((a) => (
-                  <button
-                    key={a.id}
-                    type="button"
-                    onClick={() => {
-                      setSelectedApp(a.id);
-                      if (a.id === "mediscan") setBrowseEnabled(false);
-                      setTab("talk");
-                    }}
-                    className={`flex items-center justify-between p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                      selectedApp === a.id
-                        ? "border-emerald-500 bg-emerald-950/40 text-white"
-                        : "border-white/5 bg-[#221810] text-slate-300 hover:border-white/20"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <span className="text-xl">{a.icon}</span>
-                      <div>
-                        <span className="block text-[13px] font-bold">{a.name}</span>
-                        <span className="block text-[11px] text-slate-400">{a.tag}</span>
-                      </div>
-                    </div>
-                    {selectedApp === a.id ? (
-                      <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                    ) : (
-                      <ArrowRight size={14} className="text-slate-500" />
-                    )}
-                  </button>
+                  <div key={a.id} className={`bv2-card flex items-center gap-3 ${selectedApp === a.id ? "!border-emerald-400/70" : ""}`}>
+                    <span className="text-[22px]" aria-hidden="true">{a.icon}</span>
+                    <button type="button" className="min-w-0 flex-1 text-left" onClick={() => { setSelectedApp(a.id); if (a.id === "mediscan") setBrowseEnabled(false); setTab("talk"); }}>
+                      <span className="block text-[14px] font-bold">{a.name}</span>
+                      <span className="block text-[12.5px] text-[#b8a593]">{a.tag}</span>
+                    </button>
+                    <Link href={a.route} onClick={() => setOpen(false)} className="bv2-mini">{bn ? "খুলুন" : "Open"} <ArrowRight size={12} /></Link>
+                  </div>
                 ))}
               </div>
+              <Link href="/opportunities" onClick={() => setOpen(false)} className="bv2-card mt-3 flex items-center gap-2 text-[13.5px] font-semibold text-emerald-200">
+                <Compass size={16} /> {bn ? "আমার পথ: চাকরি, বৃত্তি ও কর্মসূচি" : "My Path: jobs, scholarships, programmes"} <ArrowRight size={13} className="ml-auto" />
+              </Link>
             </div>
           )}
 
-          {/* TAB 4: PATH (Opportunities & Skills Roadmap) */}
-          {tab === "path" && (
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 text-[12.5px] text-slate-300">
-              <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/30 p-3.5">
-                <span className="flex items-center gap-1.5 font-bold text-emerald-300 text-[13.5px]">
-                  <Compass size={16} />
-                  <span>My Path · Career & Life Opportunities</span>
-                </span>
-                <p className="mt-2 text-[12px] text-slate-300 leading-relaxed">
-                  Track live job opportunities, farmer aid programs, university circulars, and verified skill passports in one unified board.
-                </p>
-                <Link
-                  href="/opportunities"
-                  className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-emerald-500 px-3 py-1.5 text-[12px] font-bold text-slate-950 hover:bg-emerald-400 transition-colors"
-                >
-                  <span>Open Opportunities Board</span>
-                  <ExternalLink size={12} />
-                </Link>
-              </div>
-
-              <div className="rounded-xl border border-white/10 bg-[#241912] p-3 space-y-2 text-[11.5px] text-slate-400">
-                <p>• <strong>Skill Passport</strong>: HMAC-SHA256 signed tamper-proof proof of coding ability.</p>
-                <p>• <strong>Contract Blackout Shield</strong>: Pre-drafted 48-hour internet outage protections.</p>
-                <p>• <strong>Integer Poisha Math</strong>: Zero-hallucination currency reconciliation.</p>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 5: SECURITY (Privacy & Local Guarantees) */}
+          {/* PRIVACY */}
           {tab === "security" && (
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 text-[12px] text-slate-300">
-              <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3.5">
-                <span className="flex items-center gap-1.5 font-bold text-emerald-300 text-[13.5px]">
-                  <ShieldCheck size={16} />
-                  <span>Local-First Data Privacy Guarantee</span>
-                </span>
-                <p className="mt-2 text-[12px] text-slate-300 leading-relaxed">
-                  Your budget calculations, prescriptions, CV data, and invoices stay in your browser&apos;s isolated LocalStorage. No user accounts or central databases can access your personal data.
-                </p>
+            <div className="bv2-scroll flex-1 space-y-2.5 overflow-y-auto px-4 py-4 text-[13.5px] leading-relaxed text-[#e2d3c2]">
+              <div className="bv2-card">
+                <strong className="flex items-center gap-1.5 text-emerald-200"><ShieldCheck size={16} /> {bn ? "আপনার তথ্য আপনার ডিভাইসে" : "Your data stays on your device"}</strong>
+                <p className="mt-1.5">{bn ? "বাজেট, প্রেসক্রিপশন, সিভি ও চুক্তি ব্রাউজারেই থাকে; কোনো অ্যাকাউন্ট বা কেন্দ্রীয় ডেটাবেস নেই।" : "Budgets, prescriptions, CVs and contracts stay in your browser; there are no accounts or central database."}</p>
               </div>
-
-              <div className="rounded-xl border border-white/5 bg-[#221810] p-3 space-y-2 text-[11.5px] text-slate-400">
-                <p>• <strong>Prescription Safety</strong>: Zero OCR data stored on central servers.</p>
-                <p>• <strong>Financial Precision</strong>: Financial calculations run deterministically in integer poisha.</p>
-                <p>• <strong>Cryptographic Passports</strong>: Secret keys never leave the server environment.</p>
+              <div className="bv2-card">
+                <strong className="text-emerald-200">{bn ? "বাডিকে যা পাঠানো হয়" : "What Buddy sends"}</strong>
+                <p className="mt-1.5">{bn ? "শুধু এই কথোপকথনের শেষ কয়েকটি বার্তা, উত্তর তৈরির জন্য। Google-এর সার্ভারে কথোপকথন সংরক্ষণ বন্ধ রাখা হয়। স্বাস্থ্যতথ্য বাডিতে লিখবেন না; মেডিস্ক্যানে ওয়েব খোঁজ বন্ধ।" : "Only the last few messages of this chat, to write a reply. Storage on Google's side is turned off. Don't type health details here; web search is off for MediScan."}</p>
               </div>
+              <Link href="/settings" onClick={() => setOpen(false)} className="bv2-mini bv2-mini-go">{bn ? "ডেটা ও প্রাইভেসি সেটিংস" : "Data & privacy settings"} <ArrowRight size={12} /></Link>
             </div>
           )}
 
-          {/* 5. Optional Collapsible Text Input Area */}
-          {showKeyboard && (
-            <form
-              onSubmit={(event) => void send(event)}
-              className="flex items-end gap-2 border-t border-slate-800 bg-[#19110c] p-3"
+          {/* Composer: one row, voice first */}
+          <form onSubmit={(event) => void send(event)} className="bv2-composer">
+            <label htmlFor="buddy-input" className="sr-only">{bn ? "বাডিকে লিখুন" : "Message Buddy"}</label>
+            <textarea
+              id="buddy-input"
+              value={input}
+              maxLength={1200}
+              rows={1}
+              onChange={(event) => setInput(event.target.value)}
+              onKeyDown={handleKeyDown}
+              onFocus={() => setTab("talk")}
+              placeholder={bn ? "বাংলায় লিখুন বা মাইকে বলুন…" : "Type or speak…"}
+            />
+            <button
+              type="button"
+              onClick={() => { setTab("talk"); toggleListening(); }}
+              className={`bv2-mic ${isListening ? "bv2-mic-on" : ""}`}
+              aria-pressed={isListening}
+              aria-label={isSpeaking || speechLoading ? (bn ? "কথা থামান" : "Stop speaking") : isListening ? (bn ? "শোনা বন্ধ করুন" : "Stop listening") : (bn ? "মাইকে বলুন" : "Speak")}
             >
-              <label htmlFor="buddy-input" className="sr-only">Type a message to Chakra Agent</label>
-              <textarea
-                id="buddy-input"
-                value={input}
-                maxLength={1200}
-                rows={2}
-                onChange={(event) => setInput(event.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder={bn ? "বাংলায় যেকোনো প্রশ্ন লিখুন…" : "Ask Chakra Agent anything…"}
-                className="max-h-24 min-h-10 flex-1 resize-y rounded-xl border border-white/10 bg-slate-900/90 px-3 py-2 text-[12.5px] text-white outline-none placeholder:text-slate-500 focus:border-emerald-400"
-              />
-              <button
-                type="submit"
-                disabled={!input.trim() || loading}
-                aria-label="Send message"
-                className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-bold hover:brightness-110 disabled:opacity-40 cursor-pointer"
-              >
-                <Send size={15} />
-              </button>
-            </form>
-          )}
-
-          {/* 6. Apple Siri / Chakra Voice Interaction Footer (Attachments 2 & 3) */}
-          <footer className="border-t border-slate-800 bg-gradient-to-t from-[#100a07] via-[#150e0a] to-[#1a120d] px-4 py-3.5 text-center">
-            <div className="flex items-center justify-between px-3">
-              {/* Left Speaker / Mute Button */}
-              <button
-                type="button"
-                onClick={() => {
-                  if (isSpeaking || speechLoading) stopSpeaking();
-                  setVoiceEnabled(!voiceEnabled);
-                }}
-                title={voiceEnabled ? "Mute audio voice" : "Enable audio voice"}
-                className={`grid h-10 w-10 place-items-center rounded-full border transition-all cursor-pointer ${
-                  voiceEnabled
-                    ? "border-white/15 bg-white/10 text-slate-200 hover:bg-white/20"
-                    : "border-white/5 bg-white/5 text-slate-500 hover:text-slate-300"
-                }`}
-              >
-                {voiceEnabled ? <Volume2 size={17} /> : <VolumeX size={17} />}
-              </button>
-
-              {/* Center Photorealistic Siri / Chakra 3D Orb (Attachment 3) */}
-              <SiriOrb
-                size="lg"
-                active={isSpeaking || isListening}
-                onClick={toggleListening}
-              />
-
-              {/* Right Keyboard Toggle Button */}
-              <button
-                type="button"
-                onClick={() => setShowKeyboard(!showKeyboard)}
-                title="Type with keyboard"
-                className={`grid h-10 w-10 place-items-center rounded-full border transition-all cursor-pointer ${
-                  showKeyboard
-                    ? "border-emerald-500/60 bg-emerald-500/20 text-emerald-300"
-                    : "border-white/15 bg-white/10 text-slate-200 hover:bg-white/20"
-                }`}
-              >
-                <Keyboard size={17} />
-              </button>
-            </div>
-
-            {/* Status captions below the orb */}
-            <div className="mt-2.5 text-center" aria-live="polite">
-              <span className="block text-[12.5px] font-semibold text-slate-300 leading-snug">
-                {chipLang === "bn"
-                  ? isSpeaking
-                    ? "বলছি… থামাতে গোলকটি ছুঁয়ে দিন"
-                    : speechLoading
-                    ? "কণ্ঠ তৈরি হচ্ছে…"
-                    : isListening
-                    ? "শুনছি… এখন বলুন"
-                    : "কথা বলতে গোলকটি ছুঁয়ে দিন"
-                  : isSpeaking
-                  ? "Speaking... tap to stop"
-                  : speechLoading
-                  ? "Preparing voice audio…"
-                  : isListening
-                  ? "Listening... speak now"
-                  : "Tap orb to speak"}
-              </span>
-              <span className="block text-[11px] text-[#f5b14a] font-medium mt-0.5 leading-snug">
-                {voiceNote
-                  ? voiceNote
-                  : isSpeaking
-                  ? isNaturalVoice
-                    ? chipLang === "bn" ? "স্বাভাবিক বাংলা কণ্ঠে বলছি।" : "Natural voice speaks."
-                    : chipLang === "bn" ? "ডিভাইসের কণ্ঠে বলছি।" : "The device voice speaks."
-                  : voiceEnabled
-                  ? chipLang === "bn" ? "বাংলা কণ্ঠ চালু" : "Voice on"
-                  : chipLang === "bn" ? "কণ্ঠ বন্ধ" : "Voice muted"}
-              </span>
-            </div>
-          </footer>
+              {isSpeaking || speechLoading ? <Square size={15} /> : <Mic size={18} />}
+            </button>
+            <button type="submit" disabled={!input.trim() || loading} className="bv2-send" aria-label={bn ? "পাঠান" : "Send"}>
+              <Send size={17} />
+            </button>
+          </form>
+          {voiceNote && <p className="px-4 pb-3 -mt-1 text-[12px] text-amber-300">{voiceNote}</p>}
         </section>
       ) : (
         /* Collapsed launcher: the glowing Buddy orb */

@@ -2,7 +2,7 @@ export type TraceStatus = "ok" | "warn" | "fallback" | "fail";
 
 export interface TraceStep {
   agent: string; // e.g. "Auditor"
-  tool: string; // e.g. "gemini-2.5-flash", "github-api", "zod", "evidence-check"
+  tool: string; // e.g. "gemini-4-hydrogen", "github-api", "zod", "evidence-check"
   detail: string;
   ms: number;
   status: TraceStatus;

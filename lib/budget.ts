@@ -775,3 +775,53 @@ export function calculateBakiInstallments(
     smsReminderTemplateEn: smsEn,
   };
 }
+
+export interface RecurringSuggestion {
+  key: string;
+  type: TxType;
+  categoryId: CategoryId;
+  method: Method;
+  note: string;
+  amountPoisha: number; // median of the matching entries
+  dayOfMonth: number; // median day the money moved
+  months: string[]; // YYYY-MM, most recent first
+}
+
+const normNote = (note: string) => note.normalize("NFC").toLowerCase().replace(/\[r:[^\]]*\]/g, "").replace(/\s+/g, " ").trim();
+const median = (xs: number[]) => { const s = [...xs].sort((a, b) => a - b); const m = Math.floor(s.length / 2); return s.length % 2 ? s[m] : Math.round((s[m - 1] + s[m]) / 2); };
+
+/**
+ * Review queue for repeated entries: the same type, category and note in at least two different
+ * months, at a steady amount (every entry within 10% of the median), not already a recurring rule.
+ * It only suggests; nothing is saved until the user confirms.
+ */
+export function suggestRecurring(txs: Transaction[], existingNotes: string[], limit = 3): RecurringSuggestion[] {
+  const existing = new Set(existingNotes.map(normNote));
+  const groups = new Map<string, Transaction[]>();
+  for (const t of txs) {
+    if (t.source === "recurring") continue;
+    const note = normNote(t.note);
+    if (note.length < 2 || existing.has(note)) continue;
+    const key = `${t.type}|${t.categoryId}|${note}`;
+    groups.set(key, [...(groups.get(key) ?? []), t]);
+  }
+  const out: RecurringSuggestion[] = [];
+  for (const [key, list] of groups) {
+    const months = [...new Set(list.map((t) => t.date.slice(0, 7)))].sort().reverse();
+    if (months.length < 2) continue;
+    const amount = median(list.map((t) => t.amountPoisha));
+    if (amount <= 0 || list.some((t) => Math.abs(t.amountPoisha - amount) > amount * 0.1)) continue;
+    const latest = [...list].sort((a, b) => b.date.localeCompare(a.date))[0];
+    out.push({
+      key,
+      type: latest.type,
+      categoryId: latest.categoryId,
+      method: latest.method,
+      note: latest.note.replace(/\[R:[^\]]*\]/g, "").trim().slice(0, 80),
+      amountPoisha: amount,
+      dayOfMonth: Math.min(28, Math.max(1, median(list.map((t) => Number(t.date.slice(8, 10)))))),
+      months,
+    });
+  }
+  return out.sort((a, b) => b.months.length - a.months.length || b.amountPoisha - a.amountPoisha).slice(0, limit);
+}

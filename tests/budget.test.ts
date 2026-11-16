@@ -284,3 +284,20 @@ test("calculateBakiInstallments — handles uneven amounts with remainder cents 
   const sumPoisha = plan.schedule.reduce((acc, s) => acc + s.amountPoisha, 0);
   assert.equal(sumPoisha, 10003);
 });
+
+test("suggestRecurring finds steady monthly entries and ignores one-offs, drifting amounts and existing rules", async () => {
+  const { suggestRecurring } = await import("../lib/budget.ts");
+  const tx = (date: string, note: string, amountPoisha: number, categoryId = "rent") => ({ id: date + note, type: "expense" as const, amountPoisha, categoryId, method: "Cash" as const, note, date, source: "text" as const, createdAt: date, updatedAt: date, history: [] });
+  const txs = [
+    tx("2026-09-02", "বাসা ভাড়া", 800000), tx("2026-10-01", "বাসা  ভাড়া", 800000), tx("2026-11-03", "বাসা ভাড়া", 820000),
+    tx("2026-10-05", "ইন্টারনেট বিল", 100000, "bills"), tx("2026-11-05", "ইন্টারনেট বিল", 150000, "bills"),
+    tx("2026-11-07", "জন্মদিনের উপহার", 300000, "gifts"),
+    tx("2026-10-10", "নেটফ্লিক্স", 50000, "bills"), tx("2026-11-10", "নেটফ্লিক্স", 50000, "bills"),
+  ] as never;
+  const out = suggestRecurring(txs, ["নেটফ্লিক্স"]);
+  assert.equal(out.length, 1, JSON.stringify(out));
+  assert.equal(out[0].note, "বাসা ভাড়া");
+  assert.equal(out[0].amountPoisha, 800000);
+  assert.deepEqual(out[0].months, ["2026-11", "2026-10", "2026-09"]);
+  assert.equal(out[0].dayOfMonth, 2);
+});

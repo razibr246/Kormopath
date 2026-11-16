@@ -6,7 +6,7 @@ import { AppHeader, SourceTag } from "@/components/AppHeader";
 import { AppFooter } from "@/components/AppFooter";
 import { FEES, FX_FALLBACK, TAX_RULES, MACRO, type Source } from "@/lib/data";
 import {
-  compareChannels, best, checkInvariants, batchingSaving, effectiveCost, channelsToCsv, fmtBdt,
+  compareChannels, best, checkInvariants, batchingSaving, effectiveCost, effectiveRate, channelsToCsv, fmtBdt,
   type Channel, type FeeValues,
 } from "@/lib/finops";
 import { usePersistentState, storageKey, downloadText, todayLocal } from "@/lib/clientStore";
@@ -197,6 +197,11 @@ export default function FeeGuardPage() {
                   <span className="block text-[11px] text-slate-600 font-medium">আনুমানিক হাতে আসে</span>
                   <strong className="font-mono text-[24px] font-extrabold text-slate-900">{fmtBdt(c.netBdt)}</strong>
                   <span className="block text-[12px] font-semibold text-slate-600">ইনভয়েসের {c.keptPct}% · কাটা যায় {fmtBdt(c.grossBdt - c.netBdt)}</span>
+                  {effectiveRate(c, invoiceUsd) !== null && (
+                    <span className="mt-1 block font-mono text-[12px] text-slate-500" title="প্রতি ১ ডলার ইনভয়েসে হাতে আসা টাকা, বাজার রেটের পাশে">
+                      ৳{effectiveRate(c, invoiceUsd)!.toFixed(2)}/$ · বাজার ৳{fx.toFixed(2)}/$
+                    </span>
+                  )}
                 </div>
                 <dl className="mt-3 flex-1 space-y-1.5 text-[12px]">
                   <div className="flex justify-between"><dt className="text-slate-600">মোট ইনভয়েস</dt><dd className="font-mono font-bold text-slate-900">{fmtBdt(c.grossBdt)}</dd></div>

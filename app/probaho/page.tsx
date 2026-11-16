@@ -39,6 +39,8 @@ const sanitizeHistory = (raw: unknown): SessionRecord[] | null =>
 
 export default function ProbahoPage() {
   const [track, setTrack] = useState<TrackId>("technical");
+  // Deep link: /probaho#scam opens the scam-practice track.
+  useEffect(() => { if (window.location.hash === "#scam") setTrack("scam"); }, []);
   const [customQuestions, setCustomQuestions] = useState<Question[]>([]);
   const [customOpen, setCustomOpen] = useState(false);
   const [customPrompt, setCustomPrompt] = useState("");
