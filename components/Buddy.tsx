@@ -2,57 +2,114 @@
 
 import { useEffect, useState, useRef, useMemo, type FormEvent, type KeyboardEvent } from "react";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 import {
   MessageCircle,
   Send,
-  X,
   Volume2,
   VolumeX,
   Keyboard,
   Brain,
   CheckSquare,
   ShieldCheck,
-  Layers,
+  Users,
+  Compass,
   ArrowRight,
   ExternalLink,
   Globe,
+  Sparkles,
 } from "lucide-react";
 
-const APPS = [
-  { id: "kormopath", name: "KormoPath", tag: "মূল সহায়তা", route: "/" },
-  { id: "path", name: "My Path", tag: "কর্মজীবন", route: "/opportunities" },
-  { id: "chuktiguard", name: "ChuktiGuard", tag: "চুক্তি", route: "/chuktiguard" },
-  { id: "feeguard", name: "FeeGuard BD", tag: "পেমেন্ট ও ফি", route: "/feeguard" },
-  { id: "admitbuddy", name: "AdmitBuddy", tag: "ভর্তি", route: "/admitbuddy" },
-  { id: "mediscan", name: "MediScan BD", tag: "স্বাস্থ্যতথ্য", route: "/mediscan" },
-  { id: "shohoj", name: "Shohoj Budget", tag: "পারিবারিক বাজেট", route: "/shohoj-budget" },
-  { id: "haatbazar", name: "HaatBazar AI", tag: "কৃষি", route: "/haatbazar" },
-  { id: "probaho", name: "Probaho Coach", tag: "কথা বলার অনুশীলন", route: "/probaho" },
+export const CREW_APPS = [
+  { id: "haatbazar", name: "HaatBazar AI", tag: "কৃষি ও আবহাওয়া", route: "/haatbazar", icon: "🌾" },
+  { id: "kormopath", name: "KormoPath Core", tag: "ক্যারিয়ার ও চুক্তি", route: "/", icon: "🧭" },
+  { id: "chuktiguard", name: "ChuktiGuard", tag: "আইন ও বিভ্রাট ধারা", route: "/chuktiguard", icon: "🛡️" },
+  { id: "feeguard", name: "FeeGuard BD", tag: "বৈদেশিক মুদ্রা ও কর", route: "/feeguard", icon: "৳" },
+  { id: "admitbuddy", name: "AdmitBuddy", tag: "বিশ্ববিদ্যালয় ভর্তি", route: "/admitbuddy", icon: "🎓" },
+  { id: "mediscan", name: "MediScan BD", tag: "প্রেসক্রিপশন ও সতর্কতা", route: "/mediscan", icon: "💊" },
+  { id: "shohoj", name: "Shohoj Budget", tag: "পয়সা বাজেট ও হিসাব", route: "/shohoj-budget", icon: "📊" },
+  { id: "probaho", name: "Probaho Coach", tag: "ভাইভা অনুশীলন", route: "/probaho", icon: "🎙️" },
 ] as const;
 
-type AppId = (typeof APPS)[number]["id"];
+export type AppId = (typeof CREW_APPS)[number]["id"];
+
 type Message = {
   role: "user" | "assistant";
   content: string;
   unverified?: boolean;
   sources?: Array<{ title: string; url: string }>;
 };
-type AssistantTab = "talk" | "tasks" | "apps" | "security";
+
+type AssistantTab = "talk" | "tasks" | "crew" | "path" | "security";
 type AssistantMode = "manual" | "agent";
 
 function appForPath(path: string | null): AppId {
-  if (path?.startsWith("/opportunities")) return "path";
+  if (path?.startsWith("/haatbazar")) return "haatbazar";
   if (path?.startsWith("/chuktiguard")) return "chuktiguard";
   if (path?.startsWith("/feeguard")) return "feeguard";
   if (path?.startsWith("/admitbuddy")) return "admitbuddy";
   if (path?.startsWith("/mediscan")) return "mediscan";
   if (path?.startsWith("/shohoj-budget")) return "shohoj";
-  if (path?.startsWith("/haatbazar")) return "haatbazar";
   if (path?.startsWith("/probaho")) return "probaho";
   return "kormopath";
 }
 
-const APP_SUGGESTIONS: Record<AppId, string[]> = {
+const CHIP_SUGGESTIONS_EN: Record<AppId, string[]> = {
+  haatbazar: [
+    "What to plant?",
+    "Compare the options",
+    "Water today?",
+    "Harvest date?",
+    "Next crop?",
+    "Report a problem",
+    "Talk to my officer",
+  ],
+  kormopath: [
+    "Audit my freelance profile",
+    "How does verified viva work?",
+    "Check contract blackout clause",
+    "Direct client vs marketplace fee",
+    "Verify skill passport",
+  ],
+  chuktiguard: [
+    "48h blackout clause rules",
+    "Draft freelance contract",
+    "NBR ITES tax exemption notice",
+    "Milestone delivery schedule",
+  ],
+  feeguard: [
+    "Compare Upwork vs direct wire",
+    "Calculate 2.5% cash incentive",
+    "Best FX rate for USD to BDT",
+    "Verify fee reconciliation",
+  ],
+  admitbuddy: [
+    "Which university matches my GPA?",
+    "Compare selective public unis",
+    "Check admission deadline",
+    "SOP readability check",
+  ],
+  mediscan: [
+    "Explain prescription text",
+    "Check known medicine cautions",
+    "What are emergency signs?",
+    "Food timing instructions",
+  ],
+  shohoj: [
+    "Today's spending limit",
+    "Calculate bKash cashout fee",
+    "Split dinner bill with team",
+    "Monthly budget health check",
+  ],
+  probaho: [
+    "Start tech viva practice",
+    "Evaluate STAR answer structure",
+    "Check speaking pace & fillers",
+    "Write custom interview question",
+  ],
+};
+
+const CHIP_SUGGESTIONS_BN: Record<AppId, string[]> = {
   haatbazar: [
     "কী চাষ করব?",
     "বিকল্পগুলো তুলনা করুন",
@@ -62,108 +119,91 @@ const APP_SUGGESTIONS: Record<AppId, string[]> = {
     "সমস্যা জানান",
     "কৃষি কর্মকর্তার সঙ্গে কথা বলুন",
   ],
+  kormopath: [
+    "কোন টুল দিয়ে শুরু করব?",
+    "কর্মপরিকল্পনার ধাপগুলো বুঝুন",
+    "নির্ভরযোগ্য হিসাব কীভাবে কাজ করে?",
+    "দক্ষতার পাসপোর্ট যাচাই করুন",
+  ],
+  chuktiguard: [
+    "ইন্টারনেট-বিভ্রাট সুরক্ষা ধারা",
+    "কর অব্যাহতির প্রত্যয়ন",
+    "চুক্তির খসড়া তৈরি করুন",
+    "পেমেন্ট শর্তাদি নির্ধারণ",
+  ],
+  feeguard: [
+    "মার্কেটপ্লেস ও সরাসরি পেমেন্ট তুলনা",
+    "সরকারি ২.৫% নগদ প্রণোদনা",
+    "পেমেন্টের সবচেয়ে সাশ্রয়ী পথ",
+    "পয়সা নির্ভুল হিসাব যাচাই",
+  ],
   admitbuddy: [
     "আমার জন্য কোন বিশ্ববিদ্যালয় মানানসই?",
-    "বিকল্পগুলো তুলনা করুন",
-    "আবেদনের তালিকা দেখুন",
-    "ব্যক্তিগত বিবৃতির পাঠযোগ্যতা দেখুন",
-    "অফিসিয়াল বিজ্ঞপ্তির শেষ তারিখ",
-    "ভর্তির পরিকল্পনা ডাউনলোড করুন",
+    "বিজ্ঞপ্তির শেষ তারিখ ও শর্ত",
+    "আবেদনের ভারসাম্য পরীক্ষা",
+    "এসওপি লেখার পরামর্শ",
   ],
   mediscan: [
     "প্রেসক্রিপশনের লেখা বুঝিয়ে বলুন",
     "ওষুধের মিথস্ক্রিয়া সম্পর্কে জানান",
     "জরুরি লক্ষণগুলো কী?",
-    "খাবারের সঙ্গে কীভাবে নিতে হয়?",
+    "খাবারের সঙ্গে সেবনের নিয়ম",
   ],
   shohoj: [
     "আজ কত খরচ করা যাবে?",
-    "বিকাশে ক্যাশ আউটের খরচ",
-    "নগদে ক্যাশ আউটের খরচ",
-    "দলের বিল ভাগ করুন",
-    "এই মাসের বাজেটের অবস্থা",
+    "বিকাশ ক্যাশআউট খরচ কত?",
+    "নগদ ক্যাশআউট চার্জ হিসাব",
+    "দলের বিল সমান ভাগে ভাগ",
   ],
   probaho: [
     "প্রযুক্তিগত ভাইভা শুরু করুন",
-    "উত্তর বলার অনুশীলন",
-    "কথার গতি দেখুন",
-    "অপ্রয়োজনীয় শব্দ কমান",
-    "নিজের প্রশ্ন লিখুন",
-  ],
-  feeguard: [
-    "মার্কেটপ্লেস ও সরাসরি পেমেন্ট তুলনা",
-    "সরকারি নগদ প্রণোদনা",
-    "পেমেন্টের ভালো পথ কোনটি?",
-    "হিসাবটি যাচাই করুন",
-  ],
-  chuktiguard: [
-    "ব্যবসায়িক চুক্তির খসড়া",
-    "চুক্তির ইন্টারনেট-বিভ্রাট ধারা",
-    "কর অব্যাহতির নোটিশ",
-    "চুক্তির ধাপগুলো ভাগ করুন",
-  ],
-  path: [
-    "দক্ষতার পাসপোর্ট যাচাই",
-    "দক্ষতার ভবিষ্যৎ ঝুঁকি",
-    "আমার আবেদনগুলো দেখুন",
-    "পরের কাজটি কী?",
-  ],
-  kormopath: [
-    "কোন টুল দিয়ে শুরু করব?",
-    "কর্মপরিকল্পনার ধাপগুলো বুঝিয়ে বলুন",
-    "নির্ভরযোগ্য হিসাব কীভাবে কাজ করে?",
-    "সবগুলো অ্যাপ দেখুন",
+    "উত্তর বলার অনুশীলন ও স্কোর",
+    "কথার গতি ও অতিরিক্ত শব্দ",
+    "স্টার পদ্ধতিতে উত্তর সাজান",
   ],
 };
 
-const APP_TASKS: Record<AppId, Array<{ title: string; desc: string; href?: string }>> = {
+const APP_TASKS: Record<AppId, Array<{ title: string; desc: string; query: string }>> = {
   haatbazar: [
-    { title: "ওষুধ ছিটানোর উপযুক্ত সময়", desc: "ছিটানোর আগে বৃষ্টি ও বাতাসের পূর্বাভাস দেখুন। পণ্যের লেবেল মেনে চলুন।" },
-    { title: "ট্রাকভাড়া ভাগের হিসাব", desc: "কৃষকদের মধ্যে পণ্য পরিবহনের খরচ ভাগ করুন।" },
-    { title: "পাইকারি দামের প্রভাব", desc: "দাম বাড়া বা কমায় সম্ভাব্য লাভের পরিবর্তন দেখুন।" },
-  ],
-  admitbuddy: [
-    { title: "বিশ্ববিদ্যালয়ের পছন্দের ভারসাম্য", desc: "উচ্চ, মাঝারি ও নিরাপদ পছন্দগুলো গুছিয়ে নিন।" },
-    { title: "অফিসিয়াল বিজ্ঞপ্তির তারিখ যোগ করুন", desc: "তারিখ ও শর্ত মূল বিজ্ঞপ্তি থেকে নিশ্চিত করুন।" },
-    { title: "ভর্তির পরিকল্পনা নামিয়ে নিন", desc: "আবেদনের কাজগুলোর তালিকা ডাউনলোড করুন।" },
-  ],
-  mediscan: [
-    { title: "হাতে লেখা প্রেসক্রিপশন মিলিয়ে দেখুন", desc: "ছবি ও পড়ে পাওয়া লেখাটি পাশাপাশি যাচাই করুন।" },
-    { title: "ওষুধের সতর্কতা দেখুন", desc: "অজানা তথ্যকে নিরাপদ ধরে নেবেন না।" },
-    { title: "ওষুধের ক্যালেন্ডার নামিয়ে নিন", desc: "আপনার দেওয়া সময় অনুযায়ী অনুস্মারক সাজান।" },
-  ],
-  shohoj: [
-    { title: "আজকের খরচ লিখুন", desc: "বাংলায় বলে বা কিবোর্ডে লিখে খরচ যোগ করুন; সংরক্ষণের আগে যাচাই করুন।" },
-    { title: "বিকাশ ও নগদের খরচ দেখুন", desc: "টাকা তোলার আগে নির্ধারিত ফি যাচাই করুন।" },
-    { title: "মাসিক খরচের গতি দেখুন", desc: "বাকি দিনের সঙ্গে বাজেটের হিসাব মিলিয়ে নিন।" },
-  ],
-  probaho: [
-    { title: "এক মিনিটের ভাইভা অনুশীলন", desc: "নির্ধারিত সময়ের মধ্যে প্রশ্নের উত্তর দিন।" },
-    { title: "উত্তরের গঠন পর্যালোচনা", desc: "পরিস্থিতি, কাজ, পদক্ষেপ ও ফলাফল উল্লেখ করুন।" },
-    { title: "কথার অপ্রয়োজনীয় শব্দ খেয়াল করুন", desc: "স্বাভাবিক ও পরিষ্কার গতিতে কথা বলার অনুশীলন করুন।" },
-  ],
-  feeguard: [
-    { title: "মার্কেটপ্লেসের ফি তুলনা করুন", desc: "পেমেন্টের পথভেদে ফি ও হাতে পাওয়া অর্থ যাচাই করুন।" },
-    { title: "সরকারি প্রণোদনার শর্ত দেখুন", desc: "প্রযোজ্যতার জন্য মূল নির্দেশনা যাচাই করুন।" },
-  ],
-  chuktiguard: [
-    { title: "বিভ্রাট সুরক্ষাসহ চুক্তি তৈরি করুন", desc: "পর্যালোচিত নমুনা ধারা থেকে প্রযোজ্য অংশ বাছুন।" },
-    { title: "কর অব্যাহতির নথি যোগ করুন", desc: "চালানে সঠিক সরকারি সনদ সংযুক্ত করুন।" },
-  ],
-  path: [
-    { title: "দক্ষতার পরিবর্তনশীল চাহিদা দেখুন", desc: "আপনার দক্ষতার তথ্য ও প্রমাণ পর্যালোচনা করুন।" },
-    { title: "দক্ষতার পাসপোর্ট তৈরি করুন", desc: "যাচাই করা দক্ষতার তথ্য দিয়ে পাসপোর্ট তৈরি করুন।" },
+    { title: "কী চাষ করবেন ও সার প্রস্তুত", desc: "০ দিনের মধ্যে সরিষা রোপণের প্রস্তুতি নিন এবং সার ঠিক করুন।", query: "What to plant?" },
+    { title: "ওষুধ ছিটানোর আবহাওয়া দেখুন", desc: "বৃষ্টি ও বাতাসের পূর্বাভাসের উপর ভিত্তি করে স্প্রে উইন্ডো দেখুন।", query: "Water today?" },
+    { title: "ট্রাকভাড়া ভাগের হিসাব", desc: "পাইকারি বাজারে পণ্য পরিবহনের খরচ কৃষকদের মধ্যে ভাগ করুন।", query: "Compare the options" },
   ],
   kormopath: [
-    { title: "সবগুলো অ্যাপ ঘুরে দেখুন", desc: "পড়াশোনা, স্বাস্থ্য, কৃষি, বাজেট, অনুশীলন ও পেমেন্ট টুল দেখুন।" },
-    { title: "নির্ভরযোগ্যতার পরীক্ষা দেখুন", desc: "নির্দিষ্ট নিয়ম ও হিসাব কীভাবে ভুল কমায় তা বুঝুন।" },
+    { title: "প্রোফাইল অডিট সম্পন্ন করুন", desc: "সিভি ও গিটহাব প্রমাণের ভিত্তিতে বাস্তবসম্মত রেটিং নিন।", query: "Audit my freelance profile" },
+    { title: "কোডিং ভাইভা সম্পন্ন করুন", desc: "ওয়েব ওয়ার্কার স্যান্ডবক্সে কোড রান করে পাসপোর্ট আর্ন করুন।", query: "Verify skill passport" },
+    { title: "চুক্তি ও ট্যাক্স চিঠি পান", desc: "৪৮ ঘণ্টা বিভ্রাট ধারা ও এনবিআর আইটিইএস নোটিশ তৈরি করুন।", query: "Check contract blackout clause" },
+  ],
+  chuktiguard: [
+    { title: "ইন্টারনেট বিভ্রাট ধারা যুক্ত করুন", desc: "জাতীয় বা আঞ্চলিক নেটওয়ার্ক ব্ল্যাকআউটে সুরক্ষা নিশ্চিত করুন।", query: "48h blackout clause rules" },
+    { title: "কর অব্যাহতির নোটিশ যোগ", desc: "বৈধ রেমিট্যান্স চালানে সরকারি প্রজ্ঞাপনের রেফারেন্স রাখুন।", query: "NBR ITES tax exemption notice" },
+  ],
+  feeguard: [
+    { title: "পেমেন্ট চ্যানেলের ফি তুলনা", desc: "আপওয়ার্ক ২০% বনাম সুইফট ডিরেক্ট ওয়্যারের মোট প্রাপ্তি দেখুন।", query: "Compare Upwork vs direct wire" },
+    { title: "২.৫% নগদ সরকারি প্রণোদনা", desc: "ব্যাংকিং চ্যানেলে আসা রেমিট্যান্সে প্রণোদনা হিসাব করুন।", query: "Calculate 2.5% cash incentive" },
+  ],
+  admitbuddy: [
+    { title: "বিশ্ববিদ্যালয় তালিকার ভারসাম্য", desc: "স্বপ্নের, মাঝারি ও নিরাপদ পছন্দের ভারসাম্য যাচাই করুন।", query: "Which university matches my GPA?" },
+    { title: "অফিসিয়াল বিজ্ঞপ্তির তারিখ", desc: "ভর্তি বিজ্ঞপ্তি থেকে নিশ্চিত শেষ তারিখ যোগ করুন।", query: "Check admission deadline" },
+  ],
+  mediscan: [
+    { title: "হাতে লেখা প্রেসক্রিপশন যাচাই", desc: "ছবি থেকে শনাক্ত হওয়া ওষুধের তালিকা মিলিয়ে নিন।", query: "Explain prescription text" },
+    { title: "ওষুধের মিথস্ক্রিয়া সতর্কতা", desc: "একাধিক ওষুধের মধ্যে ক্ষতিকর সংমিশ্রণ পরীক্ষা করুন।", query: "Check known medicine cautions" },
+  ],
+  shohoj: [
+    { title: "আজকের ব্যয়ের সীমা দেখুন", desc: "মাসিক বাজেটের ভিত্তিতে আজকের নিরাপদ খরচ জানুন।", query: "Today's spending limit" },
+    { title: "ক্যাশ আউট চার্জ বাঁচান", desc: "বিকাশ ও নগদের এজেন্ট বনাম এটিএম ফি তুলনা করুন।", query: "Calculate bKash cashout fee" },
+  ],
+  probaho: [
+    { title: "এক মিনিটের ভাইভা স্পারিং", desc: "ইংরেজি বা বাংলায় দ্রুত গুছিয়ে উত্তর দেওয়ার অনুশীলন।", query: "Start tech viva practice" },
+    { title: "স্টার কাঠামোর ফিডব্যাক", desc: "পরিস্থিতি, কাজ, পদক্ষেপ ও ফলাফলের উপস্থিতি যাচাই করুন।", query: "Evaluate STAR answer structure" },
   ],
 };
 
 /**
- * Glossy, planet-like KormoPath voice orb.
+ * Photorealistic 3D Siri / Chakra pearl sphere (Attachments 2 & 3).
  */
-function SiriOrb({
+export function SiriOrb({
   size = "md",
   active = false,
   onClick,
@@ -174,9 +214,9 @@ function SiriOrb({
 }) {
   const dimensions =
     size === "sm"
-      ? "h-8 w-8"
+      ? "h-7 w-7"
       : size === "lg"
-      ? "h-16 w-16 sm:h-[72px] sm:w-[72px]"
+      ? "h-[68px] w-[68px] sm:h-[76px] sm:w-[76px]"
       : "h-11 w-11";
 
   const sphere = (
@@ -185,12 +225,18 @@ function SiriOrb({
       <div className="siri-sphere-sheen" />
     </div>
   );
+
   const className = `relative grid shrink-0 place-items-center rounded-full siri-sphere-bezel ${dimensions} ${
-    onClick ? "cursor-pointer hover:scale-105 active:scale-95" : ""
+    onClick ? "cursor-pointer hover:scale-105 active:scale-95 transition-transform" : ""
   }`;
 
   return onClick ? (
-    <button type="button" onClick={onClick} aria-label="বাংলায় কথা বলুন বা বলা থামান" className={`${className} border-0 bg-transparent p-0`}>
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label="Toggle voice speaking or listening"
+      className={`${className} border-0 bg-transparent p-0 outline-none`}
+    >
       {sphere}
     </button>
   ) : (
@@ -210,10 +256,18 @@ export function Buddy() {
   const [deepThinking, setDeepThinking] = useState(true);
   const [browseEnabled, setBrowseEnabled] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const [isNaturalVoice, setIsNaturalVoice] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [showKeyboard, setShowKeyboard] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [chipLang, setChipLang] = useState<"en" | "bn">("en");
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      role: "assistant",
+      content:
+        "First, 0 days to plant mustard. Get seed and fertiliser ready and confirm the plan. Then, Keep an eye on the field problem. If it grows, send a report or consult Krishi 16123.",
+    },
+  ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -225,9 +279,13 @@ export function Buddy() {
   const speechAbortRef = useRef<AbortController | null>(null);
   const [speechLoading, setSpeechLoading] = useState(false);
 
-  const appMeta = useMemo(() => APPS.find((a) => a.id === selectedApp) ?? APPS[0], [selectedApp]);
-  const suggestions = useMemo(() => APP_SUGGESTIONS[selectedApp] ?? APP_SUGGESTIONS.kormopath, [selectedApp]);
-  const tasks = useMemo(() => APP_TASKS[selectedApp] ?? APP_TASKS.kormopath, [selectedApp]);
+  const appMeta = useMemo(() => CREW_APPS.find((a) => a.id === selectedApp) ?? CREW_APPS[0], [selectedApp]);
+  const suggestions = useMemo(() => {
+    return chipLang === "en"
+      ? CHIP_SUGGESTIONS_EN[selectedApp] ?? CHIP_SUGGESTIONS_EN.haatbazar
+      : CHIP_SUGGESTIONS_BN[selectedApp] ?? CHIP_SUGGESTIONS_BN.haatbazar;
+  }, [selectedApp, chipLang]);
+  const tasks = useMemo(() => APP_TASKS[selectedApp] ?? APP_TASKS.haatbazar, [selectedApp]);
 
   useEffect(() => {
     setSelectedApp(routeApp);
@@ -239,48 +297,6 @@ export function Buddy() {
     }
   }, [messages, loading]);
 
-  // Generate Bangla audio on the server so the browser never substitutes an English voice.
-  const speak = async (text: string) => {
-    if (!voiceEnabled || typeof window === "undefined") return;
-    stopSpeaking();
-    const controller = new AbortController();
-    speechAbortRef.current = controller;
-    setSpeechLoading(true);
-    try {
-      const response = await fetch("/api/buddy/speech", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ text }),
-        signal: controller.signal,
-      });
-      const data = (await response.json().catch(() => ({}))) as { audio?: string; error?: string; mimeType?: string };
-      if (!response.ok || !data.audio) throw new Error(data.error || "বাংলা কণ্ঠ তৈরি করা যায়নি।");
-      const bytes = Uint8Array.from(atob(data.audio), (char) => char.charCodeAt(0));
-      const blob = new Blob([bytes], { type: data.mimeType || "audio/wav" });
-      const url = URL.createObjectURL(blob);
-      speechUrlRef.current = url;
-      const audio = new Audio(url);
-      audioRef.current = audio;
-      audio.onplay = () => setIsSpeaking(true);
-      audio.onended = () => stopSpeaking();
-      audio.onerror = () => {
-        setError("বাংলা অডিও চালানো যায়নি। আবার চেষ্টা করুন।");
-        stopSpeaking();
-      };
-      await audio.play();
-    } catch (err) {
-      if (!(err instanceof DOMException && err.name === "AbortError")) {
-        setError(err instanceof Error ? err.message : "বাংলা কণ্ঠে সমস্যা হয়েছে। আবার চেষ্টা করুন।");
-        setIsSpeaking(false);
-      }
-    } finally {
-      if (speechAbortRef.current === controller) {
-        speechAbortRef.current = null;
-        setSpeechLoading(false);
-      }
-    }
-  };
-
   const stopSpeaking = () => {
     speechAbortRef.current?.abort();
     speechAbortRef.current = null;
@@ -291,14 +307,93 @@ export function Buddy() {
     }
     if (speechUrlRef.current) URL.revokeObjectURL(speechUrlRef.current);
     speechUrlRef.current = null;
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
     setSpeechLoading(false);
     setIsSpeaking(false);
+    setIsNaturalVoice(false);
+  };
+
+  const fallbackDeviceVoice = (text: string) => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+      setIsSpeaking(false);
+      setIsNaturalVoice(false);
+      return;
+    }
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      const voices = window.speechSynthesis.getVoices();
+      const bnVoice = voices.find((v) => v.lang.startsWith("bn") || v.lang.includes("BD"));
+      if (bnVoice) utterance.voice = bnVoice;
+      utterance.onstart = () => {
+        setIsNaturalVoice(false);
+        setIsSpeaking(true);
+      };
+      utterance.onend = () => stopSpeaking();
+      utterance.onerror = () => stopSpeaking();
+      window.speechSynthesis.speak(utterance);
+    } catch {
+      stopSpeaking();
+    }
+  };
+
+  const speak = async (text: string) => {
+    if (!voiceEnabled || typeof window === "undefined") return;
+    stopSpeaking();
+
+    // 1. Try server Gemini TTS for Bengali audio
+    const controller = new AbortController();
+    speechAbortRef.current = controller;
+    setSpeechLoading(true);
+
+    try {
+      const response = await fetch("/api/buddy/speech", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ text }),
+        signal: controller.signal,
+      });
+      const data = (await response.json().catch(() => ({}))) as { audio?: string; error?: string; mimeType?: string };
+      if (response.ok && data.audio) {
+        const bytes = Uint8Array.from(atob(data.audio), (char) => char.charCodeAt(0));
+        const blob = new Blob([bytes], { type: data.mimeType || "audio/wav" });
+        const url = URL.createObjectURL(blob);
+        speechUrlRef.current = url;
+        const audio = new Audio(url);
+        audioRef.current = audio;
+        audio.onplay = () => {
+          setIsNaturalVoice(true);
+          setIsSpeaking(true);
+        };
+        audio.onended = () => stopSpeaking();
+        audio.onerror = () => {
+          fallbackDeviceVoice(text);
+        };
+        await audio.play();
+        return;
+      }
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") return;
+    } finally {
+      if (speechAbortRef.current === controller) {
+        speechAbortRef.current = null;
+        setSpeechLoading(false);
+      }
+    }
+
+    // 2. Seamlessly fall back to browser device voice
+    fallbackDeviceVoice(text);
   };
 
   useEffect(() => () => {
     speechAbortRef.current?.abort();
     audioRef.current?.pause();
     if (speechUrlRef.current) URL.revokeObjectURL(speechUrlRef.current);
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
   }, []);
 
   // Speech-To-Text (Web Speech API)
@@ -321,7 +416,7 @@ export function Buddy() {
       (window as unknown as { webkitSpeechRecognition?: new () => unknown }).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      setError("আপনার ব্রাউজারে ভয়েস রিকগনিশন সমর্থন করে না। নিচের কিবোর্ড আইকন দিয়ে লিখুন।");
+      setError("আপনার ডিভাইসের মাইক্রোফোন সমর্থন মেলেনি। কিবোর্ড আইকন দিয়ে লিখুন।");
       setShowKeyboard(true);
       return;
     }
@@ -339,7 +434,7 @@ export function Buddy() {
       })();
       recognition.continuous = false;
       recognition.interimResults = false;
-      recognition.lang = "bn-BD";
+      recognition.lang = chipLang === "bn" ? "bn-BD" : "en-US";
 
       recognition.onresult = (event) => {
         const transcript = event.results?.[0]?.[0]?.transcript;
@@ -390,18 +485,22 @@ export function Buddy() {
         sources?: Array<{ title: string; url: string }>;
         unverified?: boolean;
       };
+
       if (!response.ok || typeof data.reply !== "string") {
         throw new Error(data.error || "এখন উত্তর পাওয়া গেল না।");
       }
 
       const reply = data.reply;
-      setMessages((current) => [...current, {
-        role: "assistant",
-        content: reply,
-        sources: data.sources,
-        unverified: data.unverified,
-      }]);
-      speak(reply);
+      setMessages((current) => [
+        ...current,
+        {
+          role: "assistant",
+          content: reply,
+          sources: data.sources,
+          unverified: data.unverified,
+        },
+      ]);
+      void speak(reply);
     } catch (err) {
       setError(err instanceof Error ? err.message : "সংযোগে সমস্যা হয়েছে। আবার চেষ্টা করুন।");
     } finally {
@@ -417,14 +516,18 @@ export function Buddy() {
   };
 
   return (
-    <aside aria-label="কর্মোপথ সহায়ক" className={`buddy-root fixed bottom-4 right-4 ${open ? "z-50" : "z-30"} print:hidden font-sans`}>
+    <aside
+      aria-label="Chakra Agent Buddy"
+      className={`buddy-root fixed bottom-4 right-4 ${open ? "z-50" : "z-30"} print:hidden font-sans`}
+    >
       {open ? (
+        /* Expanded Assistant Modal Window (Attachment 2) */
         <section
-          aria-label="কর্মোপথ Buddy সহকারী"
-          className="buddy-panel flex h-[min(730px,88dvh)] w-[min(440px,calc(100vw-2rem))] flex-col overflow-hidden rounded-[24px] border border-slate-700 bg-[#0d141b] text-white shadow-xl shadow-black/40"
+          aria-label="Chakra Agent"
+          className="buddy-panel flex h-[min(730px,90dvh)] w-[min(430px,calc(100vw-2rem))] flex-col overflow-hidden rounded-[26px] border border-slate-700/80 bg-[#0e151c] text-white shadow-2xl shadow-black/90"
         >
-          {/* macOS Style Window Titlebar */}
-          <header className="flex items-center justify-between border-b border-slate-700 bg-[#101821] px-4 py-3">
+          {/* 1. Window Titlebar with macOS Traffic Lights */}
+          <header className="flex items-center justify-between border-b border-slate-800 bg-[#121a22] px-4 py-3">
             {/* Traffic Lights */}
             <div className="flex items-center gap-2">
               <button
@@ -433,221 +536,262 @@ export function Buddy() {
                   stopSpeaking();
                   setOpen(false);
                 }}
-                className="h-3 w-3 rounded-full bg-[#ff5f56] border border-[#e0443e] hover:brightness-110"
-                aria-label="বন্ধ করুন"
+                className="h-3 w-3 rounded-full bg-[#ff5f56] border border-[#e0443e] hover:brightness-110 cursor-pointer"
+                aria-label="Close Chakra Agent"
               />
               <span className="h-3 w-3 rounded-full bg-[#ffbd2e] border border-[#dea123] opacity-80" />
               <span className="h-3 w-3 rounded-full bg-[#27c93f] border border-[#1aab29] opacity-80" />
             </div>
 
-            {/* Title & Badge */}
-            <div className="flex items-center gap-2">
-              <SiriOrb size="sm" active={isSpeaking || isListening} />
+            {/* Title & Circular Chakra Badge */}
+            <div className="flex items-center gap-2.5">
+              <div className="h-6 w-6 rounded-full bg-emerald-950/80 border border-emerald-500/60 grid place-items-center shrink-0 shadow-[0_0_8px_rgba(52,211,153,0.3)]">
+                <svg viewBox="0 0 24 24" className="h-4 w-4 text-emerald-400" fill="currentColor">
+                  <circle cx="12" cy="12" r="3.2" fill="#34d399" />
+                  <path
+                    d="M12 2L13.6 8.5L20 7L15.5 12L20 17L13.6 15.5L12 22L10.4 15.5L4 17L8.5 12L4 7L10.4 8.5L12 2Z"
+                    fill="currentColor"
+                    opacity="0.85"
+                  />
+                </svg>
+              </div>
               <div className="text-center">
                 <span className="block text-[15px] font-bold tracking-tight text-white leading-tight">
-                  কর্মোপথ সহকারী
+                  Chakra Agent
                 </span>
-                <span className="block text-[12px] text-slate-300 leading-tight mt-0.5">
-                  {appMeta.name} · {appMeta.tag}
+                <span className="block text-[12px] text-slate-400 leading-tight mt-0.5">
+                  Your field assistant
                 </span>
               </div>
             </div>
 
-            {/* Status Chip */}
-            <div className="flex items-center gap-1.5">
-              <span className="inline-flex items-center gap-1 rounded-full border border-slate-600 bg-slate-800 px-2.5 py-1 text-[12px] font-semibold text-slate-100">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                {mode === "manual" ? "সহায়তা" : "পরিকল্পনা"}
-              </span>
-            </div>
+            {/* Top Right Mode Chip */}
+            <button
+              type="button"
+              onClick={() => setMode(mode === "manual" ? "agent" : "manual")}
+              className="rounded-full bg-white/10 hover:bg-white/15 px-3 py-1 text-[12px] font-medium text-slate-200 transition-colors cursor-pointer border border-white/5"
+            >
+              {mode === "manual" ? "Manual" : "Agent"}
+            </button>
           </header>
 
-          {/* Segmented Control: [Manual] vs [Agent] */}
-          <div className="px-5 pt-3 pb-2 text-center border-b border-slate-700 bg-[#0b1117]">
-            <div className="inline-flex rounded-full bg-[#141e26] p-1 border border-slate-600">
+          {/* 2. Segmented Pill Control: [ Manual | Agent ] */}
+          <div className="px-5 pt-3.5 pb-2.5 text-center border-b border-slate-800 bg-[#0b1016]">
+            <div className="inline-flex rounded-full bg-[#162029] p-1 border border-white/10">
               <button
                 type="button"
                 onClick={() => setMode("manual")}
-                className={`rounded-full px-5 py-2 text-[13px] font-bold transition-colors ${
+                className={`rounded-full px-8 py-2 text-[14px] transition-all cursor-pointer ${
                   mode === "manual"
-                    ? "bg-white text-slate-900"
-                    : "text-slate-200 hover:bg-slate-700"
+                    ? "bg-white text-slate-950 font-bold shadow-md"
+                    : "text-slate-300 font-medium hover:text-white"
                 }`}
               >
-                সহায়তা
+                Manual
               </button>
               <button
                 type="button"
                 onClick={() => setMode("agent")}
-                className={`rounded-full px-5 py-2 text-[13px] font-bold transition-colors ${
+                className={`rounded-full px-8 py-2 text-[14px] transition-all cursor-pointer ${
                   mode === "agent"
-                    ? "bg-white text-slate-900"
-                    : "text-slate-200 hover:bg-slate-700"
+                    ? "bg-white text-slate-950 font-bold shadow-md"
+                    : "text-slate-300 font-medium hover:text-white"
                 }`}
               >
-                পরিকল্পনা
+                Agent
               </button>
             </div>
-            <p className="mt-1.5 text-[12px] text-slate-300 leading-snug">
+
+            {/* Mode Description Caption */}
+            <p className="mt-2 text-[12px] text-slate-400 leading-snug">
               {mode === "manual"
-                ? "Buddy পথ দেখায়—কাজের নিয়ন্ত্রণ আপনার হাতে।"
-                : "Buddy ধাপে ধাপে পরিকল্পনা সাজায়; কোনো কাজ নিজে করে না।"}
+                ? "The agent only suggests; you do every step yourself."
+                : "The agent plans proactive steps; you review and confirm each action."}
             </p>
 
             {/* Deep Thinking Mode Chip */}
-            <div className="mt-2.5 flex justify-center">
+            <div className="mt-2.5 flex justify-center items-center gap-2">
               <button
                 type="button"
                 onClick={() => setDeepThinking(!deepThinking)}
                 aria-pressed={deepThinking}
-                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-semibold border transition-colors ${
+                className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[12px] font-semibold border transition-all cursor-pointer ${
                   deepThinking
-                    ? "border-emerald-500 bg-emerald-950 text-emerald-200"
-                    : "border-slate-600 bg-slate-800 text-slate-200 hover:bg-slate-700"
+                    ? "border-emerald-500/60 bg-emerald-950/60 text-emerald-300 shadow-[0_0_10px_rgba(52,211,153,0.15)]"
+                    : "border-slate-700 bg-slate-800/80 text-slate-300 hover:border-slate-600"
                 }`}
               >
-                <Brain size={13} className={deepThinking ? "text-emerald-400" : "text-slate-400"} />
-                <span>{deepThinking ? "উত্তর যাচাই চালু" : "উত্তর যাচাই বন্ধ"}</span>
+                <Brain size={14} className={deepThinking ? "text-emerald-400" : "text-slate-400"} />
+                <span>Deep thinking</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setChipLang(chipLang === "en" ? "bn" : "en")}
+                className="rounded-full border border-slate-700 bg-slate-800/80 px-2.5 py-1 text-[11px] font-bold text-slate-300 hover:text-white"
+                title="Switch suggestion language"
+              >
+                {chipLang === "en" ? "EN" : "বাংলা"}
               </button>
             </div>
           </div>
 
-          {/* Horizontal Navigation: Talk | Tasks | Apps | Security */}
-          <nav aria-label="সহকারীর বিভাগ" className="flex border-b border-slate-700 bg-[#0e161f] px-4 text-[13px] font-semibold text-slate-300">
+          {/* 3. Horizontal Navigation: Talk | Tasks 1 | Crew | Path | Security */}
+          <nav
+            aria-label="Assistant sections"
+            className="flex items-center justify-between border-b border-slate-800 bg-[#0d141b] px-3 text-[13px] font-semibold"
+          >
             <button
               type="button"
               onClick={() => setTab("talk")}
-              className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 transition-colors ${
+              className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 transition-all cursor-pointer ${
                 tab === "talk"
                   ? "border-amber-400 text-amber-300 font-bold"
-                  : "border-transparent text-slate-300 hover:text-white"
+                  : "border-transparent text-slate-400 hover:text-slate-200"
               }`}
             >
-              <MessageCircle size={14} />
-              <span>কথা</span>
+              <MessageCircle size={15} />
+              <span>Talk</span>
             </button>
+
             <button
               type="button"
               onClick={() => setTab("tasks")}
-              className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 transition-colors ${
+              className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 transition-all cursor-pointer ${
                 tab === "tasks"
                   ? "border-amber-400 text-amber-300 font-bold"
-                  : "border-transparent text-slate-300 hover:text-white"
+                  : "border-transparent text-slate-400 hover:text-slate-200"
               }`}
             >
-              <CheckSquare size={14} />
-              <span>কাজ {tasks.length > 0 && <span className="rounded-full bg-slate-700 px-1.5 text-[11px]">{tasks.length}</span>}</span>
+              <CheckSquare size={15} />
+              <span>
+                Tasks <span className="ml-0.5 rounded-full bg-slate-800 border border-slate-700 px-1.5 py-0.2 text-[10px] text-slate-300">1</span>
+              </span>
             </button>
+
             <button
               type="button"
-              onClick={() => setTab("apps")}
-              className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 transition-colors ${
-                tab === "apps"
+              onClick={() => setTab("crew")}
+              className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 transition-all cursor-pointer ${
+                tab === "crew"
                   ? "border-amber-400 text-amber-300 font-bold"
-                  : "border-transparent text-slate-300 hover:text-white"
+                  : "border-transparent text-slate-400 hover:text-slate-200"
               }`}
             >
-              <Layers size={14} />
-              <span>অ্যাপ</span>
+              <Users size={15} />
+              <span>Crew</span>
             </button>
+
+            <button
+              type="button"
+              onClick={() => setTab("path")}
+              className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 transition-all cursor-pointer ${
+                tab === "path"
+                  ? "border-amber-400 text-amber-300 font-bold"
+                  : "border-transparent text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              <Compass size={15} />
+              <span>Path</span>
+            </button>
+
             <button
               type="button"
               onClick={() => setTab("security")}
-              className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 transition-colors ${
+              className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 transition-all cursor-pointer ${
                 tab === "security"
                   ? "border-amber-400 text-amber-300 font-bold"
-                  : "border-transparent text-slate-300 hover:text-white"
+                  : "border-transparent text-slate-400 hover:text-slate-200"
               }`}
             >
-              <ShieldCheck size={14} />
-              <span>গোপনীয়তা</span>
+              <ShieldCheck size={15} />
+              <span>Security</span>
             </button>
           </nav>
 
-          {/* Tab 1: Talk (Chat & Suggestions) */}
+          {/* 4. Tab Content */}
+          {/* TAB 1: TALK (Chat, Suggestions & Dialogue) */}
           {tab === "talk" && (
             <div className="flex-1 flex flex-col min-h-0">
-              {/* Suggestion Chips */}
-              <div className="p-3 border-b border-slate-700 bg-[#0a1016] flex flex-wrap gap-1.5 max-h-36 overflow-y-auto">
+              {/* Quick Action Suggestion Chips (Attachment 2) */}
+              <div className="p-3 border-b border-slate-800 bg-[#0a1016] flex flex-wrap gap-1.5 max-h-36 overflow-y-auto">
                 {suggestions.map((chip) => (
                   <button
                     key={chip}
                     type="button"
                     disabled={loading}
                     onClick={() => void send(undefined, chip)}
-                    className="rounded-full border border-slate-600 bg-slate-800 px-3 py-1.5 text-[12px] font-medium text-slate-100 hover:border-emerald-400 hover:bg-slate-700 transition-colors disabled:opacity-50"
+                    className="rounded-full border border-white/10 bg-[#1a232c] px-3.5 py-1.5 text-[12.5px] font-medium text-slate-200 hover:border-emerald-400/60 hover:bg-[#22303c] transition-all cursor-pointer disabled:opacity-50"
                   >
                     {chip}
                   </button>
                 ))}
+
                 <button
                   type="button"
                   aria-pressed={browseEnabled}
                   disabled={selectedApp === "mediscan" || loading}
-                  title={selectedApp === "mediscan" ? "ওষুধ ও ব্যক্তিগত স্বাস্থ্যতথ্যের জন্য ওয়েব খোঁজ বন্ধ" : "সূত্রসহ ওয়েবে খুঁজুন"}
+                  title={selectedApp === "mediscan" ? "Web search disabled for medical privacy" : "Search web with Google Grounding"}
                   onClick={() => setBrowseEnabled(!browseEnabled)}
-                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-all cursor-pointer disabled:opacity-40 ${
                     browseEnabled
-                      ? "border-sky-300 bg-sky-900 text-sky-100"
-                      : "border-slate-500 bg-slate-900 text-slate-100 hover:bg-slate-700"
+                      ? "border-sky-400/80 bg-sky-950 text-sky-200"
+                      : "border-slate-700 bg-slate-800/80 text-slate-300 hover:bg-slate-700"
                   }`}
                 >
-                  <Globe size={14} />
-                  ওয়েবে খুঁজুন
+                  <Globe size={13} />
+                  <span>Search web</span>
                 </button>
               </div>
 
               {/* Chat Message Scroll */}
-              <div
-                ref={chatScrollRef}
-                className="flex-1 overflow-y-auto p-4 space-y-3"
-                aria-live="polite"
-              >
-                {messages.length === 0 ? (
-                  <div className="buddy-intro rounded-2xl border border-slate-700 bg-[#111c30] p-4 text-center">
-                    <p className="text-[15px] leading-relaxed text-slate-100 font-medium">
-                      হ্যালো, আমি <strong className="text-emerald-400">Buddy</strong>। {appMeta.name} নিয়ে কীভাবে সাহায্য করতে পারি?
-                    </p>
-                    <p className="mt-2 text-[13px] leading-relaxed text-slate-300">
-                      নিচের প্রশ্ন বেছে নিন অথবা নিচের গোলকটি চেপে বাংলায় কথা বলুন।
-                    </p>
+              <div ref={chatScrollRef} className="flex-1 overflow-y-auto p-4 space-y-3" aria-live="polite">
+                {messages.map((message, index) => (
+                  <div
+                    key={`${index}-${message.role}`}
+                    className={`max-w-[92%] rounded-2xl px-4 py-3 text-[13.5px] leading-relaxed ${
+                      message.role === "user"
+                        ? "ml-auto bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md"
+                        : "mr-auto border border-slate-700/80 bg-[#121c27] text-slate-100 shadow-sm"
+                    }`}
+                  >
+                    {message.unverified && (
+                      <span className="mb-1.5 block text-[11px] font-bold text-amber-300">
+                        Web result · Verify with source
+                      </span>
+                    )}
+                    <p className="whitespace-pre-wrap">{message.content}</p>
+
+                    {message.sources && message.sources.length > 0 && (
+                      <div className="mt-2.5 border-t border-slate-700 pt-2">
+                        <span className="block text-[11px] font-semibold text-slate-300">Sources</span>
+                        <ul className="mt-1 space-y-1">
+                          {message.sources.map((source) => (
+                            <li key={source.url}>
+                              <a
+                                href={source.url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-start gap-1 text-[12px] text-sky-400 underline decoration-sky-700 underline-offset-2 hover:text-sky-200"
+                              >
+                                <ExternalLink size={12} className="mt-1 shrink-0" />
+                                <span>{source.title}</span>
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  messages.map((message, index) => (
-                    <div
-                      key={`${index}-${message.role}`}
-                      className={`max-w-[90%] rounded-2xl px-3.5 py-2.5 text-[13px] leading-relaxed ${
-                        message.role === "user"
-                          ? "ml-auto bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-sm"
-                          : "buddy-reply mr-auto border border-slate-700 bg-[#111c30] text-slate-100"
-                      }`}
-                    >
-                      {message.unverified && <span className="mb-1.5 block text-[11px] font-bold text-amber-200">ওয়েবের তথ্য—যাচাই করা নয়</span>}
-                      {message.content}
-                      {message.sources && message.sources.length > 0 && (
-                        <div className="mt-2 border-t border-slate-600 pt-2">
-                          <span className="block text-[11px] font-semibold text-slate-200">সূত্র</span>
-                          <ul className="mt-1 space-y-1">
-                            {message.sources.map((source) => (
-                              <li key={source.url}>
-                                <a href={source.url} target="_blank" rel="noreferrer" className="inline-flex items-start gap-1 text-[12px] text-sky-300 underline decoration-sky-700 underline-offset-2 hover:text-sky-100">
-                                  <ExternalLink size={12} className="mt-1 shrink-0" />
-                                  <span>{source.title}</span>
-                                </a>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </div>
-                  ))
-                )}
+                ))}
+
                 {loading && (
                   <div className="flex items-center gap-2 text-[12px] text-emerald-400 py-1" role="status">
                     <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
-                  <span>উত্তর তৈরি হচ্ছে…</span>
+                    <span>Thinking with deep verification…</span>
                   </div>
                 )}
+
                 {error && (
                   <p className="rounded-xl border border-rose-500/30 bg-rose-950/40 p-2.5 text-[11px] text-rose-200" role="alert">
                     {error}
@@ -657,47 +801,47 @@ export function Buddy() {
             </div>
           )}
 
-          {/* Tab 2: Tasks */}
+          {/* TAB 2: TASKS */}
           {tab === "tasks" && (
             <div className="flex-1 overflow-y-auto p-4 space-y-2.5">
               <span className="text-[12px] font-bold text-slate-300 block mb-2">
-                {appMeta.name} এর জরুরি অ্যাকশন তালিকা:
+                Priority Action Checklist for {appMeta.name}:
               </span>
               {tasks.map((t, idx) => (
                 <div
                   key={idx}
-                  className="rounded-xl border border-white/10 bg-white/[0.03] p-3 hover:border-emerald-500/40 transition-colors"
+                  className="rounded-xl border border-white/10 bg-[#131d27] p-3.5 hover:border-emerald-500/40 transition-colors"
                 >
-                  <strong className="text-[13px] text-emerald-300 block leading-snug">
+                  <strong className="text-[13.5px] text-emerald-300 block leading-snug">
                     {t.title}
                   </strong>
-                  <p className="text-[11px] text-slate-400 mt-1 leading-normal">
+                  <p className="text-[12px] text-slate-400 mt-1 leading-relaxed">
                     {t.desc}
                   </p>
                   <button
                     type="button"
                     onClick={() => {
                       setTab("talk");
-                      void send(undefined, t.title);
+                      void send(undefined, t.query);
                     }}
-                    className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-amber-300 hover:text-amber-200"
+                    className="mt-2.5 inline-flex items-center gap-1 text-[12px] font-bold text-amber-300 hover:text-amber-200 cursor-pointer"
                   >
-                    <span>Buddy দিয়ে সমাধান করুন</span>
-                    <ArrowRight size={12} />
+                    <span>Execute with Chakra Agent</span>
+                    <ArrowRight size={13} />
                   </button>
                 </div>
               ))}
             </div>
           )}
 
-          {/* Tab 3: Apps */}
-          {tab === "apps" && (
+          {/* TAB 3: CREW (Ecosystem Agents) */}
+          {tab === "crew" && (
             <div className="flex-1 overflow-y-auto p-4 space-y-2">
               <span className="text-[12px] font-bold text-slate-300 block mb-2">
-                সহকারী কোন অ্যাপটি নিয়ে কাজ করবে?
+                KormoPath Multi-Agent Ecosystem Crew:
               </span>
               <div className="grid grid-cols-1 gap-2">
-                {APPS.map((a) => (
+                {CREW_APPS.map((a) => (
                   <button
                     key={a.id}
                     type="button"
@@ -705,20 +849,24 @@ export function Buddy() {
                       setSelectedApp(a.id);
                       if (a.id === "mediscan") setBrowseEnabled(false);
                       setTab("talk");
-                      setMessages([]);
                     }}
-                    className={`flex items-center justify-between p-3 rounded-xl border text-left transition-all ${
+                    className={`flex items-center justify-between p-3 rounded-xl border text-left transition-all cursor-pointer ${
                       selectedApp === a.id
-                        ? "border-emerald-500 bg-emerald-500/10 text-white"
-                        : "border-white/5 bg-white/[0.02] text-slate-300 hover:border-white/20"
+                        ? "border-emerald-500 bg-emerald-950/40 text-white"
+                        : "border-white/5 bg-[#121b24] text-slate-300 hover:border-white/20"
                     }`}
                   >
-                    <div>
-                      <span className="block text-[13px] font-bold">{a.name}</span>
-                      <span className="block text-[10px] text-slate-400">{a.tag}</span>
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-xl">{a.icon}</span>
+                      <div>
+                        <span className="block text-[13px] font-bold">{a.name}</span>
+                        <span className="block text-[11px] text-slate-400">{a.tag}</span>
+                      </div>
                     </div>
-                    {selectedApp === a.id && (
+                    {selectedApp === a.id ? (
                       <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                    ) : (
+                      <ArrowRight size={14} className="text-slate-500" />
                     )}
                   </button>
                 ))}
@@ -726,35 +874,62 @@ export function Buddy() {
             </div>
           )}
 
-          {/* Tab 4: Security */}
-          {tab === "security" && (
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 text-[12px] text-slate-300">
-              <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3">
-                <span className="flex items-center gap-1.5 font-bold text-emerald-300 text-[13px]">
-                  <ShieldCheck size={16} />
-                  <span>আপনার গোপনীয়তা</span>
+          {/* TAB 4: PATH (Opportunities & Skills Roadmap) */}
+          {tab === "path" && (
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 text-[12.5px] text-slate-300">
+              <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/30 p-3.5">
+                <span className="flex items-center gap-1.5 font-bold text-emerald-300 text-[13.5px]">
+                  <Compass size={16} />
+                  <span>My Path · Career & Life Opportunities</span>
                 </span>
-                <p className="mt-1.5 text-[11px] text-slate-300 leading-relaxed">
-                  আপনার বাজেট, প্রেসক্রিপশন, সিভি এবং ইনভয়েস ডেটা ব্রাউজারের নিজস্ব লোকালস্টোরেজে থাকে।
-                  কোনো ইউজার অ্যাকাউন্ট বা সেন্ট্রাল ডাটাবেজে স্টোর হয় না।
+                <p className="mt-2 text-[12px] text-slate-300 leading-relaxed">
+                  Track live job opportunities, farmer aid programs, university circulars, and verified skill passports in one unified board.
                 </p>
+                <Link
+                  href="/opportunities"
+                  className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-emerald-500 px-3 py-1.5 text-[12px] font-bold text-slate-950 hover:bg-emerald-400 transition-colors"
+                >
+                  <span>Open Opportunities Board</span>
+                  <ExternalLink size={12} />
+                </Link>
               </div>
 
-              <div className="rounded-xl border border-white/5 bg-white/[0.03] p-3 space-y-2 text-[11px] text-slate-400">
-                <p>• <strong>প্রেসক্রিপশন সুরক্ষা</strong>: কোনো মেডিকেল ডেটা সংরক্ষণ করা হয় না।</p>
-                <p>• <strong>আর্থিক সততা</strong>: ফিনান্সিয়াল হিসাব ১০০% অপরিবর্তনশীল পূর্ণসংখ্যা পয়সা নিয়মে গণনা হয়।</p>
-                <p>• <strong>এআই ব্যবহার</strong>: উত্তরের জন্য সার্ভারের নিরাপদ জেমিনি সংযোগ ব্যবহৃত হয়; গোপন চাবি ব্রাউজারে পাঠানো হয় না।</p>
+              <div className="rounded-xl border border-white/10 bg-[#121c27] p-3 space-y-2 text-[11.5px] text-slate-400">
+                <p>• <strong>Skill Passport</strong>: HMAC-SHA256 signed tamper-proof proof of coding ability.</p>
+                <p>• <strong>Contract Blackout Shield</strong>: Pre-drafted 48-hour internet outage protections.</p>
+                <p>• <strong>Integer Poisha Math</strong>: Zero-hallucination currency reconciliation.</p>
               </div>
             </div>
           )}
 
-          {/* Optional Collapsible Text Input Area */}
+          {/* TAB 5: SECURITY (Privacy & Local Guarantees) */}
+          {tab === "security" && (
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 text-[12px] text-slate-300">
+              <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3.5">
+                <span className="flex items-center gap-1.5 font-bold text-emerald-300 text-[13.5px]">
+                  <ShieldCheck size={16} />
+                  <span>Local-First Data Privacy Guarantee</span>
+                </span>
+                <p className="mt-2 text-[12px] text-slate-300 leading-relaxed">
+                  Your budget calculations, prescriptions, CV data, and invoices stay in your browser&apos;s isolated LocalStorage. No user accounts or central databases can access your personal data.
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-white/5 bg-[#121b24] p-3 space-y-2 text-[11.5px] text-slate-400">
+                <p>• <strong>Prescription Safety</strong>: Zero OCR data stored on central servers.</p>
+                <p>• <strong>Financial Precision</strong>: Financial calculations run deterministically in integer poisha.</p>
+                <p>• <strong>Cryptographic Passports</strong>: Secret keys never leave the server environment.</p>
+              </div>
+            </div>
+          )}
+
+          {/* 5. Optional Collapsible Text Input Area */}
           {showKeyboard && (
             <form
               onSubmit={(event) => void send(event)}
-              className="flex items-end gap-2 border-t border-white/10 bg-[#0c1219] p-3"
+              className="flex items-end gap-2 border-t border-slate-800 bg-[#0c1219] p-3"
             >
-              <label htmlFor="buddy-input" className="sr-only">Buddy-কে বার্তা লিখুন</label>
+              <label htmlFor="buddy-input" className="sr-only">Type a message to Chakra Agent</label>
               <textarea
                 id="buddy-input"
                 value={input}
@@ -762,92 +937,121 @@ export function Buddy() {
                 rows={2}
                 onChange={(event) => setInput(event.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Buddy-কে কোনো প্রশ্ন করুন…"
-                className="max-h-24 min-h-10 flex-1 resize-y rounded-xl border border-white/10 bg-slate-900/90 px-3 py-2 text-[12px] text-white outline-none placeholder:text-slate-500 focus:border-emerald-400"
+                placeholder="Ask Chakra Agent anything…"
+                className="max-h-24 min-h-10 flex-1 resize-y rounded-xl border border-white/10 bg-slate-900/90 px-3 py-2 text-[12.5px] text-white outline-none placeholder:text-slate-500 focus:border-emerald-400"
               />
               <button
                 type="submit"
                 disabled={!input.trim() || loading}
-                aria-label="বার্তা পাঠান"
-                className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-bold hover:brightness-110 disabled:opacity-40"
+                aria-label="Send message"
+                className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-bold hover:brightness-110 disabled:opacity-40 cursor-pointer"
               >
                 <Send size={15} />
               </button>
             </form>
           )}
 
-          {/* Bottom Siri Orb & Voice Bar (Apple-Style Interface) */}
-          <footer className="border-t border-white/5 bg-gradient-to-t from-[#060a0e] via-[#091016] to-[#0c141c] px-4 py-3 text-center">
-            <div className="flex items-center justify-between px-2">
-              {/* Speaker / Voice Mute Toggle */}
+          {/* 6. Apple Siri / Chakra Voice Interaction Footer (Attachments 2 & 3) */}
+          <footer className="border-t border-slate-800 bg-gradient-to-t from-[#060a0e] via-[#091117] to-[#0c151e] px-4 py-3.5 text-center">
+            <div className="flex items-center justify-between px-3">
+              {/* Left Speaker / Mute Button */}
               <button
                 type="button"
                 onClick={() => {
                   if (isSpeaking || speechLoading) stopSpeaking();
                   setVoiceEnabled(!voiceEnabled);
                 }}
-                title={voiceEnabled ? "বাংলা কণ্ঠ বন্ধ করুন" : "বাংলা কণ্ঠ চালু করুন"}
-                className={`grid h-10 w-10 place-items-center rounded-full border transition-all ${
+                title={voiceEnabled ? "Mute audio voice" : "Enable audio voice"}
+                className={`grid h-10 w-10 place-items-center rounded-full border transition-all cursor-pointer ${
                   voiceEnabled
                     ? "border-white/15 bg-white/10 text-slate-200 hover:bg-white/20"
                     : "border-white/5 bg-white/5 text-slate-500 hover:text-slate-300"
                 }`}
               >
-                {voiceEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
+                {voiceEnabled ? <Volume2 size={17} /> : <VolumeX size={17} />}
               </button>
 
-              {/* Large Glowing Siri Orb */}
+              {/* Center Photorealistic Siri / Chakra 3D Orb (Attachment 3) */}
               <SiriOrb
                 size="lg"
                 active={isSpeaking || isListening}
                 onClick={toggleListening}
               />
 
-              {/* Keyboard Toggle */}
+              {/* Right Keyboard Toggle Button */}
               <button
                 type="button"
                 onClick={() => setShowKeyboard(!showKeyboard)}
-                title="কিবোর্ডে লিখুন"
-                className={`grid h-10 w-10 place-items-center rounded-full border transition-all ${
+                title="Type with keyboard"
+                className={`grid h-10 w-10 place-items-center rounded-full border transition-all cursor-pointer ${
                   showKeyboard
-                    ? "border-emerald-500/50 bg-emerald-500/20 text-emerald-300"
+                    ? "border-emerald-500/60 bg-emerald-500/20 text-emerald-300"
                     : "border-white/15 bg-white/10 text-slate-200 hover:bg-white/20"
                 }`}
               >
-                <Keyboard size={16} />
+                <Keyboard size={17} />
               </button>
             </div>
 
-            {/* Status Text Below Orb */}
-            <div className="mt-2 text-center">
-              <span className="block text-[12px] font-semibold text-slate-300">
+            {/* Status Captions Below Orb (Attachment 2) */}
+            <div className="mt-2.5 text-center">
+              <span className="block text-[12.5px] font-semibold text-slate-300 leading-snug">
                 {isSpeaking
-                  ? "বাংলায় বলছি… থামাতে গোলকে চাপ দিন"
+                  ? "Speaking... tap to stop"
                   : speechLoading
-                  ? "বাংলা কণ্ঠ তৈরি হচ্ছে…"
+                  ? "Preparing voice audio…"
                   : isListening
-                  ? "শুনছি… বাংলায় বলুন"
-                  : "প্রস্তুত… বাংলায় কথা বলতে গোলকে চাপ দিন"}
+                  ? "Listening... speak now"
+                  : "Tap orb to speak"}
               </span>
-              <span className="block text-[10px] text-amber-300/80 font-medium mt-0.5">
-                {voiceEnabled ? "বাংলা কণ্ঠ চালু" : "বাংলা কণ্ঠ বন্ধ"}
+              <span className="block text-[11px] text-[#dea123] font-medium mt-0.5 leading-snug">
+                {isSpeaking
+                  ? isNaturalVoice
+                    ? "Natural voice speaks."
+                    : "Natural voice is off; the device voice speaks."
+                  : voiceEnabled
+                  ? "Natural voice ready · tap to speak"
+                  : "Voice audio muted"}
               </span>
             </div>
           </footer>
         </section>
       ) : (
-        /* KormoPath Buddy floating launcher */
+        /* Collapsed Floating Launcher Pill Dock (Attachment 4) */
         <button
           type="button"
           onClick={() => setOpen(true)}
-          aria-label="কর্মোপথ সহায়ক খুলুন"
+          aria-label="Open Chakra Agent Buddy"
           aria-haspopup="dialog"
           aria-expanded={open}
-          className="buddy-launcher group grid place-items-center rounded-full border text-white transition-all duration-300"
+          className="buddy-dock group"
         >
-          <div className="buddy-launcher-orb" aria-hidden="true">
-            <SiriOrb size="lg" active={false} />
+          {/* Bezeled Lens with Iridescent 3D Orb & Glowing Star */}
+          <div className="buddy-dock-lens" aria-hidden="true">
+            <SiriOrb size="sm" active={false} />
+            <svg viewBox="0 0 24 24" className="buddy-dock-sparkle" fill="currentColor">
+              <path d="M12 0C12 6.627 6.627 12 0 12C6.627 12 12 17.373 12 24C12 17.373 17.373 12 24 12C17.373 12 12 6.627 12 0Z" />
+            </svg>
           </div>
+
+          {/* Typography: Buddy */}
+          <span className="text-[15px] font-bold text-white tracking-tight">
+            Buddy
+          </span>
+
+          {/* Mint Green Outline Speech Bubble */}
+          <svg
+            viewBox="0 0 24 24"
+            className="h-4.5 w-4.5 text-[#34d399] transition-transform group-hover:scale-110"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+          </svg>
         </button>
       )}
     </aside>
