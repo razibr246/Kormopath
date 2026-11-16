@@ -29,7 +29,6 @@ export function AppFooter({
             <Link
               href="/"
               className="inline-block group"
-              aria-label="KormoPath Home"
             >
               <KormoPathLogo theme="light" variant="full" size="md" />
             </Link>
@@ -46,9 +45,9 @@ export function AppFooter({
 
           {/* Col 2: Navigation Links */}
           <div className="space-y-2">
-            <h4 className="font-bold text-[14px] text-slate-900">
+            <h2 className="font-sans text-[14px] font-bold tracking-normal text-slate-900">
               {lang === "bn" ? "গুরুত্বপূর্ণ লিংক" : "Platform Navigation"}
-            </h4>
+            </h2>
             <ul className="space-y-1.5 text-slate-600">
               <li>
                 <Link
@@ -96,9 +95,9 @@ export function AppFooter({
 
           {/* Col 3: Regulatory Grounding */}
           <div className="space-y-2">
-            <h4 className="font-bold text-[14px] text-slate-900">
+            <h2 className="font-sans text-[14px] font-bold tracking-normal text-slate-900">
               {lang === "bn" ? "আইনি ও পলিসি রেফারেন্স" : "Regulatory Framework"}
-            </h4>
+            </h2>
             <div className="space-y-2 text-[12px] text-slate-600 leading-snug">
               <p>
                 <strong className="text-slate-800">NBR ITES Exemption:</strong> 1 July 2024 – 30 June 2027 (Finance Act 2024).
@@ -114,9 +113,9 @@ export function AppFooter({
 
           {/* Col 4: Civic Help & Helplines */}
           <div className="space-y-2">
-            <h4 className="font-bold text-[14px] text-slate-900">
+            <h2 className="font-sans text-[14px] font-bold tracking-normal text-slate-900">
               {lang === "bn" ? "জরুরি হেল্পলাইন" : "Civic Helplines"}
-            </h4>
+            </h2>
             <div className="space-y-1.5 text-[12px] text-slate-600">
               <p>
                 🚨 <strong className="text-slate-800">৯৯৯</strong> — {lang === "bn" ? "জাতীয় জরুরি সেবা" : "National Emergency"}
@@ -150,7 +149,7 @@ export function AppFooter({
           </div>
           <div className="sm:text-right text-[11px] text-slate-500">
             <p>{lang === "bn" ? "শুধুমাত্র তথ্যের উদ্দেশ্যে; কোনো আইনি বা ট্যাক্স পরামর্শ নয়।" : "For informational purposes; not formal legal or tax counsel."}</p>
-            <p className="text-slate-400">
+            <p className="text-slate-600">
               {lang === "bn" ? "ব্যাংক রেট ও ইনসেনটিভ অনুমোদিত ডিলার ব্যাংকে নিশ্চিত করুন।" : "Confirm inward remittance terms with your authorized dealer bank."}
             </p>
           </div>

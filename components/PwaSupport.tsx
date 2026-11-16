@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { Download, X } from "lucide-react";
 import { storageKey, usePersistentState } from "@/lib/clientStore";
 
@@ -11,6 +12,10 @@ type InstallEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{
  */
 export function PwaSupport() {
   const [installEvent, setInstallEvent] = useState<InstallEvent | null>(null);
+  // Offer install only once someone has opened a second page: never nag on the first visit.
+  const pathname = usePathname();
+  const [pagesSeen, setPagesSeen] = useState<string[]>([]);
+  useEffect(() => { setPagesSeen((p) => (p.includes(pathname) ? p : [...p, pathname].slice(-5))); }, [pathname]);
   const [dismissed, setDismissed] = usePersistentState<boolean>(storageKey("platform", "installDismissed"), false, (raw) => (typeof raw === "boolean" ? raw : null));
 
   useEffect(() => {
@@ -32,7 +37,7 @@ export function PwaSupport() {
     };
   }, []);
 
-  if (!installEvent || dismissed) return null;
+  if (!installEvent || dismissed || pagesSeen.length < 2) return null;
 
   return (
     <div role="dialog" aria-label="কর্মপথ অ্যাপ হিসেবে ইনস্টল করুন" className="fixed bottom-4 left-4 z-40 flex max-w-[calc(100vw-7rem)] items-center gap-3 rounded-2xl border border-line bg-[#fffdf9]/95 p-3 pr-2 shadow-[0_18px_40px_-18px_rgba(60,36,18,.45)] backdrop-blur print:hidden sm:max-w-sm">

@@ -255,6 +255,9 @@ export function SiriOrb({
       <span className="kp-orb-ring" />
       <span className="kp-orb-core">
         <span className="kp-orb-swirl" />
+        <span className="kp-orb-blob kp-orb-blob-a" />
+        <span className="kp-orb-blob kp-orb-blob-b" />
+        <span className="kp-orb-blob kp-orb-blob-c" />
         <span className="kp-orb-gloss" />
       </span>
       <span className="kp-orb-eye" />
@@ -854,7 +857,7 @@ export function Buddy() {
           className="buddy-orb-launcher group"
         >
           <SiriOrb size="xl" />
-          <span className="buddy-orb-label">বাডি</span>
+          <span className="buddy-orb-label"><i aria-hidden="true" />বাডি</span>
         </button>
       )}
     </aside>

@@ -1302,10 +1302,11 @@ function CashFlowDeficitAndBakiPanel() {
         <div className="space-y-3.5 text-[12.5px]">
           {/* Initial Balance */}
           <div>
-            <label className="block text-[11.5px] font-bold text-slate-700 mb-1">
+            <label htmlFor="cash-start" className="block text-[11.5px] font-bold text-slate-700 mb-1">
               বর্তমান ক্যাশ বা ক্যাশবাক্সের উদ্বৃত্ত (৳):
             </label>
             <input
+              id="cash-start"
               type="number"
               value={startCashTaka}
               onChange={(e) => setStartCashTaka(Math.max(0, Number(e.target.value) || 0))}
@@ -1370,8 +1371,9 @@ function CashFlowDeficitAndBakiPanel() {
         <div className="space-y-3.5 text-[12.5px]">
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="block text-[11px] font-bold text-slate-700 mb-1">মোট বাকি (৳)</label>
+              <label htmlFor="baki-total" className="block text-[11px] font-bold text-slate-700 mb-1">মোট বাকি (৳)</label>
               <input
+                id="baki-total"
                 type="number"
                 value={debtTaka}
                 onChange={(e) => setDebtTaka(Math.max(0, Number(e.target.value) || 0))}
@@ -1379,8 +1381,9 @@ function CashFlowDeficitAndBakiPanel() {
               />
             </div>
             <div>
-              <label className="block text-[11px] font-bold text-slate-700 mb-1">কিস্তির সংখ্যা (সপ্তাহ)</label>
+              <label htmlFor="baki-weeks" className="block text-[11px] font-bold text-slate-700 mb-1">কিস্তির সংখ্যা (সপ্তাহ)</label>
               <input
+                id="baki-weeks"
                 type="number"
                 min={1}
                 max={52}

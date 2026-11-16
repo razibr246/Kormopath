@@ -81,9 +81,9 @@ export function KormoPathLogo({
   }
 
   return (
-    <span className={`inline-flex items-center gap-2.5 ${className}`} aria-label="KormoPath, কর্মপথ">
+    <span className={`inline-flex items-center gap-2.5 ${className}`}>
       {mark}
-      <span className="flex min-w-0 flex-col leading-none" aria-hidden="true">
+      <span className="flex min-w-0 flex-col leading-none">
         <span className={`kp-wordmark ${titleSizeCls} ${dark ? "text-[#fbf3e8]" : "text-[#22180f]"}`}>
           Kormo<em className={dark ? "kp-wordmark-path-dark" : "kp-wordmark-path"}>Path</em>
         </span>

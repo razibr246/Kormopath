@@ -264,7 +264,7 @@ export function StageAudit({
                     <h3 className="display text-[16px] font-bold">AI Obsolescence Risk</h3>
                     <ShieldAlert size={16} className="text-muted" />
                   </div>
-                  <p className="display num text-[34px] font-extrabold mt-1" style={{ color: v!.aiRisk > 50 ? "var(--color-leak)" : v!.aiRisk > 30 ? "#a8741a" : "var(--color-kept)" }}>
+                  <p className="display num text-[34px] font-extrabold mt-1" style={{ color: v!.aiRisk > 50 ? "var(--color-leak)" : v!.aiRisk > 30 ? "var(--color-haldi)" : "var(--color-kept)" }}>
                     {v!.aiRisk}%
                   </p>
                   <p className="text-[12px] text-muted mt-1 leading-snug">

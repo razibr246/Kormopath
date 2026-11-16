@@ -180,9 +180,8 @@ export function AppSwitcherDropdown({
         }`}
         aria-expanded={isOpen}
         aria-haspopup="true"
-        aria-label={lang === "bn" ? "কর্মপথ অ্যাপ পরিবর্তন করুন" : "Switch KormoPath app"}
       >
-        <span className="flex h-2 w-2 rounded-full bg-orange-400 animate-pulse" />
+        <span className="flex h-2 w-2 rounded-full bg-orange-400 animate-pulse" aria-hidden="true" />
         <div className="text-left">
           <span className={`block text-[12px] font-bold leading-tight ${variant === "light" ? "text-slate-900" : "text-white"}`}>
             {lang === "bn" ? currentApp.nameBn.split(" ")[0] : currentApp.nameEn.split(" ")[0]}
@@ -190,6 +189,7 @@ export function AppSwitcherDropdown({
           <span className={`block text-[10px] leading-none ${variant === "light" ? "text-slate-500" : "text-amber-300/80"}`}>
             {lang === "bn" ? `${APPS_LIST.length}টি অ্যাপ` : `${APPS_LIST.length} apps`}
           </span>
+          <span className="sr-only">{lang === "bn" ? " · অ্যাপ বদলান" : " · switch app"}</span>
         </div>
         <ChevronDown
           size={16}

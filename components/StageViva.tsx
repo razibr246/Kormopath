@@ -281,7 +281,7 @@ export function StageViva(props: {
 
         <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
           <div>
-            <div className="rounded-xl border border-slate-700/80 bg-[#0d1626] overflow-hidden shadow-lg">
+            <div className="kp-dark rounded-xl border border-slate-700/80 bg-[#0d1626] overflow-hidden shadow-lg">
               {/* Line-numbered code editor chrome bar */}
               <div className="flex items-center justify-between border-b border-slate-700/70 bg-[#08101e] px-4 py-2">
                 <div className="flex items-center gap-2">

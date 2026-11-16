@@ -60,9 +60,9 @@ function Stats({ steps }: { steps: TraceStep[] }) {
     { label: "Deterministic Fallbacks", val: fallbacks, color: "text-violet-400" },
   ] as const;
   return (
-    <dl className="grid grid-cols-2 gap-1.5 overflow-hidden rounded-xl border border-[#1e293b] bg-[#0c1424] p-1.5 text-[12px]">
+    <dl className="grid grid-cols-2 gap-1.5 overflow-hidden rounded-xl border border-[#3a2b1f] bg-[#1b130e] p-1.5 text-[12px]">
       {items.map((it) => (
-        <div key={it.label} className="rounded-lg bg-[#0e172a] border border-[#1e293b]/70 px-2.5 py-1.5">
+        <div key={it.label} className="rounded-lg bg-[#21170f] border border-[#3a2b1f]/70 px-2.5 py-1.5">
           <dt className="text-slate-400 text-[11px] leading-tight truncate">{it.label}</dt>
           <dd className={`num font-mono text-[17px] font-bold ${it.color} mt-0.5`}>{it.val}</dd>
         </div>
@@ -74,23 +74,23 @@ function Stats({ steps }: { steps: TraceStep[] }) {
 function Log({ steps }: { steps: TraceStep[] }) {
   if (!steps.length)
     return (
-      <div className="rounded-xl border border-dashed border-[#1e293b] bg-[#0c1424]/80 p-4 text-[13px] text-slate-400 space-y-2">
+      <div className="rounded-xl border border-dashed border-[#3a2b1f] bg-[#1b130e]/80 p-4 text-[13px] text-slate-400 space-y-2">
         <p className="font-semibold text-slate-200">Ready for Telemetry</p>
         <p>Pick one of the 3 Judge Presets or run any agent. Every model call, check and fallback is logged here with its measured time:</p>
         <div className="flex flex-wrap gap-1 text-[11px] font-mono text-slate-400">
-          <span className="rounded bg-[#0e172a] px-1.5 py-0.5 border border-cyan-800/60 text-cyan-400">[Gemini call]</span>
-          <span className="rounded bg-[#0e172a] px-1.5 py-0.5 border border-emerald-800/60 text-emerald-400">[Zod schema check]</span>
-          <span className="rounded bg-[#0e172a] px-1.5 py-0.5 border border-amber-800/60 text-amber-400">[Repair retry]</span>
-          <span className="rounded bg-[#0e172a] px-1.5 py-0.5 border border-slate-700 text-slate-300">[Evidence grounding]</span>
-          <span className="rounded bg-[#0e172a] px-1.5 py-0.5 border border-violet-800/60 text-violet-400">[Rule-based fallback]</span>
-          <span className="rounded bg-[#0e172a] px-1.5 py-0.5 border border-emerald-800/60 text-emerald-400">[Deterministic FinOps]</span>
+          <span className="rounded bg-[#21170f] px-1.5 py-0.5 border border-cyan-800/60 text-cyan-400">[Gemini call]</span>
+          <span className="rounded bg-[#21170f] px-1.5 py-0.5 border border-emerald-800/60 text-emerald-400">[Zod schema check]</span>
+          <span className="rounded bg-[#21170f] px-1.5 py-0.5 border border-amber-800/60 text-amber-400">[Repair retry]</span>
+          <span className="rounded bg-[#21170f] px-1.5 py-0.5 border border-slate-700 text-slate-300">[Evidence grounding]</span>
+          <span className="rounded bg-[#21170f] px-1.5 py-0.5 border border-violet-800/60 text-violet-400">[Rule-based fallback]</span>
+          <span className="rounded bg-[#21170f] px-1.5 py-0.5 border border-emerald-800/60 text-emerald-400">[Deterministic FinOps]</span>
         </div>
       </div>
     );
   return (
     <ol className="space-y-1.5" aria-live="polite">
       {[...steps].reverse().map((s, i) => (
-        <li key={steps.length - i} className="rounded-xl border border-[#1e293b] bg-[#0e172a] px-3 py-2 text-[13px] leading-snug shadow-xs hover:border-slate-700 transition-all">
+        <li key={steps.length - i} className="rounded-xl border border-[#3a2b1f] bg-[#21170f] px-3 py-2 text-[13px] leading-snug shadow-xs hover:border-slate-700 transition-all">
           <div className="flex items-center gap-2">
             <span className={`h-2 w-2 shrink-0 rounded-full ${DOT[s.status]}`} title={s.status} />
             <span className="font-bold text-[13px] text-white">{s.agent}</span>
@@ -171,8 +171,8 @@ export function Telemetry({
   };
 
   const body = (
-    <div className="flex h-full flex-col gap-2.5 rounded-2xl border border-[#1e293b] bg-[#0a101f] p-3 text-slate-200 shadow-2xl">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#1e293b] pb-2.5">
+    <div className="kp-dark flex h-full flex-col gap-2.5 rounded-2xl border border-[#3a2b1f] bg-[#170f0a] p-3 text-slate-200 shadow-2xl">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#3a2b1f] pb-2.5">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5" aria-hidden="true">
             <span className="h-2.5 w-2.5 rounded-full bg-rose-500/80 inline-block" />
@@ -186,7 +186,7 @@ export function Telemetry({
           <button
             onClick={exportTraceJson}
             disabled={!steps.length}
-            className="inline-flex items-center gap-1 rounded-md border border-[#1e293b] bg-[#142036] hover:bg-[#1c2e4f] px-2 py-1 text-[11px] font-bold text-slate-200 hover:text-white transition-colors disabled:opacity-30"
+            className="inline-flex items-center gap-1 rounded-md border border-[#3a2b1f] bg-[#142036] hover:bg-[#1c2e4f] px-2 py-1 text-[11px] font-bold text-slate-200 hover:text-white transition-colors disabled:opacity-30"
             title="Export all execution trace events as JSON"
           >
             <Download size={12} /> Export Trace JSON
@@ -194,7 +194,7 @@ export function Telemetry({
           <button
             onClick={() => setDiffOpen(true)}
             disabled={!groundingDiff?.skills?.length}
-            className="inline-flex items-center gap-1 rounded-md border border-[#1e293b] bg-[#142036] hover:bg-[#1c2e4f] px-2 py-1 text-[11px] font-bold text-slate-200 hover:text-white transition-colors disabled:opacity-30"
+            className="inline-flex items-center gap-1 rounded-md border border-[#3a2b1f] bg-[#142036] hover:bg-[#1c2e4f] px-2 py-1 text-[11px] font-bold text-slate-200 hover:text-white transition-colors disabled:opacity-30"
             title="Inspect side-by-side Grounding Diff of original CV vs extracted skills"
           >
             <Scale size={12} /> Grounding Diff
@@ -202,7 +202,7 @@ export function Telemetry({
           <button
             onClick={() => setOpen(true)}
             disabled={!inspect.length}
-            className="inline-flex items-center gap-1 rounded-md border border-[#1e293b] bg-[#142036] hover:bg-[#1c2e4f] px-2 py-1 text-[11px] font-bold text-slate-200 hover:text-white transition-colors disabled:opacity-30"
+            className="inline-flex items-center gap-1 rounded-md border border-[#3a2b1f] bg-[#142036] hover:bg-[#1c2e4f] px-2 py-1 text-[11px] font-bold text-slate-200 hover:text-white transition-colors disabled:opacity-30"
             title="Inspect raw model outputs vs validated JSON schema"
           >
             <Braces size={12} /> Inspect JSON
@@ -234,13 +234,13 @@ export function Telemetry({
       <aside className="hidden lg:block lg:sticky lg:top-[68px] lg:h-[calc(100vh-84px)]">{body}</aside>
       <button
         onClick={() => setSheet(true)}
-        className="fixed bottom-4 right-4 z-30 inline-flex items-center gap-2 rounded-full bg-[#0a101f] border border-[#1e293b] px-4 py-3 text-[14px] font-semibold text-white shadow-xl hover:border-slate-600 transition-colors lg:hidden"
+        className="fixed bottom-4 right-4 z-30 inline-flex items-center gap-2 rounded-full bg-[#170f0a] border border-[#3a2b1f] px-4 py-3 text-[14px] font-semibold text-white shadow-xl hover:border-slate-600 transition-colors lg:hidden"
       >
         <Activity size={16} /> Telemetry ({steps.length})
       </button>
       {sheet && (
-        <div className="fixed inset-0 z-40 flex flex-col bg-[#0a101f] p-4 lg:hidden" role="dialog" aria-label="Agent telemetry">
-          <button onClick={() => setSheet(false)} className="mb-2 self-end rounded-lg border border-[#1e293b] bg-[#142036] p-2 text-slate-300 hover:text-white" aria-label="Close telemetry">
+        <div className="fixed inset-0 z-40 flex flex-col bg-[#170f0a] p-4 lg:hidden" role="dialog" aria-label="Agent telemetry">
+          <button onClick={() => setSheet(false)} className="mb-2 self-end rounded-lg border border-[#3a2b1f] bg-[#142036] p-2 text-slate-300 hover:text-white" aria-label="Close telemetry">
             <X size={18} />
           </button>
           {body}
@@ -256,10 +256,10 @@ export function Telemetry({
           onClick={() => setDiffOpen(false)}
         >
           <div
-            className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl bg-[#0a101f] p-6 shadow-2xl border border-[#1e293b] text-slate-200"
+            className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl bg-[#170f0a] p-6 shadow-2xl border border-[#3a2b1f] text-slate-200"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="mb-4 flex items-center justify-between border-b border-[#1e293b] pb-3">
+            <div className="mb-4 flex items-center justify-between border-b border-[#3a2b1f] pb-3">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-500/20 text-orange-400 border border-orange-500/30">
                   <Scale size={18} />
@@ -276,7 +276,7 @@ export function Telemetry({
               <button
                 onClick={() => setDiffOpen(false)}
                 aria-label="Close"
-                className="rounded-lg border border-[#1e293b] bg-[#142036] p-1.5 text-slate-400 hover:text-white hover:bg-[#1c2e4f]"
+                className="rounded-lg border border-[#3a2b1f] bg-[#142036] p-1.5 text-slate-400 hover:text-white hover:bg-[#1c2e4f]"
               >
                 <X size={16} />
               </button>
@@ -284,7 +284,7 @@ export function Telemetry({
 
             <div className="grid gap-4 md:grid-cols-2">
               {/* Left Column: Source Document */}
-              <div className="flex flex-col rounded-xl border border-[#1e293b] bg-[#0c1424] p-4">
+              <div className="flex flex-col rounded-xl border border-[#3a2b1f] bg-[#1b130e] p-4">
                 <div className="mb-2 flex items-center justify-between">
                   <span className="text-[12px] font-bold uppercase tracking-wider text-slate-400">
                     Source Text (CV / Profile / OCR)
@@ -293,13 +293,13 @@ export function Telemetry({
                     {groundingDiff.sourceText.length} chars
                   </span>
                 </div>
-                <div className="max-h-[500px] overflow-y-auto rounded-lg border border-[#1e293b] bg-[#080e1a] p-3 font-mono text-[12px] leading-relaxed text-slate-300 whitespace-pre-wrap select-text">
+                <div className="max-h-[500px] overflow-y-auto rounded-lg border border-[#3a2b1f] bg-[#080e1a] p-3 font-mono text-[12px] leading-relaxed text-slate-300 whitespace-pre-wrap select-text">
                   {groundingDiff.sourceText || "No source text available."}
                 </div>
               </div>
 
               {/* Right Column: Grounded Skills & Evidence */}
-              <div className="flex flex-col rounded-xl border border-[#1e293b] bg-[#0c1424] p-4">
+              <div className="flex flex-col rounded-xl border border-[#3a2b1f] bg-[#1b130e] p-4">
                 <div className="mb-2 flex items-center justify-between">
                   <span className="text-[12px] font-bold uppercase tracking-wider text-emerald-400">
                     Extracted Skills &amp; Quoted Evidence ({groundingDiff.skills.length})
@@ -314,7 +314,7 @@ export function Telemetry({
                     return (
                       <div
                         key={idx}
-                        className={`rounded-xl border p-3 bg-[#0e172a] text-[13px] shadow-2xs ${
+                        className={`rounded-xl border p-3 bg-[#21170f] text-[13px] shadow-2xs ${
                           isVerified
                             ? "border-emerald-600/50"
                             : isPartial
@@ -345,7 +345,7 @@ export function Telemetry({
                           <span>Level: <strong className="text-slate-200">{s.level}</strong></span>
                           {s.origin && <span className="ml-2 font-mono text-cyan-400">[{s.origin}]</span>}
                         </div>
-                        <div className="rounded border border-[#1e293b] bg-[#080e1a] p-2 font-mono text-[11px] text-slate-300 leading-tight">
+                        <div className="rounded border border-[#3a2b1f] bg-[#080e1a] p-2 font-mono text-[11px] text-slate-300 leading-tight">
                           <span className="font-semibold text-slate-400">Quoted Evidence:</span>
                           <p className="mt-0.5 italic text-slate-200">
                             {s.evidence ? `“${s.evidence}”` : "(No verbatim evidence provided)"}
@@ -358,7 +358,7 @@ export function Telemetry({
               </div>
             </div>
 
-            <div className="mt-4 flex items-center justify-between border-t border-[#1e293b] pt-3 text-[12px] text-slate-400">
+            <div className="mt-4 flex items-center justify-between border-t border-[#3a2b1f] pt-3 text-[12px] text-slate-400">
               <span>Grounding status derived via <code>lib/grounding.ts::verifyEvidence</code></span>
               <button
                 onClick={() => setDiffOpen(false)}
@@ -380,15 +380,15 @@ export function Telemetry({
           onClick={() => setOpen(false)}
         >
           <div
-            className="max-h-[85vh] w-full max-w-3xl overflow-y-auto rounded-2xl bg-[#0a101f] p-5 shadow-2xl border border-[#1e293b] text-slate-200"
+            className="max-h-[85vh] w-full max-w-3xl overflow-y-auto rounded-2xl bg-[#170f0a] p-5 shadow-2xl border border-[#3a2b1f] text-slate-200"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="mb-3 flex items-center justify-between border-b border-[#1e293b] pb-3">
+            <div className="mb-3 flex items-center justify-between border-b border-[#3a2b1f] pb-3">
               <div className="flex items-center gap-2">
                 <ShieldCheck size={20} className="text-emerald-400" />
                 <h3 className="display text-[20px] font-bold text-white">Inspect Raw Model vs Validated JSON Schema</h3>
               </div>
-              <button onClick={() => setOpen(false)} aria-label="Close" className="rounded-lg border border-[#1e293b] bg-[#142036] p-1.5 text-slate-400 hover:text-white">
+              <button onClick={() => setOpen(false)} aria-label="Close" className="rounded-lg border border-[#3a2b1f] bg-[#142036] p-1.5 text-slate-400 hover:text-white">
                 <X size={16} />
               </button>
             </div>
@@ -396,18 +396,18 @@ export function Telemetry({
               Raw model response is displayed side-by-side with the strictly parsed, grounded Zod schema object. The app only renders validated data — untrusted strings are stripped.
             </p>
             {inspect.map((x) => (
-              <details key={x.label} className="mb-3 rounded-xl border border-[#1e293b] overflow-hidden" open>
-                <summary className="cursor-pointer bg-[#0e172a] px-3.5 py-2.5 font-bold text-[14px] text-slate-200 border-b border-[#1e293b] hover:bg-[#142036]">{x.label}</summary>
-                <div className="grid gap-3 p-3 md:grid-cols-2 bg-[#0c1424]">
+              <details key={x.label} className="mb-3 rounded-xl border border-[#3a2b1f] overflow-hidden" open>
+                <summary className="cursor-pointer bg-[#21170f] px-3.5 py-2.5 font-bold text-[14px] text-slate-200 border-b border-[#3a2b1f] hover:bg-[#142036]">{x.label}</summary>
+                <div className="grid gap-3 p-3 md:grid-cols-2 bg-[#1b130e]">
                   <div>
                     <p className="mb-1 text-[11px] font-bold uppercase text-slate-400 font-mono">Raw Model Generation</p>
-                    <pre className="max-h-72 overflow-auto rounded-lg bg-[#080e1a] p-2.5 font-mono text-[11px] leading-tight text-cyan-300 border border-[#1e293b]">
+                    <pre className="max-h-72 overflow-auto rounded-lg bg-[#080e1a] p-2.5 font-mono text-[11px] leading-tight text-cyan-300 border border-[#3a2b1f]">
                       {x.raw ?? "No LLM guessing (deterministic code/rules engine)."}
                     </pre>
                   </div>
                   <div>
                     <p className="mb-1 text-[11px] font-bold uppercase text-emerald-400 font-mono">Validated &amp; Grounded Schema (Zod)</p>
-                    <pre className="max-h-72 overflow-auto rounded-lg bg-[#080e1a] p-2.5 font-mono text-[11px] leading-tight text-emerald-300 border border-[#1e293b]">
+                    <pre className="max-h-72 overflow-auto rounded-lg bg-[#080e1a] p-2.5 font-mono text-[11px] leading-tight text-emerald-300 border border-[#3a2b1f]">
                       {JSON.stringify(x.validated, null, 2)}
                     </pre>
                   </div>

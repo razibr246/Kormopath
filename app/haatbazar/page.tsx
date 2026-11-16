@@ -330,7 +330,7 @@ function WeatherPanel({ district, setDistrict }: { district: string; setDistrict
           {DISTRICTS.map((d) => <option key={d.id} value={d.id}>{d.nameBn}</option>)}
         </select>
       </div>
-      {loading && <p className="text-[13px] text-stone-400">পূর্বাভাস আনা হচ্ছে…</p>}
+      {loading && <p className="text-[13px] text-stone-500">পূর্বাভাস আনা হচ্ছে…</p>}
       {error && <p role="alert" className="rounded-lg bg-amber-50 p-2 text-[13px] text-amber-900">{error}</p>}
       {data && !loading && (
         <>
@@ -349,7 +349,7 @@ function WeatherPanel({ district, setDistrict }: { district: string; setDistrict
               <div key={x.time} title={`${x.time.slice(11, 16)} — ${x.precipProbability}%`} className="flex-1 rounded-t bg-sky-400/80" style={{ height: `${Math.max(3, x.precipProbability)}%` }} />
             ))}
           </div>
-          <div className="flex justify-between text-[10px] text-stone-400"><span>{h[0]?.time.slice(11, 16)}</span><span>বৃষ্টির সম্ভাবনা, প্রতি ঘণ্টা</span><span>{h[Math.min(23, h.length - 1)]?.time.slice(11, 16)}</span></div>
+          <div className="flex justify-between text-[10px] text-stone-600"><span>{h[0]?.time.slice(11, 16)}</span><span>বৃষ্টির সম্ভাবনা, প্রতি ঘণ্টা</span><span>{h[Math.min(23, h.length - 1)]?.time.slice(11, 16)}</span></div>
           <p className="text-[11px] text-stone-500">
             <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer" className="underline">Weather data by Open-Meteo.com</a> (CC BY 4.0) · আনা হয়েছে {new Date(data.fetchedAt).toLocaleString("en-GB", { timeZone: "Asia/Dhaka" })} · জেলা শহরের পূর্বাভাস; আপনার গ্রামে ভিন্ন হতে পারে। দুর্যোগ সতর্কবার্তার জন্য বাংলাদেশ আবহাওয়া অধিদপ্তর (BMD) দেখুন।
           </p>
@@ -438,7 +438,7 @@ function PriceNotebook({ notes, setNotes, today }: { notes: StoredNote[]; setNot
               {notes.map((n) => {
                 const age = today ? priceAgeDays(n.date, today) : 0;
                 return (
-                  <tr key={n.id} className={age > 3 ? "text-stone-400" : ""}>
+                  <tr key={n.id} className={age > 3 ? "text-stone-500" : ""}>
                     <td className="py-1.5">{n.date}{age > 3 && <span className="ml-1 rounded bg-amber-100 px-1 text-[10px] font-bold text-amber-800">{age} দিন পুরনো</span>}</td>
                     <td>{CROPS.find((c) => c.id === n.cropId)?.nameBn ?? n.cropId}</td>
                     <td>{n.market}</td>

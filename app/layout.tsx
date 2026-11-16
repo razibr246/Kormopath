@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, Noto_Serif_Bengali, JetBrains_Mono } from "next/font/google";
 import "@fontsource-variable/inter";
 import "@fontsource/hind-siliguri/400.css";
-import "@fontsource/hind-siliguri/500.css";
 import "@fontsource/hind-siliguri/600.css";
 import "@fontsource/hind-siliguri/700.css";
 import "./globals.css";
@@ -13,9 +12,10 @@ import { BuildathonSticker } from "@/components/BuildathonSticker";
 import { PwaSupport } from "@/components/PwaSupport";
 
 // Self-hosted at build time by next/font: no request to Google from the visitor's browser.
-const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", display: "swap", axes: ["opsz", "SOFT"] });
-const bnSerif = Noto_Serif_Bengali({ subsets: ["bengali"], variable: "--font-bn-serif", display: "swap", weight: ["500", "600", "700"] });
-const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains", display: "swap", weight: ["400", "500", "700"] });
+const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", display: "swap", axes: ["opsz"], preload: false });
+// Bangla serif only styles headings; not preloaded, so it never delays the first paint.
+const bnSerif = Noto_Serif_Bengali({ subsets: ["bengali"], variable: "--font-bn-serif", display: "swap", weight: ["600", "700"], preload: false });
+const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains", display: "swap", weight: ["400", "700"], preload: false });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://kormopath.vercel.app"),

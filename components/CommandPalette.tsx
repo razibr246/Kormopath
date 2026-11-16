@@ -196,7 +196,7 @@ export function CommandPalette() {
       aria-modal="true"
     >
       <div
-        className="w-full max-w-xl overflow-hidden rounded-2xl border border-slate-700/80 bg-[#070d1e] text-white shadow-2xl ring-1 ring-white/10"
+        className="kp-dark w-full max-w-xl overflow-hidden rounded-2xl border border-[#3a2b1f] bg-[#1b130e] text-white shadow-2xl ring-1 ring-white/10"
         onClick={(e) => e.stopPropagation()}
         onKeyDown={handleKeyDownInList}
       >

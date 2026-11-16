@@ -42,7 +42,7 @@ export function Navbar(props?: {
     <header className="kp-nav-wrap">
       <div className="kp-nav mx-auto flex h-[62px] max-w-7xl items-center justify-between gap-3 px-2.5 sm:pl-3">
         <div className="flex min-w-0 items-center gap-4">
-          <Link href="/" className="flex shrink-0 items-center rounded-2xl px-1 py-1" aria-label="KormoPath home">
+          <Link href="/" className="flex shrink-0 items-center rounded-2xl px-1 py-1">
             <span className="hidden sm:inline-flex"><KormoPathLogo theme="light" variant="full" size="sm" /></span>
             <span className="sm:hidden"><KormoPathLogo theme="light" variant="mark" size="sm" /></span>
           </Link>
@@ -75,11 +75,11 @@ export function Navbar(props?: {
               type="button"
               onClick={() => setLang(bn ? "en" : "bn")}
               className="kp-chip font-semibold"
-              aria-label={lang === "bn" ? "View in English" : "বাংলায় দেখুন"}
-              title="English / বাংলা"
+              title={lang === "bn" ? "View in English" : "বাংলায় দেখুন"}
             >
-              <Languages size={14} className="text-emerald-700" />
+              <Languages size={14} className="text-emerald-700" aria-hidden="true" />
               <span>{bn ? "EN" : "বাংলা"}</span>
+              <span className="sr-only">{bn ? " · View in English" : " · বাংলায় দেখুন"}</span>
             </button>
           )}
 
@@ -163,7 +163,7 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 pt-14 sm:px-6">
         <div className="grid gap-10 border-b border-line pb-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div className="space-y-4">
-            <Link href="/" className="inline-block" aria-label="KormoPath home">
+            <Link href="/" className="inline-block">
               <KormoPathLogo theme="light" variant="full" size="md" />
             </Link>
             <p className="max-w-sm text-[14px] leading-relaxed text-slate-600">

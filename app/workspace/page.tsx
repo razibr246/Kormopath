@@ -687,7 +687,7 @@ export default function Home() {
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <span className="flex h-3 w-3 rounded-full bg-kept animate-ping" />
-                <h3 className="font-bold text-[16px] text-ink">{lang === "bn" ? "নমুনা প্রোফাইলে চালিয়ে দেখুন" : "Try it with a sample profile"}</h3>
+                <h2 className="font-sans text-[16px] font-bold tracking-normal text-ink">{lang === "bn" ? "নমুনা প্রোফাইলে চালিয়ে দেখুন" : "Try it with a sample profile"}</h2>
               </div>
               <span className="rounded-full bg-amber-100/80 border border-amber-300/60 px-2.5 py-0.5 text-[11px] font-bold text-amber-900 shadow-2xs">
                 {lang === "bn" ? "লগইন লাগে না" : "No login"}
@@ -937,7 +937,7 @@ export default function Home() {
                 <div className="mt-3 border-t border-line pt-2 text-[12px]">
                   <span className="text-muted block">AI Replacement Risk:</span>
                   <div className="flex items-center justify-between font-bold mt-0.5">
-                    <span style={{ color: t.aiRisk > 50 ? "var(--color-leak)" : t.aiRisk > 30 ? "#a8741a" : "var(--color-kept)" }}>
+                    <span style={{ color: t.aiRisk > 50 ? "var(--color-leak)" : t.aiRisk > 30 ? "var(--color-haldi)" : "var(--color-kept)" }}>
                       {t.aiRisk}% Exposure
                     </span>
                     <span className="text-muted font-normal text-[11px]">heuristic estimate</span>
