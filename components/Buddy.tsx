@@ -22,6 +22,7 @@ import {
   Square,
 } from "lucide-react";
 import { banglaShare, prepareBanglaSpeech } from "@/lib/banglaSpeech";
+import { storageKey, usePersistentState } from "@/lib/clientStore";
 
 export const CREW_APPS = [
   { id: "haatbazar", bnName: "হাটবাজার", name: "HaatBazar AI", tag: "কৃষি ও আবহাওয়া", route: "/haatbazar", icon: "🌾" },
@@ -261,6 +262,8 @@ export function SiriOrb({
         <span className="kp-orb-gloss" />
       </span>
       <span className="kp-orb-eye" />
+      {/* Three small dots circling the orb: it is alive, faster while listening or speaking. */}
+      <span className="kp-orb-dots"><i /><i /><i /></span>
     </span>
   );
 
@@ -284,6 +287,15 @@ export function Buddy() {
   const routeApp = appForPath(pathname);
   const [selectedApp, setSelectedApp] = useState<AppId>(routeApp);
   const [open, setOpen] = useState(false);
+  // Movable launcher: drag anywhere, it snaps to the nearest side and remembers the spot on this device.
+  type DockPos = { side: "left" | "right"; bottom: number };
+  const [dock, setDock] = usePersistentState<DockPos>(storageKey("platform", "buddyDock"), { side: "right", bottom: 16 }, (raw) => {
+    const r = raw as Partial<DockPos> | null;
+    return r && (r.side === "left" || r.side === "right") && typeof r.bottom === "number" && Number.isFinite(r.bottom) ? { side: r.side, bottom: Math.min(2000, Math.max(8, r.bottom)) } : null;
+  });
+  const [dragAt, setDragAt] = useState<{ left: number; top: number } | null>(null);
+  const dragRef = useRef<{ x: number; y: number; left: number; top: number; moved: boolean } | null>(null);
+  const suppressClickRef = useRef(false);
   const [mode, setMode] = useState<AssistantMode>("agent");
   const [tab, setTab] = useState<AssistantTab>("talk");
   const [deepThinking, setDeepThinking] = useState(true);
@@ -620,6 +632,9 @@ export function Buddy() {
     <aside
       aria-label={bn ? "বাডি সহকারী" : "Buddy assistant"}
       className={`buddy-root fixed bottom-4 right-4 ${open ? "z-50" : "z-30"} print:hidden font-sans`}
+      style={open ? undefined : dragAt
+        ? { left: dragAt.left, top: dragAt.top, right: "auto", bottom: "auto" }
+        : { [dock.side]: 16, [dock.side === "left" ? "right" : "left"]: "auto", bottom: `min(${dock.bottom}px, calc(100dvh - 110px))` }}
     >
       {open ? (
         <section
@@ -849,12 +864,39 @@ export function Buddy() {
         /* Collapsed launcher: the glowing Buddy orb */
         <button
           type="button"
-          onClick={() => setOpen(true)}
+          onPointerDown={(e) => {
+            const box = (e.currentTarget.parentElement as HTMLElement).getBoundingClientRect();
+            dragRef.current = { x: e.clientX, y: e.clientY, left: box.left, top: box.top, moved: false };
+            e.currentTarget.setPointerCapture(e.pointerId);
+          }}
+          onPointerMove={(e) => {
+            const d = dragRef.current;
+            if (!d) return;
+            const dx = e.clientX - d.x;
+            const dy = e.clientY - d.y;
+            if (!d.moved && Math.hypot(dx, dy) < 6) return; // a tap, not a drag
+            d.moved = true;
+            setDragAt({ left: Math.min(window.innerWidth - 90, Math.max(4, d.left + dx)), top: Math.min(window.innerHeight - 100, Math.max(4, d.top + dy)) });
+          }}
+          onPointerUp={(e) => {
+            const d = dragRef.current;
+            dragRef.current = null;
+            if (!d?.moved || !dragAt) return;
+            suppressClickRef.current = true;
+            const box = (e.currentTarget.parentElement as HTMLElement).getBoundingClientRect();
+            setDock({ side: box.left + box.width / 2 < window.innerWidth / 2 ? "left" : "right", bottom: Math.round(Math.max(8, window.innerHeight - box.bottom)) });
+            setDragAt(null);
+          }}
+          onPointerCancel={() => { dragRef.current = null; setDragAt(null); }}
+          onClick={() => {
+            if (suppressClickRef.current) { suppressClickRef.current = false; return; }
+            setOpen(true);
+          }}
           aria-label="বাডি খুলুন (Open Buddy assistant)"
           aria-haspopup="dialog"
           aria-expanded={open}
           title="বাডি · বাংলা সহকারী"
-          className="buddy-orb-launcher group"
+          className={`buddy-orb-launcher group ${dragAt ? "is-dragging" : ""}`}
         >
           <SiriOrb size="xl" />
           <span className="buddy-orb-label"><i aria-hidden="true" />বাডি</span>

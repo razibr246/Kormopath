@@ -1002,3 +1002,66 @@ button.kp-chip:hover, a.kp-chip:hover { border-color: #c99041; background: #fff;
   --color-stone-400: oklch(72% 0.013 62); --color-stone-500: oklch(64% 0.013 62);
   --color-zinc-400: oklch(72% 0.014 62); --color-zinc-500: oklch(64% 0.014 62);
 }
+
+/* ===== Buddy orb v4: calm and alive =====
+ * One deep Padma-green pearl with a gentle warm light, a small soft glow, a thin cream-gold rim,
+ * slow breathing, and three dots circling it. Replaces the v3 rainbow aura. */
+.kp-orb { animation: kp-orb-live 4.2s ease-in-out infinite; }
+@keyframes kp-orb-live { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.035); } }
+.kp-orb-halo {
+  inset: -20%;
+  background: radial-gradient(circle, rgba(14, 107, 79, .28) 0%, rgba(201, 144, 65, .14) 45%, transparent 70%);
+  filter: blur(10px);
+  opacity: .9;
+  animation: kp-orb-halo 4.2s ease-in-out infinite;
+}
+.kp-orb-ring {
+  border: 1px solid rgba(201, 144, 65, .55);
+  background: radial-gradient(circle, rgba(255, 250, 242, .04) 60%, rgba(255, 250, 242, .3) 100%);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, .8), 0 6px 16px -8px rgba(40, 24, 12, .5);
+}
+.kp-orb-core {
+  inset: 15%;
+  filter: none;
+  background: radial-gradient(circle at 50% 65%, #15896a 0%, #0e6b4f 45%, #0a4a37 80%, #08392b 100%);
+  box-shadow: 0 0 0 1.5px rgba(255, 246, 232, .9), 0 4px 12px rgba(10, 74, 55, .4), inset 0 -5px 12px rgba(0, 0, 0, .3);
+}
+.kp-orb-swirl {
+  inset: -25%;
+  background: conic-gradient(from 160deg, rgba(127, 224, 191, .0), rgba(127, 224, 191, .45) 20%, rgba(244, 207, 135, .5) 45%, rgba(255, 176, 138, .35) 60%, rgba(127, 224, 191, 0) 85%);
+  filter: blur(6px);
+  opacity: .7;
+  mix-blend-mode: screen;
+  animation: kp-orb-spin 22s linear infinite;
+}
+.kp-orb-blob { opacity: .55; filter: blur(9px); }
+.kp-orb-blob-a { background: radial-gradient(circle, rgba(255, 196, 160, .9) 0%, rgba(255, 176, 138, 0) 70%); }
+.kp-orb-blob-b { background: radial-gradient(circle, rgba(127, 224, 191, .8) 0%, rgba(127, 224, 191, 0) 70%); }
+.kp-orb-blob-c { background: radial-gradient(circle, rgba(244, 207, 135, .85) 0%, rgba(244, 207, 135, 0) 70%); }
+.kp-orb-gloss {
+  background: radial-gradient(ellipse at 34% 22%, rgba(255, 255, 255, .75) 0%, rgba(255, 255, 255, 0) 30%), radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0) 66%, rgba(255, 255, 255, .16) 100%);
+  box-shadow: inset 0 -6px 12px rgba(0, 0, 0, .22);
+}
+.kp-orb-eye { box-shadow: 0 0 6px rgba(255, 255, 255, .9); }
+/* circling dots */
+.kp-orb-dots { position: absolute; inset: -2%; pointer-events: none; }
+.kp-orb-dots i { position: absolute; inset: 0; border-radius: 50%; animation: kp-orb-spin 7s linear infinite; }
+.kp-orb-dots i::before { content: ""; position: absolute; top: 0; left: 50%; width: max(3px, 7%); height: max(3px, 7%); translate: -50% -50%; border-radius: 50%; }
+.kp-orb-dots i:nth-child(1)::before { background: #ec6a45; box-shadow: 0 0 5px rgba(236, 106, 69, .8); }
+.kp-orb-dots i:nth-child(2) { animation-duration: 10s; animation-direction: reverse; rotate: 120deg; }
+.kp-orb-dots i:nth-child(2)::before { background: #e9b864; box-shadow: 0 0 5px rgba(233, 184, 100, .8); }
+.kp-orb-dots i:nth-child(3) { animation-duration: 13s; rotate: 240deg; inset: 6%; }
+.kp-orb-dots i:nth-child(3)::before { background: #7fe0bf; box-shadow: 0 0 5px rgba(127, 224, 191, .8); }
+.kp-orb-active { animation: kp-orb-live 1.6s ease-in-out infinite; }
+.kp-orb-active .kp-orb-halo { animation-duration: 1.6s; }
+.kp-orb-active .kp-orb-dots i { animation-duration: 1.8s; }
+.kp-orb-active .kp-orb-dots i:nth-child(2) { animation-duration: 2.4s; }
+.kp-orb-active .kp-orb-dots i:nth-child(3) { animation-duration: 3s; }
+.buddy-orb-label { background: #1b130e; border: 1px solid rgba(201, 144, 65, .55); }
+/* drag affordance */
+.buddy-orb-launcher { touch-action: none; }
+.buddy-orb-launcher.is-dragging { cursor: grabbing; transform: scale(1.08); transition: none; }
+@media (prefers-reduced-motion: reduce) {
+  .kp-orb, .kp-orb-dots i { animation: none !important; }
+}
+.kp-orb-blob { opacity: .72; }
