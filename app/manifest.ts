@@ -9,11 +9,15 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: "/",
     scope: "/",
     display: "standalone",
-    background_color: "#f8fafc",
-    theme_color: "#070d1e",
+    background_color: "#fbf6ee",
+    theme_color: "#0e6b4f",
     lang: "bn-BD",
     dir: "ltr",
-    icons: [{ src: "/favicon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" }],
+    icons: [
+      { src: "/favicon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
+      { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: "/apple-touch-icon.png", sizes: "180x180", type: "image/png", purpose: "any" },
+    ],
     shortcuts: [
       { name: "আমার পথ", short_name: "My Path", url: "/opportunities", icons: [{ src: "/favicon.svg", sizes: "any", type: "image/svg+xml" }] },
       { name: "হাটবাজার", short_name: "HaatBazar", url: "/haatbazar", icons: [{ src: "/favicon.svg", sizes: "any", type: "image/svg+xml" }] },

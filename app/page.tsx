@@ -1,36 +1,139 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Navbar, Footer } from "@/components/Chrome";
 import { EcosystemHub } from "@/components/EcosystemHub";
-import { HeroDevice } from "@/components/HeroDevice";
+import { HeroOrbit } from "@/components/HeroOrbit";
 import { FX_FALLBACK } from "@/lib/data";
 import {
-  GraduationCap,
-  Pill,
-  Wallet,
-  Sprout,
-  Mic,
-  Percent,
-  Sparkles,
   ArrowRight,
   ArrowUpRight,
-  ShieldCheck,
-  CheckCircle2,
+  Briefcase,
   ChevronDown,
-  Layers,
-  Target,
-  Trophy,
-  Zap,
-  Activity,
-  Globe,
   Compass,
+  CornerDownLeft,
+  Database,
+  GraduationCap,
+  Lock,
+  MessageCircle,
+  Mic,
+  Percent,
+  Pill,
+  Scale,
+  ScrollText,
+  Search,
+  ShieldCheck,
+  Sprout,
+  Wallet,
+  type LucideIcon,
 } from "lucide-react";
 
+type Lang = "en" | "bn";
+type Tool = {
+  id: string;
+  href: string;
+  icon: LucideIcon;
+  /** Tailwind classes for the icon tile and the card's top stripe (all from the v2 palette). */
+  tone: string;
+  stripe: string;
+  name: { bn: string; en: string };
+  line: { bn: string; en: string };
+  chips: { bn: string[]; en: string[] };
+};
+
+const TOOLS: Record<"earn" | "life" | "farm", Tool[]> = {
+  earn: [
+    { id: "chuktiguard", href: "/chuktiguard", icon: ScrollText, tone: "bg-indigo-50 text-indigo-700 ring-indigo-200", stripe: "from-indigo-500 to-violet-500",
+      name: { bn: "চুক্তিগার্ড", en: "ChuktiGuard" },
+      line: { bn: "রিভিউ করা ধারার টেমপ্লেট থেকে ক্লায়েন্ট চুক্তি, মাইলস্টোন ও ইনভয়েস।", en: "Client contracts, milestones and invoices from reviewed clause templates." },
+      chips: { bn: ["বাংলা-ইংরেজি ধারা", "মাইলস্টোন ভাগ"], en: ["Bilingual clauses", "Milestone split"] } },
+    { id: "feeguard", href: "/feeguard", icon: Percent, tone: "bg-amber-50 text-amber-800 ring-amber-200", stripe: "from-amber-400 to-orange-500",
+      name: { bn: "ফি-গার্ড", en: "FeeGuard BD" },
+      line: { bn: "পেআউটের প্রতিটি ফি, রেট আর প্রণোদনা ধাপে ধাপে, প্রতিটির পাশে উৎস।", en: "Every payout fee, rate and incentive step by step, each with its source." },
+      chips: { bn: ["চ্যানেল তুলনা", "২.৫% প্রণোদনা"], en: ["Channel compare", "2.5% incentive"] } },
+    { id: "probaho", href: "/probaho", icon: Mic, tone: "bg-purple-50 text-purple-700 ring-purple-200", stripe: "from-purple-500 to-pink-500",
+      name: { bn: "প্রবাহ কোচ", en: "Probaho Coach" },
+      line: { bn: "ভাইভা ও ইন্টারভিউয়ের উত্তর বলে অনুশীলন; উত্তরের কাঠামো নিয়ে স্বচ্ছ ফিডব্যাক।", en: "Practise viva and interview answers aloud; transparent feedback on structure." },
+      chips: { bn: ["বাংলা ও ইংরেজি", "প্রশ্নব্যাংক"], en: ["Bangla & English", "Question bank"] } },
+    { id: "path", href: "/opportunities", icon: Compass, tone: "bg-sky-50 text-sky-800 ring-sky-200", stripe: "from-sky-500 to-blue-600",
+      name: { bn: "আমার পথ", en: "My Path" },
+      line: { bn: "চাকরি, বৃত্তি ও কৃষি কর্মসূচি খুঁজুন, সংরক্ষণ করুন, পরের ধাপ ঠিক করুন।", en: "Find jobs, scholarships and farm programmes; save them and plan next steps." },
+      chips: { bn: ["উৎসসহ খোঁজ", "ক্যালেন্ডার"], en: ["Sourced search", "Calendar"] } },
+  ],
+  life: [
+    { id: "admitbuddy", href: "/admitbuddy", icon: GraduationCap, tone: "bg-blue-50 text-blue-700 ring-blue-200", stripe: "from-blue-500 to-indigo-500",
+      name: { bn: "অ্যাডমিট বাডি", en: "AdmitBuddy" },
+      line: { bn: "বিশ্ববিদ্যালয় ভর্তির তালিকা, কাজের চেকলিস্ট আর অফিসিয়াল সার্কুলারের তারিখ।", en: "University shortlist, task checklist and dates from official circulars." },
+      chips: { bn: ["জিপিএ মিল", "এসওপি খসড়া"], en: ["GPA fit", "SOP draft"] } },
+    { id: "shohoj", href: "/shohoj-budget", icon: Wallet, tone: "bg-orange-50 text-orange-700 ring-orange-200", stripe: "from-orange-500 to-red-500",
+      name: { bn: "সহজ বাজেট", en: "Shohoj Budget" },
+      line: { bn: "মুখে বলুন বা লিখুন “আজ বাজারে ৳২০০”: নিশ্চিত করলে তবেই সংরক্ষণ।", en: "Say or type “৳200 at the bazar today”: saved only after you confirm." },
+      chips: { bn: ["বাংলা ভয়েস", "বিকাশ এসএমএস"], en: ["Bangla voice", "bKash SMS"] } },
+    { id: "mediscan", href: "/mediscan", icon: Pill, tone: "bg-rose-50 text-rose-700 ring-rose-200", stripe: "from-rose-500 to-pink-500",
+      name: { bn: "মেডিস্ক্যান", en: "MediScan BD" },
+      line: { bn: "প্রেসক্রিপশনে যা লেখা আছে সহজ বাংলায় বোঝায়; রোগ নির্ণয় করে না।", en: "Explains what the prescription says in plain Bangla; never diagnoses." },
+      chips: { bn: ["সময়সূচি", "জরুরি সতর্কতা"], en: ["Timetable", "Urgent flags"] } },
+  ],
+  farm: [
+    { id: "haatbazar", href: "/haatbazar", icon: Sprout, tone: "bg-emerald-50 text-emerald-800 ring-emerald-200", stripe: "from-emerald-500 to-lime-500",
+      name: { bn: "হাটবাজার", en: "HaatBazar AI" },
+      line: { bn: "আপনার দেওয়া দামে হাট বনাম আড়তের লাভ, জেলার আবহাওয়া আর স্প্রে করার সময়।", en: "Market vs wholesale margin at your own prices, district weather and spray windows." },
+      chips: { bn: ["ট্রাক ভাগ", "কৃষি কল ১৬১২৩"], en: ["Truck share", "Krishi call 16123"] } },
+  ],
+};
+
+const GROUPS = [
+  { key: "earn" as const, bn: "আয়", en: "Earn", sub: { bn: "দক্ষতা থেকে পেমেন্ট পর্যন্ত", en: "From skill to payment" } },
+  { key: "life" as const, bn: "জীবন", en: "Life", sub: { bn: "পড়াশোনা, সংসার ও স্বাস্থ্য", en: "Study, home and health" } },
+  { key: "farm" as const, bn: "কৃষি", en: "Farm", sub: { bn: "মাঠ থেকে হাট", en: "From field to market" } },
+];
+
+/** Task-first search: plain-language jobs mapped to the tool that does them. */
+const TASKS: Array<{ href: string; bn: string; en: string; keys: string }> = [
+  { href: "/feeguard", bn: "পেআউটে কত ফি কাটবে দেখব", en: "See what my payout will cost", keys: "fee ফি payoneer পেওনিয়ার withdraw টাকা তোলা swift bkash বিকাশ wise upwork fiverr rate রেট" },
+  { href: "/workspace", bn: "সিভি থেকে স্কিল পাসপোর্ট বানাব", en: "Turn my CV into a skill passport", keys: "cv সিভি skill স্কিল passport পাসপোর্ট github freelance ফ্রিল্যান্স audit চাকরি" },
+  { href: "/chuktiguard", bn: "ক্লায়েন্টের সঙ্গে চুক্তি ও ইনভয়েস করব", en: "Draft a client contract and invoice", keys: "contract চুক্তি invoice ইনভয়েস client ক্লায়েন্ট milestone legal" },
+  { href: "/probaho", bn: "ভাইভা/ইন্টারভিউ অনুশীলন করব", en: "Practise a viva or interview", keys: "viva ভাইভা interview ইন্টারভিউ speaking কথা বলা practice অনুশীলন" },
+  { href: "/opportunities", bn: "চাকরি বা বৃত্তি খুঁজব", en: "Find a job or scholarship", keys: "job চাকরি scholarship বৃত্তি internship opportunity সুযোগ program" },
+  { href: "/admitbuddy", bn: "ভর্তির পরিকল্পনা করব", en: "Plan university admission", keys: "admission ভর্তি university বিশ্ববিদ্যালয় gpa জিপিএ buet du sop" },
+  { href: "/shohoj-budget", bn: "সংসারের খরচ লিখে রাখব", en: "Track household spending", keys: "budget বাজেট expense খরচ bazar বাজার sms money হিসাব সংসার" },
+  { href: "/mediscan", bn: "প্রেসক্রিপশন বুঝব", en: "Understand a prescription", keys: "prescription প্রেসক্রিপশন medicine ওষুধ doctor ডাক্তার dose" },
+  { href: "/haatbazar", bn: "হাটে বেচব না আড়তে, হিসাব করব", en: "Market or wholesale: which pays more", keys: "crop ফসল farm কৃষি haat হাট weather আবহাওয়া spray স্প্রে truck ট্রাক দাম price" },
+  { href: "/settings", bn: "আমার ডেটা দেখব বা মুছব", en: "See or delete my data", keys: "data ডেটা privacy প্রাইভেসি delete মুছুন export backup ব্যাকআপ" },
+];
+
+function matchTasks(query: string) {
+  const q = query.trim().toLowerCase().normalize("NFC");
+  if (!q) return TASKS.slice(0, 5);
+  const words = q.split(/\s+/);
+  return TASKS
+    .map((task) => {
+      const hay = `${task.bn} ${task.en} ${task.keys}`.toLowerCase().normalize("NFC");
+      const score = words.reduce((n, w) => n + (hay.includes(w) ? 1 : 0), 0);
+      return { task, score };
+    })
+    .filter((x) => x.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .map((x) => x.task)
+    .slice(0, 5);
+}
+
+const PIPELINE = [
+  { n: "০১", bn: "যাচাই", en: "Audit", d: { bn: "সিভি আর পাবলিক গিটহাব থেকে প্রমাণসহ দক্ষতা।", en: "Skills with evidence from your CV and public GitHub." } },
+  { n: "০২", bn: "পরীক্ষা", en: "Prove", d: { bn: "ব্রাউজারের স্যান্ডবক্সে কোড চ্যালেঞ্জ আর মুখে ভাইভা।", en: "A sandboxed code challenge and a spoken viva." } },
+  { n: "০৩", bn: "চুক্তি", en: "Contract", d: { bn: "সরাসরি ক্লায়েন্টের জন্য প্রস্তাব আর রিভিউ করা চুক্তি।", en: "A pitch and a reviewed contract for a direct client." } },
+  { n: "০৪", bn: "টাকা", en: "Get paid", d: { bn: "ফি, কর আর প্রণোদনার নির্ধারিত হিসাব, মিলিয়ে দেখা।", en: "Fees, tax and incentive, reconciled to the taka." } },
+];
+
 export default function HomePage() {
+  const router = useRouter();
   const [isEcosystemOpen, setIsEcosystemOpen] = useState(false);
-  const [lang, setLang] = useState<"en" | "bn">("bn");
+  const [lang, setLang] = useState<Lang>("bn");
   const [fx, setFx] = useState({ usdBdt: FX_FALLBACK.usdBdt, live: false });
+  const [query, setQuery] = useState("");
+  const bn = lang === "bn";
+  const results = useMemo(() => matchTasks(query), [query]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -46,582 +149,271 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    document.documentElement.lang = lang === "bn" ? "bn" : "en";
+    document.documentElement.lang = bn ? "bn" : "en";
     return () => { document.documentElement.lang = "bn"; };
-  }, [lang]);
+  }, [bn]);
+
+  const goToTopMatch = (event: FormEvent) => {
+    event.preventDefault();
+    if (results[0]) router.push(results[0].href);
+  };
+
+  const orbitTools = [...TOOLS.earn, ...TOOLS.life, ...TOOLS.farm].map((tool) => ({
+    href: tool.href,
+    label: bn ? tool.name.bn : tool.name.en,
+    icon: tool.icon,
+    tone: tool.tone,
+  }));
 
   return (
-    <div className="min-h-screen bg-[#fafaf9] text-ink font-sans antialiased selection:bg-kept-soft selection:text-kept">
-      {/* Top Navbar */}
-      <Navbar
-        lang={lang}
-        setLang={setLang}
-        usdBdt={fx.usdBdt}
-        fxLive={fx.live}
-        onOpenEcosystem={() => setIsEcosystemOpen(true)}
-        isEcosystemOpen={isEcosystemOpen}
-      />
+    <div className="min-h-screen text-ink">
+      <Navbar lang={lang} setLang={setLang} usdBdt={fx.usdBdt} fxLive={fx.live} onOpenEcosystem={() => setIsEcosystemOpen(true)} isEcosystemOpen={isEcosystemOpen} />
 
-      <main id="main" className="mx-auto max-w-[1360px] px-4 space-y-16 py-8 sm:py-12">
-        {/* =========================================================
-            HERO SECTION: Modern, Clean & High-Impact
-            ========================================================= */}
-        <section aria-label="Hero" className="home-hero relative pt-4 sm:pt-8 pb-6 overflow-hidden">
-          {/* Ambient radial illumination backdrop */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] max-w-[90vw] h-[340px] bg-gradient-to-r from-orange-500/15 via-amber-400/10 to-blue-500/12 rounded-full blur-3xl pointer-events-none -z-10" />
+      <main id="main" className="mx-auto max-w-[1320px] px-4 sm:px-6">
+        {/* ============ HERO ============ */}
+        <section aria-labelledby="hero-title" className="kp-hero grid items-center gap-10 pb-10 pt-12 sm:pt-16 lg:grid-cols-[1.08fr_.92fr] lg:gap-6 lg:pt-20">
+          <div className="kp-rise">
+            <span className="kp-chip font-semibold">
+              <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" /><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-600" /></span>
+              {bn ? "অ্যাকাউন্ট লাগে না · তথ্য থাকে আপনার ডিভাইসে" : "No account · your data stays on your device"}
+            </span>
 
-          <div className="relative mx-auto max-w-4xl text-center">
-            {/* Official KormoPath Logo Emblem */}
-            <div className="flex justify-center mb-6">
-              <div className="inline-flex items-center gap-3.5 p-2 pr-6 rounded-2xl bg-white/95 border border-slate-200/90 shadow-md shadow-slate-200/40 backdrop-blur-md hover:scale-[1.01] transition-all">
-                <img
-                  src="/kormopath-logo.jpg"
-                  alt="KormoPath Logo"
-                  className="h-12 sm:h-14 w-auto rounded-xl object-contain shadow-xs border border-slate-100"
-                />
-                <div className="text-left">
-                  <span className="block text-[18px] font-extrabold leading-tight">
-                    <span className="text-[#070d1e]">Kormo</span>
-                    <span className="bg-gradient-to-r from-orange-600 via-amber-500 to-orange-500 bg-clip-text text-transparent">Path</span>
-                  </span>
-                  <span className="block text-[11px] font-semibold text-orange-600 leading-none mt-0.5">স্বয়ংক্রিয় এআই ইকোসিস্টেম</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Top Badge */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-orange-200/80 bg-orange-50/70 px-4 py-1.5 text-[12px] sm:text-[13px] font-bold text-orange-700 shadow-xs mb-6">
-              <Sparkles size={15} className="text-orange-500 animate-pulse" />
-              <span>Six practical apps for Bangladesh</span>
-            </div>
-
-            {/* Main Headline */}
-            <h1 className="display text-[clamp(30px,5.5vw,56px)] font-extrabold tracking-tight text-[#070d1e] leading-[1.08]">
-              {lang === "bn" ? (
-                <>
-                  বাংলাদেশের তরুণদের জন্য <br className="hidden sm:inline" />
-                  <span className="bg-gradient-to-r from-orange-600 via-amber-500 to-blue-600 bg-clip-text text-transparent">
-                    স্বয়ংক্রিয় এআই
-                  </span>{" "}
-                  ইকোসিস্টেম
-                </>
+            <h1 id="hero-title" className="mt-6 text-[clamp(38px,6.2vw,76px)] font-semibold leading-[1.04] tracking-tight text-slate-900">
+              {bn ? (
+                <>পড়া, কাজ, সংসার আর মাঠ — <em className="kp-em">এক পথে</em> সব হিসাব।</>
               ) : (
-                <>
-                  Autonomous AI Solutions <br className="hidden sm:inline" />
-                  for{" "}
-                  <span className="bg-gradient-to-r from-orange-600 via-amber-500 to-blue-600 bg-clip-text text-transparent">
-                    Bangladeshi Youth
-                  </span>
-                </>
+                <>Study, work, home and field: <em className="kp-em">one honest path.</em></>
               )}
             </h1>
 
-            {/* Subtitle */}
-            <p className="mt-5 text-[16px] sm:text-[19px] text-muted max-w-3xl mx-auto leading-relaxed">
-              {lang === "bn"
-                ? "শিক্ষা, স্বাস্থ্য, বাজেট, কৃষি, ভাইভা অনুশীলন ও ফ্রিল্যান্স ফি — বাংলাদেশের বাস্তব কাজের জন্য ৬টি আলাদা অ্যাপ। হিসাব নির্ধারিত নিয়মে, উৎসসহ; ডেটা আপনার ডিভাইসে।"
-                : "Six separate apps for Bangladesh: university admission planning, prescription reading with safety flags, Bangla voice budgeting with confirmation, farm trip and weather tools, viva practice, and freelance fee comparison. Calculations are deterministic and sourced; your data stays on your device."}
+            <p className="mt-5 max-w-[34rem] text-[17px] leading-relaxed text-slate-600 sm:text-[19px]">
+              {bn
+                ? "বাংলাদেশের দৈনন্দিন কাজের জন্য ৯টি ব্যবহারিক টুল আর একজন বাংলা সহকারী। টাকার হিসাব নির্ধারিত নিয়মে, প্রতিটি সংখ্যার পাশে উৎস, আর কোনো তথ্য বানিয়ে বলা হয় না।"
+                : "Nine practical tools and a Bangla assistant for everyday work in Bangladesh. Money maths follows fixed rules, every number shows its source, and nothing is made up."}
             </p>
 
-            {/* Hero CTAs */}
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-              <a
-                href="#apps-showcase"
-                className="w-full sm:w-auto min-h-[48px] inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-orange-600 via-amber-500 to-orange-600 px-6 py-3.5 text-[15px] font-bold text-white shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/35 hover:scale-[1.02] active:scale-[0.99] transition-all"
-              >
-                <span>{lang === "bn" ? "৬টি অ্যাপ দেখুন" : "Explore all 6 apps"}</span>
-                <ArrowRight size={16} />
+            {/* Task-first search */}
+            <form onSubmit={goToTopMatch} className="kp-intent mt-8" role="search">
+              <label htmlFor="intent" className="sr-only">{bn ? "আজ কী করবেন?" : "What do you need today?"}</label>
+              <Search size={20} className="shrink-0 text-slate-400" aria-hidden="true" />
+              <input
+                id="intent"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={bn ? "আজ কী করবেন? যেমন: পেআউটের ফি, ভর্তি, বাজারের খরচ…" : "What do you need today? e.g. payout fee, admission, bazar spending…"}
+                autoComplete="off"
+                aria-controls="intent-results"
+              />
+              <button type="button" onClick={() => window.dispatchEvent(new Event("kormopath:open-buddy"))} className="kp-intent-voice" aria-label={bn ? "বাডিকে বাংলায় বলুন" : "Ask Buddy by voice"} title={bn ? "বাডিকে বলুন" : "Ask Buddy"}>
+                <MessageCircle size={18} />
+                <span className="hidden sm:inline">{bn ? "বাডিকে বলুন" : "Ask Buddy"}</span>
+              </button>
+            </form>
+            <ul id="intent-results" className="mt-3 flex flex-wrap gap-2" aria-live="polite">
+              {results.length === 0 ? (
+                <li className="text-[14px] text-slate-500">{bn ? "মিল পাওয়া যায়নি। বাডিকে জিজ্ঞেস করুন বা সব টুল দেখুন।" : "No match. Ask Buddy or browse all tools."}</li>
+              ) : (
+                results.map((task, i) => (
+                  <li key={task.href} className={i >= 3 ? "hidden sm:block" : undefined}>
+                    <Link href={task.href} className={`kp-task ${query && i === 0 ? "kp-task-top" : ""}`}>
+                      {bn ? task.bn : task.en}
+                      {query && i === 0 ? <CornerDownLeft size={13} aria-hidden="true" /> : <ArrowUpRight size={13} aria-hidden="true" />}
+                    </Link>
+                  </li>
+                ))
+              )}
+            </ul>
+
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <Link href="/workspace" className="kp-btn-primary kp-btn-lg">
+                <Briefcase size={18} /> {bn ? "ওয়ার্কস্পেস শুরু করুন" : "Start the Workspace"}
+              </Link>
+              <a href="#apps-showcase" className="kp-btn-ghost kp-btn-lg">
+                {bn ? "সব টুল দেখুন" : "See all tools"} <ArrowRight size={17} />
               </a>
-
-              <Link
-                href="/admitbuddy"
-                className="w-full sm:w-auto min-h-[48px] inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3.5 text-[15px] font-bold text-slate-900 hover:border-orange-500 hover:text-orange-600 transition-all shadow-xs"
-              >
-                <GraduationCap size={18} className="text-indigo-600" />
-                <span>{lang === "bn" ? "এডমিট-বাডি (টপ পিক)" : "AdmitBuddy (Top Pick)"}</span>
-              </Link>
-
-              <button
-                onClick={() => setIsEcosystemOpen(true)}
-                className="w-full sm:w-auto min-h-[48px] inline-flex items-center justify-center gap-2 rounded-xl bg-slate-100 hover:bg-slate-200 px-5 py-3.5 text-[14px] font-semibold text-slate-700 transition-colors"
-              >
-                <Layers size={16} />
-                <span>9-Dot Launcher</span>
-              </button>
-            </div>
-
-            {/* 3D Cinematic Laptop Preview */}
-            <div className="mt-8 sm:mt-12 max-w-4xl mx-auto">
-              <HeroDevice />
             </div>
           </div>
 
-          {/* Clean Ecosystem Status Cards Row */}
-          <div className="home-app-quick mt-12 grid grid-cols-2 gap-2.5 sm:gap-3 sm:grid-cols-3 lg:grid-cols-6 text-left">
-            <Link
-              href="/admitbuddy"
-              className="home-app-quick-card group rounded-2xl border border-line bg-white p-3 sm:p-3.5 hover:border-indigo-500 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
-                  <GraduationCap size={18} />
-                </span>
-                <ArrowUpRight size={15} className="home-app-arrow text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200" aria-hidden />
-              </div>
-              <h4 className="text-[13px] sm:text-[14px] font-bold text-ink group-hover:text-indigo-600 transition-colors">
-                AdmitBuddy
-              </h4>
-              <p className="text-[11px] text-muted">Education Track</p>
-            </Link>
-
-            <Link
-              href="/mediscan"
-              className="home-app-quick-card group rounded-2xl border border-line bg-white p-3 sm:p-3.5 hover:border-rose-500 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
-                  <Pill size={18} />
-                </span>
-                <ArrowUpRight size={15} className="home-app-arrow text-slate-400 group-hover:text-rose-600 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200" aria-hidden />
-              </div>
-              <h4 className="text-[13px] sm:text-[14px] font-bold text-ink group-hover:text-rose-600 transition-colors">
-                MediScan BD
-              </h4>
-              <p className="text-[11px] text-muted">Health Track</p>
-            </Link>
-
-            <Link
-              href="/shohoj-budget"
-              className="home-app-quick-card group rounded-2xl border border-line bg-white p-3 sm:p-3.5 hover:border-amber-500 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
-                  <Wallet size={18} />
-                </span>
-                <ArrowUpRight size={15} className="home-app-arrow text-slate-400 group-hover:text-amber-600 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200" aria-hidden />
-              </div>
-              <h4 className="text-[13px] sm:text-[14px] font-bold text-ink group-hover:text-amber-600 transition-colors">
-                Shohoj Budget
-              </h4>
-              <p className="text-[11px] text-muted">Voice Finance</p>
-            </Link>
-
-            <Link
-              href="/haatbazar"
-              className="home-app-quick-card group rounded-2xl border border-line bg-white p-3 sm:p-3.5 hover:border-emerald-600 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700">
-                  <Sprout size={18} />
-                </span>
-                <ArrowUpRight size={15} className="home-app-arrow text-slate-400 group-hover:text-emerald-700 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200" aria-hidden />
-              </div>
-              <h4 className="text-[13px] sm:text-[14px] font-bold text-ink group-hover:text-emerald-700 transition-colors">
-                HaatBazar AI
-              </h4>
-              <p className="text-[11px] text-muted">Agriculture Track</p>
-            </Link>
-
-            <Link
-              href="/probaho"
-              className="home-app-quick-card group rounded-2xl border border-line bg-white p-3 sm:p-3.5 hover:border-blue-600 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                  <Mic size={18} />
-                </span>
-                <ArrowUpRight size={15} className="home-app-arrow text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200" aria-hidden />
-              </div>
-              <h4 className="text-[13px] sm:text-[14px] font-bold text-ink group-hover:text-blue-600 transition-colors">
-                Probaho Coach
-              </h4>
-              <p className="text-[11px] text-muted">Viva Speaking</p>
-            </Link>
-
-            <Link
-              href="/feeguard"
-              className="home-app-quick-card group rounded-2xl border border-line bg-white p-3 sm:p-3.5 hover:border-teal-600 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-50 text-teal-700">
-                  <Percent size={18} />
-                </span>
-                <ArrowUpRight size={15} className="home-app-arrow text-slate-400 group-hover:text-teal-700 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200" aria-hidden />
-              </div>
-              <h4 className="text-[13px] sm:text-[14px] font-bold text-ink group-hover:text-teal-700 transition-colors">
-                FeeGuard BD
-              </h4>
-              <p className="text-[11px] text-muted">20% Fee Saver</p>
-            </Link>
+          <div className="kp-rise kp-rise-2 mx-auto w-full max-w-[540px]">
+            <HeroOrbit
+              tools={orbitTools}
+              caption={{
+                kept: bn ? "প্রতিটি টাকার হিসাব, উৎসসহ" : "Every taka, with its source",
+                voice: bn ? "বাংলায় বলুন, বাডি শুনবে" : "Speak Bangla, Buddy listens",
+              }}
+            />
           </div>
         </section>
 
-        {/* =========================================================
-            FEATURED WORKABLE APPLICATIONS (The Core Showcase)
-            ========================================================= */}
-        <section id="apps-showcase" aria-label="Workable Applications" className="space-y-6 pt-6">
-          <div className="flex flex-wrap items-center justify-between gap-4">
+        {/* Trust strip */}
+        <section aria-label={bn ? "আমাদের প্রতিশ্রুতি" : "Our promises"} className="kp-trust grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            { icon: Lock, t: bn ? "লগইন নেই" : "No login", d: bn ? "নাম, ফোন বা ইমেইল চাওয়া হয় না" : "No name, phone or email asked" },
+            { icon: Database, t: bn ? "ডেটা আপনার" : "Your data", d: bn ? "ডিভাইসে থাকে; সেটিংসে রপ্তানি বা মুছুন" : "On your device; export or delete in Settings" },
+            { icon: Scale, t: bn ? "নিয়মে হিসাব" : "Rule-based maths", d: bn ? "ফি, কর ও মোট: কোডে, এআই নয়" : "Fees, tax and totals in code, not AI" },
+            { icon: ShieldCheck, t: bn ? "উৎস দেখানো" : "Sources shown", d: bn ? "দাম, তারিখ বা মাত্রা বানানো হয় না" : "No invented prices, dates or doses" },
+          ].map(({ icon: Icon, t, d }) => (
+            <div key={t} className="flex items-start gap-3 rounded-2xl border border-line bg-white/70 p-4 backdrop-blur">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200"><Icon size={18} /></span>
+              <span>
+                <strong className="block text-[15px] text-slate-900">{t}</strong>
+                <span className="block text-[13.5px] leading-snug text-slate-600">{d}</span>
+              </span>
+            </div>
+          ))}
+        </section>
+
+        {/* ============ TOOLS ============ */}
+        <section id="apps-showcase" aria-labelledby="tools-title" className="scroll-mt-28 pt-24">
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div>
-              <span className="text-[12px] font-bold text-kept uppercase tracking-wider">
-                Six apps, one KormoPath
-              </span>
-              <h2 className="display text-[28px] sm:text-[34px] font-extrabold text-ink mt-0.5">
-                {lang === "bn" ? "৬টি সমন্বিত কার্যকর অ্যাপ" : "6 Workable Applications"}
+              <p className="kp-eyebrow">{bn ? "৯টি টুল · তিনটি পথ" : "Nine tools · three paths"}</p>
+              <h2 id="tools-title" className="mt-3 text-[clamp(30px,4vw,48px)] font-semibold leading-tight tracking-tight text-slate-900">
+                {bn ? <>যা দরকার, <em className="kp-em">সেটাই খুলুন</em></> : <>Open <em className="kp-em">just what you need</em></>}
               </h2>
-              <p className="text-[15px] text-muted">
-                {lang === "bn"
-                  ? "প্রতিটি অ্যাপ্লিকেশন নির্দিষ্ট ডোমেন অনুযায়ী তৈরি এবং সরাসরি ব্যবহারযোগ্য।"
-                  : "Every application is engineered directly with real data and interactive features."}
-              </p>
             </div>
-
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[12px] font-bold text-emerald-800">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" />
-              <span>৬টি অ্যাপ · খুলে ব্যবহার করুন</span>
-            </div>
-          </div>
-
-          <div className="home-app-grid grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {/* 1. AdmitBuddy */}
-            <div className="home-app-card card-premium group rounded-3xl border border-line bg-white p-6 shadow-xs hover:border-indigo-500 hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-50 to-indigo-100/60 border border-indigo-200/50 shadow-xs text-indigo-600">
-                    <GraduationCap size={22} />
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    OPEN APP
-                  </span>
-                </div>
-                <h3 className="font-extrabold text-[20px] text-ink mt-4 group-hover:text-indigo-600 transition-colors">
-                  AdmitBuddy
-                </h3>
-                <span className="text-[11px] font-bold text-indigo-700 uppercase tracking-wide block mt-0.5">
-                  Education &amp; Career Track
-                </span>
-                <p className="text-[14px] text-muted mt-2.5 leading-relaxed">
-                  Matches Bangladeshi students with BUET/DU (Reach) vs SUST (Match) vs BRAC 50% waiver (Safety), auto-calculates GPA fit, and drafts admission essays.
-                </p>
-                <div className="mt-4 flex flex-wrap gap-1.5">
-                  <span className="text-[11px] font-semibold bg-slate-50 border border-line px-2 py-0.5 rounded text-slate-700">18 Universities</span>
-                  <span className="text-[11px] font-semibold bg-slate-50 border border-line px-2 py-0.5 rounded text-slate-700">GPA Cutoffs</span>
-                  <span className="text-[11px] font-semibold bg-slate-50 border border-line px-2 py-0.5 rounded text-slate-700">AI SOP Studio</span>
-                </div>
-              </div>
-              <Link
-                href="/admitbuddy"
-                className="mt-6 flex items-center justify-between rounded-xl bg-indigo-600 px-4 py-3 text-[14px] font-bold text-white hover:bg-indigo-700 transition-all shadow-xs group-hover:shadow"
-              >
-                <span>Launch AdmitBuddy</span>
-                <ArrowRight size={15} className="group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-            </div>
-
-            {/* 2. MediScan BD */}
-            <div className="home-app-card card-premium group rounded-3xl border border-line bg-white p-6 shadow-xs hover:border-rose-500 hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-50 to-rose-100/60 border border-rose-200/50 shadow-xs text-rose-600">
-                    <Pill size={22} />
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    OPEN APP
-                  </span>
-                </div>
-                <h3 className="font-extrabold text-[20px] text-ink mt-4 group-hover:text-rose-600 transition-colors">
-                  MediScan BD
-                </h3>
-                <span className="text-[11px] font-bold text-rose-700 uppercase tracking-wide block mt-0.5">
-                  Health &amp; Services Track
-                </span>
-                <p className="text-[14px] text-muted mt-2.5 leading-relaxed">
-                  Reads prescription text (photo reading optional, with consent), explains the written dose in plain Bangla, flags duplicate ingredients and urgent symptoms, and compares prices you were quoted.
-                </p>
-                <div className="mt-4 flex flex-wrap gap-1.5">
-                  <span className="text-[11px] font-semibold bg-slate-50 border border-line px-2 py-0.5 rounded text-slate-700">Prescription reader</span>
-                  <span className="text-[11px] font-semibold bg-slate-50 border border-line px-2 py-0.5 rounded text-slate-700">Bangla Timetable</span>
-                  <span className="text-[11px] font-semibold bg-slate-50 border border-line px-2 py-0.5 rounded text-slate-700">Generic Savings</span>
-                </div>
-              </div>
-              <Link
-                href="/mediscan"
-                className="mt-6 flex items-center justify-between rounded-xl bg-rose-600 px-4 py-3 text-[14px] font-bold text-white hover:bg-rose-700 transition-all shadow-xs group-hover:shadow"
-              >
-                <span>Launch MediScan BD</span>
-                <ArrowRight size={15} className="group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-            </div>
-
-            {/* 3. Shohoj Budget */}
-            <div className="home-app-card card-premium group rounded-3xl border border-line bg-white p-6 shadow-xs hover:border-amber-500 hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-50 to-amber-100/60 border border-amber-200/50 shadow-xs text-amber-600">
-                    <Wallet size={22} />
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    OPEN APP
-                  </span>
-                </div>
-                <h3 className="font-extrabold text-[20px] text-ink mt-4 group-hover:text-amber-600 transition-colors">
-                  Shohoj Budget
-                </h3>
-                <span className="text-[11px] font-bold text-amber-700 uppercase tracking-wide block mt-0.5">
-                  Finance &amp; Productivity Track
-                </span>
-                <p className="text-[14px] text-muted mt-2.5 leading-relaxed">
-                  Say or type “আজকে বাজারে ১২০০ টাকা খরচ করেছি”: it understands amount and category, asks you to confirm, then saves. Monthly budget, income, recurring items, SMS import and CSV export.
-                </p>
-                <div className="mt-4 flex flex-wrap gap-1.5">
-                  <span className="text-[11px] font-semibold bg-slate-50 border border-line px-2 py-0.5 rounded text-slate-700">Bangla Speech AI</span>
-                  <span className="text-[11px] font-semibold bg-slate-50 border border-line px-2 py-0.5 rounded text-slate-700">Daily Safe Limit</span>
-                  <span className="text-[11px] font-semibold bg-slate-50 border border-line px-2 py-0.5 rounded text-slate-700">bKash SMS</span>
-                </div>
-              </div>
-              <Link
-                href="/shohoj-budget"
-                className="mt-6 flex items-center justify-between rounded-xl bg-amber-600 px-4 py-3 text-[14px] font-bold text-white hover:bg-amber-700 transition-all shadow-xs group-hover:shadow"
-              >
-                <span>Launch Shohoj Budget</span>
-                <ArrowRight size={15} className="group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-            </div>
-
-            {/* 4. HaatBazar AI */}
-            <div className="home-app-card card-premium group rounded-3xl border border-line bg-white p-6 shadow-xs hover:border-emerald-600 hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-50 to-emerald-100/60 border border-emerald-200/50 shadow-xs text-emerald-700">
-                    <Sprout size={22} />
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    OPEN APP
-                  </span>
-                </div>
-                <h3 className="font-extrabold text-[20px] text-ink mt-4 group-hover:text-emerald-700 transition-colors">
-                  HaatBazar AI
-                </h3>
-                <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-wide block mt-0.5">
-                  Agriculture &amp; Marketplace Track
-                </span>
-                <p className="text-[14px] text-muted mt-2.5 leading-relaxed">
-                  Checks whether a distant market really pays more after transport, commission and losses; keeps a dated price notebook; and checks the forecast before spraying. No invented prices.
-                </p>
-                <div className="mt-4 flex flex-wrap gap-1.5">
-                  <span className="text-[11px] font-semibold bg-slate-50 border border-line px-2 py-0.5 rounded text-slate-700">64-District Mandis</span>
-                  <span className="text-[11px] font-semibold bg-slate-50 border border-line px-2 py-0.5 rounded text-slate-700">Karwan Bazar Spread</span>
-                  <span className="text-[11px] font-semibold bg-slate-50 border border-line px-2 py-0.5 rounded text-slate-700">Shared Truck</span>
-                </div>
-              </div>
-              <Link
-                href="/haatbazar"
-                className="mt-6 flex items-center justify-between rounded-xl bg-emerald-700 px-4 py-3 text-[14px] font-bold text-white hover:bg-emerald-800 transition-all shadow-xs group-hover:shadow"
-              >
-                <span>Launch HaatBazar AI</span>
-                <ArrowRight size={15} className="group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-            </div>
-
-            {/* 5. Probaho Speaking Coach */}
-            <div className="home-app-card card-premium group rounded-3xl border border-line bg-white p-6 shadow-xs hover:border-blue-600 hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100/60 border border-blue-200/50 shadow-xs text-blue-600">
-                    <Mic size={22} />
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    OPEN APP
-                  </span>
-                </div>
-                <h3 className="font-extrabold text-[20px] text-ink mt-4 group-hover:text-blue-600 transition-colors">
-                  Probaho Speaking Coach
-                </h3>
-                <span className="text-[11px] font-bold text-blue-700 uppercase tracking-wide block mt-0.5">
-                  Productivity &amp; Career Track
-                </span>
-                <p className="text-[14px] text-muted mt-2.5 leading-relaxed">
-                  Speak or type an answer to a viva or interview question and see which expected topics you covered, structure, filler words and real pace, with a follow-up question. No accent scoring.
-                </p>
-                <div className="mt-4 flex flex-wrap gap-1.5">
-                  <span className="text-[11px] font-semibold bg-slate-50 border border-line px-2 py-0.5 rounded text-slate-700">Live Audio Radar</span>
-                  <span className="text-[11px] font-semibold bg-slate-50 border border-line px-2 py-0.5 rounded text-slate-700">Filler-Word Counter</span>
-                  <span className="text-[11px] font-semibold bg-slate-50 border border-line px-2 py-0.5 rounded text-slate-700">130 WPM Pacing</span>
-                </div>
-              </div>
-              <Link
-                href="/probaho"
-                className="mt-6 flex items-center justify-between rounded-xl bg-blue-600 px-4 py-3 text-[14px] font-bold text-white hover:bg-blue-700 transition-all shadow-xs group-hover:shadow"
-              >
-                <span>Launch Probaho Coach</span>
-                <ArrowRight size={15} className="group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-            </div>
-
-            {/* 6. FeeGuard BD */}
-            <div className="home-app-card card-premium group rounded-3xl border border-line bg-white p-6 shadow-xs hover:border-teal-600 hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-50 to-teal-100/60 border border-teal-200/50 shadow-xs text-teal-700">
-                    <Percent size={22} />
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    OPEN APP
-                  </span>
-                </div>
-                <h3 className="font-extrabold text-[20px] text-ink mt-4 group-hover:text-teal-700 transition-colors">
-                  FeeGuard BD
-                </h3>
-                <span className="text-[11px] font-bold text-teal-700 uppercase tracking-wide block mt-0.5">
-                  FinOps &amp; Remittance Track
-                </span>
-                <p className="text-[14px] text-muted mt-2.5 leading-relaxed">
-                  Marketplace fee audit comparing Fiverr (-20%) vs Upwork (-10%) vs direct wire (+2.5% Bangladesh Bank cash incentive).
-                </p>
-                <div className="mt-4 flex flex-wrap gap-1.5">
-                  <span className="text-[11px] font-semibold bg-slate-50 border border-line px-2 py-0.5 rounded text-slate-700">Fiverr 20% Audit</span>
-                  <span className="text-[11px] font-semibold bg-slate-50 border border-line px-2 py-0.5 rounded text-slate-700">+2.5% Incentive</span>
-                  <span className="text-[11px] font-semibold bg-slate-50 border border-line px-2 py-0.5 rounded text-slate-700">Pitch AI</span>
-                </div>
-              </div>
-              <Link
-                href="/feeguard"
-                className="mt-6 flex items-center justify-between rounded-xl bg-teal-700 px-4 py-3 text-[14px] font-bold text-white hover:bg-teal-800 transition-all shadow-xs group-hover:shadow"
-              >
-                <span>Launch FeeGuard BD</span>
-                <ArrowRight size={15} className="group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* =========================================================
-            CORE VALUE PILLARS (Why KormoPath Wins)
-            ========================================================= */}
-        <section aria-label="Key Pillars" className="rounded-3xl border border-line bg-white p-8 sm:p-10 shadow-xs">
-          <div className="max-w-2xl mb-8">
-            <span className="text-[12px] font-bold text-kept uppercase tracking-wider">
-              Engineering Excellence
-            </span>
-            <h2 className="display text-[26px] sm:text-[32px] font-extrabold text-ink mt-1">
-              Built Specifically for Bangladesh
-            </h2>
-            <p className="text-[15px] text-muted mt-2">
-              Every model, calculation, and interface is custom-grounded in Bangladeshi regulatory, linguistic, and financial realities.
+            <p className="max-w-md text-[15px] text-slate-600">
+              {bn ? "প্রতিটি টুল আলাদা, নিজে নিজেই কাজ করে। একটির তথ্য অন্যটি পড়ে না।" : "Each tool stands alone and works by itself. No tool reads another's data."}
             </p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
-            <div className="rounded-2xl border border-line bg-paper/50 p-6 space-y-3 hover:border-orange-300 hover:bg-white hover:shadow-md transition-all duration-200">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 border border-orange-200/60 text-orange-600 shadow-xs">
-                <ShieldCheck size={20} />
-              </span>
-              <h3 className="font-extrabold text-[17px] text-ink">Grounded, Checked Output</h3>
-              <p className="text-[13px] text-muted leading-relaxed">
-                Money math and cutoffs run in pure deterministic TypeScript with strict invariant reconciliation. No probabilistic LLM hallucinated rates or fees.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-line bg-paper/50 p-6 space-y-3 hover:border-indigo-300 hover:bg-white hover:shadow-md transition-all duration-200">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 border border-indigo-200/60 text-indigo-600 shadow-xs">
-                <Globe size={20} />
-              </span>
-              <h3 className="font-extrabold text-[17px] text-ink">Native Bangla Language AI</h3>
-              <p className="text-[13px] text-muted leading-relaxed">
-                Direct integration with browser speech recognition for native Bangladeshi Bangla (<code className="font-mono text-ink text-[12px]">bn-BD</code>) without expensive third-party APIs.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-line bg-paper/50 p-6 space-y-3 hover:border-amber-300 hover:bg-white hover:shadow-md transition-all duration-200">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 border border-amber-200/60 text-amber-600 shadow-xs">
-                <Zap size={20} />
-              </span>
-              <h3 className="font-extrabold text-[17px] text-ink">Offline-Resilient Architecture</h3>
-              <p className="text-[13px] text-muted leading-relaxed">
-                Designed to operate during national network disruptions with local storage caching, Web Workers, and Clause 4 blackout protection templates.
-              </p>
-            </div>
-          </div>
+          {(() => {
+            const renderGroup = (group: (typeof GROUPS)[number], cols: string) => (
+              <div key={group.key} className="mt-12">
+                <div className="mb-4 flex items-baseline gap-3 border-b border-line pb-3">
+                  <h3 className="font-display text-[24px] font-semibold text-slate-900">{bn ? group.bn : group.en}</h3>
+                  <span className="text-[14px] text-slate-500">{bn ? group.sub.bn : group.sub.en}</span>
+                </div>
+                <div className={`grid gap-4 ${cols}`}>
+                  {TOOLS[group.key].map((tool) => {
+                    const Icon = tool.icon;
+                    return (
+                      <Link key={tool.id} href={tool.href} className="kp-tool group">
+                        <span className={`kp-tool-stripe bg-gradient-to-r ${tool.stripe}`} aria-hidden="true" />
+                        <span className="flex items-start justify-between gap-3">
+                          <span className={`grid h-12 w-12 place-items-center rounded-2xl ring-1 ${tool.tone}`}><Icon size={22} /></span>
+                          <ArrowUpRight size={18} className="text-slate-400 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-slate-800" aria-hidden="true" />
+                        </span>
+                        <span className="mt-5 block font-display text-[21px] font-semibold text-slate-900">{bn ? tool.name.bn : tool.name.en}</span>
+                        <span className="mt-0.5 block text-[12.5px] font-semibold uppercase tracking-wider text-slate-500">{bn ? tool.name.en : tool.name.bn}</span>
+                        <span className="mt-3 block text-[15px] leading-relaxed text-slate-600">{bn ? tool.line.bn : tool.line.en}</span>
+                        <span className="mt-auto flex flex-wrap gap-1.5 pt-4">
+                          {(bn ? tool.chips.bn : tool.chips.en).map((c) => (
+                            <span key={c} className="rounded-lg border border-line bg-slate-50 px-2 py-0.5 text-[12.5px] font-medium text-slate-700">{c}</span>
+                          ))}
+                        </span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+            return (
+              <>
+                {renderGroup(GROUPS[0], "sm:grid-cols-2 lg:grid-cols-4")}
+                <div className="grid gap-x-6 lg:grid-cols-[3fr_1fr]">
+                  {renderGroup(GROUPS[1], "sm:grid-cols-2 lg:grid-cols-3")}
+                  {renderGroup(GROUPS[2], "sm:grid-cols-2 lg:grid-cols-1")}
+                </div>
+              </>
+            );
+          })()}
         </section>
 
-        {/* =========================================================
-            FAQ SECTION
-            ========================================================= */}
-        <section id="faq" aria-label="FAQ" className="rounded-3xl border border-line bg-white p-8 sm:p-10 shadow-xs">
-          <div className="max-w-2xl mb-8">
-            <span className="text-[12px] font-bold text-kept uppercase tracking-wider">
-              Judges &amp; Visitors FAQ
-            </span>
-            <h2 className="display text-[26px] sm:text-[32px] font-extrabold text-ink mt-1">
-              Frequently Asked Questions
-            </h2>
-          </div>
-
-          <div className="space-y-3">
-            <details className="group rounded-2xl border border-line bg-paper/40 p-4 transition-all" open>
-              <summary className="flex cursor-pointer items-center justify-between font-bold text-[16px] text-ink list-none">
-                <span>Are all 6 applications actually functional or just mockups?</span>
-                <ChevronDown size={18} className="text-muted group-open:rotate-180 transition-transform" />
-              </summary>
-              <p className="mt-3 text-[14px] text-muted leading-relaxed">
-                Each app works on its own without an account. AdmitBuddy tracks deadlines you copy from official circulars; MediScan BD reads prescription text and never diagnoses; Shohoj Budget confirms every voice entry before saving; HaatBazar AI calculates with your prices and live weather; Probaho Coach gives transparent feedback; FeeGuard BD shows every fee with its source.
+        {/* ============ WORKSPACE PIPELINE ============ */}
+        <section aria-labelledby="pipeline-title" className="kp-pipeline mt-24">
+          <div className="relative z-10 grid gap-10 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
+            <div>
+              <p className="kp-eyebrow !text-orange-300">{bn ? "মূল কাজ · ওয়ার্কস্পেস" : "The flagship · Workspace"}</p>
+              <h2 id="pipeline-title" className="mt-3 text-[clamp(30px,4vw,46px)] font-semibold leading-tight tracking-tight text-[#fbf3e8]">
+                {bn ? <>সিভি থেকে <em className="kp-em-dark">টাকা হাতে</em> পর্যন্ত</> : <>From CV to <em className="kp-em-dark">money in hand</em></>}
+              </h2>
+              <p className="mt-4 max-w-md text-[16px] leading-relaxed text-[#e2d3c2]">
+                {bn
+                  ? "একজন ফ্রিল্যান্সারের চারটি ধাপ এক জায়গায়। প্রতিটি ধাপে কী হলো, কোন মডেল বা নিয়ম চলল, সবই খোলা লগে দেখা যায়।"
+                  : "A freelancer's four steps in one place. Each step shows what ran, which model or rule, in an open log."}
               </p>
-            </details>
-
-            <details className="group rounded-2xl border border-line bg-paper/40 p-4 transition-all">
-              <summary className="flex cursor-pointer items-center justify-between font-bold text-[16px] text-ink list-none">
-                <span>How do I switch between the applications during testing?</span>
-                <ChevronDown size={18} className="text-muted group-open:rotate-180 transition-transform" />
-              </summary>
-              <p className="mt-3 text-[14px] text-muted leading-relaxed">
-                You can switch between apps from the <strong>app menu in the top-right corner</strong> on every page. See what each app stores on your device in <a href="/settings" className="underline">Data &amp; privacy settings</a>.
-              </p>
-            </details>
-          </div>
-        </section>
-
-        {/* Bottom CTA Banner with Midnight Navy & Glowing Orange Theme */}
-        <section aria-label="Call to Action" className="relative overflow-hidden rounded-3xl border border-slate-800 bg-[#070d1e] p-8 sm:p-14 pb-12 sm:pb-16 text-center shadow-2xl text-white">
-          <div className="absolute top-0 right-0 -mr-20 -mt-20 h-64 w-64 rounded-full bg-orange-500/15 blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 left-0 -ml-20 -mb-20 h-64 w-64 rounded-full bg-blue-500/15 blur-3xl pointer-events-none" />
-          <div className="relative mx-auto max-w-2xl pb-2">
-            <span className="inline-block rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1 text-[12px] font-bold text-amber-300 uppercase tracking-wider">
-              Autonomous AI Platform
-            </span>
-            <h2 className="display text-[28px] sm:text-[40px] font-extrabold text-white mt-4 leading-normal sm:leading-snug">
-              Ready to Test the Future of Bangladeshi Youth AI?
-            </h2>
-            <p className="text-[15px] text-slate-300 mt-3.5 leading-relaxed">
-              Experience all six practical apps right now without signing up.
-            </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3.5">
-              <Link
-                href="/admitbuddy"
-                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-orange-600 to-amber-500 px-6 py-3.5 text-[15px] font-bold text-white shadow-lg shadow-orange-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
-              >
-                <span>Launch AdmitBuddy (Track #1)</span>
-                <ArrowRight size={16} />
+              <Link href="/workspace" className="kp-btn-sun kp-btn-lg mt-7">
+                {bn ? "ওয়ার্কস্পেস খুলুন" : "Open the Workspace"} <ArrowRight size={17} />
               </Link>
-              <button
-                onClick={() => setIsEcosystemOpen(true)}
-                className="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/10 hover:bg-white/20 px-5 py-3.5 text-[14px] font-bold text-white transition-all backdrop-blur shadow-sm"
-              >
-                <span>Open 9-Dot App Hub</span>
-              </button>
             </div>
+            <ol className="grid gap-3 sm:grid-cols-2">
+              {PIPELINE.map((step) => (
+                <li key={step.n} className="kp-step">
+                  <span className="font-mono text-[13px] font-bold text-orange-300">{step.n}</span>
+                  <strong className="mt-2 block font-display text-[22px] font-semibold text-[#fbf3e8]">{bn ? step.bn : step.en}</strong>
+                  <span className="mt-1.5 block text-[14.5px] leading-relaxed text-[#d6c5b2]">{bn ? step.d.bn : step.d.en}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        {/* ============ FAQ ============ */}
+        <section id="faq" aria-labelledby="faq-title" className="mx-auto mt-24 max-w-3xl scroll-mt-28">
+          <p className="kp-eyebrow text-center">{bn ? "প্রশ্নোত্তর" : "Questions"}</p>
+          <h2 id="faq-title" className="mt-3 text-center text-[clamp(28px,3.6vw,42px)] font-semibold tracking-tight text-slate-900">
+            {bn ? "যা জানতে চান" : "What people ask"}
+          </h2>
+          <div className="mt-8 space-y-3">
+            {[
+              {
+                q: bn ? "টুলগুলো কি সত্যিই কাজ করে, নাকি শুধু নমুনা?" : "Do the tools actually work, or are they mock-ups?",
+                a: bn
+                  ? "প্রতিটি টুল অ্যাকাউন্ট ছাড়াই চলে। অ্যাডমিট বাডি আপনার দেওয়া সার্কুলারের তারিখ রাখে; মেডিস্ক্যান লেখা পড়ে, রোগ নির্ণয় করে না; সহজ বাজেট সংরক্ষণের আগে নিশ্চিত করে; হাটবাজার আপনার দামে আর লাইভ আবহাওয়ায় হিসাব করে; ফি-গার্ড প্রতিটি ফি উৎসসহ দেখায়।"
+                  : "Every tool runs without an account. AdmitBuddy keeps the dates you copy from circulars; MediScan reads text and never diagnoses; Shohoj Budget confirms before saving; HaatBazar uses your prices and live weather; FeeGuard shows every fee with its source.",
+              },
+              {
+                q: bn ? "আমার তথ্য কোথায় থাকে?" : "Where is my data kept?",
+                a: bn
+                  ? "আপনার ব্রাউজারেই। প্রতিটি টুলের তথ্য আলাদা জায়গায় থাকে। সেটিংস পাতায় দেখুন, ব্যাকআপ নিন বা মুছে দিন।"
+                  : "In your browser. Each tool keeps its data separately. See, back up or delete it on the Settings page.",
+              },
+              {
+                q: bn ? "এআই কোথায় ব্যবহার হয়, কোথায় হয় না?" : "Where is AI used, and where not?",
+                a: bn
+                  ? "এআই লেখা বোঝা, প্রস্তাব খসড়া আর বাডির উত্তরে সাহায্য করে। ফি, কর, মোট টাকা, চুক্তির ধারা আর ওষুধের মাত্রা কখনো এআই ঠিক করে না। এআই না থাকলেও প্রতিটি টুল নিয়মভিত্তিক বিকল্পে চলে।"
+                  : "AI helps read text, draft pitches and answer in Buddy. Fees, tax, totals, contract clauses and doses are never decided by AI. Without AI, every tool falls back to rule-based logic.",
+              },
+              {
+                q: bn ? "এক টুল থেকে অন্য টুলে যাব কীভাবে?" : "How do I move between tools?",
+                a: bn
+                  ? "প্রতিটি পাতার ওপরের ডান দিকের অ্যাপ মেনু থেকে, অথবা ⌘K / Ctrl+K চেপে খুঁজে।"
+                  : "From the app menu at the top right of every page, or search with ⌘K / Ctrl+K.",
+              },
+            ].map((item, i) => (
+              <details key={item.q} className="kp-faq group" open={i === 0}>
+                <summary>
+                  <span>{item.q}</span>
+                  <ChevronDown size={18} className="shrink-0 text-slate-500 transition-transform group-open:rotate-180" aria-hidden="true" />
+                </summary>
+                <p>{item.a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+
+        {/* ============ CLOSING CTA ============ */}
+        <section aria-labelledby="cta-title" className="kp-cta mt-24 text-center">
+          <h2 id="cta-title" className="relative z-10 mx-auto max-w-3xl text-[clamp(30px,4.4vw,52px)] font-semibold leading-tight tracking-tight text-white">
+            {bn ? <>আজকের কাজটা দিয়ে <em className="italic text-[#ffe2b5]">শুরু করুন</em></> : <>Start with <em className="italic text-[#ffe2b5]">today&apos;s task</em></>}
+          </h2>
+          <p className="relative z-10 mx-auto mt-4 max-w-xl text-[16.5px] text-white/85">
+            {bn ? "সাইন আপ নেই, অপেক্ষা নেই। একটি টুল খুলুন, অথবা বাডিকে বাংলায় বলুন।" : "No sign-up, no waiting. Open a tool, or tell Buddy in Bangla."}
+          </p>
+          <div className="relative z-10 mt-8 flex flex-wrap justify-center gap-3">
+            <Link href="/workspace" className="kp-btn-ghost kp-btn-lg !border-white/40">
+              <Briefcase size={18} /> {bn ? "ওয়ার্কস্পেস" : "Workspace"}
+            </Link>
+            <button type="button" onClick={() => window.dispatchEvent(new Event("kormopath:open-buddy"))} className="kp-btn-ghost kp-btn-lg !border-white/40">
+              <MessageCircle size={18} /> {bn ? "বাডির সঙ্গে কথা বলুন" : "Talk to Buddy"}
+            </button>
           </div>
         </section>
       </main>
 
-      {/* Footer */}
       <Footer />
 
-      {/* 9-Dot Ecosystem Hub Modal */}
       <EcosystemHub
         isOpen={isEcosystemOpen}
         onClose={() => setIsEcosystemOpen(false)}

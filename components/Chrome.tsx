@@ -1,16 +1,29 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { EcosystemLauncherButton } from "@/components/EcosystemHub";
+import { usePathname } from "next/navigation";
 import { AppSwitcherDropdown } from "@/components/AppSwitcherDropdown";
 import { KormoPathLogo } from "@/components/KormoPathLogo";
 import { FX_FALLBACK } from "@/lib/data";
-import { Globe, ShieldCheck, Compass, Sparkles, ExternalLink, ArrowUpRight, Menu, X } from "lucide-react";
+import { ArrowUpRight, LayoutGrid, Languages, Menu, Search, ShieldCheck, X } from "lucide-react";
 
 export function PlatformBadge() {
   return null;
 }
 
+const NAV = [
+  { href: "/workspace", bn: "ওয়ার্কস্পেস", en: "Workspace" },
+  { href: "/#apps-showcase", bn: "সব টুল", en: "Tools" },
+  { href: "/opportunities", bn: "আমার পথ", en: "My Path" },
+  { href: "/judges", bn: "বিচারক গাইড", en: "Judge tour" },
+  { href: "/#faq", bn: "প্রশ্নোত্তর", en: "FAQ" },
+] as const;
+
+function openPalette() {
+  if (typeof window !== "undefined") window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }));
+}
+
+/** Floating frosted navigation pill used on the home page, Workspace and passport pages. */
 export function Navbar(props?: {
   lang?: "en" | "bn";
   setLang?: (l: "en" | "bn") => void;
@@ -19,110 +32,83 @@ export function Navbar(props?: {
   onOpenEcosystem?: () => void;
   isEcosystemOpen?: boolean;
 }) {
-  const { lang = "en", setLang, usdBdt = FX_FALLBACK.usdBdt, fxLive = false, onOpenEcosystem, isEcosystemOpen = false } = props ?? {};
+  const { lang = "bn", setLang, usdBdt = FX_FALLBACK.usdBdt, fxLive = false, onOpenEcosystem, isEcosystemOpen = false } = props ?? {};
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const bn = lang === "bn";
+  const isActive = (href: string) => !href.includes("#") && pathname?.startsWith(href);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/10 bg-[#070d1e]/95 backdrop-blur-md text-white shadow-xl transition-colors">
-      <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between gap-4 px-4 sm:px-6">
-        {/* Left: Official Brand & Logo */}
-        <div className="flex min-w-0 items-center gap-5">
-          <Link href="/" className="flex items-center group shrink-0" aria-label="KormoPath Home">
-            <KormoPathLogo theme="dark" variant="full" size="md" />
+    <header className="kp-nav-wrap">
+      <div className="kp-nav mx-auto flex h-[62px] max-w-7xl items-center justify-between gap-3 px-2.5 sm:pl-3">
+        <div className="flex min-w-0 items-center gap-4">
+          <Link href="/" className="flex shrink-0 items-center rounded-2xl px-1 py-1" aria-label="KormoPath home">
+            <span className="hidden sm:inline-flex"><KormoPathLogo theme="light" variant="full" size="sm" /></span>
+            <span className="sm:hidden"><KormoPathLogo theme="light" variant="mark" size="sm" /></span>
           </Link>
-
-          {/* Center navigation: a few top-level destinations; individual apps live in the Ecosystem launcher. */}
-          <nav aria-label="Main" className="hidden lg:flex items-center gap-1 text-[13px] font-semibold text-slate-300">
-            <Link href="/workspace" className="rounded-lg px-3 py-1.5 whitespace-nowrap hover:text-white hover:bg-white/10 transition-colors text-orange-300 hover:text-orange-200">
-              {lang === "bn" ? "ওয়ার্কস্পেস" : "Workspace"}
-            </Link>
-            <a href="/#apps-showcase" className="rounded-lg px-3 py-1.5 whitespace-nowrap hover:text-white hover:bg-white/10 transition-colors">
-              {lang === "bn" ? "৬টি অ্যাপ" : "Apps"}
-            </a>
-            <Link href="/opportunities" className="rounded-lg px-3 py-1.5 whitespace-nowrap hover:text-white hover:bg-white/10 transition-colors">
-              {lang === "bn" ? "আমার পথ" : "My Path"}
-            </Link>
-            <Link href="/judges" className="rounded-lg px-3 py-1.5 whitespace-nowrap hover:text-white hover:bg-white/10 transition-colors text-amber-300 hover:text-amber-200">
-              {lang === "bn" ? "বিচারক গাইড" : "Judge tour"}
-            </Link>
-            <a href="/#faq" className="rounded-lg px-3 py-1.5 whitespace-nowrap hover:text-white hover:bg-white/10 transition-colors">
-              FAQ
-            </a>
+          <nav aria-label="Main" className="kp-nav-links hidden lg:flex">
+            {NAV.map((item) => (
+              <Link key={item.href} href={item.href} aria-current={isActive(item.href) ? "page" : undefined} className="kp-nav-link">
+                {bn ? item.bn : item.en}
+              </Link>
+            ))}
           </nav>
         </div>
 
-        {/* Right Utility Cluster: Seamless dark glass, unified heights, 0% wrapping */}
-        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-          {/* USD/BDT reference rate; marked live only when the API confirms it */}
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
           <div
-            className="hidden md:flex items-center gap-1.5 whitespace-nowrap rounded-xl border border-white/15 bg-white/5 px-2.5 py-1.5 text-[12px] font-mono text-slate-300 shadow-xs"
-            title={fxLive ? "Latest available USD/BDT market reference rate" : "Fallback USD/BDT reference rate; live data unavailable"}
+            className="kp-chip hidden md:inline-flex font-mono"
+            title={fxLive ? (bn ? "সর্বশেষ পাওয়া USD/BDT বাজার রেট" : "Latest available USD/BDT market rate") : (bn ? "রেফারেন্স রেট; লাইভ রেট পাওয়া যায়নি" : "Reference rate; live rate unavailable")}
           >
-            <span className={`h-2 w-2 rounded-full ${fxLive ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
-            <span className="text-slate-400 font-sans text-[11px]">$1 =</span>
-            <span className="font-bold text-white">৳{usdBdt.toFixed(1)}</span>
-            <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">{fxLive ? "Live" : "Ref"}</span>
+            <span className={`h-2 w-2 rounded-full ${fxLive ? "bg-emerald-500" : "bg-amber-500"}`} aria-hidden="true" />
+            <span className="font-sans text-[11px] text-slate-500">$1 =</span>
+            <span className="font-bold text-slate-900">৳{usdBdt.toFixed(1)}</span>
+            <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-500">{fxLive ? "Live" : "Ref"}</span>
           </div>
 
-          {/* Command Palette Trigger */}
-          <button
-            onClick={() => {
-              if (typeof window !== "undefined") {
-                window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }));
-              }
-            }}
-            className="hidden sm:flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 px-2.5 py-1.5 text-[12px] font-medium text-slate-300 transition-colors shadow-xs"
-            title="Search anything (Cmd+K / Ctrl+K)"
-            aria-label="Search Command Palette"
-          >
-            <span className="text-slate-400">🔍</span>
-            <span className="hidden 2xl:inline text-slate-300">Search</span>
-            <kbd className="rounded bg-white/10 px-1.5 py-0.5 text-[10px] font-mono text-slate-400 border border-white/10">
-              ⌘K
-            </kbd>
+          <button type="button" onClick={openPalette} className="kp-icon-btn hidden sm:inline-flex" aria-label={bn ? "খুঁজুন (⌘K)" : "Search (⌘K)"} title={bn ? "খুঁজুন · ⌘K" : "Search · ⌘K"}>
+            <Search size={16} />
           </button>
 
-          {/* Language Switcher */}
           {setLang && (
             <button
-              onClick={() => setLang(lang === "en" ? "bn" : "en")}
-              className="flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 px-2.5 py-1.5 text-[12px] font-bold text-slate-200 transition-colors"
-              title="Toggle English / বাংলা"
-              aria-label={lang === "en" ? "বাংলায় দেখুন" : "View in English"}
+              type="button"
+              onClick={() => setLang(bn ? "en" : "bn")}
+              className="kp-chip font-semibold"
+              aria-label={lang === "bn" ? "View in English" : "বাংলায় দেখুন"}
+              title="English / বাংলা"
             >
-              <Globe size={14} className="text-amber-400" />
-              <span className="hidden sm:inline">{lang === "en" ? "বাংলা" : "EN"}</span>
+              <Languages size={14} className="text-emerald-700" />
+              <span>{bn ? "EN" : "বাংলা"}</span>
             </button>
           )}
 
-          {/* 9-Dot Launcher Button */}
-          {/* Hidden on phones: the app switcher next to it covers navigation there. */}
-          {onOpenEcosystem && (
-            <span className="hidden sm:inline-flex">
-              <EcosystemLauncherButton onClick={onOpenEcosystem} isOpen={isEcosystemOpen} />
-            </span>
-          )}
-
-          {/* 5-App Dropdown Switcher (Auto-detects current route) */}
+          {onOpenEcosystem ? (
+            <button
+              type="button"
+              onClick={onOpenEcosystem}
+              aria-expanded={isEcosystemOpen}
+              className={`kp-chip hidden font-semibold sm:inline-flex ${isEcosystemOpen ? "kp-chip-on" : ""}`}
+              aria-label={bn ? "সব অ্যাপ খুলুন" : "Open all apps"}
+            >
+              <LayoutGrid size={14} className="text-orange-600" />
+              <span>{bn ? "সব অ্যাপ" : "All apps"}</span>
+            </button>
+          ) : null}
           <span className={onOpenEcosystem ? "sm:hidden" : ""}>
-            <AppSwitcherDropdown lang={lang} />
+            <AppSwitcherDropdown lang={lang} variant="light" />
           </span>
 
-          {/* Quick Action CTA Pill */}
-          <Link
-            href="/workspace"
-            className="hidden xl:inline-flex items-center gap-1.5 whitespace-nowrap rounded-xl bg-gradient-to-r from-orange-600 via-amber-500 to-orange-500 hover:from-orange-500 hover:to-amber-400 px-3.5 py-2 text-[12px] font-bold text-white shadow-md shadow-orange-600/25 transition-all hover:scale-[1.02]"
-          >
-            <Sparkles size={13} />
-            <span>{lang === "bn" ? "ওয়ার্কস্পেস চালান" : "Try the Workspace"}</span>
+          <Link href="/workspace" className="kp-btn-primary hidden xl:inline-flex">
+            <span>{bn ? "শুরু করুন" : "Get started"}</span>
+            <ArrowUpRight size={15} />
           </Link>
 
-          {/* Mobile Hamburger Menu Toggle */}
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden grid h-9 w-9 place-items-center rounded-xl border border-white/15 bg-white/5 text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
-            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            className="kp-icon-btn lg:hidden"
+            aria-label={mobileMenuOpen ? (bn ? "মেনু বন্ধ করুন" : "Close menu") : (bn ? "মেনু খুলুন" : "Open menu")}
             aria-expanded={mobileMenuOpen}
           >
             {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
@@ -130,62 +116,22 @@ export function Navbar(props?: {
         </div>
       </div>
 
-      {/* Mobile Navigation Dropdown Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-white/10 bg-[#070d1e]/98 px-4 py-4 space-y-3 backdrop-blur-xl animate-fadeIn">
-          <nav className="flex flex-col gap-1 text-[14px] font-semibold text-slate-200">
-            <Link
-              href="/workspace"
-              onClick={() => setMobileMenuOpen(false)}
-              className="rounded-xl px-3 py-2 text-orange-400 hover:bg-white/10 transition-colors flex items-center justify-between"
-            >
-              <span>{lang === "bn" ? "ওয়ার্কস্পেস (Workspace)" : "Workspace Pipeline"}</span>
-              <ArrowUpRight size={14} className="opacity-60" />
-            </Link>
-            <a
-              href="/#apps-showcase"
-              onClick={() => setMobileMenuOpen(false)}
-              className="rounded-xl px-3 py-2 hover:bg-white/10 transition-colors"
-            >
-              {lang === "bn" ? "৬টি বাস্তব অ্যাপস" : "6 Ecosystem Apps"}
-            </a>
-            <Link
-              href="/opportunities"
-              onClick={() => setMobileMenuOpen(false)}
-              className="rounded-xl px-3 py-2 hover:bg-white/10 transition-colors"
-            >
-              {lang === "bn" ? "আমার ক্যারিয়ার পথ" : "My Career Path"}
-            </Link>
-            <Link
-              href="/judges"
-              onClick={() => setMobileMenuOpen(false)}
-              className="rounded-xl px-3 py-2 text-amber-300 hover:bg-white/10 transition-colors"
-            >
-              {lang === "bn" ? "বিচারক গাইড (Judge Tour)" : "Judge Tour"}
-            </Link>
-            <a
-              href="/#faq"
-              onClick={() => setMobileMenuOpen(false)}
-              className="rounded-xl px-3 py-2 hover:bg-white/10 transition-colors"
-            >
-              FAQ
-            </a>
+        <div className="kp-nav-drawer mx-auto mt-2 max-w-7xl p-3 lg:hidden">
+          <nav className="grid gap-1 text-[15px] font-semibold" aria-label={bn ? "মোবাইল মেনু" : "Mobile menu"}>
+            {NAV.map((item) => (
+              <Link key={item.href} href={item.href} onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-between rounded-xl px-3 py-2.5 text-slate-800 hover:bg-orange-50">
+                <span>{bn ? item.bn : item.en}</span>
+                <ArrowUpRight size={14} className="text-slate-400" />
+              </Link>
+            ))}
           </nav>
-
-          {/* Mobile Currency Rate & Fast Action */}
-          <div className="pt-2 border-t border-white/10 flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-[12px] font-mono text-slate-300">
-              <span className={`h-2 w-2 rounded-full ${fxLive ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
-              <span className="text-slate-400 font-sans">$1 =</span>
-              <span className="font-bold text-white">৳{usdBdt.toFixed(1)}</span>
-            </div>
-            <Link
-              href="/workspace"
-              onClick={() => setMobileMenuOpen(false)}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-orange-600 px-3 py-1.5 text-[12px] font-bold text-white shadow-sm"
-            >
-              <span>{lang === "bn" ? "শুরু করুন" : "Get Started"}</span>
-              <ArrowUpRight size={13} />
+          <div className="mt-2 flex items-center justify-between border-t border-line pt-3">
+            <span className="flex items-center gap-1.5 font-mono text-[12px] text-slate-600">
+              <span className={`h-2 w-2 rounded-full ${fxLive ? "bg-emerald-500" : "bg-amber-500"}`} />$1 = ৳{usdBdt.toFixed(1)}
+            </span>
+            <Link href="/workspace" onClick={() => setMobileMenuOpen(false)} className="kp-btn-primary">
+              {bn ? "শুরু করুন" : "Get started"} <ArrowUpRight size={14} />
             </Link>
           </div>
         </div>
@@ -194,77 +140,55 @@ export function Navbar(props?: {
   );
 }
 
+const FOOTER_GROUPS = [
+  {
+    bn: "আয়", en: "Earn",
+    links: [
+      ["/workspace", "ওয়ার্কস্পেস: সিভি থেকে পেমেন্ট"], ["/chuktiguard", "চুক্তিগার্ড: চুক্তি ও ইনভয়েস"], ["/feeguard", "ফি-গার্ড: পেআউট ফি তুলনা"], ["/probaho", "প্রবাহ কোচ: ভাইভা অনুশীলন"], ["/opportunities", "আমার পথ: সুযোগ ও পরিকল্পনা"],
+    ],
+  },
+  {
+    bn: "জীবন", en: "Life",
+    links: [["/admitbuddy", "অ্যাডমিট বাডি: ভর্তি পরিকল্পনা"], ["/shohoj-budget", "সহজ বাজেট: সংসারের হিসাব"], ["/mediscan", "মেডিস্ক্যান: প্রেসক্রিপশন বোঝা"]],
+  },
+  {
+    bn: "কৃষি", en: "Farm",
+    links: [["/haatbazar", "হাটবাজার: হিসাব ও আবহাওয়া"]],
+  },
+] as const;
+
 export function Footer() {
   return (
-    <footer className="mt-20 border-t border-line bg-white pb-20 sm:pb-12">
-      <div className="mx-auto max-w-[1400px] px-4 py-12">
-        <div className="grid gap-8 md:grid-cols-4 pb-8 border-b border-line text-[14px]">
-          {/* Col 1 */}
-          <div className="space-y-3 md:col-span-1">
-            <Link href="/" className="inline-block group" aria-label="KormoPath Home">
+    <footer className="kp-footer mt-24 pb-24 sm:pb-12">
+      <div className="mx-auto max-w-7xl px-4 pt-14 sm:px-6">
+        <div className="grid gap-10 border-b border-line pb-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+          <div className="space-y-4">
+            <Link href="/" className="inline-block" aria-label="KormoPath home">
               <KormoPathLogo theme="light" variant="full" size="md" />
             </Link>
-            <p className="text-[13px] text-muted leading-relaxed">
-              The Autonomous Skill-to-Income, Legal &amp; FinOps Path for Bangladeshi Youth. Protecting 700K+ freelancers from commission drain and infrastructure blackouts.
+            <p className="max-w-sm text-[14px] leading-relaxed text-slate-600">
+              বাংলাদেশের কাজ, পড়াশোনা, সংসার ও কৃষির জন্য ব্যবহারিক টুল। কোনো অ্যাকাউন্ট লাগে না; আপনার তথ্য আপনার ডিভাইসেই থাকে, আর প্রতিটি সংখ্যার পাশে উৎস দেখানো হয়।
             </p>
-            <div className="rounded-lg bg-orange-50/70 border border-orange-200/60 p-2 text-[12px] text-ink font-semibold">
-              🚀 Autonomous AI Platform for Bangladeshi Youth
+            <Link href="/settings" className="kp-chip font-semibold">
+              <ShieldCheck size={14} className="text-emerald-700" /> ডেটা ও প্রাইভেসি
+            </Link>
+          </div>
+          {FOOTER_GROUPS.map((group) => (
+            <div key={group.en}>
+              <h3 className="kp-eyebrow mb-3">{group.bn} · {group.en}</h3>
+              <ul className="space-y-2 text-[14px]">
+                {group.links.map(([href, label]) => (
+                  <li key={href}>
+                    <Link href={href} className="text-slate-700 underline-offset-4 hover:text-emerald-800 hover:underline">{label}</Link>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </div>
-
-          {/* Col 2 */}
-          <div className="space-y-2">
-            <h4 className="font-bold text-[15px] text-ink">4-Stage Guided OS</h4>
-            <ul className="space-y-1.5 text-[13px] text-muted">
-              <li><a href="#pipeline" className="hover:text-kept transition-colors">1. Compass (Skill &amp; AI Auditor)</a></li>
-              <li><a href="#pipeline" className="hover:text-kept transition-colors">2. VivaForge (Live Bug-Hunt Verifier)</a></li>
-              <li><a href="#pipeline" className="hover:text-kept transition-colors">3. ChuktiGuard (Direct Pitch &amp; Contract)</a></li>
-              <li><a href="#pipeline" className="hover:text-kept transition-colors">4. TakaFlow (Deterministic FinOps)</a></li>
-              <li><a href="#pipeline" className="hover:text-kept transition-colors">5. Telemetry &amp; Guardrails Hub</a></li>
-            </ul>
-          </div>
-
-          {/* Col 3 */}
-          <div className="space-y-2">
-            <h4 className="font-bold text-[15px] text-ink">Ecosystem Innovations</h4>
-            <ul className="space-y-1.5 text-[13px] text-muted">
-              <li><a href="#ecosystem-preview" className="hover:text-kept transition-colors">AdmitBuddy (Education Matcher)</a></li>
-              <li><a href="#ecosystem-preview" className="hover:text-kept transition-colors">MediScan BD (Prescription OCR)</a></li>
-              <li><a href="#ecosystem-preview" className="hover:text-kept transition-colors">Shohoj Budget (Voice Expense AI)</a></li>
-              <li><a href="#ecosystem-preview" className="hover:text-kept transition-colors">HaatBazar AI (64-District Mandi)</a></li>
-              <li><a href="#ecosystem-preview" className="hover:text-kept transition-colors">Probaho (Viva Speaking Coach)</a></li>
-            </ul>
-          </div>
-
-          {/* Col 4 */}
-          <div className="space-y-2 text-[13px] text-muted">
-            <h4 className="font-bold text-[15px] text-ink">Regulatory Grounding</h4>
-            <p className="leading-relaxed">
-              • <strong>NBR IT/ITES Exemption</strong>: 1 July 2024 – 30 June 2027 (Finance Act 2024).
-            </p>
-            <p className="leading-relaxed">
-              • <strong>Bangladesh Bank Circular</strong>: 2.5% Cash Export Incentive for software/ITES individuals.
-            </p>
-            <p className="leading-relaxed">
-              • <strong>Clause 4 Force-Majeure</strong>: 48-hour delivery buffer + UPS hardware SLA.
-            </p>
-          </div>
+          ))}
         </div>
-
-        {/* Bottom Bar */}
-        <div className="pt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-[13px] text-muted">
-          <div>
-            <p className="font-bold text-ink">
-              KormoPath Autonomous Operating System for Bangladeshi Youth
-            </p>
-            <p className="text-[12px] text-muted">
-              Designed and built in Dhaka &amp; Khulna, Bangladesh. Money math is deterministic and unit-tested.
-            </p>
-          </div>
-          <div className="text-[12px] sm:text-right">
-            <p>Information only; not formal legal or tax counsel.</p>
-            <p className="text-muted/70">Check inward SWIFT parameters with your authorized dealer bank.</p>
-          </div>
+        <div className="flex flex-col gap-2 pt-6 text-[13px] text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+          <p>© {new Date().getFullYear()} KormoPath · কর্মপথ. ঢাকা ও খুলনা, বাংলাদেশে তৈরি।</p>
+          <p>শুধু তথ্যের জন্য; আইনি, কর বা চিকিৎসা পরামর্শ নয়।</p>
         </div>
       </div>
     </footer>

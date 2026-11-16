@@ -32,28 +32,28 @@ export function AppHeader({
   right?: ReactNode;
 }) {
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur-md print:hidden">
+    <header className="kp-nav-wrap print:hidden">
       <a
         href="#main"
         className="skip-link sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-lg focus:bg-slate-900 focus:text-white focus:px-3 focus:py-2 focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
       >
         মূল অংশে যান
       </a>
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+      <div className="kp-nav mx-auto flex max-w-7xl items-center justify-between gap-3 px-2.5 py-2 sm:px-3">
         <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
           <Link href={href} className="flex min-w-0 items-center gap-2.5">
-            <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${accent} text-white shadow-md`} aria-hidden>
+            <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-gradient-to-br ${accent} text-white shadow-[inset_0_1px_0_rgba(255,255,255,.3),0_6px_14px_-6px_rgba(60,36,18,.55)]`} aria-hidden>
               {icon}
             </span>
             <span className="min-w-0">
-              <span className="block truncate text-[18px] font-extrabold leading-tight tracking-tight text-slate-900 sm:text-[20px]">{name}</span>
-              <span className="block truncate text-[11px] font-semibold leading-none text-slate-600">{taglineEn ? `${taglineEn} · ${taglineBn}` : taglineBn}</span>
+              <span className="block truncate font-display text-[18px] font-semibold leading-tight tracking-tight text-slate-900 sm:text-[20px]">{name}</span>
+              <span className="mt-0.5 block truncate text-[11px] font-medium leading-none text-slate-600">{taglineEn ? `${taglineEn} · ${taglineBn}` : taglineBn}</span>
             </span>
           </Link>
           {/* Desktop Logo Link */}
           <Link
             href="/"
-            className="hidden items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-[12px] font-medium text-slate-700 transition-colors hover:border-slate-400 hover:text-slate-900 lg:flex shrink-0"
+            className="hidden shrink-0 items-center gap-1.5 rounded-xl border border-line bg-white/70 px-2.5 py-1 text-[12px] font-medium text-slate-700 transition-colors hover:border-amber-500 lg:flex"
             title="KormoPath Home"
           >
             <span className="text-slate-500 font-bold">←</span>
@@ -62,7 +62,7 @@ export function AppHeader({
           {/* Mobile Logo Link */}
           <Link
             href="/"
-            className="flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-[12px] font-medium text-slate-700 transition-colors hover:border-slate-400 hover:text-slate-900 lg:hidden shrink-0"
+            className="flex shrink-0 items-center gap-1 rounded-xl border border-line bg-white/70 px-2 py-1 text-[12px] font-medium text-slate-700 transition-colors hover:border-amber-500 lg:hidden"
             title="KormoPath Home"
             aria-label="KormoPath Home"
           >
@@ -74,7 +74,7 @@ export function AppHeader({
           {privacyNote && (
             <Link
               href="/settings"
-              className="hidden items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:border-slate-400 md:inline-flex"
+              className="kp-chip hidden !h-8 !rounded-full !text-[12px] font-semibold text-emerald-800 md:inline-flex"
               title="আপনার ডেটা কোথায় থাকে দেখুন"
             >
               <ShieldCheck size={13} aria-hidden /> {privacyNote}

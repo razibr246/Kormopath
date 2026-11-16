@@ -102,7 +102,7 @@ describe("Tier 1 - Feature 1: Brand Identity & Vector Logo Integration", () => {
 
   test("1.4 Navbar in components/Chrome.tsx integrates KormoPathLogo with dark theme", () => {
     const src = readProjectFile("components/Chrome.tsx");
-    assert.match(src, /<KormoPathLogo[^>]*theme="dark"/, "Navbar must integrate KormoPathLogo with theme='dark'");
+    assert.match(src, /<KormoPathLogo[^>]*theme="light"[^>]*variant="full"/, "Navbar must integrate the full KormoPathLogo on its light glass pill");
     assert.doesNotMatch(src, /<img[^>]*src="\/kormopath-logo\.jpg"[^>]*alt="KormoPath Logo"/, "Navbar must not use letterboxed raster JPEG");
   });
 
@@ -132,7 +132,7 @@ describe("Tier 1 - Feature 2: Design Tokens & Typography Hierarchy", () => {
     assert.match(css, /--color-text-secondary:/, "Must define --color-text-secondary");
     assert.match(css, /--color-text-muted:/, "Must define --color-text-muted");
     assert.match(css, /--color-text-accent:/, "Must define --color-text-accent");
-    assert.match(css, /--color-text-interactive:\s*#(?:0369a1|0284c7)/, "Must define --color-text-interactive (#0369a1)");
+    assert.match(css, /--color-text-interactive:\s*#1f56b8/, "Must define --color-text-interactive (#1f56b8, river blue)");
   });
 
   test("2.3 app/globals.css @theme defines inverse text palette for dark surfaces", () => {
@@ -307,7 +307,7 @@ describe("Tier 1 - Feature 7: Keyboard Navigation & Focus Accessibility", () => 
 
   test("7.2 :focus-visible uses high-contrast focus ring token (--color-focus-ring)", () => {
     const css = readProjectFile("app/globals.css");
-    assert.match(css, /--color-focus-ring:\s*#007aff/, "Must define --color-focus-ring as #007aff");
+    assert.match(css, /--color-focus-ring:\s*#2e64c8/, "Must define --color-focus-ring as #2e64c8");
     assert.match(css, /outline:.*var\(--color-focus-ring\)|outline:\s*3px\s+solid\s+var\(--color-focus-ring\)/, ":focus-visible must use --color-focus-ring");
   });
 
@@ -329,33 +329,33 @@ describe("Tier 1 - Feature 7: Keyboard Navigation & Focus Accessibility", () => 
 });
 
 describe("Tier 1 - Feature 8: WCAG AA Contrast Compliance (Mathematical Oracle)", () => {
-  test("8.1 Primary text --color-text-primary (#070d1e) against white achieves >= 4.5:1 (AAA)", () => {
-    const ratio = getContrastRatio("#070d1e", "#ffffff");
+  test("8.1 Primary text --color-text-primary (#22180f) against paper achieves >= 4.5:1 (AAA)", () => {
+    const ratio = getContrastRatio("#22180f", "#fffdf9");
     assert.ok(ratio >= 7.0, `Expected contrast >= 7.0 (AAA), got ${ratio.toFixed(2)}`);
   });
 
-  test("8.2 Secondary text --color-text-secondary (#334155) against white achieves >= 4.5:1 (AAA)", () => {
-    const ratio = getContrastRatio("#334155", "#ffffff");
+  test("8.2 Secondary text --color-text-secondary (#4a3b2e) against paper achieves >= 4.5:1 (AAA)", () => {
+    const ratio = getContrastRatio("#4a3b2e", "#fffdf9");
     assert.ok(ratio >= 4.5, `Expected contrast >= 4.5 (AA), got ${ratio.toFixed(2)}`);
   });
 
-  test("8.3 Muted text --color-text-muted (#475569) against white achieves >= 4.5:1 (AA)", () => {
-    const ratio = getContrastRatio("#475569", "#ffffff");
+  test("8.3 Muted text --color-text-muted (#6b5a4b) against paper achieves >= 4.5:1 (AA)", () => {
+    const ratio = getContrastRatio("#6b5a4b", "#fffdf9");
     assert.ok(ratio >= 4.5, `Expected contrast >= 4.5 (AA), got ${ratio.toFixed(2)}`);
   });
 
-  test("8.4 Accessible orange text --color-text-accent (#c2410c) against white achieves >= 4.5:1 (AA)", () => {
-    const ratio = getContrastRatio("#c2410c", "#ffffff");
+  test("8.4 Accessible terracotta text --color-text-accent (#a8432b) against paper achieves >= 4.5:1 (AA)", () => {
+    const ratio = getContrastRatio("#a8432b", "#fffdf9");
     assert.ok(ratio >= 4.5, `Expected contrast >= 4.5 (AA), got ${ratio.toFixed(2)}`);
   });
 
-  test("8.5 Focus ring indicator --color-focus-ring (#007aff) against white achieves >= 3.0:1 (AA Non-text)", () => {
-    const ratio = getContrastRatio("#007aff", "#ffffff");
+  test("8.5 Focus ring indicator --color-focus-ring (#2e64c8) against paper achieves >= 3.0:1 (AA Non-text)", () => {
+    const ratio = getContrastRatio("#2e64c8", "#fffdf9");
     assert.ok(ratio >= 3.0, `Expected non-text contrast >= 3.0 (AA), got ${ratio.toFixed(2)}`);
   });
 
-  test("8.6 Inverse primary text --color-text-inverse-primary (#f8fafc) against dark surface (#070d1e) achieves >= 4.5:1 (AAA)", () => {
-    const ratio = getContrastRatio("#f8fafc", "#070d1e");
+  test("8.6 Inverse primary text --color-text-inverse-primary (#fbf3e8) against espresso surface (#1b130e) achieves >= 4.5:1 (AAA)", () => {
+    const ratio = getContrastRatio("#fbf3e8", "#1b130e");
     assert.ok(ratio >= 7.0, `Expected dark surface contrast >= 7.0 (AAA), got ${ratio.toFixed(2)}`);
   });
 });
@@ -805,25 +805,25 @@ describe("Tier 3 - Cross-Feature Combinations", () => {
     assert.match(header, /lg:hidden/, "Mobile logo must have lg:hidden toggle");
   });
 
-  test("3.2 [Tokens + Dark/Light Theme Switching]: Design tokens support dark surfaces (Navbar #070d1e) and light surfaces (AppHeader #ffffff)", () => {
+  test("3.2 [Tokens + Dark/Light Theme Switching]: Design tokens support dark surfaces (espresso #1b130e) and light surfaces (paper #fffdf9)", () => {
     const css = readProjectFile("app/globals.css");
-    assert.match(css, /--color-surface-dark:\s*#070d1e/, "Must define dark surface token");
-    assert.match(css, /--color-card:\s*#ffffff/, "Must define light card surface token");
+    assert.match(css, /--color-surface-dark:\s*#1b130e/, "Must define dark (espresso) surface token");
+    assert.match(css, /--color-card:\s*#fffdf9/, "Must define light (paper) card surface token");
   });
 
-  test("3.3 [Focus Rings + Motion Easing]: :focus-visible indicator combines high-contrast #007aff outline with smooth transition obeying reduced-motion", () => {
+  test("3.3 [Focus Rings + Motion Easing]: :focus-visible indicator combines high-contrast #2e64c8 outline with smooth transition obeying reduced-motion", () => {
     const css = readProjectFile("app/globals.css");
     assert.match(css, /:focus-visible\s*\{[^}]*outline:.*var\(--color-focus-ring\)/, "Must link :focus-visible to --color-focus-ring");
   });
 
-  test("3.4 [Logo + Dark Glass Navbar]: KormoPathLogo theme='dark' renders light text against cosmic navy", () => {
+  test("3.4 [Logo + Dark Glass Navbar]: KormoPathLogo theme='dark' renders light cream text on dark surfaces", () => {
     const logoSrc = readProjectFile("components/KormoPathLogo.tsx");
-    assert.match(logoSrc, /theme === "dark"\s*\?\s*"text-white"/, "Dark theme logo must use text-white");
+    assert.match(logoSrc, /dark \? "text-\[#fbf3e8\]"/, "Dark theme logo must use light cream text");
   });
 
-  test("3.5 [Logo + Light Glass AppHeader]: KormoPathLogo theme='light' renders dark text against white/slate-50", () => {
+  test("3.5 [Logo + Light Glass AppHeader]: KormoPathLogo theme='light' renders dark ink text on paper", () => {
     const logoSrc = readProjectFile("components/KormoPathLogo.tsx");
-    assert.match(logoSrc, /theme === "dark"\s*\?\s*"text-white"\s*:\s*"text-slate-900"/, "Light theme logo must use text-slate-900");
+    assert.match(logoSrc, /dark \? "text-\[#fbf3e8\]" : "text-\[#22180f\]"/, "Light theme logo must use dark ink text");
   });
 
   test("3.6 [Responsive Viewports + Typography Clamping]: Display headings use fluid responsive sizing", () => {
@@ -971,14 +971,14 @@ describe("Tier 4 - Real-World Application Scenarios", () => {
     assert.match(css, /animation-duration:\s*\.01ms|animation:\s*none/, "Must disable or shorten animations to .01ms");
 
     // 2. High-contrast focus system
-    assert.match(css, /--color-focus-ring:\s*#007aff/, "Must provide #007aff high-contrast focus ring token");
-    const focusRatio = getContrastRatio("#007aff", "#ffffff");
+    assert.match(css, /--color-focus-ring:\s*#2e64c8/, "Must provide the #2e64c8 high-contrast focus ring token");
+    const focusRatio = getContrastRatio("#2e64c8", "#fffdf9");
     assert.ok(focusRatio >= 3.0, `Focus ring contrast against white must be >= 3.0:1 (got ${focusRatio.toFixed(2)})`);
 
     // 3. Multi-color text contrast compliance
-    const primaryRatio = getContrastRatio("#070d1e", "#ffffff");
-    const mutedRatio = getContrastRatio("#475569", "#ffffff");
-    const interactiveRatio = getContrastRatio("#0369a1", "#ffffff");
+    const primaryRatio = getContrastRatio("#22180f", "#fffdf9");
+    const mutedRatio = getContrastRatio("#6b5a4b", "#fffdf9");
+    const interactiveRatio = getContrastRatio("#1f56b8", "#fffdf9");
     assert.ok(primaryRatio >= 7.0, "Primary text achieves AAA contrast");
     assert.ok(mutedRatio >= 4.5, "Muted text achieves AA contrast");
     assert.ok(interactiveRatio >= 4.5, "Interactive text achieves AA contrast");

@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Fraunces, Noto_Serif_Bengali, JetBrains_Mono } from "next/font/google";
 import "@fontsource-variable/inter";
 import "@fontsource/hind-siliguri/400.css";
 import "@fontsource/hind-siliguri/500.css";
@@ -9,6 +10,11 @@ import { StorageNotice } from "@/components/StorageNotice";
 import { CommandPalette } from "@/components/CommandPalette";
 import { Buddy } from "@/components/Buddy";
 import { BuildathonSticker } from "@/components/BuildathonSticker";
+
+// Self-hosted at build time by next/font: no request to Google from the visitor's browser.
+const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", display: "swap", axes: ["opsz", "SOFT"] });
+const bnSerif = Noto_Serif_Bengali({ subsets: ["bengali"], variable: "--font-bn-serif", display: "swap", weight: ["500", "600", "700"] });
+const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains", display: "swap", weight: ["400", "500", "700"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://kormopath.vercel.app"),
@@ -21,7 +27,7 @@ export const metadata: Metadata = {
     "Bangladesh-focused tools for study planning, health information, household budgeting, farming, interview practice, freelance payments and contracts. Private app data stays in your browser.",
   keywords: [
     "KormoPath",
-    "कर्मपथ",
+    "কর্মপথ",
     "AI Platform Bangladesh",
     "Bangladesh study planner",
     "Bangladesh agriculture tools",
@@ -37,7 +43,7 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
-    apple: "/kormopath-logo.jpg",
+    apple: "/apple-touch-icon.png",
   },
   openGraph: {
     title: "KormoPath — Practical tools for Bangladesh",
@@ -47,10 +53,10 @@ export const metadata: Metadata = {
     siteName: "KormoPath AI",
     images: [
       {
-        url: "/kormopath-logo.jpg",
-        width: 1024,
-        height: 576,
-        alt: "KormoPath Official Logo",
+        url: "/og-kormopath.png",
+        width: 1200,
+        height: 630,
+        alt: "KormoPath, কর্মপথ: practical tools for work, study, farming and daily life in Bangladesh",
       },
     ],
     locale: "bn_BD",
@@ -61,14 +67,14 @@ export const metadata: Metadata = {
     title: "KormoPath — Practical tools for Bangladesh",
     description:
       "Practical tools for study, health information, budgeting, farming, interview practice and freelance work in Bangladesh.",
-    images: ["/kormopath-logo.jpg"],
+    images: ["/og-kormopath.png"],
   },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#070d1e",
+  themeColor: "#fbf6ee",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -96,7 +102,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   };
 
   return (
-    <html lang="bn" className="scroll-smooth" suppressHydrationWarning>
+    <html lang="bn" className={`scroll-smooth ${fraunces.variable} ${bnSerif.variable} ${jetbrains.variable}`} suppressHydrationWarning>
       <head>
         <script
           type="application/ld+json"

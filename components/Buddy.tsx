@@ -301,6 +301,13 @@ export function Buddy() {
     setSelectedApp(routeApp);
   }, [routeApp]);
 
+  // Other parts of the page (e.g. the home hero) can open Buddy without sharing state.
+  useEffect(() => {
+    const openBuddy = () => setOpen(true);
+    window.addEventListener("kormopath:open-buddy", openBuddy);
+    return () => window.removeEventListener("kormopath:open-buddy", openBuddy);
+  }, []);
+
   useEffect(() => {
     if (chatScrollRef.current) {
       chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
@@ -563,10 +570,10 @@ export function Buddy() {
         /* Expanded Assistant Modal Window (Attachment 2) */
         <section
           aria-label="Chakra Agent"
-          className="buddy-panel flex h-[min(730px,90dvh)] w-[min(430px,calc(100vw-2rem))] flex-col overflow-hidden rounded-[26px] border border-slate-700/80 bg-[#0e151c] text-white shadow-2xl shadow-black/90"
+          className="buddy-panel flex h-[min(730px,90dvh)] w-[min(430px,calc(100vw-2rem))] flex-col overflow-hidden rounded-[26px] border border-slate-700/80 bg-[#1b130e] text-white shadow-2xl shadow-black/90"
         >
           {/* 1. Window Titlebar with macOS Traffic Lights */}
-          <header className="flex items-center justify-between border-b border-slate-800 bg-[#121a22] px-4 py-3">
+          <header className="flex items-center justify-between border-b border-slate-800 bg-[#221810] px-4 py-3">
             {/* Traffic Lights */}
             <div className="flex items-center gap-2">
               <button
@@ -615,8 +622,8 @@ export function Buddy() {
           </header>
 
           {/* 2. Segmented Pill Control: [ Manual | Agent ] */}
-          <div className="px-5 pt-3.5 pb-2.5 text-center border-b border-slate-800 bg-[#0b1016]">
-            <div className="inline-flex rounded-full bg-[#162029] p-1 border border-white/10">
+          <div className="px-5 pt-3.5 pb-2.5 text-center border-b border-slate-800 bg-[#170f0b]">
+            <div className="inline-flex rounded-full bg-[#2a1e15] p-1 border border-white/10">
               <button
                 type="button"
                 onClick={() => setMode("manual")}
@@ -678,7 +685,7 @@ export function Buddy() {
           {/* 3. Horizontal Navigation: Talk | Tasks 1 | Crew | Path | Security */}
           <nav
             aria-label="Assistant sections"
-            className="flex items-center justify-between border-b border-slate-800 bg-[#0d141b] px-3 text-[13px] font-semibold"
+            className="flex items-center justify-between border-b border-slate-800 bg-[#1d140e] px-3 text-[13px] font-semibold"
           >
             <button
               type="button"
@@ -753,14 +760,14 @@ export function Buddy() {
           {tab === "talk" && (
             <div className="flex-1 flex flex-col min-h-0">
               {/* Quick Action Suggestion Chips (Attachment 2) */}
-              <div className="p-3 border-b border-slate-800 bg-[#0a1016] flex flex-wrap gap-1.5 max-h-36 overflow-y-auto">
+              <div className="p-3 border-b border-slate-800 bg-[#160f0a] flex flex-wrap gap-1.5 max-h-36 overflow-y-auto">
                 {suggestions.map((chip) => (
                   <button
                     key={chip}
                     type="button"
                     disabled={loading}
                     onClick={() => void send(undefined, chip)}
-                    className="rounded-full border border-white/10 bg-[#1a232c] px-3.5 py-1.5 text-[12.5px] font-medium text-slate-200 hover:border-emerald-400/60 hover:bg-[#22303c] transition-all cursor-pointer disabled:opacity-50"
+                    className="rounded-full border border-white/10 bg-[#2a1e15] px-3.5 py-1.5 text-[12.5px] font-medium text-slate-200 hover:border-emerald-400/60 hover:bg-[#36271b] transition-all cursor-pointer disabled:opacity-50"
                   >
                     {chip}
                   </button>
@@ -791,7 +798,7 @@ export function Buddy() {
                     className={`max-w-[92%] rounded-2xl px-4 py-3 text-[13.5px] leading-relaxed ${
                       message.role === "user"
                         ? "ml-auto bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md"
-                        : "mr-auto border border-slate-700/80 bg-[#121c27] text-slate-100 shadow-sm"
+                        : "mr-auto border border-slate-700/80 bg-[#241912] text-slate-100 shadow-sm"
                     }`}
                   >
                     {message.unverified && (
@@ -849,7 +856,7 @@ export function Buddy() {
               {tasks.map((t, idx) => (
                 <div
                   key={idx}
-                  className="rounded-xl border border-white/10 bg-[#131d27] p-3.5 hover:border-emerald-500/40 transition-colors"
+                  className="rounded-xl border border-white/10 bg-[#241912] p-3.5 hover:border-emerald-500/40 transition-colors"
                 >
                   <strong className="text-[13.5px] text-emerald-300 block leading-snug">
                     {t.title}
@@ -892,7 +899,7 @@ export function Buddy() {
                     className={`flex items-center justify-between p-3 rounded-xl border text-left transition-all cursor-pointer ${
                       selectedApp === a.id
                         ? "border-emerald-500 bg-emerald-950/40 text-white"
-                        : "border-white/5 bg-[#121b24] text-slate-300 hover:border-white/20"
+                        : "border-white/5 bg-[#221810] text-slate-300 hover:border-white/20"
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
@@ -933,7 +940,7 @@ export function Buddy() {
                 </Link>
               </div>
 
-              <div className="rounded-xl border border-white/10 bg-[#121c27] p-3 space-y-2 text-[11.5px] text-slate-400">
+              <div className="rounded-xl border border-white/10 bg-[#241912] p-3 space-y-2 text-[11.5px] text-slate-400">
                 <p>• <strong>Skill Passport</strong>: HMAC-SHA256 signed tamper-proof proof of coding ability.</p>
                 <p>• <strong>Contract Blackout Shield</strong>: Pre-drafted 48-hour internet outage protections.</p>
                 <p>• <strong>Integer Poisha Math</strong>: Zero-hallucination currency reconciliation.</p>
@@ -954,7 +961,7 @@ export function Buddy() {
                 </p>
               </div>
 
-              <div className="rounded-xl border border-white/5 bg-[#121b24] p-3 space-y-2 text-[11.5px] text-slate-400">
+              <div className="rounded-xl border border-white/5 bg-[#221810] p-3 space-y-2 text-[11.5px] text-slate-400">
                 <p>• <strong>Prescription Safety</strong>: Zero OCR data stored on central servers.</p>
                 <p>• <strong>Financial Precision</strong>: Financial calculations run deterministically in integer poisha.</p>
                 <p>• <strong>Cryptographic Passports</strong>: Secret keys never leave the server environment.</p>
@@ -966,7 +973,7 @@ export function Buddy() {
           {showKeyboard && (
             <form
               onSubmit={(event) => void send(event)}
-              className="flex items-end gap-2 border-t border-slate-800 bg-[#0c1219] p-3"
+              className="flex items-end gap-2 border-t border-slate-800 bg-[#19110c] p-3"
             >
               <label htmlFor="buddy-input" className="sr-only">Type a message to Chakra Agent</label>
               <textarea
@@ -991,7 +998,7 @@ export function Buddy() {
           )}
 
           {/* 6. Apple Siri / Chakra Voice Interaction Footer (Attachments 2 & 3) */}
-          <footer className="border-t border-slate-800 bg-gradient-to-t from-[#060a0e] via-[#091117] to-[#0c151e] px-4 py-3.5 text-center">
+          <footer className="border-t border-slate-800 bg-gradient-to-t from-[#100a07] via-[#150e0a] to-[#1a120d] px-4 py-3.5 text-center">
             <div className="flex items-center justify-between px-3">
               {/* Left Speaker / Mute Button */}
               <button
