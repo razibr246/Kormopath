@@ -57,3 +57,23 @@ test("quota failure rolls back previous writes and retains unrelated data", () =
   assert.equal(storage.getItem("kormopath:platform:new"), null);
   assert.equal(storage.getItem("other"), "keep");
 });
+
+test("encrypted backup round-trips with the right passphrase only", async () => {
+  const { encryptBackup, decryptBackup, isEncryptedBackup } = await import("../lib/backup.ts");
+  const backup = { format: "kormopath-backup" as const, version: 1 as const, exportedAt: "2026-11-16T10:00:00.000Z", data: { "kormopath:shohoj:ledger": [{ amount: 20000 }] } };
+  const sealed = await encryptBackup(backup, "শক্ত পাসওয়ার্ড 2026");
+  const text = JSON.stringify(sealed);
+  assert.equal(isEncryptedBackup(text), true);
+  assert.equal(text.includes("ledger"), false, "plaintext keys must not leak");
+  assert.deepEqual(await decryptBackup(text, "শক্ত পাসওয়ার্ড 2026"), backup);
+  await assert.rejects(decryptBackup(text, "wrong-passphrase"), /Wrong passphrase/);
+  const tampered = JSON.stringify({ ...sealed, ciphertext: sealed.ciphertext.slice(0, -4) + "AAAA" });
+  await assert.rejects(decryptBackup(tampered, "শক্ত পাসওয়ার্ড 2026"), /Wrong passphrase|changed/);
+  await assert.rejects(encryptBackup(backup, "short"), /at least 8/);
+});
+
+test("encrypted envelope with weak or malformed KDF settings is rejected", async () => {
+  const { decryptBackup } = await import("../lib/backup.ts");
+  const bad = JSON.stringify({ format: "kormopath-backup-encrypted", version: 1, kdf: "PBKDF2-SHA256", iterations: 10, salt: "AA==", iv: "AA==", ciphertext: "AA==" });
+  await assert.rejects(decryptBackup(bad, "whatever-long"), /Unsupported encrypted backup/);
+});

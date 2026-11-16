@@ -614,7 +614,7 @@ export default function Home() {
         isEcosystemOpen={isEcosystemOpen}
       />
 
-      <main id="main" className="mx-auto max-w-[1400px] px-4 space-y-12">
+      <main id="main" className="mx-auto max-w-7xl px-4 sm:px-6 space-y-12">
         {/* Macro Stats Verified 2026 Bar */}
         <section aria-label="Macro Statistics" className="mt-4 overflow-hidden rounded-2xl border border-slate-200/80 bg-white/90 backdrop-blur-md shadow-xs">
           <div className="grid grid-cols-2 divide-x divide-line text-[12px] sm:grid-cols-4">
@@ -647,10 +647,10 @@ export default function Home() {
             <div className="p-3.5 sm:p-4 text-center sm:text-left">
               <span className="flex items-center justify-center sm:justify-start gap-1.5 text-muted">
                 <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                Clause 4 Outage SLA Buffer
+                Clause 4 outage buffer
               </span>
               <strong className="block text-[16px] text-kept font-mono font-extrabold tabular-nums mt-0.5">48 Hours + ৳12.5k UPS</strong>
-              <span className="text-[11px] text-kept font-medium">Blackout Protection Active</span>
+              <span className="text-[11px] text-kept font-medium">In the contract template</span>
             </div>
           </div>
         </section>
@@ -658,32 +658,26 @@ export default function Home() {
         {/* Hero Section */}
         <section aria-label="Introduction Hero" className="hero-section grid gap-8 pt-4 pb-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-kept/30 bg-kept-soft/70 px-3.5 py-1 text-[13px] font-bold text-kept mb-4">
-              <Sparkles size={14} /> The Autonomous Skill-to-Income OS for Bangladeshi Youth
-            </div>
-            <h1 className="display max-w-[22ch] text-[36px] font-extrabold leading-[1.08] sm:text-[50px] text-ink">
-              From Skill to Income. The Autonomous Career &amp; Contract OS.
+            <p className="kp-eyebrow">{lang === "bn" ? "ওয়ার্কস্পেস · চার ধাপ" : "Workspace · four steps"}</p>
+            <h1 className="mt-3 max-w-[18ch] text-[clamp(36px,5vw,62px)] font-semibold leading-[1.05] tracking-tight text-slate-900">
+              {lang === "bn" ? <>দক্ষতা থেকে <em className="kp-em">টাকা হাতে</em>, প্রমাণসহ</> : <>From skill to <em className="kp-em">money in hand</em>, with proof</>}
             </h1>
-            <p className="mt-4 max-w-[62ch] text-[16px] sm:text-[17px] leading-relaxed text-ink/90">
-              KormoPath empowers 2.7 Million Bangladeshi youth with AI Obsolescence Auditing, Sandboxed Code &amp; Spoken Viva Verification, Direct Client Contracts with 48h Blackout Protection, and Institutional Income Pathways.
+            <p className="mt-4 max-w-[58ch] text-[16px] leading-relaxed text-slate-600 sm:text-[18px]">
+              {lang === "bn"
+                ? "সিভি আর পাবলিক গিটহাব থেকে প্রমাণসহ দক্ষতা যাচাই, ব্রাউজারে কোড চ্যালেঞ্জ ও ভাইভা, সরাসরি ক্লায়েন্টের জন্য রিভিউ করা চুক্তি, আর ফি-কর-প্রণোদনার নির্ধারিত হিসাব। প্রতিটি ধাপে কী চলল, নিচের লগে দেখা যায়।"
+                : "Skills checked against your CV and public GitHub, a code challenge and viva in your browser, a reviewed contract for a direct client, and fixed-rule maths for fees, tax and incentive. Every step shows what ran in the log below."}
             </p>
-            <div className="mt-5 flex flex-wrap items-center gap-3">
-              <button
-                onClick={() => workRef.current?.scrollIntoView({ behavior: "smooth" })}
-                className="inline-flex items-center gap-2 rounded-xl bg-kept px-4 py-2.5 text-[14px] font-bold text-white hover:bg-kept/90 shadow-sm transition-all"
-              >
-                <span>Enter 4-Stage Guided OS</span>
-                <ArrowRight size={15} />
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <button onClick={() => workRef.current?.scrollIntoView({ behavior: "smooth" })} className="kp-btn-primary kp-btn-lg">
+                <span>{lang === "bn" ? "ধাপ ১ শুরু করুন" : "Start step 1"}</span>
+                <ArrowRight size={16} />
               </button>
-              <Link
-                href="/feeguard"
-                className="inline-flex items-center gap-1.5 rounded-xl border border-line bg-white px-4 py-2.5 text-[14px] font-bold text-ink hover:border-kept transition-all shadow-xs"
-              >
-                <Percent size={14} className="text-emerald-600" />
-                <span>Audit Marketplace Leaks (FeeGuard BD)</span>
+              <Link href="/feeguard" className="kp-btn-ghost kp-btn-lg">
+                <Percent size={15} className="text-amber-700" />
+                <span>{lang === "bn" ? "পেআউটের ফি দেখুন" : "Check payout fees"}</span>
               </Link>
             </div>
-            <div className="mt-5">
+            <div className="mt-6">
               <HeroDevice />
             </div>
           </div>
@@ -693,14 +687,14 @@ export default function Home() {
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <span className="flex h-3 w-3 rounded-full bg-kept animate-ping" />
-                <h3 className="font-bold text-[16px] text-ink">Zero-Login Judge Sandbox Mode</h3>
+                <h3 className="font-bold text-[16px] text-ink">{lang === "bn" ? "নমুনা প্রোফাইলে চালিয়ে দেখুন" : "Try it with a sample profile"}</h3>
               </div>
               <span className="rounded-full bg-amber-100/80 border border-amber-300/60 px-2.5 py-0.5 text-[11px] font-bold text-amber-900 shadow-2xs">
-                1-Click Test Presets
+                {lang === "bn" ? "লগইন লাগে না" : "No login"}
               </span>
             </div>
             <p className="text-[13px] text-muted mb-3">
-              Test all 4 agents end-to-end in under 5 seconds with pre-verified Bangladeshi candidate profiles:
+              {lang === "bn" ? "তিনটি নমুনা প্রার্থী দিয়ে চার ধাপ একবারে চলে। এরা উদাহরণ, বাস্তব মানুষ নন।" : "Run all four steps at once with a sample candidate. These are examples, not real people."}
             </p>
             <ul className="space-y-2.5">
               {PERSONAS.map((p) => (
@@ -723,7 +717,7 @@ export default function Home() {
                       <Loader2 size={18} className="animate-spin text-kept shrink-0" />
                     ) : (
                       <span className="inline-flex items-center gap-1 rounded-full bg-orange-100/80 px-2.5 py-1 text-[11px] font-bold text-orange-700 group-hover:bg-orange-600 group-hover:text-white transition-colors shrink-0">
-                        Run in 5s <ArrowRight size={12} />
+                        {lang === "bn" ? "চালান" : "Run"} <ArrowRight size={12} />
                       </span>
                     )}
                   </button>
@@ -731,12 +725,12 @@ export default function Home() {
               ))}
             </ul>
             <div className="mt-3 flex items-center justify-between text-[12px] text-muted pt-2 border-t border-line">
-              <span>No signup or login required.</span>
+              <span>{lang === "bn" ? "কোনো সাইন আপ নেই।" : "No sign-up needed."}</span>
               <button
                 onClick={() => setIsEcosystemOpen(true)}
                 className="text-kept font-bold hover:underline inline-flex items-center gap-1 min-h-[44px] py-1"
               >
-                Open 9-Dot Hub (6 Apps) →
+                {lang === "bn" ? "সব অ্যাপ দেখুন →" : "See all apps →"}
               </button>
             </div>
           </div>
@@ -746,7 +740,7 @@ export default function Home() {
         <section id="pipeline" aria-label="4-Stage Guided Workspace">
           <div className="mb-4">
             <h2 className="display text-[26px] font-extrabold text-ink">
-              The 4-Stage Autonomous Path
+              {lang === "bn" ? "চার ধাপের পথ" : "The four-step path"}
             </h2>
             <p className="text-[14px] text-muted">
               From raw skill auditing to verified code testing, direct agreement generation, and deterministic cross-border payout.
@@ -1021,19 +1015,19 @@ export default function Home() {
         <section id="ecosystem-preview" aria-label="Ecosystem Apps" className="rounded-2xl border border-line bg-white p-6 shadow-xs">
           <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
             <div>
-              <span className="text-[12px] font-bold text-kept uppercase tracking-wider">KormoPath Ecosystem</span>
-              <h2 className="display text-[26px] font-extrabold text-ink mt-0.5">
-                5 Track B2C Innovations inside KormoPath
+              <span className="kp-eyebrow">{lang === "bn" ? "আরও টুল" : "More tools"}</span>
+              <h2 className="display text-[26px] font-extrabold text-ink mt-1">
+                {lang === "bn" ? "কর্মপথের অন্য টুলগুলো" : "Other KormoPath tools"}
               </h2>
               <p className="text-[14px] text-muted">
-                Each product is engineered directly from the official tracks and accessible via the top-right 9-dot launcher.
+                {lang === "bn" ? "প্রতিটি টুল আলাদাভাবে চলে; ওপরের ডান দিকের \u201cসব অ্যাপ\u201d থেকেও খোলা যায়।" : "Each tool runs on its own; open them from \u201cAll apps\u201d at the top right too."}
               </p>
             </div>
             <button
               onClick={() => setIsEcosystemOpen(true)}
-              className="inline-flex items-center gap-2 rounded-xl bg-ink px-4 py-2.5 text-[13px] font-bold text-white hover:bg-ink/90 transition-colors"
+              className="kp-btn-ghost"
             >
-              Open 9-Dot Launcher &amp; Demos <ArrowRight size={15} />
+              {lang === "bn" ? "সব অ্যাপ" : "All apps"} <ArrowRight size={15} />
             </button>
           </div>
 
@@ -1333,36 +1327,33 @@ export default function Home() {
         </section>
 
         {/* Bottom CTA Banner */}
-        <section aria-label="Call to Action" className="rounded-2xl border-2 border-kept bg-gradient-to-r from-kept-soft/70 via-white to-haldi-soft/40 p-8 text-center shadow-xs">
-          <div className="mx-auto max-w-2xl">
-            <span className="rounded-full bg-kept px-3 py-1 text-[12px] font-bold text-white uppercase">
-              KormoPath Autonomous Platform
-            </span>
-            <h2 className="display text-[30px] font-extrabold text-ink mt-3">
-              Ready to value, prove, contract, and bring your dollars home?
+        <section aria-label="Call to Action" className="kp-cta text-center">
+          <div className="relative z-10 mx-auto max-w-2xl">
+            <h2 className="text-[clamp(28px,4vw,44px)] font-semibold leading-tight text-white">
+              {lang === "bn" ? <>যাচাই, প্রমাণ, চুক্তি, <em className="italic text-[#ffe2b5]">তারপর টাকা</em></> : <>Value, prove, contract, <em className="italic text-[#ffe2b5]">then get paid</em></>}
             </h2>
-            <p className="mt-2 text-[15px] text-muted">
-              Zero signup wall. Select one of the 3 judge presets at the top or paste your own CV to experience KormoPath live.
+            <p className="mt-3 text-[16px] text-white/85">
+              {lang === "bn" ? "সাইন আপ নেই। ওপরের নমুনা প্রোফাইল বেছে নিন, অথবা নিজের সিভি দিন।" : "No sign-up. Pick a sample profile above, or paste your own CV."}
             </p>
             <div className="mt-5 flex flex-wrap justify-center gap-3">
               <button
                 onClick={() => workRef.current?.scrollIntoView({ behavior: "smooth" })}
-                className="rounded-xl bg-ink px-6 py-3 text-[14px] font-bold text-white hover:bg-ink/90 transition-colors shadow-sm"
+                className="kp-btn-ghost kp-btn-lg !border-white/40"
               >
-                Launch 4-Stage Workspace ↑
+                {lang === "bn" ? "ধাপ ১-এ যান ↑" : "Go to step 1 ↑"}
               </button>
               <button
                 onClick={() => setIsEcosystemOpen(true)}
-                className="rounded-xl border border-line bg-white px-6 py-3 text-[14px] font-bold text-ink hover:border-kept transition-colors shadow-xs"
+                className="kp-btn-ghost kp-btn-lg !border-white/40"
               >
-                Open 9-Dot Hub (5 Track Apps)
+                {lang === "bn" ? "সব অ্যাপ" : "All apps"}
               </button>
             </div>
           </div>
         </section>
       </main>
 
-      {/* Right Corner Facebook-style 9-Dot Ecosystem & Page Maintain Hub */}
+      {/* All-apps launcher modal */}
       <EcosystemHub
         isOpen={isEcosystemOpen}
         onClose={() => setIsEcosystemOpen(false)}

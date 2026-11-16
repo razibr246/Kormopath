@@ -155,8 +155,13 @@ export default function MediScanPage() {
           </p>
         </section>
 
-        <section aria-labelledby="appointment-title" className="rounded-2xl border border-violet-200 bg-white p-5 shadow-sm">
-          <div className="flex flex-wrap items-start justify-between gap-3">
+        {/* Demo only: fictional doctors. Collapsed so it never competes with the prescription reader. */}
+        <details className="group rounded-2xl border border-dashed border-amber-300 bg-amber-50/40 p-5">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-[14px] font-bold text-amber-950">
+            <span>নমুনা: ডাক্তার বুকিং কেমন হতে পারে (ডেমো · আসল ডাক্তার নেই, টাকা নেওয়া হয় না)</span>
+            <span aria-hidden className="text-amber-700 transition-transform group-open:rotate-180">⌄</span>
+          </summary>
+          <div className="mt-4 flex flex-wrap items-start justify-between gap-3">
             <div>
               <h2 id="appointment-title" className="flex items-center gap-2 text-[20px] font-extrabold"><CalendarDays size={21} className="text-violet-700" aria-hidden /> ডাক্তারের সাথে পরামর্শ বুক করুন</h2>
               <p className="mt-1 text-[13px] text-slate-600">ডেমো ডাক্তার বেছে ফোন বা ভিডিও পরামর্শের নমুনা বুকিং করুন।</p>
@@ -202,7 +207,7 @@ export default function MediScanPage() {
           </div>
           {demoBooking && <div role="status" className="mt-4 rounded-xl border border-emerald-300 bg-emerald-50 p-4 text-[13px] text-emerald-950"><strong className="block">নমুনা অ্যাপয়েন্টমেন্ট তৈরি হয়েছে</strong><span>{selectedDoctor.name} · {consultationType === "phone" ? "ফোন কল" : "ভিডিও কল"} · {appointmentSlot} · ৳{selectedDoctor.fee} ({paymentMethod === "bkash" ? "বিকাশ" : paymentMethod === "nagad" ? "নগদ" : "কার্ড"})</span><p className="mt-1">এটি শুধু ডেমো: কোনো টাকা কাটা হয়নি, বুকিং ডাক্তারকে পাঠানো হয়নি, এবং কল/ভিডিও সংযোগ চালু নেই।</p></div>}
           <p className="mt-3 text-[11px] leading-relaxed text-slate-500">ডাক্তারদের নাম, সময় ও ফি কাল্পনিক। এই নমুনায় কোনো পেমেন্ট নেওয়া, চিকিৎসকের সাথে সংযোগ বা প্রকৃত অ্যাপয়েন্টমেন্ট তৈরি হয় না।</p>
-        </section>
+        </details>
 
         {redFlags.length > 0 && (
           <section role="alert" className="rounded-2xl border-2 border-red-500 bg-red-50 p-5">

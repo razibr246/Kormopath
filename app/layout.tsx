@@ -10,6 +10,7 @@ import { StorageNotice } from "@/components/StorageNotice";
 import { CommandPalette } from "@/components/CommandPalette";
 import { Buddy } from "@/components/Buddy";
 import { BuildathonSticker } from "@/components/BuildathonSticker";
+import { PwaSupport } from "@/components/PwaSupport";
 
 // Self-hosted at build time by next/font: no request to Google from the visitor's browser.
 const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", display: "swap", axes: ["opsz", "SOFT"] });
@@ -116,6 +117,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <CommandPalette />
         <Buddy />
+        <PwaSupport />
       </body>
     </html>
   );

@@ -64,3 +64,56 @@ export function backupSummary(backup: Backup): { name: string; items: number }[]
   }
   return [...counts].map(([name, items]) => ({ name, items }));
 }
+
+/*
+ * Optional passphrase encryption (AES-GCM 256, key from PBKDF2-SHA256). Uses the standard Web
+ * Crypto API, available in browsers and Node, so this module still needs no imports. Without the
+ * passphrase the file cannot be read; KormoPath keeps no copy of it, so a lost passphrase means a
+ * lost backup.
+ */
+export const ENCRYPTED_FORMAT = "kormopath-backup-encrypted";
+export const PASSPHRASE_MIN = 8;
+const PBKDF2_ITERATIONS = 310_000;
+export type EncryptedBackup = { format: typeof ENCRYPTED_FORMAT; version: 1; kdf: "PBKDF2-SHA256"; iterations: number; salt: string; iv: string; ciphertext: string };
+
+const toB64 = (bytes: Uint8Array) => { let s = ""; for (const b of bytes) s += String.fromCharCode(b); return btoa(s); };
+const fromB64 = (text: string) => Uint8Array.from(atob(text), (c) => c.charCodeAt(0));
+
+async function deriveKey(passphrase: string, salt: Uint8Array, iterations: number) {
+  const material = await crypto.subtle.importKey("raw", new TextEncoder().encode(passphrase.normalize("NFC")), "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey({ name: "PBKDF2", hash: "SHA-256", salt: salt as BufferSource, iterations }, material, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+}
+
+export function isEncryptedBackup(text: string): boolean {
+  try {
+    const raw = JSON.parse(text.replace(/^﻿/, ""));
+    return raw?.format === ENCRYPTED_FORMAT;
+  } catch { return false; }
+}
+
+export async function encryptBackup(backup: Backup, passphrase: string): Promise<EncryptedBackup> {
+  if (passphrase.length < PASSPHRASE_MIN) throw new Error(`Passphrase must be at least ${PASSPHRASE_MIN} characters.`);
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await deriveKey(passphrase, salt, PBKDF2_ITERATIONS);
+  const plain = new TextEncoder().encode(JSON.stringify(backup));
+  const cipher = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv: iv as BufferSource }, key, plain as BufferSource));
+  return { format: ENCRYPTED_FORMAT, version: 1, kdf: "PBKDF2-SHA256", iterations: PBKDF2_ITERATIONS, salt: toB64(salt), iv: toB64(iv), ciphertext: toB64(cipher) };
+}
+
+/** Decrypts and then validates exactly like a plain backup. A wrong passphrase fails the AES-GCM tag check. */
+export async function decryptBackup(text: string, passphrase: string): Promise<Backup> {
+  // Base64 adds a third, so the encrypted envelope may be up to ~4/3 of the plain limit.
+  if (new TextEncoder().encode(text).length > Math.ceil(BACKUP_LIMIT * 1.4)) throw new Error("Backup must be smaller than 5 MB.");
+  const raw = JSON.parse(text.replace(/^﻿/, ""));
+  if (raw?.format !== ENCRYPTED_FORMAT || raw.version !== 1 || raw.kdf !== "PBKDF2-SHA256" || !Number.isSafeInteger(raw.iterations) || raw.iterations < 100_000 || raw.iterations > 5_000_000
+    || typeof raw.salt !== "string" || typeof raw.iv !== "string" || typeof raw.ciphertext !== "string") throw new Error("Unsupported encrypted backup.");
+  let plain: ArrayBuffer;
+  try {
+    const key = await deriveKey(passphrase, fromB64(raw.salt), raw.iterations);
+    plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: fromB64(raw.iv) as BufferSource }, key, fromB64(raw.ciphertext) as BufferSource);
+  } catch {
+    throw new Error("Wrong passphrase, or the file was changed.");
+  }
+  return parseBackup(new TextDecoder().decode(plain));
+}
