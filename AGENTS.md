@@ -7,8 +7,9 @@ KormoPath / KormoPilot AI: a Next.js (App Router, TypeScript, Tailwind v4) colle
 ```bash
 npm run dev      # Next.js dev server, http://localhost:3000
 npm run build    # production build — also the ONLY type-check (no lint/format script)
-npm test         # node --test tests/*.test.ts
+npm test         # tests/*.test.ts, then tests/security/*.test.ts under --conditions=react-server
 node --test --test-name-pattern="Fiverr" tests/core.test.ts   # single test by name
+npm run test:browser   # Puppeteer journeys in tests/e2e/*.mjs; needs a production server on :3100
 ```
 
 - Tests run `.ts` files via Node's native type stripping (Node 22.6+; Node 24 here). No ts-node/bundler.
@@ -16,11 +17,13 @@ node --test --test-name-pattern="Fiverr" tests/core.test.ts   # single test by n
 - Only modules without `@/` imports, without `"server-only"`, and without non-strippable TS syntax can be imported from tests. `lib/finops.ts`, `lib/grounding.ts`, `lib/contract.ts` have no imports at all — keep them that way.
 - `tsconfig.json` excludes `tests/`, so `npm run build` does not type-check tests.
 - To verify a production build while `npm run dev` is running: `NEXT_DIST_DIR=.next-test npm run build && NEXT_DIST_DIR=.next-test npx next start -p 3100` (`.next-test` is gitignored).
-- `tests/e2e/browser.mjs` (and `features-browser.mjs`) are NOT part of `npm test`; they need `puppeteer-core` installed outside the repo and local Chrome — see the file header.
+- `tests/security/` runs with `--conditions=react-server` so it can import server-side modules such as `lib/passport.ts`.
+- `npm run test:browser` is NOT part of `npm test`. It uses `puppeteer-core` (a devDependency) with a locally installed Chrome (`CHROME_PATH` overrides the path, `BASE` overrides `http://localhost:3100`) and clears localStorage in its own browser profile.
+- CI (`.github/workflows/ci.yml`, Node 24) runs `npm test`, `npm run build`, then the browser journeys against `npm start -- -p 3100`.
 
 ## Env (`.env.local`, never commit)
 
-`GEMINI_API_KEY` (optional — without it, every agent uses its rule-based fallback, but image/PDF reading is unavailable), `GEMINI_MODEL` (default `gemini-2.5-flash`), `GEMINI_FALLBACK_MODEL` (default `gemini-flash-lite-latest`, used on 429/5xx), `PASSPORT_SECRET` (if unset, passports are signed with a public dev key and `usingDevSecret()` is true).
+`GEMINI_API_KEY` (optional — without it, every agent uses its rule-based fallback, but image/PDF reading is unavailable), `GEMINI_MODEL` (default `gemini-2.5-flash`), `GEMINI_FALLBACK_MODEL` (default `gemini-flash-lite-latest`, used on 429/5xx), `PASSPORT_SECRET` (outside production, if unset, passports are signed with a public dev key and `usingDevSecret()` is true; with `NODE_ENV=production`, `signingConfigured()` fails closed, so issuing and verifying both refuse, unless the secret is at least 32 characters and is not the dev key).
 
 ## Architecture
 
@@ -80,12 +83,13 @@ Hard rules for these apps (see `docs/`):
 ## Security configuration
 
 - `next.config.mjs` sets headers for every route; Permissions-Policy allows same-origin microphone only. A feature needing camera or geolocation must update it.
-- `middleware.ts` rejects API bodies over 256 KB with 413. Upload routes (base64) must be added to its `UPLOAD_ROUTES` (currently `/api/audit`, `/api/receipt`, `/api/mediscan/ocr`) or real uploads will be rejected.
+- `middleware.ts` rejects API bodies over 256 KB with 413. Upload routes (base64) get 6.5 MB, but only if they are listed in its `UPLOAD_ROUTES` (currently `/api/audit`, `/api/receipt`, `/api/mediscan/ocr`); otherwise real uploads will be rejected.
 - Never commit `.env.local`, API keys or `PASSPORT_SECRET`.
 
 ## Gotchas
 
 - **Bangla text:** some characters (য়, ড়, ঢ়) exist as one codepoint or two; this repo contains both. Exact-string edits/comparisons on Bangla text can silently fail. Normalise with `.normalize("NFC")` in code (as `lib/budget.ts` does) and anchor scripted edits on nearby ASCII.
+- **Backups:** `/settings` lists, exports and deletes data per app. Export/import (`lib/backup.ts`, `components/DataBackup.tsx`) only accepts keys whose app namespace is in the allowlist in `lib/backup.ts`. A new app namespace must be added there, or its data is silently left out of backups.
 - **ChuktiGuard** used to carry its own fee math; it now re-exports from `lib/finops.ts`/`lib/contract.ts`. `lib/chuktiguard.ts` is the place to check if rail fees ever look divergent again.
 - **Shared UI:** `components/AppHeader.tsx` (header, skip link, privacy chip, `SourceTag`), `AppSwitcherDropdown` (`variant="light"` on white headers).
 - **UI conventions:** Tailwind v4 via `@tailwindcss/postcss`, theme in `app/globals.css`; `lucide-react` icons; English/বাংলা toggles kept in component state (`lang: "en" | "bn"`); `bnDigits` in `lib/contract.ts` converts digits to Bengali numerals.
