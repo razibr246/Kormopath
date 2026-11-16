@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   analyzeAnswer, countFillers, containsTerm, progressSummary, QUESTIONS,
   starCheck, createCustomQuestion, evaluateViva,
+  SCAM_SCENARIOS, evaluateScamDefense, type ScamEvaluation,
   type SessionRecord,
 } from "../lib/speech.ts";
 
@@ -174,4 +175,45 @@ test("Inline transcript correction preserves original pace while updating conten
   assert.ok(a2.score.content > a1.score.content, "Corrected transcript should have higher content score");
   assert.equal(a2.seconds, 60);
   assert.equal(a2.wpm, Math.round(a2.wordCount / (60 / 60)), "Pace calculation must be preserved from the original 60s recording");
+});
+
+// ============================================================================
+// Cyber & MFS Scam Sparring Arena Tests (Scam Gym Resilience Track)
+// ============================================================================
+
+test("SCAM_SCENARIOS — contains 4 realistic high-risk fraud vectors in Bangladesh", () => {
+  assert.equal(SCAM_SCENARIOS.length, 4);
+  const ids = SCAM_SCENARIOS.map((s) => s.id);
+  assert.ok(ids.includes("mfs-otp"));
+  assert.ok(ids.includes("telegram-task"));
+  assert.ok(ids.includes("admission-seat"));
+  assert.ok(ids.includes("lottery-grant"));
+  for (const s of SCAM_SCENARIOS) {
+    assert.ok(s.fatalTriggers.length > 0);
+    assert.ok(s.safeDefenseTerms.length > 0);
+    assert.ok(s.goldenDefenseBn.length > 20);
+    assert.ok(s.helpline.length > 5);
+  }
+});
+
+test("evaluateScamDefense — detects fatal OTP/PIN disclosure with score 0", () => {
+  const fatalRes = evaluateScamDefense("mfs-otp", "আচ্ছা ভাই আমার ওটিপি কোড এবং পিন হলো ১২৩৪৫");
+  assert.equal(fatalRes.verdict, "fatal");
+  assert.equal(fatalRes.score, 0);
+  assert.ok(fatalRes.feedbackBn.includes("বিপজ্জনক"));
+  assert.ok(fatalRes.safetyAdviceBn.length > 0);
+});
+
+test("evaluateScamDefense — detects safe resistance and helpline citation with score 100", () => {
+  const safeRes = evaluateScamDefense("mfs-otp", "আমি কোনো পিন বা ওটিপি দেব না। বিকাশ কাস্টমার কেয়ার ১৬২৪৭ এ ফোন দিয়ে যাচাই করব।");
+  assert.equal(safeRes.verdict, "safe");
+  assert.equal(safeRes.score, 100);
+  assert.ok(safeRes.feedbackBn.includes("নিরাপদ"));
+});
+
+test("evaluateScamDefense — detects hesitant / risky questioning without firm refusal", () => {
+  const riskyRes = evaluateScamDefense("telegram-task", "ভাই কাজটা কী করতে হবে? বিস্তারিত বলুন তো?");
+  assert.equal(riskyRes.verdict, "risky");
+  assert.equal(riskyRes.score, 50);
+  assert.ok(riskyRes.feedbackBn.includes("ঝুঁকিপূর্ণ"));
 });

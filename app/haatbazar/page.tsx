@@ -1,14 +1,14 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Sprout, Phone, CloudRain, Wind, Thermometer, Truck, NotebookPen, Trash2, AlertTriangle, CheckCircle2, CalendarDays, Bug, Camera, ExternalLink } from "lucide-react";
+import { Sprout, Phone, CloudRain, Wind, Thermometer, Truck, NotebookPen, Trash2, AlertTriangle, CheckCircle2, CalendarDays, Bug, Camera, ExternalLink, Stethoscope, ShieldCheck, Check, PhoneCall } from "lucide-react";
 import { AppHeader, SourceTag } from "@/components/AppHeader";
 import { AppFooter } from "@/components/AppFooter";
 import { AgriculturalLifecycle } from "@/components/AgriculturalLifecycle";
 import { HaatMarket } from "@/components/HaatMarket";
 import {
   tripMargin, shareTruck, priceAgeDays, seasonForMonth, SEASONS, RICE_SEASONS, DISTRICTS, CROP_DISEASES, CROPS, KG_PER_MAUND,
-  calculateSensitivityCurve, type SensitivityPoint,
+  calculateSensitivityCurve, diagnoseCropSymptom, type SensitivityPoint, type CropDiagnosticResult,
   type PriceNote, type WeatherHour, type SprayWindow,
 } from "@/lib/haatbazar";
 import { usePersistentState, storageKey, todayLocal } from "@/lib/clientStore";
@@ -424,24 +424,281 @@ function PriceNotebook({ notes, setNotes, today }: { notes: StoredNote[]; setNot
 }
 
 function DiseaseReference() {
-  const [id, setId] = useState(CROP_DISEASES[0].id);
-  const d = CROP_DISEASES.find((x) => x.id === id) ?? CROP_DISEASES[0];
+  const [viewMode, setViewMode] = useState<"doctor" | "catalog">("doctor");
+  const [selectedCrop, setSelectedCrop] = useState("rice");
+  const [activeSymptoms, setActiveSymptoms] = useState<string[]>([]);
+  const [customSymptom, setCustomSymptom] = useState("");
+  const [catalogId, setCatalogId] = useState(CROP_DISEASES[0].id);
+
+  // Suggested symptoms for the selected crop
+  const cropDiseases = useMemo(() => {
+    const cropBnMap: Record<string, string> = {
+      rice: "ধান",
+      potato: "আলু",
+      brinjal: "বেগুন",
+      tomato: "টমেটো",
+      onion: "পেঁয়াজ",
+      jute: "পাট",
+      mango: "আম",
+    };
+    const targetBn = cropBnMap[selectedCrop] || selectedCrop;
+    return CROP_DISEASES.filter((d) => d.cropNameBn === targetBn);
+  }, [selectedCrop]);
+
+  const availableTags = useMemo(() => {
+    const tags = new Set<string>();
+    for (const d of cropDiseases) {
+      for (const t of d.symptomTags) {
+        tags.add(t);
+      }
+    }
+    return Array.from(tags);
+  }, [cropDiseases]);
+
+  // Run deterministic diagnostic engine
+  const diagnostic = useMemo(() => {
+    return diagnoseCropSymptom(selectedCrop, activeSymptoms);
+  }, [selectedCrop, activeSymptoms]);
+
+  const toggleSymptom = (tag: string) => {
+    setActiveSymptoms((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
+  };
+
+  const handleAddCustom = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!customSymptom.trim()) return;
+    if (!activeSymptoms.includes(customSymptom.trim())) {
+      setActiveSymptoms((prev) => [...prev, customSymptom.trim()]);
+    }
+    setCustomSymptom("");
+  };
+
+  const d = CROP_DISEASES.find((x) => x.id === catalogId) ?? CROP_DISEASES[0];
+
   return (
-    <div className="mt-3 space-y-3">
-      <div className="flex flex-wrap gap-1.5" role="tablist" aria-label="ফসলের সমস্যা">
-        {CROP_DISEASES.map((x) => (
-          <button key={x.id} role="tab" aria-selected={x.id === id} onClick={() => setId(x.id)} className={`rounded-lg border px-2.5 py-1 text-[12px] font-semibold ${x.id === id ? "border-green-700 bg-green-50 text-green-900" : "border-stone-200 text-stone-600"}`}>
-            {x.cropNameBn}: {x.diseaseNameBn}
+    <div className="mt-3 space-y-4">
+      {/* Mode Toggle */}
+      <div className="flex items-center justify-between border-b border-stone-200 pb-2">
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setViewMode("doctor")}
+            className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-bold transition-all ${
+              viewMode === "doctor"
+                ? "bg-green-800 text-white shadow-xs"
+                : "bg-stone-100 text-stone-600 hover:bg-stone-200"
+            }`}
+          >
+            <Stethoscope size={14} /> ফসল ডাক্তার (Crop Doctor)
           </button>
-        ))}
+          <button
+            type="button"
+            onClick={() => setViewMode("catalog")}
+            className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-bold transition-all ${
+              viewMode === "catalog"
+                ? "bg-green-800 text-white shadow-xs"
+                : "bg-stone-100 text-stone-600 hover:bg-stone-200"
+            }`}
+          >
+            <Bug size={14} /> ১২টি রোগের ক্যাটালগ
+          </button>
+        </div>
+        <a
+          href="tel:16123"
+          className="inline-flex items-center gap-1 rounded-lg bg-lime-100 px-2 py-1 text-[11px] font-bold text-green-900 hover:bg-lime-200"
+        >
+          <PhoneCall size={12} /> ১৬১২৩
+        </a>
       </div>
-      <div role="tabpanel" className="space-y-2 text-[13px]">
-        <p><strong>লক্ষণ:</strong> {d.symptomsBn}</p>
-        <p><strong>যখন বাড়ে:</strong> {d.favouredByBn}</p>
-        <p><strong>প্রতিরোধ:</strong> {d.preventiveActionBn}</p>
-        <p><strong>রাসায়নিক ছাড়া:</strong> {d.nonChemicalBn}</p>
-        <p className="rounded-lg border border-amber-300 bg-amber-50 p-2 text-amber-950"><AlertTriangle size={14} className="mr-1 inline" aria-hidden />{d.chemicalNoteBn}</p>
-      </div>
+
+      {viewMode === "doctor" ? (
+        <div className="space-y-4">
+          {/* Crop Selector */}
+          <div>
+            <label className="block text-[11px] font-bold uppercase text-stone-500 mb-1">
+              ফসল নির্বাচন করুন
+            </label>
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                { id: "rice", label: "ধান" },
+                { id: "potato", label: "আলু" },
+                { id: "brinjal", label: "বেগুন" },
+                { id: "tomato", label: "টমেটো" },
+                { id: "onion", label: "পেঁয়াজ" },
+                { id: "jute", label: "পাট" },
+                { id: "mango", label: "আম" },
+              ].map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedCrop(c.id);
+                    setActiveSymptoms([]);
+                  }}
+                  className={`rounded-lg px-2.5 py-1 text-[12px] font-semibold transition-all ${
+                    selectedCrop === c.id
+                      ? "border border-green-700 bg-green-50 text-green-900 font-bold"
+                      : "border border-stone-200 text-stone-600 hover:bg-stone-50"
+                  }`}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Interactive Symptoms Selector */}
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[11px] font-bold uppercase text-stone-500">
+                মাঠে যে লক্ষণ দেখছেন (ক্লিক করে নির্বাচন করুন):
+              </span>
+              {activeSymptoms.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setActiveSymptoms([])}
+                  className="text-[11px] text-red-600 underline"
+                >
+                  সব মুছুন
+                </button>
+              )}
+            </div>
+
+            <div className="flex flex-wrap gap-1.5">
+              {availableTags.map((tag) => {
+                const isSelected = activeSymptoms.includes(tag);
+                return (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => toggleSymptom(tag)}
+                    className={`rounded-full px-2.5 py-1 text-[12px] font-medium transition-all ${
+                      isSelected
+                        ? "bg-green-700 text-white font-bold shadow-2xs"
+                        : "bg-stone-100 text-stone-700 hover:bg-stone-200"
+                    }`}
+                  >
+                    {isSelected ? "✓ " : "+ "}
+                    {tag}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Custom symptom input */}
+            <form onSubmit={handleAddCustom} className="mt-2 flex gap-1.5">
+              <input
+                type="text"
+                value={customSymptom}
+                onChange={(e) => setCustomSymptom(e.target.value)}
+                placeholder="অন্য কোনো লক্ষণ থাকলে লিখুন..."
+                className="flex-1 rounded-lg border border-stone-200 px-2.5 py-1 text-[12px] outline-none focus:border-green-700"
+              />
+              <button
+                type="submit"
+                disabled={!customSymptom.trim()}
+                className="rounded-lg bg-stone-100 px-3 py-1 text-[12px] font-bold text-stone-700 hover:bg-stone-200 disabled:opacity-40"
+              >
+                যোগ
+              </button>
+            </form>
+          </div>
+
+          {/* Diagnostic Result */}
+          {activeSymptoms.length === 0 ? (
+            <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-3.5 text-[12px] text-stone-600">
+              <p>
+                মাঠের ফসলে কোনো দাগ, পোকার ক্ষতি বা পাতার শুকিয়ে যাওয়া লক্ষ্য করলে ওপরের লক্ষণগুলোতে ক্লিক করুন। ইঞ্জিন তাৎক্ষণিক লক্ষণ মিলিয়ে রোগ ও সমন্বিত বালাই ব্যবস্থাপনা (IPM) দেখাবে।
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {diagnostic.topMatch ? (
+                <div className="rounded-xl border-2 border-green-600 bg-green-50/90 p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="inline-flex items-center gap-1 text-[14px] font-extrabold text-green-950">
+                      <CheckCircle2 size={16} className="text-green-700" />
+                      সম্ভাব্য রোগ: {diagnostic.topMatch.disease.diseaseNameBn}
+                    </span>
+                    <span className="rounded-full bg-green-200/90 px-2 py-0.5 text-[11px] font-bold text-green-900">
+                      {diagnostic.topMatch.matchScore}% লক্ষণ মিল
+                    </span>
+                  </div>
+
+                  <p className="text-[13px] text-stone-800">
+                    <strong>স্বাভাবিক লক্ষণ:</strong> {diagnostic.topMatch.disease.symptomsBn}
+                  </p>
+
+                  <p className="text-[12px] text-stone-600">
+                    <strong>আবহাওয়া অনুকূল হলে বাড়ে:</strong> {diagnostic.topMatch.disease.favouredByBn}
+                  </p>
+
+                  <div className="rounded-lg bg-white/90 p-2.5 text-[12px] space-y-1 border border-green-100">
+                    <span className="font-bold text-green-900 block">
+                      সমন্বিত বালাই ব্যবস্থাপনা (রাসায়নিক ছাড়া জৈব পদক্ষেপ):
+                    </span>
+                    <ul className="list-disc pl-4 space-y-0.5 text-stone-700">
+                      <li>{diagnostic.topMatch.disease.preventiveActionBn}</li>
+                      <li>{diagnostic.topMatch.disease.nonChemicalBn}</li>
+                    </ul>
+                  </div>
+
+                  <p className="rounded-lg border border-amber-300 bg-amber-50 p-2 text-[11px] text-amber-950">
+                    <AlertTriangle size={13} className="mr-1 inline text-amber-700" />
+                    {diagnostic.topMatch.disease.chemicalNoteBn}
+                  </p>
+                </div>
+              ) : (
+                <div className="rounded-xl border border-amber-300 bg-amber-50 p-3.5 text-[12px] text-amber-950">
+                  <p className="font-bold">সরাসরি কোনো নির্দিষ্ট রোগের সাথে পুরোপুরি মেলেনি।</p>
+                  <p className="mt-1">
+                    ভুল চিকিৎসার ঝুঁকি এড়াতে আক্রান্ত পাতার নমুনা নিয়ে নিকটস্থ উপজেলা কৃষি অফিস বা উপসহকারী কৃষি কর্মকর্তার কাছে যান। অথবা সরাসরি কল করুন:
+                  </p>
+                  <div className="mt-2">
+                    <a
+                      href="tel:16123"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-green-800 px-3 py-1.5 text-[12px] font-bold text-white shadow-xs"
+                    >
+                      <PhoneCall size={13} /> কৃষি কল সেন্টার ১৬১২৩-এ কল করুন
+                    </a>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      ) : (
+        /* Catalog View */
+        <div className="space-y-3">
+          <div className="flex flex-wrap gap-1.5" role="tablist" aria-label="ফসলের সমস্যা">
+            {CROP_DISEASES.map((x) => (
+              <button
+                key={x.id}
+                role="tab"
+                aria-selected={x.id === catalogId}
+                onClick={() => setCatalogId(x.id)}
+                className={`rounded-lg border px-2.5 py-1 text-[12px] font-semibold ${
+                  x.id === catalogId ? "border-green-700 bg-green-50 text-green-900" : "border-stone-200 text-stone-600"
+                }`}
+              >
+                {x.cropNameBn}: {x.diseaseNameBn}
+              </button>
+            ))}
+          </div>
+          <div role="tabpanel" className="space-y-2 text-[13px]">
+            <p><strong>লক্ষণ:</strong> {d.symptomsBn}</p>
+            <p><strong>যখন বাড়ে:</strong> {d.favouredByBn}</p>
+            <p><strong>প্রতিরোধ:</strong> {d.preventiveActionBn}</p>
+            <p><strong>রাসায়নিক ছাড়া:</strong> {d.nonChemicalBn}</p>
+            <p className="rounded-lg border border-amber-300 bg-amber-50 p-2 text-amber-950">
+              <AlertTriangle size={14} className="mr-1 inline" aria-hidden />
+              {d.chemicalNoteBn}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

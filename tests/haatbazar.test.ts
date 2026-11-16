@@ -7,6 +7,7 @@ import {
   sprayWindow,
   seasonForMonth,
   calculateSensitivityCurve,
+  diagnoseCropSymptom,
   DISTRICTS,
   CROP_DISEASES,
   KG_PER_MAUND,
@@ -203,4 +204,47 @@ test("Truck fare remainder distribution handles arbitrary loads and odd sums", (
   // Zero fare or zero load returns zeros
   assert.deepEqual(shareTruck(0, [10, 20]), [0, 0]);
   assert.deepEqual(shareTruck(5000, [0, 0, 0]), [0, 0, 0]);
+});
+
+test("CROP_DISEASES catalog contains 12 threats including Hispa, Sheath Blight, Early Blight, and Root Rot", () => {
+  assert.ok(CROP_DISEASES.length >= 12, `Expected at least 12 crop diseases, found ${CROP_DISEASES.length}`);
+  const ids = new Set(CROP_DISEASES.map((d) => d.id));
+  assert.ok(ids.has("rice-hispa"), "Rice Hispa must be present");
+  assert.ok(ids.has("rice-sheath-blight"), "Rice Sheath Blight must be present");
+  assert.ok(ids.has("potato-early-blight"), "Potato Early Blight must be present");
+  assert.ok(ids.has("brinjal-root-rot"), "Brinjal Root Rot must be present");
+
+  for (const d of CROP_DISEASES) {
+    assert.ok(Array.isArray(d.symptomTags) && d.symptomTags.length > 0, `Missing symptomTags for ${d.id}`);
+  }
+});
+
+test("diagnoseCropSymptom accurately diagnoses Rice Blast and provides IPM steps with helpline 16123", () => {
+  const res = diagnoseCropSymptom("rice", ["চোখের মতো দাগ", "শীষ ভেঙে পড়া"]);
+  assert.equal(res.cropNameBn, "ধান");
+  assert.ok(res.topMatch, "Top match should not be null");
+  assert.equal(res.topMatch!.disease.id, "rice-blast");
+  assert.ok(res.topMatch!.matchScore >= 80, `Expected high match score, got ${res.topMatch!.matchScore}`);
+  assert.equal(res.helpline.number, "16123");
+  assert.ok(res.safetyDisclaimer.includes("১৬১২৩"));
+  assert.ok(res.ipmChecklistBn.length >= 2);
+});
+
+test("diagnoseCropSymptom diagnoses Potato Late Blight and Early Blight accurately", () => {
+  const late = diagnoseCropSymptom("potato", ["কুয়াশা", "পানিভেজা দাগ", "সাদা ছত্রাক"]);
+  assert.equal(late.cropNameBn, "আলু");
+  assert.ok(late.topMatch);
+  assert.equal(late.topMatch!.disease.id, "potato-late-blight");
+
+  const early = diagnoseCropSymptom("আলু", ["টার্গেট বোর্ড দাগ", "বৃত্তাকার বলয়"]);
+  assert.ok(early.topMatch);
+  assert.equal(early.topMatch!.disease.id, "potato-early-blight");
+});
+
+test("diagnoseCropSymptom handles empty symptoms by returning candidates without throwing", () => {
+  const res = diagnoseCropSymptom("eggplant", []);
+  assert.equal(res.cropNameBn, "বেগুন");
+  assert.equal(res.topMatch, null);
+  assert.ok(res.alternatives.length >= 2, "Should return brinjal candidates");
+  assert.equal(res.helpline.number, "16123");
 });

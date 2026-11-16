@@ -5,6 +5,7 @@ import {
   toCsv, sanitizeTransactions, migrateLegacy, unusualExpenses, type Transaction,
   calculateMfsCashoutFee, defaultMfsProvider, MFS_FEE_RATES, CATEGORIES,
   CATEGORY_STYLES, sanitizeCsvCell,
+  simulate30DayCashFlow, calculateBakiInstallments, type ScheduledFlow,
 } from "../lib/budget.ts";
 
 test("Bengali digits convert and the user's example parses to 1200, not 200", () => {
@@ -205,4 +206,81 @@ test("CSV blocks formulas after whitespace and full-width formula prefixes", () 
     assert.ok(csv.includes("'" + note), `unsafe note: ${JSON.stringify(note)}`);
   }
   assert.ok(toCsv([tx({ note: "plain\rtext" })]).includes('"plain\rtext"'));
+});
+
+// ============================================================================
+// 30-Day Cash Deficit & Baki Installment Simulator (LaMP Resilience Track)
+// ============================================================================
+
+test("simulate30DayCashFlow — identifies exact deficit day, lowest balance, and health level", () => {
+  // Starting balance: ৳10,000 (1,000,000 poisha)
+  const initial = 10_000_00;
+  const flows: ScheduledFlow[] = [
+    { id: "f1", dayOfMonth: 5, label: "Wholesale Supplier Batch 1", type: "expense", poisha: 4_000_00 },
+    { id: "f2", dayOfMonth: 10, label: "Shop Rent & Distributor Invoice", type: "expense", poisha: 8_000_00 },
+    { id: "f3", dayOfMonth: 15, label: "Expected Customer Receivables / Salary", type: "income", poisha: 15_000_00 },
+    { id: "f4", dayOfMonth: 22, label: "Utility & Electricity Bill", type: "expense", poisha: 2_500_00 },
+  ];
+
+  const sim = simulate30DayCashFlow(initial, flows);
+  assert.equal(sim.days.length, 30);
+  assert.equal(sim.initialBalancePoisha, 10_000_00);
+  // Day 1 to 4: 10,000
+  assert.equal(sim.days[3].closingBalancePoisha, 10_000_00);
+  // Day 5: 10,000 - 4,000 = 6,000
+  assert.equal(sim.days[4].closingBalancePoisha, 6_000_00);
+  // Day 10: 6,000 - 8,000 = -2,000 (Deficit!)
+  assert.equal(sim.days[9].closingBalancePoisha, -2_000_00);
+  assert.equal(sim.deficitDay, 10, "Deficit must be detected on Day 10");
+  assert.equal(sim.lowestBalanceDay, 10);
+  assert.equal(sim.lowestBalancePoisha, -2_000_00);
+  assert.equal(sim.healthLevel, "critical");
+
+  // Day 15: -2,000 + 15,000 = +13,000
+  assert.equal(sim.days[14].closingBalancePoisha, 13_000_00);
+  // Day 22: 13,000 - 2,500 = 10,500
+  assert.equal(sim.days[21].closingBalancePoisha, 10_500_00);
+  // Final closing balance on Day 30: 10,500
+  assert.equal(sim.days[29].closingBalancePoisha, 10_500_00);
+
+  // Invariant: netSurplus === totalIncome - totalExpense
+  assert.equal(sim.totalExpectedIncomePoisha, 15_000_00);
+  assert.equal(sim.totalScheduledExpensePoisha, 14_500_00);
+  assert.equal(sim.netSurplusPoisha, 500_00);
+});
+
+test("simulate30DayCashFlow — healthy solvent simulation returns null deficitDay and solvent level", () => {
+  const initial = 50_000_00; // ৳50,000
+  const flows: ScheduledFlow[] = [
+    { id: "f1", dayOfMonth: 3, label: "Groceries", type: "expense", poisha: 5_000_00 },
+    { id: "f2", dayOfMonth: 12, label: "Freelance Milestone", type: "income", poisha: 20_000_00 },
+  ];
+  const sim = simulate30DayCashFlow(initial, flows);
+  assert.equal(sim.deficitDay, null);
+  assert.equal(sim.healthLevel, "solvent");
+  assert.equal(sim.lowestBalancePoisha, 45_000_00);
+  assert.equal(sim.lowestBalanceDay, 3);
+});
+
+test("calculateBakiInstallments — distributes debt across weeks with exact poisha sum invariant", () => {
+  const plan = calculateBakiInstallments(10000, 4, "2026-11-20", "করিম সাহেব", "হাসান ব্রাদার্স ফার্মেসি");
+  assert.equal(plan.totalDebtPoisha, 1_000_000);
+  assert.equal(plan.weeks, 4);
+  assert.equal(plan.weeklyInstallmentPoisha, 250_000);
+  assert.equal(plan.finalInstallmentPoisha, 250_000);
+  assert.equal(plan.schedule.length, 4);
+  const sumPoisha = plan.schedule.reduce((acc, s) => acc + s.amountPoisha, 0);
+  assert.equal(sumPoisha, plan.totalDebtPoisha);
+  assert.ok(plan.smsReminderTemplateBn.includes("করিম সাহেব"));
+  assert.ok(plan.smsReminderTemplateBn.includes("৳2,500"));
+});
+
+test("calculateBakiInstallments — handles uneven amounts with remainder cents on final week", () => {
+  // ৳100.03 over 4 weeks = 10003 poisha / 4 = 2500 poisha, remainder 3 poisha
+  const plan = calculateBakiInstallments(100.03, 4, "2026-11-20", "Jamal", "Bhai Bhai Store");
+  assert.equal(plan.totalDebtPoisha, 10003);
+  assert.equal(plan.weeklyInstallmentPoisha, 2500);
+  assert.equal(plan.finalInstallmentPoisha, 2503);
+  const sumPoisha = plan.schedule.reduce((acc, s) => acc + s.amountPoisha, 0);
+  assert.equal(sumPoisha, 10003);
 });

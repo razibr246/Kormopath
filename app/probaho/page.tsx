@@ -1,10 +1,13 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Mic, Square, Keyboard, Play, RotateCcw, CheckCircle2, XCircle, Lightbulb, MessageCircleQuestion, Trash2, TrendingUp, Info, Sparkles, Quote, Pencil, Plus, X } from "lucide-react";
+import { Mic, Square, Keyboard, Play, RotateCcw, CheckCircle2, XCircle, Lightbulb, MessageCircleQuestion, Trash2, TrendingUp, Info, Sparkles, Quote, Pencil, Plus, X, ShieldAlert, ShieldCheck, AlertTriangle, PhoneCall, Send, Lock } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { AppFooter } from "@/components/AppFooter";
-import { QUESTIONS, analyzeAnswer, progressSummary, starCheck, practiceStreak, createCustomQuestion, evaluateViva, type Question, type Analysis, type SessionRecord } from "@/lib/speech";
+import {
+  QUESTIONS, analyzeAnswer, progressSummary, starCheck, practiceStreak, createCustomQuestion, evaluateViva,
+  SCAM_SCENARIOS, evaluateScamDefense, type Question, type Analysis, type SessionRecord, type ScamEvaluation,
+} from "@/lib/speech";
 import { usePersistentState, storageKey, readStored, writeStored } from "@/lib/clientStore";
 
 type SR = {
@@ -19,11 +22,14 @@ type SR = {
   continuous: boolean;
 };
 
-const TRACKS: { id: Question["track"]; label: string }[] = [
+type TrackId = Question["track"] | "scam";
+
+const TRACKS: { id: TrackId; label: string }[] = [
   { id: "technical", label: "টেকনিক্যাল ভাইভা" },
   { id: "hr", label: "এইচআর ইন্টারভিউ" },
   { id: "academic", label: "প্রজেক্ট/থিসিস ডিফেন্স" },
   { id: "bangla", label: "বাংলা ভাইভা" },
+  { id: "scam", label: "🛡️ প্রতারণা প্রতিরোধ (Scam Gym)" },
 ];
 
 const sanitizeHistory = (raw: unknown): SessionRecord[] | null =>
@@ -32,13 +38,19 @@ const sanitizeHistory = (raw: unknown): SessionRecord[] | null =>
     : null;
 
 export default function ProbahoPage() {
-  const [track, setTrack] = useState<Question["track"]>("technical");
+  const [track, setTrack] = useState<TrackId>("technical");
   const [customQuestions, setCustomQuestions] = useState<Question[]>([]);
   const [customOpen, setCustomOpen] = useState(false);
   const [customPrompt, setCustomPrompt] = useState("");
   const [customDuration, setCustomDuration] = useState(90);
   const [customTrack, setCustomTrack] = useState<Question["track"]>("technical");
   const [customKeywords, setCustomKeywords] = useState("");
+
+  // Scam Sparring State
+  const [scamId, setScamId] = useState(SCAM_SCENARIOS[0].id);
+  const selectedScam = useMemo(() => SCAM_SCENARIOS.find((s) => s.id === scamId) ?? SCAM_SCENARIOS[0], [scamId]);
+  const [scamReply, setScamReply] = useState("");
+  const [scamEval, setScamEval] = useState<ScamEvaluation | null>(null);
 
   const allQuestions = useMemo(() => [...QUESTIONS, ...customQuestions], [customQuestions]);
   const [qid, setQid] = useState(QUESTIONS[0].id);
@@ -235,7 +247,7 @@ export default function ProbahoPage() {
   const streak = useMemo(() => practiceStreak(history, new Date().toISOString().slice(0, 10)), [history]);
   const answerText = mode === "speak" ? finalText : typed;
   const star = analysis && q.track === "hr" ? starCheck(answerText) : null;
-  const questionsInTrack = QUESTIONS.filter((x) => x.track === track);
+  const questionsInTrack = track === "scam" ? [] : allQuestions.filter((x) => x.track === track);
   const shownText = mode === "speak" ? `${finalText}${interim ? ` ${interim}` : ""}` : typed;
   const over = elapsed > q.targetSeconds;
 
@@ -265,92 +277,224 @@ export default function ProbahoPage() {
           <section aria-labelledby="q-h" className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5">
             <div className="flex flex-wrap gap-1.5" role="tablist" aria-label="ট্র্যাক">
               {TRACKS.map((t) => (
-                <button key={t.id} role="tab" aria-selected={track === t.id} onClick={() => { setTrack(t.id); pickQuestion(allQuestions.find((x) => x.track === t.id)?.id ?? allQuestions[0].id); }} className={`rounded-lg px-3 py-1.5 text-[12px] font-bold ${track === t.id ? "bg-violet-600 text-white" : "bg-slate-100 text-slate-600"}`}>
+                <button
+                  key={t.id}
+                  role="tab"
+                  aria-selected={track === t.id}
+                  onClick={() => {
+                    setTrack(t.id);
+                    if (t.id !== "scam") {
+                      pickQuestion(allQuestions.find((x) => x.track === t.id)?.id ?? allQuestions[0].id);
+                    }
+                  }}
+                  className={`rounded-lg px-3 py-1.5 text-[12px] font-bold ${
+                    track === t.id ? "bg-violet-600 text-white" : "bg-slate-100 text-slate-600"
+                  }`}
+                >
                   {t.label}
                 </button>
               ))}
             </div>
-            <div>
-              <div className="flex items-center justify-between">
-                <label htmlFor="q-select" className="block text-[12px] font-bold text-slate-600">
-                  প্রশ্ন
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setCustomOpen(!customOpen)}
-                  className="inline-flex items-center gap-1 text-[12px] font-bold text-violet-700 hover:text-violet-900"
-                >
-                  <Plus size={14} aria-hidden /> {customOpen ? "কাস্টম ফরম বন্ধ" : "+ কাস্টম প্রশ্ন তৈরি"}
-                </button>
-              </div>
-              <select id="q-select" value={qid} onChange={(e) => pickQuestion(e.target.value)} className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-2 py-2 text-[13px] font-normal">
-                {questionsInTrack.map((x) => <option key={x.id} value={x.id}>[{x.level}] {x.prompt}</option>)}
-              </select>
-            </div>
 
-            {customOpen && (
-              <form onSubmit={handleCreateCustom} className="space-y-3 rounded-xl border border-violet-200 bg-violet-50/50 p-4 text-[13px]">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-violet-900">নিজের কাস্টম প্রশ্ন তৈরি করুন</h3>
-                  <button type="button" onClick={() => setCustomOpen(false)} className="text-slate-400 hover:text-slate-600"><X size={16} /></button>
-                </div>
+            {track === "scam" ? (
+              <div className="space-y-4">
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-600">প্রশ্নের বিবরণ (Prompt)</label>
+                  <label className="block text-[12px] font-bold text-slate-700 mb-1.5">
+                    প্রতারণার ধরন নির্বাচন করুন (Scam Vector)
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {SCAM_SCENARIOS.map((s) => (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => {
+                          setScamId(s.id);
+                          setScamReply("");
+                          setScamEval(null);
+                        }}
+                        className={`text-left p-3 rounded-xl border text-[13px] transition-all ${
+                          scamId === s.id
+                            ? "border-red-500 bg-red-50/70 shadow-xs font-bold text-red-950"
+                            : "border-slate-200 bg-slate-50/50 hover:bg-slate-100/70 text-slate-700"
+                        }`}
+                      >
+                        <div className="flex items-center gap-1.5">
+                          <ShieldAlert size={15} className={scamId === s.id ? "text-red-600" : "text-slate-400"} />
+                          <span>{s.titleBn}</span>
+                        </div>
+                        <div className="text-[11px] font-normal text-slate-500 mt-0.5 truncate">
+                          {s.scammerPersonaBn}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Simulated Scammer Incoming Attack Box */}
+                <div className="rounded-2xl border-2 border-red-200 bg-gradient-to-br from-red-50/80 via-white to-amber-50/50 p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="relative flex h-3 w-3">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                      </span>
+                      <span className="text-[12px] font-bold uppercase tracking-wide text-red-800">
+                        সরাসরি প্রতারণার আক্রমণ (Live Threat Pitch)
+                      </span>
+                    </div>
+                    <span className="text-[11px] font-mono text-slate-500">{selectedScam.category}</span>
+                  </div>
+
+                  <div className="bg-white/90 rounded-xl border border-red-100 p-3.5 shadow-2xs">
+                    <div className="text-[11px] font-semibold text-slate-500 mb-1">
+                      ছদ্মবেশী প্রতারক: <span className="text-slate-800 font-bold">{selectedScam.scammerPersonaBn}</span>
+                    </div>
+                    <p className="text-[14px] leading-relaxed text-slate-800 italic font-medium">
+                      &ldquo;{selectedScam.openingPitchBn}&rdquo;
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5 items-center">
+                    <span className="text-[11px] font-bold text-slate-500">মনস্তাত্ত্বিক ফাঁদ:</span>
+                    <span className="rounded-md bg-amber-100/80 text-amber-900 px-2 py-0.5 text-[11px] font-semibold">
+                      {selectedScam.tacticExplanationBn}
+                    </span>
+                  </div>
+                </div>
+
+                {/* User Response Area */}
+                <div className="space-y-2">
+                  <label htmlFor="scam-reply" className="block text-[12px] font-bold text-slate-700">
+                    আপনার প্রতিরক্ষা উত্তর (প্রতারককে কী বলবেন?)
+                  </label>
                   <textarea
-                    rows={2}
-                    required
-                    value={customPrompt}
-                    onChange={(e) => setCustomPrompt(e.target.value)}
-                    placeholder="যেমন: Compare optimistic locking vs pessimistic locking in high concurrency systems."
-                    className="mt-1 w-full rounded-lg border border-slate-200 bg-white p-2 text-[13px] outline-none focus:border-violet-600"
+                    id="scam-reply"
+                    rows={4}
+                    value={scamReply}
+                    onChange={(e) => setScamReply(e.target.value)}
+                    placeholder="যেমন: আমি কোনো ওটিপি বা পিন দেব না। আমি সরাসরি কাস্টমার কেয়ারে ১৬২৪৭-এ ফোন দিচ্ছি..."
+                    className="w-full rounded-xl border border-slate-200 p-3 text-[14px] outline-none focus:border-red-500 transition-colors"
                   />
-                </div>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-600">ট্র্যাক</label>
-                    <select
-                      value={customTrack}
-                      onChange={(e) => setCustomTrack(e.target.value as Question["track"])}
-                      className="mt-1 block w-full rounded-lg border border-slate-200 bg-white p-1.5 text-[12px]"
-                    >
-                      {TRACKS.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
-                    </select>
+
+                  {/* Preset Safe Retorts */}
+                  <div className="flex flex-wrap gap-1.5">
+                    <span className="text-[11px] text-slate-500 py-1 font-semibold">কুইক রেসপন্স:</span>
+                    {[
+                      "আমি কাউকে OTP বা পিন দেই না। আমি ১৬২৪৭-এ ফোন দিচ্ছি।",
+                      "চাকরির জন্য আগে ডিপোজিট চাওয়া অবৈধ। সাইবার হেল্পলাইনে জানাচ্ছি।",
+                      "ভর্তি বা প্রশ্ন ফাঁসের টাকা চাওয়া অপরাধ। ৯৯৯-এ অভিযোগ করব।"
+                    ].map((sample, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setScamReply(sample)}
+                        className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] text-slate-700 hover:bg-slate-100 transition-colors"
+                      >
+                        {sample}
+                      </button>
+                    ))}
                   </div>
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-600">সময় সীমা (সেকেন্ড)</label>
-                    <select
-                      value={customDuration}
-                      onChange={(e) => setCustomDuration(Number(e.target.value))}
-                      className="mt-1 block w-full rounded-lg border border-slate-200 bg-white p-1.5 text-[12px]"
+
+                  <div className="pt-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!scamReply.trim()) return;
+                        const res = evaluateScamDefense(scamId, scamReply);
+                        setScamEval(res);
+                      }}
+                      disabled={!scamReply.trim()}
+                      className="inline-flex items-center gap-2 rounded-xl bg-red-600 hover:bg-red-700 px-5 py-2.5 text-[14px] font-bold text-white shadow-xs transition-all disabled:opacity-40"
                     >
-                      <option value={30}>৩০ সেকেন্ড</option>
-                      <option value={60}>৬০ সেকেন্ড</option>
-                      <option value={90}>৯০ সেকেন্ড</option>
-                      <option value={120}>১২০ সেকেন্ড</option>
-                      <option value={180}>১৮০ সেকেন্ড</option>
-                    </select>
-                  </div>
-                  <div className="col-span-2 sm:col-span-1">
-                    <label className="block text-[11px] font-bold text-slate-600">বিষয়/কিওয়ার্ড (কমা দিয়ে, ঐচ্ছিক)</label>
-                    <input
-                      type="text"
-                      value={customKeywords}
-                      onChange={(e) => setCustomKeywords(e.target.value)}
-                      placeholder="version, lock, conflicts"
-                      className="mt-1 block w-full rounded-lg border border-slate-200 bg-white p-1.5 text-[12px]"
-                    />
+                      <ShieldCheck size={16} /> প্রতিরক্ষা মূল্যায়ন করুন (Evaluate Defense)
+                    </button>
                   </div>
                 </div>
-                <button
-                  type="submit"
-                  disabled={!customPrompt.trim()}
-                  className="rounded-lg bg-violet-600 px-4 py-2 text-[12px] font-bold text-white hover:bg-violet-700 disabled:opacity-40"
-                >
-                  প্রশ্ন তৈরি করে শুরু করুন
-                </button>
-              </form>
-            )}
-            <div id="q-h" className="rounded-xl border border-violet-200 bg-violet-50/60 p-4">
+              </div>
+            ) : (
+              <>
+                <div>
+                  <div className="flex items-center justify-between">
+                    <label htmlFor="q-select" className="block text-[12px] font-bold text-slate-600">
+                      প্রশ্ন
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setCustomOpen(!customOpen)}
+                      className="inline-flex items-center gap-1 text-[12px] font-bold text-violet-700 hover:text-violet-900"
+                    >
+                      <Plus size={14} aria-hidden /> {customOpen ? "কাস্টম ফরম বন্ধ" : "+ কাস্টম প্রশ্ন তৈরি"}
+                    </button>
+                  </div>
+                  <select id="q-select" value={qid} onChange={(e) => pickQuestion(e.target.value)} className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-2 py-2 text-[13px] font-normal">
+                    {questionsInTrack.map((x) => <option key={x.id} value={x.id}>[{x.level}] {x.prompt}</option>)}
+                  </select>
+                </div>
+
+                {customOpen && (
+                  <form onSubmit={handleCreateCustom} className="space-y-3 rounded-xl border border-violet-200 bg-violet-50/50 p-4 text-[13px]">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-bold text-violet-900">নিজের কাস্টম প্রশ্ন তৈরি করুন</h3>
+                      <button type="button" onClick={() => setCustomOpen(false)} className="text-slate-400 hover:text-slate-600"><X size={16} /></button>
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-600">প্রশ্নের বিবরণ (Prompt)</label>
+                      <textarea
+                        rows={2}
+                        required
+                        value={customPrompt}
+                        onChange={(e) => setCustomPrompt(e.target.value)}
+                        placeholder="যেমন: Compare optimistic locking vs pessimistic locking in high concurrency systems."
+                        className="mt-1 w-full rounded-lg border border-slate-200 bg-white p-2 text-[13px] outline-none focus:border-violet-600"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-600">ট্র্যাক</label>
+                        <select
+                          value={customTrack}
+                          onChange={(e) => setCustomTrack(e.target.value as Question["track"])}
+                          className="mt-1 block w-full rounded-lg border border-slate-200 bg-white p-1.5 text-[12px]"
+                        >
+                          {TRACKS.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-600">সময় সীমা (সেকেন্ড)</label>
+                        <select
+                          value={customDuration}
+                          onChange={(e) => setCustomDuration(Number(e.target.value))}
+                          className="mt-1 block w-full rounded-lg border border-slate-200 bg-white p-1.5 text-[12px]"
+                        >
+                          <option value={30}>৩০ সেকেন্ড</option>
+                          <option value={60}>৬০ সেকেন্ড</option>
+                          <option value={90}>৯০ সেকেন্ড</option>
+                          <option value={120}>১২০ সেকেন্ড</option>
+                          <option value={180}>১৮০ সেকেন্ড</option>
+                        </select>
+                      </div>
+                      <div className="col-span-2 sm:col-span-1">
+                        <label className="block text-[11px] font-bold text-slate-600">বিষয়/কিওয়ার্ড (কমা দিয়ে, ঐচ্ছিক)</label>
+                        <input
+                          type="text"
+                          value={customKeywords}
+                          onChange={(e) => setCustomKeywords(e.target.value)}
+                          placeholder="version, lock, conflicts"
+                          className="mt-1 block w-full rounded-lg border border-slate-200 bg-white p-1.5 text-[12px]"
+                        />
+                      </div>
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={!customPrompt.trim()}
+                      className="rounded-lg bg-violet-600 px-4 py-2 text-[12px] font-bold text-white hover:bg-violet-700 disabled:opacity-40"
+                    >
+                      প্রশ্ন তৈরি করে শুরু করুন
+                    </button>
+                  </form>
+                )}
+
+                <div id="q-h" className="rounded-xl border border-violet-200 bg-violet-50/60 p-4">
               <span className="text-[11px] font-bold uppercase text-violet-800">প্রশ্ন · লক্ষ্য সময় {q.targetSeconds} সেকেন্ড</span>
               <p className="mt-1 text-[17px] font-bold leading-snug">{q.prompt}</p>
               <details className="mt-2 text-[12px] text-slate-600">
@@ -478,30 +622,141 @@ export default function ProbahoPage() {
                 </div>
               </div>
             )}
+              </>
+            )}
           </section>
 
           <section aria-labelledby="fb-h" className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5">
-            <div className="flex items-center justify-between">
-              <h2 id="fb-h" className="text-[17px] font-bold">ফিডব্যাক</h2>
-              {analysis && <button onClick={reset} className="inline-flex items-center gap-1 text-[12px] font-semibold text-violet-700"><RotateCcw size={13} aria-hidden /> আবার চেষ্টা</button>}
-            </div>
-            {!analysis ? (
-              <p className="py-10 text-center text-[13px] text-slate-500">উত্তর দেওয়ার পর এখানে বিষয়ভিত্তিক ফিডব্যাক, পরের প্রশ্ন ও একটি নমুনা উত্তর দেখাবে।</p>
-            ) : (
-              <Feedback a={analysis} q={q} showModel={showModel} setShowModel={setShowModel} />
-            )}
-            {star && (
-              <div className="rounded-xl border border-violet-200 bg-violet-50/60 p-3" data-testid="star-check">
-                <h3 className="text-[13px] font-bold">STAR গঠন (Situation · Task · Action · Result)</h3>
-                <ul className="mt-2 grid grid-cols-2 gap-1.5 text-[12px] sm:grid-cols-4">
-                  {([["situation", "পরিস্থিতি"], ["task", "আপনার দায়িত্ব"], ["action", "আপনি কী করলেন"], ["result", "ফলাফল"]] as const).map(([k, l]) => (
-                    <li key={k} className={`rounded-lg px-2 py-1 font-semibold ${star[k] ? "bg-emerald-100 text-emerald-900" : "bg-amber-100 text-amber-900"}`}>{star[k] ? "✓" : "○"} {l}</li>
-                  ))}
-                </ul>
-                <p className="mt-2 text-[11px] text-slate-600">{star.missing.length ? "যে অংশে চিহ্ন নেই, সেটি গল্পে স্পষ্ট করে বলুন।" : "চারটি অংশেরই ইঙ্গিত পাওয়া গেছে।"} এটি কিছু সংকেত-শব্দ দেখে করা আন্দাজ, গল্পের মান যাচাই নয়।</p>
+            {track === "scam" ? (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 id="fb-h" className="text-[17px] font-bold text-slate-900">সাইবার প্রতিরক্ষা মূল্যায়ন</h2>
+                  {scamEval && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setScamReply("");
+                        setScamEval(null);
+                      }}
+                      className="inline-flex items-center gap-1 text-[12px] font-semibold text-red-700 hover:underline"
+                    >
+                      <RotateCcw size={13} /> আবার চেষ্টা
+                    </button>
+                  )}
+                </div>
+
+                {!scamEval ? (
+                  <div className="py-8 text-center space-y-3">
+                    <div className="mx-auto w-12 h-12 rounded-full bg-red-50 text-red-600 flex items-center justify-center">
+                      <ShieldAlert size={24} />
+                    </div>
+                    <p className="text-[13px] text-slate-600 max-w-sm mx-auto">
+                      প্রতারকের আক্রমণের বিপরীতে আপনার উত্তর লিখে বা দ্রুত উত্তরে ক্লিক করে মূল্যায়ন করুন। ইঞ্জিন যাচাই করবে কোনো স্পর্শকাতর তথ্য ফাঁসের ঝুঁকি তৈরি হলো কি না।
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4 motion-safe:animate-rise-in">
+                    {/* Verdict Banner */}
+                    <div
+                      className={`p-4 rounded-xl border-2 flex items-start gap-3 ${
+                        scamEval.verdict === "safe"
+                          ? "bg-emerald-50/90 border-emerald-500 text-emerald-950"
+                          : scamEval.verdict === "risky"
+                          ? "bg-amber-50/90 border-amber-500 text-amber-950"
+                          : "bg-red-50/90 border-red-600 text-red-950"
+                      }`}
+                    >
+                      {scamEval.verdict === "safe" ? (
+                        <ShieldCheck size={24} className="text-emerald-600 shrink-0 mt-0.5" />
+                      ) : scamEval.verdict === "risky" ? (
+                        <AlertTriangle size={24} className="text-amber-600 shrink-0 mt-0.5" />
+                      ) : (
+                        <ShieldAlert size={24} className="text-red-600 shrink-0 mt-0.5" />
+                      )}
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-extrabold text-[15px]">
+                            {scamEval.verdict === "safe"
+                              ? "১০০% সুরক্ষিত প্রতিরোধ (Safe Defense)"
+                              : scamEval.verdict === "risky"
+                              ? "ঝুঁকিপূর্ণ প্রতিক্রিয়া (Risky Hesitation)"
+                              : "মারাত্মক নিরাপত্তা লঙ্ঘন (Fatal Compromise)"}
+                          </span>
+                          <span className="text-[12px] font-bold px-2 py-0.5 rounded-full bg-white/80 border">
+                            স্কোর: {scamEval.score}/১০০
+                          </span>
+                        </div>
+                        <p className="text-[13px] mt-1.5 leading-relaxed font-normal">
+                          {scamEval.feedbackBn}
+                        </p>
+                        <p className="text-[12px] mt-1 text-slate-700 font-medium">
+                          {scamEval.safetyAdviceBn}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Golden Standard Defense */}
+                    <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-3.5 space-y-1.5">
+                      <div className="text-[11px] font-bold uppercase text-slate-500 flex items-center gap-1">
+                        <Lightbulb size={13} className="text-amber-600" /> আদর্শ সাইবার নিরাপত্তা প্রতিক্রিয়া:
+                      </div>
+                      <p className="text-[13px] text-slate-800 font-medium italic">
+                        &ldquo;{selectedScam.goldenDefenseBn}&rdquo;
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Official Emergency Reporting Directory */}
+                <div className="rounded-xl border border-slate-200 bg-white p-3.5 space-y-2">
+                  <div className="text-[12px] font-bold text-slate-800 flex items-center gap-1.5">
+                    <PhoneCall size={14} className="text-violet-600" /> সাইবার ক্রাইম ও প্রতারণা অভিযোগ হটলাইন
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-[12px]">
+                    <div className="p-2 rounded-lg bg-slate-50 border border-slate-100">
+                      <span className="block font-semibold text-slate-800">CID Cyber Police BD</span>
+                      <span className="font-mono text-violet-700 font-bold">01730336431</span>
+                    </div>
+                    <div className="p-2 rounded-lg bg-slate-50 border border-slate-100">
+                      <span className="block font-semibold text-slate-800">জাতীয় জরুরি সেবা</span>
+                      <span className="font-mono text-emerald-700 font-bold">999</span>
+                    </div>
+                    <div className="p-2 rounded-lg bg-slate-50 border border-slate-100">
+                      <span className="block font-semibold text-slate-800">বিকাশ ফ্রড সাপোর্ট</span>
+                      <span className="font-mono text-pink-700 font-bold">16247</span>
+                    </div>
+                    <div className="p-2 rounded-lg bg-slate-50 border border-slate-100">
+                      <span className="block font-semibold text-slate-800">নগদ হেল্পলাইন</span>
+                      <span className="font-mono text-orange-700 font-bold">16167</span>
+                    </div>
+                  </div>
+                </div>
               </div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between">
+                  <h2 id="fb-h" className="text-[17px] font-bold">ফিডব্যাক</h2>
+                  {analysis && <button onClick={reset} className="inline-flex items-center gap-1 text-[12px] font-semibold text-violet-700"><RotateCcw size={13} aria-hidden /> আবার চেষ্টা</button>}
+                </div>
+                {!analysis ? (
+                  <p className="py-10 text-center text-[13px] text-slate-500">উত্তর দেওয়ার পর এখানে বিষয়ভিত্তিক ফিডব্যাক, পরের প্রশ্ন ও একটি নমুনা উত্তর দেখাবে।</p>
+                ) : (
+                  <Feedback a={analysis} q={q} showModel={showModel} setShowModel={setShowModel} />
+                )}
+                {star && (
+                  <div className="rounded-xl border border-violet-200 bg-violet-50/60 p-3" data-testid="star-check">
+                    <h3 className="text-[13px] font-bold">STAR গঠন (Situation · Task · Action · Result)</h3>
+                    <ul className="mt-2 grid grid-cols-2 gap-1.5 text-[12px] sm:grid-cols-4">
+                      {([["situation", "পরিস্থিতি"], ["task", "আপনার দায়িত্ব"], ["action", "আপনি কী করলেন"], ["result", "ফলাফল"]] as const).map(([k, l]) => (
+                        <li key={k} className={`rounded-lg px-2 py-1 font-semibold ${star[k] ? "bg-emerald-100 text-emerald-900" : "bg-amber-100 text-amber-900"}`}>{star[k] ? "✓" : "○"} {l}</li>
+                      ))}
+                    </ul>
+                    <p className="mt-2 text-[11px] text-slate-600">{star.missing.length ? "যে অংশে চিহ্ন নেই, সেটি গল্পে স্পষ্ট করে বলুন।" : "চারটি অংশেরই ইঙ্গিত পাওয়া গেছে।"} এটি কিছু সংকেত-শব্দ দেখে করা আন্দাজ, গল্পের মান যাচাই নয়।</p>
+                  </div>
+                )}
+                {analysis && <AiCoach key={`${q.id}:${answerText.length}`} questionId={q.id} answer={answerText} lang={q.lang} />}
+              </>
             )}
-            {analysis && <AiCoach key={`${q.id}:${answerText.length}`} questionId={q.id} answer={answerText} lang={q.lang} />}
           </section>
         </div>
 

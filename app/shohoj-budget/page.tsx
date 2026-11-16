@@ -14,6 +14,7 @@ import {
   sanitizeTransactions, migrateLegacy, unusualExpenses, toPoisha, parseAmount,
   categoryBudgetStatus, sanitizeCategoryBudgets, goalProgress, sanitizeGoals,
   CATEGORY_STYLES, calculateMfsCashoutFee, defaultMfsProvider, MFS_FEE_RATES,
+  simulate30DayCashFlow, calculateBakiInstallments, type ScheduledFlow,
   type CategoryBudgets, type SavingsGoal, type MonthSummary,
   type Transaction, type TxType, type CategoryId, type Method, type MfsProvider,
 } from "@/lib/budget";
@@ -842,6 +843,9 @@ export default function ShohojBudgetPage() {
             {/* MFS cash-out calculator panel */}
             <MfsFeeCalculatorPanel />
 
+            {/* 30-Day Cash Deficit & Baki Simulation Panel (LaMP Resilience Track) */}
+            <CashFlowDeficitAndBakiPanel />
+
             <p className="text-[12px] leading-relaxed text-slate-600">
               সব হিসাব এই ডিভাইসের ব্রাউজারে থাকে, অফলাইনেও কাজ করে (ভয়েস ছাড়া)। অনুমান ও পরামর্শ সাধারণ তথ্য, আর্থিক পরামর্শ নয়।{" "}
               <Link href="/settings" className="font-semibold text-emerald-700 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] rounded">ডেটা এক্সপোর্ট বা মুছুন</Link>
@@ -1214,6 +1218,215 @@ function MfsFeeCalculatorPanel() {
           );
         })}
       </div>
+    </section>
+  );
+}
+
+function CashFlowDeficitAndBakiPanel() {
+  const [subTab, setSubTab] = useState<"cashflow" | "baki">("cashflow");
+  const [startCashTaka, setStartCashTaka] = useState(15000);
+  const [flows, setFlows] = useState<ScheduledFlow[]>([
+    { id: "1", dayOfMonth: 5, label: "পাইকারি সাপ্লায়ার বিল", type: "expense", poisha: 8000_00 },
+    { id: "2", dayOfMonth: 10, label: "দোকান/মেস বাসা ভাড়া", type: "expense", poisha: 10000_00 },
+    { id: "3", dayOfMonth: 16, label: "গ্রাহকদের বাকি আদায় / ফ্রিল্যান্সিং", type: "income", poisha: 18000_00 },
+    { id: "4", dayOfMonth: 24, label: "বিদ্যুৎ ও ইউটিলিটি বিল", type: "expense", poisha: 2500_00 },
+  ]);
+
+  // Baki Calculator State
+  const [debtTaka, setDebtTaka] = useState(12000);
+  const [weeks, setWeeks] = useState(4);
+  const [customerName, setCustomerName] = useState("রহিম সাহেব");
+  const [merchantName, setMerchantName] = useState("হাসান ফার্মেসি");
+  const [smsCopied, setSmsCopied] = useState(false);
+
+  const simulation = useMemo(() => {
+    return simulate30DayCashFlow(startCashTaka * 100, flows);
+  }, [startCashTaka, flows]);
+
+  const bakiPlan = useMemo(() => {
+    return calculateBakiInstallments(debtTaka, weeks, new Date().toISOString().slice(0, 10), customerName, merchantName);
+  }, [debtTaka, weeks, customerName, merchantName]);
+
+  const fmtTk = (poisha: number) =>
+    "৳" + (poisha / 100).toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+
+  return (
+    <section aria-labelledby="cashflow-h" className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h2 id="cashflow-h" className="flex items-center gap-1.5 text-[15px] font-bold text-slate-900">
+          <PiggyBank size={18} className="text-emerald-700" />
+          <span>ক্যাশ ঘাটতি অ্যালার্ট ও বাকি কিস্তি (LaMP Track)</span>
+        </h2>
+        <div className="flex items-center rounded-lg bg-slate-100 p-0.5 text-[11px] font-bold">
+          <button
+            onClick={() => setSubTab("cashflow")}
+            className={`px-2.5 py-1 rounded-md transition-all ${
+              subTab === "cashflow" ? "bg-white text-emerald-800 shadow-xs" : "text-slate-600"
+            }`}
+          >
+            ক্যাশফ্লো
+          </button>
+          <button
+            onClick={() => setSubTab("baki")}
+            className={`px-2.5 py-1 rounded-md transition-all ${
+              subTab === "baki" ? "bg-white text-emerald-800 shadow-xs" : "text-slate-600"
+            }`}
+          >
+            বাকি কিস্তি
+          </button>
+        </div>
+      </div>
+
+      {subTab === "cashflow" ? (
+        <div className="space-y-3.5 text-[12.5px]">
+          {/* Initial Balance */}
+          <div>
+            <label className="block text-[11.5px] font-bold text-slate-700 mb-1">
+              বর্তমান ক্যাশ বা ক্যাশবাক্সের উদ্বৃত্ত (৳):
+            </label>
+            <input
+              type="number"
+              value={startCashTaka}
+              onChange={(e) => setStartCashTaka(Math.max(0, Number(e.target.value) || 0))}
+              className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-[13px] font-bold font-mono"
+            />
+          </div>
+
+          {/* Health Alert Status */}
+          <div
+            className={`rounded-xl p-3 border ${
+              simulation.healthLevel === "critical"
+                ? "bg-rose-50 border-rose-300 text-rose-950"
+                : simulation.healthLevel === "vulnerable"
+                ? "bg-amber-50 border-amber-300 text-amber-950"
+                : "bg-emerald-50 border-emerald-300 text-emerald-950"
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-[13px]">
+                {simulation.healthLevel === "critical"
+                  ? "⚠️ ঘাটতির পূর্বাভাস (Cash Deficit Alert)!"
+                  : simulation.healthLevel === "vulnerable"
+                  ? "⚡ নগদ অর্থের ঝুঁকি (Vulnerable Cashflow)"
+                  : "✅ নিরাপদ ক্যাশফ্লো (Solvent Cashflow)"}
+              </span>
+              <span className="text-[11px] font-mono font-bold uppercase">
+                {simulation.healthLevel}
+              </span>
+            </div>
+
+            {simulation.deficitDay !== null ? (
+              <p className="mt-1 text-[11.5px] leading-relaxed">
+                আগামী <strong>{simulation.deficitDay} নম্বর দিনে</strong> আপনার ক্যাশ ব্যালেন্স ঋণাত্মক হয়ে যাবে (সর্বনিম্ন ব্যালেন্স:{" "}
+                <span className="font-mono font-bold text-rose-700">{fmtTk(simulation.lowestBalancePoisha)}</span>)। সাপ্লায়ারের বিল পরিশোধের আগেই বাকির কিস্তি আদায় করুন।
+              </p>
+            ) : (
+              <p className="mt-1 text-[11.5px] leading-relaxed">
+                পরবর্তী ৩০ দিনে কোনো ঘাটতি নেই। সর্বনিম্ন ক্যাশ থাকবে {simulation.lowestBalanceDay} নম্বর দিনে ({fmtTk(simulation.lowestBalancePoisha)})।
+              </p>
+            )}
+          </div>
+
+          {/* Scheduled Events Mini List */}
+          <div className="space-y-1.5">
+            <span className="block text-[11px] font-bold text-slate-600">আসন্ন ৩০ দিনের আয়-ব্যয়ের ধাপ:</span>
+            <div className="max-h-36 overflow-y-auto space-y-1 rounded-lg border border-slate-100 p-1.5 bg-slate-50">
+              {flows.map((f) => (
+                <div key={f.id} className="flex items-center justify-between text-[11.5px] bg-white p-1.5 rounded border border-slate-100">
+                  <span className="font-medium text-slate-800">
+                    দিন {f.dayOfMonth}: {f.label}
+                  </span>
+                  <span className={`font-mono font-bold ${f.type === "income" ? "text-emerald-700" : "text-rose-700"}`}>
+                    {f.type === "income" ? "+" : "-"}{fmtTk(f.poisha)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* Baki Installment Tab */
+        <div className="space-y-3.5 text-[12.5px]">
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="block text-[11px] font-bold text-slate-700 mb-1">মোট বাকি (৳)</label>
+              <input
+                type="number"
+                value={debtTaka}
+                onChange={(e) => setDebtTaka(Math.max(0, Number(e.target.value) || 0))}
+                className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-[12.5px] font-mono font-bold"
+              />
+            </div>
+            <div>
+              <label className="block text-[11px] font-bold text-slate-700 mb-1">কিস্তির সংখ্যা (সপ্তাহ)</label>
+              <input
+                type="number"
+                min={1}
+                max={52}
+                value={weeks}
+                onChange={(e) => setWeeks(Math.max(1, Math.min(52, Number(e.target.value) || 1)))}
+                className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-[12.5px] font-mono font-bold"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="block text-[11px] font-bold text-slate-700 mb-1">গ্রাহকের নাম</label>
+              <input
+                type="text"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-[12.5px]"
+              />
+            </div>
+            <div>
+              <label className="block text-[11px] font-bold text-slate-700 mb-1">দোকানের নাম</label>
+              <input
+                type="text"
+                value={merchantName}
+                onChange={(e) => setMerchantName(e.target.value)}
+                className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-[12.5px]"
+              />
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3 space-y-1">
+            <div className="flex items-center justify-between text-[12px]">
+              <span className="font-semibold text-emerald-950">প্রতি সপ্তাহের কিস্তি:</span>
+              <span className="font-mono font-bold text-[14px] text-emerald-800">
+                {fmtTk(bakiPlan.weeklyInstallmentPoisha)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between text-[11px] text-emerald-800">
+              <span>মোট সময়সীমা: {bakiPlan.weeks} সপ্তাহ</span>
+              <span>সর্বশেষ কিস্তি: {fmtTk(bakiPlan.finalInstallmentPoisha)}</span>
+            </div>
+          </div>
+
+          {/* SMS Reminder Template */}
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-2.5 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-slate-700">এসএমএস রিমাইন্ডার মেসেজ:</span>
+              <button
+                onClick={() => {
+                  playClick();
+                  navigator.clipboard.writeText(bakiPlan.smsReminderTemplateBn);
+                  setSmsCopied(true);
+                  setTimeout(() => setSmsCopied(false), 2000);
+                }}
+                className="inline-flex items-center gap-1 rounded bg-slate-800 px-2 py-0.5 text-[10.5px] font-bold text-white hover:bg-slate-700 transition-colors"
+              >
+                <Copy size={11} />
+                <span>{smsCopied ? "কপি হয়েছে!" : "কপি"}</span>
+              </button>
+            </div>
+            <p className="text-[11px] text-slate-600 leading-relaxed font-mono">
+              {bakiPlan.smsReminderTemplateBn}
+            </p>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

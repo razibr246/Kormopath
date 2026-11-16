@@ -619,3 +619,159 @@ export function sanitizeGoals(input: unknown): SavingsGoal[] | null {
   }
   return out;
 }
+
+// ---------------------------------------------------------------------------------------------
+// 30-Day Cash Deficit & Baki Installment Simulator (Micro-merchant & Family Financial Resilience)
+// Inspired by retail pharmacy cash flow management (LaMP). 100% deterministic integer poisha math.
+
+export interface ScheduledFlow {
+  id: string;
+  dayOfMonth: number; // 1 to 30
+  label: string;
+  type: "income" | "expense";
+  poisha: number;
+}
+
+export interface DayForecast {
+  day: number;
+  netChangePoisha: number;
+  closingBalancePoisha: number;
+  events: ScheduledFlow[];
+}
+
+export interface CashFlowSimulation {
+  initialBalancePoisha: number;
+  days: DayForecast[];
+  lowestBalancePoisha: number;
+  lowestBalanceDay: number;
+  deficitDay: number | null; // Day when balance drops below 0, or null if solvent
+  totalExpectedIncomePoisha: number;
+  totalScheduledExpensePoisha: number;
+  netSurplusPoisha: number;
+  healthLevel: "solvent" | "vulnerable" | "critical"; // critical = deficit; vulnerable = lowest balance < 20% initial
+}
+
+export interface BakiInstallmentPlan {
+  totalDebtPoisha: number;
+  weeks: number;
+  weeklyInstallmentPoisha: number;
+  finalInstallmentPoisha: number;
+  schedule: Array<{
+    week: number;
+    amountPoisha: number;
+    dueDate: string;
+  }>;
+  smsReminderTemplateBn: string;
+  smsReminderTemplateEn: string;
+}
+
+export function simulate30DayCashFlow(
+  initialBalancePoisha: number,
+  flows: ScheduledFlow[]
+): CashFlowSimulation {
+  const safeInitial = Math.max(0, initialBalancePoisha || 0);
+  const days: DayForecast[] = [];
+  let runningBalance = safeInitial;
+  let lowestBalance = safeInitial;
+  let lowestDay = 1;
+  let deficitDay: number | null = null;
+  let totalIncome = 0;
+  let totalExpense = 0;
+
+  const byDay = new Map<number, ScheduledFlow[]>();
+  for (const f of flows) {
+    const d = Math.max(1, Math.min(30, Math.floor(f.dayOfMonth || 1)));
+    const list = byDay.get(d) ?? [];
+    list.push(f);
+    byDay.set(d, list);
+    if (f.type === "income") totalIncome += Math.max(0, f.poisha);
+    else totalExpense += Math.max(0, f.poisha);
+  }
+
+  for (let day = 1; day <= 30; day++) {
+    const events = byDay.get(day) ?? [];
+    let netChange = 0;
+    for (const e of events) {
+      if (e.type === "income") netChange += Math.max(0, e.poisha);
+      else netChange -= Math.max(0, e.poisha);
+    }
+    runningBalance += netChange;
+    days.push({
+      day,
+      netChangePoisha: netChange,
+      closingBalancePoisha: runningBalance,
+      events,
+    });
+
+    if (runningBalance < lowestBalance) {
+      lowestBalance = runningBalance;
+      lowestDay = day;
+    }
+    if (runningBalance < 0 && deficitDay === null) {
+      deficitDay = day;
+    }
+  }
+
+  let healthLevel: "solvent" | "vulnerable" | "critical" = "solvent";
+  if (deficitDay !== null || lowestBalance < 0) {
+    healthLevel = "critical";
+  } else if (lowestBalance < safeInitial * 0.2 || lowestBalance < 500_00) {
+    healthLevel = "vulnerable";
+  }
+
+  return {
+    initialBalancePoisha: safeInitial,
+    days,
+    lowestBalancePoisha: lowestBalance,
+    lowestBalanceDay: lowestDay,
+    deficitDay,
+    totalExpectedIncomePoisha: totalIncome,
+    totalScheduledExpensePoisha: totalExpense,
+    netSurplusPoisha: totalIncome - totalExpense,
+    healthLevel,
+  };
+}
+
+export function calculateBakiInstallments(
+  debtTaka: number,
+  weeks: number,
+  startDateIso: string,
+  customerName: string,
+  merchantName: string
+): BakiInstallmentPlan {
+  const totalPoisha = Math.max(0, Math.round((Number(debtTaka) || 0) * 100));
+  const numWeeks = Math.max(1, Math.min(52, Math.floor(Number(weeks) || 1)));
+  const baseWeekly = Math.floor(totalPoisha / numWeeks);
+  const remainder = totalPoisha - baseWeekly * numWeeks;
+
+  const schedule: Array<{ week: number; amountPoisha: number; dueDate: string }> = [];
+  const baseDateMs = Date.parse(startDateIso + "T00:00:00Z") || Date.now();
+
+  for (let w = 1; w <= numWeeks; w++) {
+    const isLast = w === numWeeks;
+    const weekAmount = isLast ? baseWeekly + remainder : baseWeekly;
+    const dueMs = baseDateMs + (w - 1) * 7 * 86_400_000;
+    const dueDate = new Date(dueMs).toISOString().slice(0, 10);
+    schedule.push({
+      week: w,
+      amountPoisha: weekAmount,
+      dueDate,
+    });
+  }
+
+  const takaFmt = (p: number) => `৳${(p / 100).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
+  const finalAmount = schedule[schedule.length - 1]?.amountPoisha ?? baseWeekly;
+
+  const smsBn = `শ্রদ্ধেয় ${customerName || "গ্রাহক"}, ${merchantName || "দোকান"}-এর বকেয়া বাকি কিস্তির পরিমাণ ${takaFmt(baseWeekly)}। আগামী কিস্তির তারিখ: ${schedule[0]?.dueDate || startDateIso}। নিয়মমাফিক পরিশোধের জন্য ধন্যবাদ।`;
+  const smsEn = `Dear ${customerName || "Customer"}, your installment of ${takaFmt(baseWeekly)} for ${merchantName || "Store"} is scheduled for ${schedule[0]?.dueDate || startDateIso}. Thank you for your timely payment.`;
+
+  return {
+    totalDebtPoisha: totalPoisha,
+    weeks: numWeeks,
+    weeklyInstallmentPoisha: baseWeekly,
+    finalInstallmentPoisha: finalAmount,
+    schedule,
+    smsReminderTemplateBn: smsBn,
+    smsReminderTemplateEn: smsEn,
+  };
+}

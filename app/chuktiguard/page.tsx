@@ -16,6 +16,12 @@ import {
   calculateInvoiceFinOps,
 } from "@/lib/chuktiguard";
 import {
+  buildDncrpPetition,
+  buildFreelancerPaymentDemand,
+  type DncrpPetitionInput,
+  type FreelancerDemandInput,
+} from "@/lib/contract";
+import {
   ShieldCheck,
   FileText,
   Plus,
@@ -40,10 +46,48 @@ import {
 export default function ChuktiGuardPage() {
   const [invoice, setInvoice] = useState<ChuktiInvoice>(SAMPLE_CHUKTI_PRESETS[0]);
   const [usdBdt, setUsdBdt] = useState(FX_FALLBACK.usdBdt);
-  const [activeTab, setActiveTab] = useState<"editor" | "preview" | "clause4">("preview");
+  const [activeTab, setActiveTab] = useState<"editor" | "preview" | "clause4" | "dispute">("preview");
   const [clauseLang, setClauseLang] = useState<"en" | "bn">("en");
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedClause, setCopiedClause] = useState(false);
+  const [copiedDispute, setCopiedDispute] = useState(false);
+
+  // Dispute Protection State
+  const [disputeType, setDisputeType] = useState<"dncrp" | "freelancer">("dncrp");
+  const [disputeLang, setDisputeLang] = useState<"bn" | "en">("bn");
+  const [dncrpInput, setDncrpInput] = useState<DncrpPetitionInput>({
+    complainantName: "আব্দুর রহিম",
+    complainantPhone: "01711223344",
+    complainantAddress: "মিরপুর-১০, ঢাকা-১২১৬",
+    complainantNid: "19942691234567890",
+    accusedParty: "অনলাইন গ্যাজেট শপ বিডি",
+    accusedPhone: "01899887766",
+    accusedAddress: "ফেসবুক পেজ / শপ নং ৪, উত্তরা, ঢাকা",
+    transactionDate: "2026-11-05",
+    transactionChannel: "bKash",
+    transactionTrxId: "BK992817AX",
+    claimedAmountBdt: 8500,
+    productOrService: "ওয়্যারলেস মেকানিক্যাল কিবোর্ড ও আনুষঙ্গিক সেবা",
+    disputeSummary: "বিকাশে সম্পূর্ণ মূল্য অগ্রিম পরিশোধ করা সত্ত্বেও বিক্রেতা পণ্য ডেলিভারি দেয়নি এবং যোগাযোগের নম্বর ব্লক করে দিয়েছে।",
+    remedySought: "full_refund",
+  });
+
+  const [freelancerDemand, setFreelancerDemand] = useState<FreelancerDemandInput>({
+    freelancerName: "তানভীর হাসান",
+    freelancerEmail: "tanvir@kormopath.org",
+    freelancerCountry: "Bangladesh",
+    clientName: "John Smith",
+    clientCompany: "Apex Software LLC",
+    clientCountry: "United States",
+    projectTitle: "Next.js SaaS Dashboard & API",
+    invoiceNumber: "INV-2026-089",
+    invoiceDate: "2026-11-01",
+    dueDate: "2026-11-08",
+    amountOwed: 2500,
+    currency: "USD",
+    milestoneDelivered: "Milestone 2: Production API & Webhook Integration",
+    curePeriodDays: 7,
+  });
   type ServicePack = { id: string; title: string; scope: string; timeline: string; amountUsd: number };
   const sanitizePacks = (v: unknown): ServicePack[] | null => Array.isArray(v) ? v.filter((p): p is ServicePack => !!p && typeof p.id === "string" && typeof p.title === "string" && typeof p.scope === "string" && typeof p.timeline === "string" && Number.isFinite(p.amountUsd) && p.amountUsd > 0 && p.amountUsd < 1_000_000).slice(0, 30) : null;
   const [packs, setPacks] = usePersistentState<ServicePack[]>(storageKey("chuktiguard", "servicePackages.v1"), [], sanitizePacks);
@@ -83,6 +127,13 @@ export default function ChuktiGuardPage() {
       gracePeriodHours: 72,
     });
   }, [invoice.contractor.name, invoice.client.company, invoice.client.name]);
+
+  // Dispute notice generator (DNCRP & Payment Demand)
+  const disputeNotice = useMemo(() => {
+    return disputeType === "dncrp"
+      ? buildDncrpPetition(dncrpInput, disputeLang)
+      : buildFreelancerPaymentDemand(freelancerDemand, disputeLang);
+  }, [disputeType, dncrpInput, freelancerDemand, disputeLang]);
 
   // Handlers for milestones
   const handleAddMilestone = () => {
@@ -236,6 +287,16 @@ export default function ChuktiGuardPage() {
                   }`}
                 >
                   Clause 4 Shield
+                </button>
+                <button
+                  onClick={() => setActiveTab("dispute")}
+                  className={`rounded-lg px-3 py-1 text-[13px] font-semibold transition-all ${
+                    activeTab === "dispute"
+                      ? "bg-white text-rose-700 shadow-xs font-bold"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  ভোক্তা বিরোধ (DNCRP)
                 </button>
               </div>
 
@@ -863,6 +924,405 @@ export default function ChuktiGuardPage() {
                 <p>
                   International clients on Upwork/Fiverr often cancel contracts or issue chargebacks if you go offline for 48 hours due to telecom cuts or submarine cable disruptions. Having this clause in your direct B2B master services agreement provides written contractual immunity and establishes an automatic 72-hour delivery buffer without dispute.
                 </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 4: DISPUTE & DNCRP COMPLAINT STUDIO */}
+        {activeTab === "dispute" && (
+          <div className="space-y-6">
+            {/* Dispute Studio Header */}
+            <div className="rounded-2xl border border-rose-200 bg-gradient-to-r from-rose-50/80 via-white to-amber-50/60 p-6 shadow-xs">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-600 text-white shadow-md">
+                    <ShieldCheck size={26} />
+                  </span>
+                  <div>
+                    <h2 className="text-[20px] font-extrabold text-slate-900 leading-tight">
+                      ভোক্তা ও ক্লায়েন্ট বিরোধ নিষ্পত্তি স্টুডিও (DNCRP Dispute Studio)
+                    </h2>
+                    <span className="text-[12.5px] text-slate-600">
+                      ভোক্তা অধিকার সংরক্ষণ আইন ২০০৯ (ধারা ৪৫ ও ৫২) এবং চুক্তি আইন ১৮৭২ অনুযায়ী সংবিধিবদ্ধ আইনি অভিযোগপত্র
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {/* Language Selector */}
+                  <div className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white p-0.5 text-[12px] font-bold">
+                    <button
+                      onClick={() => setDisputeLang("bn")}
+                      className={`px-3 py-1 rounded-md transition-all ${
+                        disputeLang === "bn" ? "bg-rose-600 text-white shadow-xs" : "text-slate-600 hover:text-slate-900"
+                      }`}
+                    >
+                      বাংলা
+                    </button>
+                    <button
+                      onClick={() => setDisputeLang("en")}
+                      className={`px-3 py-1 rounded-md transition-all ${
+                        disputeLang === "en" ? "bg-rose-600 text-white shadow-xs" : "text-slate-600 hover:text-slate-900"
+                      }`}
+                    >
+                      English
+                    </button>
+                  </div>
+
+                  {/* 1-Click Copy */}
+                  <button
+                    onClick={() => {
+                      playClick();
+                      const fullText = `${disputeNotice.title}\n${disputeNotice.statutoryReference}\n\n` +
+                        disputeNotice.clauses.map((c) => `[${c.heading}]\n${c.body}`).join("\n\n") +
+                        `\n\n[Submission Details]\nAuthority: ${disputeNotice.submissionInstructions.authority}\nEmail: ${disputeNotice.submissionInstructions.email}\nHotline: ${disputeNotice.submissionInstructions.hotline}`;
+                      navigator.clipboard.writeText(fullText);
+                      setCopiedDispute(true);
+                      setTimeout(() => setCopiedDispute(false), 2500);
+                    }}
+                    className="flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2 text-[13px] font-bold text-white hover:bg-slate-800 transition-colors shadow-xs"
+                  >
+                    {copiedDispute ? <Check size={16} className="text-emerald-400" /> : <Copy size={16} />}
+                    <span>{copiedDispute ? "কপি হয়েছে!" : "পিটিশন কপি করুন"}</span>
+                  </button>
+
+                  {/* Print */}
+                  <button
+                    onClick={() => window.print()}
+                    className="flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 py-2 text-[13px] font-bold text-slate-800 hover:bg-slate-50 transition-colors shadow-xs"
+                  >
+                    <Printer size={16} />
+                    <span>প্রিন্ট</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Dispute Type Switcher */}
+              <div className="mt-5 flex flex-wrap gap-2 pt-4 border-t border-rose-100">
+                <button
+                  onClick={() => {
+                    playClick();
+                    setDisputeType("dncrp");
+                  }}
+                  className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-bold transition-all ${
+                    disputeType === "dncrp"
+                      ? "bg-rose-600 text-white shadow-sm"
+                      : "bg-white border border-slate-200 text-slate-700 hover:bg-rose-50"
+                  }`}
+                >
+                  <span>🏛️ জাতীয় ভোক্তা-অধিকার সংরক্ষণ অধিদপ্তর (DNCRP) অভিযোগ</span>
+                  <span className="rounded-full bg-white/20 px-2 py-0.5 text-[11px]">আইন ২০০৯</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    playClick();
+                    setDisputeType("freelancer");
+                  }}
+                  className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-bold transition-all ${
+                    disputeType === "freelancer"
+                      ? "bg-slate-900 text-white shadow-sm"
+                      : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
+                  }`}
+                >
+                  <span>⚖️ ক্লায়েন্ট বকেয়া পারিশ্রমিক দাবি নোটিশ</span>
+                  <span className="rounded-full bg-slate-200 text-slate-800 px-2 py-0.5 text-[11px]">চুক্তি আইন ১৮৭২</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Split View: Inputs & Live Notice Preview */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              {/* Left Column: Form Inputs */}
+              <div className="lg:col-span-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs space-y-4">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                  <span className="text-[14px] font-bold text-slate-900">
+                    {disputeType === "dncrp" ? "অভিযোগ ও লেনদেনের তথ্য" : "বকেয়া বিল ও ক্লায়েন্টের তথ্য"}
+                  </span>
+                  <span className="text-[11px] font-semibold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full">
+                    সরাসরি প্রস্তুত
+                  </span>
+                </div>
+
+                {disputeType === "dncrp" ? (
+                  <div className="space-y-3 text-[13px]">
+                    <div>
+                      <label className="block text-[12px] font-semibold text-slate-700 mb-1">অভিযোগকারীর নাম ও মোবাইল</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        <input
+                          type="text"
+                          value={dncrpInput.complainantName}
+                          onChange={(e) => setDncrpInput({ ...dncrpInput, complainantName: e.target.value })}
+                          className="rounded-lg border border-slate-200 px-3 py-1.5 text-[13px]"
+                          placeholder="আপনার নাম"
+                        />
+                        <input
+                          type="text"
+                          value={dncrpInput.complainantPhone}
+                          onChange={(e) => setDncrpInput({ ...dncrpInput, complainantPhone: e.target.value })}
+                          className="rounded-lg border border-slate-200 px-3 py-1.5 text-[13px]"
+                          placeholder="মোবাইল নম্বর"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-[12px] font-semibold text-slate-700 mb-1">এনআইডি নম্বর (ঐচ্ছিক)</label>
+                        <input
+                          type="text"
+                          value={dncrpInput.complainantNid || ""}
+                          onChange={(e) => setDncrpInput({ ...dncrpInput, complainantNid: e.target.value })}
+                          className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-[13px]"
+                          placeholder="NID নম্বর"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[12px] font-semibold text-slate-700 mb-1">বর্তমান ঠিকানা</label>
+                        <input
+                          type="text"
+                          value={dncrpInput.complainantAddress}
+                          onChange={(e) => setDncrpInput({ ...dncrpInput, complainantAddress: e.target.value })}
+                          className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-[13px]"
+                          placeholder="ঠিকানা"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t border-slate-100">
+                      <label className="block text-[12px] font-semibold text-slate-700 mb-1">অভিযুক্ত প্রতিষ্ঠান / বিক্রেতার নাম ও নম্বর</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        <input
+                          type="text"
+                          value={dncrpInput.accusedParty}
+                          onChange={(e) => setDncrpInput({ ...dncrpInput, accusedParty: e.target.value })}
+                          className="rounded-lg border border-slate-200 px-3 py-1.5 text-[13px]"
+                          placeholder="প্রতিষ্ঠানের নাম"
+                        />
+                        <input
+                          type="text"
+                          value={dncrpInput.accusedPhone || ""}
+                          onChange={(e) => setDncrpInput({ ...dncrpInput, accusedPhone: e.target.value })}
+                          className="rounded-lg border border-slate-200 px-3 py-1.5 text-[13px]"
+                          placeholder="বিক্রেতার ফোন"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-700 mb-1">পেমেন্ট মাধ্যম</label>
+                        <select
+                          value={dncrpInput.transactionChannel}
+                          onChange={(e) => setDncrpInput({ ...dncrpInput, transactionChannel: e.target.value })}
+                          className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-[12px]"
+                        >
+                          <option value="bKash">bKash</option>
+                          <option value="Nagad">Nagad</option>
+                          <option value="Rocket">Rocket</option>
+                          <option value="Bank Transfer">Bank Transfer</option>
+                          <option value="Card">Card</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-700 mb-1">TrxID</label>
+                        <input
+                          type="text"
+                          value={dncrpInput.transactionTrxId}
+                          onChange={(e) => setDncrpInput({ ...dncrpInput, transactionTrxId: e.target.value })}
+                          className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-[12px] font-mono"
+                          placeholder="TrxID"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-700 mb-1">টাকার পরিমাণ (৳)</label>
+                        <input
+                          type="number"
+                          value={dncrpInput.claimedAmountBdt}
+                          onChange={(e) => setDncrpInput({ ...dncrpInput, claimedAmountBdt: Number(e.target.value) || 0 })}
+                          className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-[12px]"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[12px] font-semibold text-slate-700 mb-1">পণ্য বা সেবার বিবরণ</label>
+                      <input
+                        type="text"
+                        value={dncrpInput.productOrService}
+                        onChange={(e) => setDncrpInput({ ...dncrpInput, productOrService: e.target.value })}
+                        className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-[13px]"
+                        placeholder="যেমন: মোবাইল ফোন, কোর্স, কিবোর্ড"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[12px] font-semibold text-slate-700 mb-1">প্রতারণা বা প্রতিশ্রুত ব্যর্থতার বিবরণ</label>
+                      <textarea
+                        rows={3}
+                        value={dncrpInput.disputeSummary}
+                        onChange={(e) => setDncrpInput({ ...dncrpInput, disputeSummary: e.target.value })}
+                        className="w-full rounded-lg border border-slate-200 p-2.5 text-[12.5px] leading-relaxed"
+                        placeholder="কী ঘটেছিল সংক্ষেপে লিখুন…"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[12px] font-semibold text-slate-700 mb-1">প্রার্থিত প্রতিকার</label>
+                      <select
+                        value={dncrpInput.remedySought}
+                        onChange={(e) => setDncrpInput({ ...dncrpInput, remedySought: e.target.value as "full_refund" | "compensation" | "delivery" | "action" })}
+                        className="w-full rounded-lg border border-slate-200 p-2 text-[12.5px]"
+                      >
+                        <option value="full_refund">সম্পূর্ণ অর্থ ফেরত (Full Refund)</option>
+                        <option value="compensation">ক্ষতিপূরণসহ অর্থ ফেরত (Compensation)</option>
+                        <option value="delivery">প্রতিশ্রুত পণ্য/সেবা অবিলম্বে সরবরাহ (Delivery)</option>
+                        <option value="action">আইনগত দৃষ্টান্তমূলক শাস্তি ও প্রতিকার</option>
+                      </select>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-3 text-[13px]">
+                    <div>
+                      <label className="block text-[12px] font-semibold text-slate-700 mb-1">ফ্রিল্যান্সারের নাম ও ইমেইল</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        <input
+                          type="text"
+                          value={freelancerDemand.freelancerName}
+                          onChange={(e) => setFreelancerDemand({ ...freelancerDemand, freelancerName: e.target.value })}
+                          className="rounded-lg border border-slate-200 px-3 py-1.5 text-[13px]"
+                        />
+                        <input
+                          type="text"
+                          value={freelancerDemand.freelancerEmail}
+                          onChange={(e) => setFreelancerDemand({ ...freelancerDemand, freelancerEmail: e.target.value })}
+                          className="rounded-lg border border-slate-200 px-3 py-1.5 text-[13px]"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[12px] font-semibold text-slate-700 mb-1">ক্লায়েন্টের নাম ও দেশ</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        <input
+                          type="text"
+                          value={freelancerDemand.clientName}
+                          onChange={(e) => setFreelancerDemand({ ...freelancerDemand, clientName: e.target.value })}
+                          className="rounded-lg border border-slate-200 px-3 py-1.5 text-[13px]"
+                        />
+                        <input
+                          type="text"
+                          value={freelancerDemand.clientCountry}
+                          onChange={(e) => setFreelancerDemand({ ...freelancerDemand, clientCountry: e.target.value })}
+                          className="rounded-lg border border-slate-200 px-3 py-1.5 text-[13px]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-700 mb-1">ইনভয়েস নং</label>
+                        <input
+                          type="text"
+                          value={freelancerDemand.invoiceNumber}
+                          onChange={(e) => setFreelancerDemand({ ...freelancerDemand, invoiceNumber: e.target.value })}
+                          className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-[12px] font-mono"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-700 mb-1">মুদ্রা</label>
+                        <select
+                          value={freelancerDemand.currency}
+                          onChange={(e) => setFreelancerDemand({ ...freelancerDemand, currency: e.target.value as "USD" | "BDT" })}
+                          className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-[12px]"
+                        >
+                          <option value="USD">USD ($)</option>
+                          <option value="BDT">BDT (৳)</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-700 mb-1">বকেয়া পরিমাণ</label>
+                        <input
+                          type="number"
+                          value={freelancerDemand.amountOwed}
+                          onChange={(e) => setFreelancerDemand({ ...freelancerDemand, amountOwed: Number(e.target.value) || 0 })}
+                          className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-[12px]"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[12px] font-semibold text-slate-700 mb-1">সরবরাহকৃত মাইলস্টোন / কাজ</label>
+                      <input
+                        type="text"
+                        value={freelancerDemand.milestoneDelivered}
+                        onChange={(e) => setFreelancerDemand({ ...freelancerDemand, milestoneDelivered: e.target.value })}
+                        className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-[13px]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[12px] font-semibold text-slate-700 mb-1">নোটিশের সময়সীমা (দিন)</label>
+                      <input
+                        type="number"
+                        value={freelancerDemand.curePeriodDays}
+                        onChange={(e) => setFreelancerDemand({ ...freelancerDemand, curePeriodDays: Number(e.target.value) || 7 })}
+                        className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-[13px]"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Right Column: Live Printable Legal Notice Preview */}
+              <div className="lg:col-span-7 rounded-2xl border-2 border-slate-800 bg-white shadow-md p-6 sm:p-8 space-y-6 print:border-none print:shadow-none">
+                {/* Formal Header */}
+                <div className="border-b-2 border-slate-900 pb-4">
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-[11px] font-extrabold uppercase tracking-widest text-rose-700 bg-rose-50 border border-rose-200 px-3 py-1 rounded-full">
+                      {disputeNotice.statutoryReference}
+                    </span>
+                    <span className="text-[12px] font-bold text-slate-500">
+                      তারিখ: {disputeType === "dncrp" ? dncrpInput.transactionDate : freelancerDemand.invoiceDate}
+                    </span>
+                  </div>
+                  <h3 className="mt-3 text-[19px] sm:text-[22px] font-black tracking-tight text-slate-900 leading-snug">
+                    {disputeNotice.title}
+                  </h3>
+                </div>
+
+                {/* Clauses Body */}
+                <div className="space-y-4 text-slate-800">
+                  {disputeNotice.clauses.map((clause, idx) => (
+                    <div
+                      key={idx}
+                      className={`rounded-xl p-4 text-[13.5px] leading-relaxed ${
+                        clause.highlight
+                          ? "bg-rose-50/70 border border-rose-200 font-medium text-rose-950"
+                          : "bg-slate-50 border border-slate-100"
+                      }`}
+                    >
+                      <strong className="block text-[13px] font-bold text-slate-900 mb-1">
+                        {clause.heading}
+                      </strong>
+                      <p className="whitespace-pre-wrap">{clause.body}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Submission Instructions Box */}
+                <div className="rounded-xl border border-indigo-200 bg-indigo-50/60 p-4 space-y-2 text-[12.5px] text-indigo-950">
+                  <div className="flex items-center gap-2 font-bold text-indigo-900">
+                    <Building2 size={16} />
+                    <span>অভিযোগ জমা দেওয়ার প্রাতিষ্ঠানিক নির্দেশিকা:</span>
+                  </div>
+                  <p>• <strong>কর্তৃপক্ষ:</strong> {disputeNotice.submissionInstructions.authority}</p>
+                  <p>• <strong>সরাসরি ইমেইল:</strong> <a href={`mailto:${disputeNotice.submissionInstructions.email}`} className="text-indigo-700 underline font-semibold">{disputeNotice.submissionInstructions.email}</a></p>
+                  <p>• <strong>হটলাইন:</strong> {disputeNotice.submissionInstructions.hotline} (টোল-ফ্রি অভিযোগ কেন্দ্র)</p>
+                  <p>• <strong>ওয়েবসাইট ও পোর্টাল:</strong> <a href={disputeNotice.submissionInstructions.portalUrl} target="_blank" rel="noreferrer" className="text-indigo-700 underline font-semibold inline-flex items-center gap-1">{disputeNotice.submissionInstructions.portalUrl} <ExternalLink size={12} /></a></p>
+                  <p>• <strong>ঠিকানা:</strong> {disputeNotice.submissionInstructions.address}</p>
+                </div>
               </div>
             </div>
           </div>

@@ -8,7 +8,13 @@ import {
   SAMPLE_CHUKTI_PRESETS,
   type InvoiceMilestone,
 } from "../lib/chuktiguard.ts";
-import { milestoneAmounts } from "../lib/contract.ts";
+import {
+  milestoneAmounts,
+  buildDncrpPetition,
+  buildFreelancerPaymentDemand,
+  type DncrpPetitionInput,
+  type FreelancerDemandInput,
+} from "../lib/contract.ts";
 
 // ============================================================================
 // 1. calculateInvoiceFinOps(): Payout Rails, Deductions, and Invariants
@@ -327,4 +333,76 @@ test("fmtBdt & SAMPLE_CHUKTI_PRESETS — formats currency and validates preset i
   assert.equal(p0Fin.grossBdt, 420000);
   assert.equal(p0Fin.netBdt, 424740);
   assert.equal(p0Fin.netBdt, p0Fin.grossBdt - p0Fin.feeBdt - p0Fin.fxDrainBdt + p0Fin.incentiveGainBdt);
+});
+
+// ============================================================================
+// 6. Consumer & Freelancer Dispute Protection (DNCRP & Payment Demand)
+// ============================================================================
+
+test("buildDncrpPetition — generates formal petition with statutory citations (Sections 45 & 52)", () => {
+  const input: DncrpPetitionInput = {
+    complainantName: "আব্দুর রহিম",
+    complainantPhone: "01711223344",
+    complainantAddress: "মিরপুর-১০, ঢাকা",
+    complainantNid: "19942691234567890",
+    accusedParty: "অনলাইন গ্যাজেট শপ বিডি",
+    accusedPhone: "01899887766",
+    accusedAddress: "ধানমন্ডি, ঢাকা",
+    transactionDate: "2026-10-15",
+    transactionChannel: "bKash",
+    transactionTrxId: "BK992817AX",
+    claimedAmountBdt: 8500,
+    productOrService: "ওয়্যারলেস মেকানিক্যাল কিবোর্ড",
+    disputeSummary: "বিকাশে সম্পূর্ণ মূল্য পরিশোধের পর পণ্য পাঠানো হয়নি এবং যোগাযোগ বন্ধ করে দেওয়া হয়েছে।",
+    remedySought: "full_refund",
+  };
+
+  const bnRes = buildDncrpPetition(input, "bn");
+  assert.ok(bnRes.title.includes("ভোক্তা অধিকার সংরক্ষণ আইন, ২০০৯"));
+  assert.ok(bnRes.statutoryReference.includes("ধারা ৪৫ ও ৫২"));
+  assert.equal(bnRes.submissionInstructions.email, "dg-dncrp@dncrp.gov.bd");
+  assert.equal(bnRes.submissionInstructions.hotline, "১৬১২১");
+  assert.ok(bnRes.clauses.some((c) => c.body.includes("BK992817AX")));
+  assert.ok(bnRes.clauses.some((c) => c.body.includes("৮,৫০০")));
+  assert.ok(bnRes.clauses.some((c) => c.body.includes("অনলাইন গ্যাজেট শপ বিডি")));
+  assert.ok(bnRes.clauses.some((c) => c.body.includes("৭৬(৪)")));
+
+  const enRes = buildDncrpPetition(input, "en");
+  assert.ok(enRes.title.includes("Formal Complaint Petition"));
+  assert.ok(enRes.statutoryReference.includes("Sections 45 & 52"));
+  assert.equal(enRes.submissionInstructions.email, "dg-dncrp@dncrp.gov.bd");
+  assert.ok(enRes.clauses.some((c) => c.body.includes("BK992817AX")));
+  assert.ok(enRes.clauses.some((c) => c.body.includes("8,500")));
+});
+
+test("buildFreelancerPaymentDemand — generates formal payment demand notice under Contract Act 1872", () => {
+  const input: FreelancerDemandInput = {
+    freelancerName: "তানভীর হাসান",
+    freelancerEmail: "tanvir@kormopath.org",
+    freelancerCountry: "Bangladesh",
+    clientName: "John Smith",
+    clientCompany: "Apex Digital LLC",
+    clientCountry: "United States",
+    projectTitle: "Next.js SaaS Dashboard",
+    invoiceNumber: "INV-2026-102",
+    invoiceDate: "2026-11-01",
+    dueDate: "2026-11-08",
+    amountOwed: 2500,
+    currency: "USD",
+    milestoneDelivered: "Milestone 2: Production API & Webhook Integration",
+    curePeriodDays: 7,
+  };
+
+  const enRes = buildFreelancerPaymentDemand(input, "en");
+  assert.ok(enRes.title.includes("Demand for Payment"));
+  assert.ok(enRes.statutoryReference.includes("Section 73, Contract Act 1872"));
+  assert.ok(enRes.clauses.some((c) => c.body.includes("US$2,500.00")));
+  assert.ok(enRes.clauses.some((c) => c.body.includes("INV-2026-102")));
+  assert.ok(enRes.clauses.some((c) => c.body.includes("7 calendar days")));
+
+  const bnRes = buildFreelancerPaymentDemand(input, "bn");
+  assert.ok(bnRes.title.includes("দাবি নোটিশ"));
+  assert.ok(bnRes.statutoryReference.includes("চুক্তি আইন ১৮৭২"));
+  assert.ok(bnRes.clauses.some((c) => c.body.includes("INV-2026-102")));
+  assert.ok(bnRes.clauses.some((c) => c.body.includes("৭ দিনের মধ্যে")));
 });

@@ -239,6 +239,7 @@ export interface CropDisease {
   preventiveActionBn: string;
   nonChemicalBn: string;
   chemicalNoteBn: string; // no doses: points to label + extension officer
+  symptomTags: string[];
 }
 
 const CHEMICAL_NOTE =
@@ -255,6 +256,19 @@ export const CROP_DISEASES: CropDisease[] = [
     preventiveActionBn: "রোগমুক্ত প্রত্যয়িত বীজ, জমিতে পানি জমতে না দেওয়া, কুয়াশার পূর্বাভাসে নিয়মিত জমি পরিদর্শন।",
     nonChemicalBn: "আক্রান্ত গাছ তুলে জমি থেকে দূরে নষ্ট করুন; আক্রান্ত জমিতে সেচ সাময়িক বন্ধ রাখুন।",
     chemicalNoteBn: CHEMICAL_NOTE,
+    symptomTags: ["পানিভেজা দাগ", "কালচে বাদামি", "সাদা ছত্রাক", "নাবি ধসা", "ডগা শুকানো", "লেইট ব্লাইট"],
+  },
+  {
+    id: "potato-early-blight",
+    cropNameBn: "আলু",
+    diseaseNameBn: "আগাম ধসা (আর্লি ব্লাইট)",
+    symptomsBn: "নিচের পাতায় ছোট ছোট বাদামি বা কালচে দাগ, দাগের ভেতরে বৃত্তাকার বলয় (টার্গেট বোর্ড বা গাছের বলয়ের মতো রিং); পাতা হলুদ হয়ে ঝরে পড়ে।",
+    severity: "medium",
+    favouredByBn: "উষ্ণ ও শুষ্ক দিনের পর শিশিরভেজা আর্দ্র রাত; গাছের বয়স বাড়ার সাথে সাথে দুর্বল গাছ।",
+    preventiveActionBn: "প্রমাণিত সুস্থ বীজ ব্যবহার, মাটিতে পরিমিত জৈব ও সুষম সার প্রয়োগ, নিয়মিত সেচ ব্যবস্থাপনা।",
+    nonChemicalBn: "আক্রান্ত পাতা হাত দিয়ে তুলে ধ্বংস করা; আলু তোলার পর জমির নাড়া ও অবশিষ্টাংশ পুড়িয়ে ফেলা বা গভীর চাষ দেওয়া।",
+    chemicalNoteBn: CHEMICAL_NOTE,
+    symptomTags: ["টার্গেট বোর্ড দাগ", "বৃত্তাকার বলয়", "নিচের পাতায় দাগ", "আগাম ধসা", "বাদামি রিং", "পাতা হলুদ"],
   },
   {
     id: "brinjal-borer",
@@ -266,6 +280,19 @@ export const CROP_DISEASES: CropDisease[] = [
     preventiveActionBn: "আক্রান্ত ডগা ও ফল নিয়মিত তুলে নষ্ট করা, পরিচ্ছন্ন চাষ, ফসল পর্যায়ক্রম।",
     nonChemicalBn: "সেক্স ফেরোমন ফাঁদ ব্যবহার (সংখ্যা ও স্থাপন কৃষি অফিস থেকে জেনে নিন)।",
     chemicalNoteBn: CHEMICAL_NOTE,
+    symptomTags: ["ডগা নেতিয়ে পড়া", "ফল ছিদ্র", "ডগা ছিদ্র", "পোকার মল", "কচি ডগা শুকানো"],
+  },
+  {
+    id: "brinjal-root-rot",
+    cropNameBn: "বেগুন",
+    diseaseNameBn: "গোড়াপচা ও রুট-নট নেমাটোড (শিকড় গিঁট)",
+    symptomsBn: "গাছ খর্বাকৃতি ও ফ্যাকাশে হলুদ হয়ে যাওয়া, দুপুরে গাছ নেতিয়ে পড়া; শিকড় তুললে অসংখ্য ছোট-বড় গিঁট বা টিউমার দেখা যায়।",
+    severity: "high",
+    favouredByBn: "বেলে বা হালকা দোআঁশ মাটি, উচ্চ তাপমাত্রা এবং একই জমিতে বারবার বেগুন চাষ।",
+    preventiveActionBn: "চারা লাগানোর আগে বীজতলায় ট্রাইকোডার্মা বা নিম খৈল মেশানো, সোলানেসি ফসল বাদ দিয়ে শস্য পর্যায় করা।",
+    nonChemicalBn: "জমিতে পর্যাপ্ত পরিমাণে নিম খৈল, মুরগির বিষ্ঠা বা পচা গোবর প্রয়োগ; আক্রান্ত গাছ তুলে ধ্বংস করা; জমি রোদে ভালো করে শুকানো।",
+    chemicalNoteBn: CHEMICAL_NOTE,
+    symptomTags: ["শিকড়ে গিঁট", "গোড়া পচা", "গাছ হলুদ", "দুপুরে নেতিয়ে পড়া", "টিউমার", "খর্বাকৃতি"],
   },
   {
     id: "rice-blast",
@@ -277,50 +304,7 @@ export const CROP_DISEASES: CropDisease[] = [
     preventiveActionBn: "সুষম সার, অতিরিক্ত ইউরিয়া পরিহার, জমিতে পানি ধরে রাখা, প্রতিরোধী জাত।",
     nonChemicalBn: "শুরুতে লক্ষণ দেখলেই কৃষি অফিসকে জানান; আক্রান্ত খড় পুড়িয়ে না রেখে সরিয়ে ফেলুন।",
     chemicalNoteBn: CHEMICAL_NOTE,
-  },
-  {
-    id: "mango-anthracnose",
-    cropNameBn: "আম",
-    diseaseNameBn: "অ্যানথ্রাকনোজ",
-    symptomsBn: "মুকুল ও কচি আমে কালো দাগ, মুকুল ঝরে যাওয়া, পাকা আমে কালো পচা দাগ।",
-    severity: "medium",
-    favouredByBn: "মুকুল আসার সময় বৃষ্টি ও কুয়াশা।",
-    preventiveActionBn: "মরা ডাল ছাঁটাই, গাছের নিচ পরিষ্কার রাখা, ঝরা পাতা-মুকুল সরিয়ে ফেলা।",
-    nonChemicalBn: "ফল সংগ্রহের পর সঠিক পদ্ধতিতে গরম পানিতে শোধন — তাপমাত্রা ও সময় কৃষি অফিস থেকে জেনে নিন।",
-    chemicalNoteBn: CHEMICAL_NOTE,
-  },
-  {
-    id: "tomato-bacterial-wilt",
-    cropNameBn: "টমেটো",
-    diseaseNameBn: "ব্যাকটেরিয়াজনিত ঢলে পড়া (ব্যাকটেরিয়াল উইল্ট)",
-    symptomsBn: "সবুজ থাকা অবস্থাতেই গাছ হঠাৎ নিস্তেজ হয়ে ঢলে পড়ে; কাণ্ড কাটলে ভেতর বাদামি দেখায় এবং পরিষ্কার পানিতে কাণ্ড ডোবালে সাদা সুতার মতো ব্যাকটেরিয়ার ধারা (ওজ) বের হয়।",
-    severity: "high",
-    favouredByBn: "উচ্চ তাপমাত্রা (৩০–৩৫°C), অধিক আর্দ্রতা এবং জমিতে পানি জমে থাকা; নেমাটোড বা শিকড়ে আঘাত।",
-    preventiveActionBn: "প্রতিরোধী জাত বা গ্রাফটিং করা চারা ব্যবহার, রোগমুক্ত প্রত্যয়িত বীজ, উঁচু বেড তৈরি এবং জমিতে উন্নত নিষ্কাশন ব্যবস্থা রাখা।",
-    nonChemicalBn: "আক্রান্ত গাছ শিকড়সহ সাবধানে তুলে দূরে পুড়িয়ে বা মাটিতে পুঁতে ফেলা; আক্রান্ত জমিতে সোলানেসি গোত্রের ফসল বাদ দিয়ে ধান বা ভুট্টা দিয়ে শস্য পর্যায় (Crop Rotation) অনুসরণ করা; চুন বা জৈব সার প্রয়োগ।",
-    chemicalNoteBn: CHEMICAL_NOTE,
-  },
-  {
-    id: "onion-purple-blotch",
-    cropNameBn: "পেঁয়াজ",
-    diseaseNameBn: "পার্পল ব্লচ (বেগুনি দাগ রোগ)",
-    symptomsBn: "পাতায় ও বীজের ডাঁটায় প্রথমে ছোট পানিভেজা দাগ, যা দ্রুত বড় হয়ে কেন্দ্রে বেগুনি বা বাদামি বর্ণ ধারণ করে এবং চারপাশে হলুদ বলয় তৈরি হয়; পাতা ভেঙে পড়ে।",
-    severity: "high",
-    favouredByBn: "উষ্ণ ও আর্দ্র আবহাওয়া (২৫–৩০°C), ঘন কুয়াশা, বৃষ্টি বা পাতায় দীর্ঘ সময় শিশির জমে থাকা; থ্রিপস পোকার আক্রমণ।",
-    preventiveActionBn: "সুস্থ ও প্রত্যয়িত পেঁয়াজ কন্দ বা বীজ ব্যবহার, পরিমিত দূরত্বে রোপণ যাতে বাতাস চলাচল করে, অতিরিক্ত সেচ পরিহার এবং পরিচ্ছন্ন চাষ।",
-    nonChemicalBn: "রোগাক্রান্ত পাতা ও অবশিষ্টাংশ সংগ্রহ করে ধ্বংস করা; থ্রিপস দমনে হলুদ আঠালো ফাঁদ ব্যবহার; পেঁয়াজ তোলার পর জমিতে গভীর চাষ দিয়ে রোদ লাগানো।",
-    chemicalNoteBn: CHEMICAL_NOTE,
-  },
-  {
-    id: "jute-stem-rot",
-    cropNameBn: "পাট",
-    diseaseNameBn: "কাণ্ড পচা রোগ (স্টেম রট)",
-    symptomsBn: "গাছের কাণ্ডে বা পাতার সংযোগস্থলে কালচে বা বাদামি ক্ষতের দাগ, ক্ষতস্থান ফেটে যাওয়া এবং কাণ্ডের আঁশ কালো হয়ে পচে শুকিয়ে যাওয়া; গাছ সহজে ভেঙে পড়ে।",
-    severity: "high",
-    favouredByBn: "অতিবৃষ্টি, জলাবদ্ধতা, স্যাঁতসেঁতে মেঘলা আবহাওয়া এবং মাটিতে পটাশের ঘাটতি।",
-    preventiveActionBn: "প্রমাণিত রোগমুক্ত বীজ বপন, সুষম সার ব্যবহার (বিশেষ করে পরিমিত পটাশ প্রয়োগ), দ্রুত পানি নিষ্কাশনের নালা রাখা।",
-    nonChemicalBn: "আক্রান্ত গাছ দেখামাত্র তুলে সরিয়ে ফেলা; ফসল কাটার পর গোড়া ও শিকড় পুড়িয়ে ফেলা; জমিতে চুন প্রয়োগ এবং পাটের পর ধান বা ডাল জাতীয় ফসলের শস্য পর্যায় অবলম্বন।",
-    chemicalNoteBn: CHEMICAL_NOTE,
+    symptomTags: ["চোখের মতো দাগ", "শীষ ভেঙে পড়া", "চিটা", "ব্লাস্ট", "কালো দাগ", "শীষ পচা"],
   },
   {
     id: "rice-brown-planthopper",
@@ -332,8 +316,199 @@ export const CROP_DISEASES: CropDisease[] = [
     preventiveActionBn: "বিপিএইচ প্রতিরোধী বা সহনশীল জাত চাষ, নির্দিষ্ট দূরত্ব বজায় রেখে চারা লাগানো, জমিতে ১০-১২ সারি পর পর ১ সারি ফাঁকা (বিলি/অ্যালি পদ্ধতি) রাখা যাতে আলো-বাতাস ঢোকে, সুষম ইউরিয়া প্রয়োগ।",
     nonChemicalBn: "আক্রমণ দেখা দিলে জমির পানি শুকিয়ে ২-৩ দিন শুকনা রাখা (পর্যায়ক্রমিক ভেজানো ও শুকানো - AWD); হাঁস ছেড়ে পোকা দমন; আলোক ফাঁদ (Light trap) ব্যবহার করে পোকার উপস্থিতি পর্যবেক্ষণ; মাকড়সা ও ড্রাগনফ্লাইয়ের মতো বন্ধু পোকা সংরক্ষণ।",
     chemicalNoteBn: CHEMICAL_NOTE,
+    symptomTags: ["গোড়ায় পোকা", "গাছ পুড়ে যাওয়া", "হপার বার্ন", "কারেন্ট পোকা", "বিপিএইচ", "গোল হয়ে মরা"],
+  },
+  {
+    id: "rice-hispa",
+    cropNameBn: "ধান",
+    diseaseNameBn: "পামরি পোকা (রাইস হিসপা)",
+    symptomsBn: "পাতার ওপরের সবুজ অংশ চেঁছে খাওয়া, পাতায় সাদা সমান্তরাল লম্বা দাগ বা রেখা, দূর থেকে ধানক্ষেত পোড়া বা সাদাটে দেখায়।",
+    severity: "high",
+    favouredByBn: "উষ্ণ ও আর্দ্র আবহাওয়া, অতিরিক্ত নাইট্রোজেন সার এবং ছায়াযুক্ত নিচু জমি।",
+    preventiveActionBn: "সুষম সার ব্যবহার, আক্রান্ত পাতার ডগা ২-৩ ইঞ্চি কেটে ফেলা যাতে ডিম নষ্ট হয়, প্রতিরোধী জাত চাষ।",
+    nonChemicalBn: "মশারির জাল বা গামছা টেনে পোকা ধরে কেরোসিন মিশ্রিত পানিতে ফেলে ধ্বংস করা; আলোক ফাঁদের সাহায্যে পোকা নিধন।",
+    chemicalNoteBn: CHEMICAL_NOTE,
+    symptomTags: ["সাদা দাগ", "পাতা চেঁছে খাওয়া", "সাদা রেখা", "পামরি", "পোড়া পাতা", "হিসপা"],
+  },
+  {
+    id: "rice-sheath-blight",
+    cropNameBn: "ধান",
+    diseaseNameBn: "খোলপোড়া রোগ (শীথ ব্লাইট)",
+    symptomsBn: "পানির উপরিভাগে ধান গাছের খোলে ডিম্বাকার সাপের চামড়ার মতো ধূসর-সবুজ দাগ, যা ক্রমশ ওপরের দিকে পাতার খোল ও পাতায় উঠে যায়।",
+    severity: "high",
+    favouredByBn: "উচ্চ তাপমাত্রা (২৮–৩২°C), অতি আর্দ্রতা (৮৫% বা বেশি), ঘন করে লাগানো গাছ ও অতিরিক্ত ইউরিয়া।",
+    preventiveActionBn: "চারা রোপণের দূরত্ব বজায় রাখা, অতিরিক্ত ইউরিয়া পরিহার করে পরিমিত পটাশ সার ব্যবহার, জমির পানি নিষ্কাশন ব্যবস্থা।",
+    nonChemicalBn: "আক্রমণ বেশি হলে জমির পানি শুকিয়ে ২-৩ দিন শুকনা রাখা; জমির আইল ও আগাছা পরিষ্কার পরিচ্ছন্ন রাখা।",
+    chemicalNoteBn: CHEMICAL_NOTE,
+    symptomTags: ["খোলপোড়া", "সাপের চামড়ার দাগ", "খোলে দাগ", "ধূসর দাগ", "পানির উপরিভাগে দাগ"],
+  },
+  {
+    id: "mango-anthracnose",
+    cropNameBn: "আম",
+    diseaseNameBn: "অ্যানথ্রাকনোজ",
+    symptomsBn: "মুকুল ও কচি আমে কালো দাগ, মুকুল ঝরে যাওয়া, পাকা আমে কালো পচা দাগ।",
+    severity: "medium",
+    favouredByBn: "মুকুল আসার সময় বৃষ্টি ও কুয়াশা।",
+    preventiveActionBn: "মরা ডাল ছাঁটাই, গাছের নিচ পরিষ্কার রাখা, ঝরা পাতা-মুকুল সরিয়ে ফেলা।",
+    nonChemicalBn: "ফল সংগ্রহের পর সঠিক পদ্ধতিতে গরম পানিতে শোধন — তাপমাত্রা ও সময় কৃষি অফিস থেকে জেনে নিন।",
+    chemicalNoteBn: CHEMICAL_NOTE,
+    symptomTags: ["মুকুলে কালো দাগ", "কচি আমে দাগ", "মুকুল ঝরে যাওয়া", "কালো পচা দাগ"],
+  },
+  {
+    id: "tomato-bacterial-wilt",
+    cropNameBn: "টমেটো",
+    diseaseNameBn: "ব্যাকটেরিয়াজনিত ঢলে পড়া (ব্যাকটেরিয়াল উইল্ট)",
+    symptomsBn: "সবুজ থাকা অবস্থাতেই গাছ হঠাৎ নিস্তেজ হয়ে ঢলে পড়ে; কাণ্ড কাটলে ভেতর বাদামি দেখায় এবং পরিষ্কার পানিতে কাণ্ড ডোবালে সাদা সুতার মতো ব্যাকটেরিয়ার ধারা (ওজ) বের হয়।",
+    severity: "high",
+    favouredByBn: "উচ্চ তাপমাত্রা (৩০–৩৫°C), অধিক আর্দ্রতা এবং জমিতে পানি জমে থাকা; নেমাটোড বা শিকড়ে আঘাত।",
+    preventiveActionBn: "প্রতিরোধী জাত বা গ্রাফটিং করা চারা ব্যবহার, রোগমুক্ত প্রত্যয়িত বীজ, উঁচু বেড তৈরি এবং জমিতে উন্নত নিষ্কাশন ব্যবস্থা রাখা।",
+    nonChemicalBn: "আক্রান্ত গাছ শিকড়সহ সাবধানে তুলে দূরে পুড়িয়ে বা মাটিতে পুঁতে ফেলা; আক্রান্ত জমিতে সোলানেসি গোত্রের ফসল বাদ দিয়ে ধান বা ভুট্টা দিয়ে শস্য পর্যায় (Crop Rotation) অনুসরণ করা; চুন বা জৈব সার প্রয়োগ।",
+    chemicalNoteBn: CHEMICAL_NOTE,
+    symptomTags: ["হঠাৎ ঢলে পড়া", "সবুজ অবস্থায় মরা", "কাণ্ডে বাদামি", "ব্যাকটেরিয়াল উইল্ট", "পানি ডোবালে সাদা ধারা"],
+  },
+  {
+    id: "onion-purple-blotch",
+    cropNameBn: "পেঁয়াজ",
+    diseaseNameBn: "পার্পল ব্লচ (বেগুনি দাগ রোগ)",
+    symptomsBn: "পাতায় ও বীজের ডাঁটায় প্রথমে ছোট পানিভেজা দাগ, যা দ্রুত বড় হয়ে কেন্দ্রে বেগুনি বা বাদামি বর্ণ ধারণ করে এবং চারপাশে হলুদ বলয় তৈরি হয়; পাতা ভেঙে পড়ে।",
+    severity: "high",
+    favouredByBn: "উষ্ণ ও আর্দ্র আবহাওয়া (২৫–৩০°C), ঘন কুয়াশা, বৃষ্টি বা পাতায় দীর্ঘ সময় শিশির জমে থাকা; থ্রিপস পোকার আক্রমণ।",
+    preventiveActionBn: "সুস্থ ও প্রত্যয়িত পেঁয়াজ কন্দ বা বীজ ব্যবহার, পরিমিত দূরত্বে রোপণ যাতে বাতাস চলাচল করে, অতিরিক্ত সেচ পরিহার এবং পরিচ্ছন্ন চাষ।",
+    nonChemicalBn: "রোগাক্রান্ত পাতা ও অবশিষ্টাংশ সংগ্রহ করে ধ্বংস করা; থ্রিপস দমনে হলুদ আঠালো ফাঁদ ব্যবহার; পেঁয়াজ তোলার পর জমিতে গভীর চাষ দিয়ে রোদ লাগানো।",
+    chemicalNoteBn: CHEMICAL_NOTE,
+    symptomTags: ["বেগুনি দাগ", "পার্পল ব্লচ", "হলুদ বলয়", "পাতা ভেঙে পড়া", "ডাঁটায় দাগ"],
+  },
+  {
+    id: "jute-stem-rot",
+    cropNameBn: "পাট",
+    diseaseNameBn: "কাণ্ড পচা রোগ (স্টেম রট)",
+    symptomsBn: "গাছের কাণ্ডে বা পাতার সংযোগস্থলে কালচে বা বাদামি ক্ষতের দাগ, ক্ষতস্থান ফেটে যাওয়া এবং কাণ্ডের আঁশ কালো হয়ে পচে শুকিয়ে যাওয়া; গাছ সহজে ভেঙে পড়ে।",
+    severity: "high",
+    favouredByBn: "অতিবৃষ্টি, জলাবদ্ধতা, স্যাঁতসেঁতে মেঘলা আবহাওয়া এবং মাটিতে পটাশের ঘাটতি।",
+    preventiveActionBn: "প্রমাণিত রোগমুক্ত বীজ বপন, সুষম সার ব্যবহার (বিশেষ করে পরিমিত পটাশ প্রয়োগ), দ্রুত পানি নিষ্কাশনের নালা রাখা।",
+    nonChemicalBn: "আক্রান্ত গাছ দেখামাত্র তুলে সরিয়ে ফেলা; ফসল কাটার পর গোড়া ও শিকড় পুড়িয়ে ফেলা; জমিতে চুন প্রয়োগ এবং পাটের পর ধান বা ডাল জাতীয় ফসলের শস্য পর্যায় অবলম্বন।",
+    chemicalNoteBn: CHEMICAL_NOTE,
+    symptomTags: ["কাণ্ড পচা", "স্টেম রট", "আঁশ কালো হওয়া", "ক্ষতস্থান ফেটে যাওয়া", "গাছ ভেঙে পড়া"],
   },
 ];
+
+export interface SymptomMatchResult {
+  disease: CropDisease;
+  matchScore: number; // 0 to 100
+  matchedSymptoms: string[];
+  urgency: "immediate" | "moderate" | "advisory";
+}
+
+export interface CropDiagnosticResult {
+  cropNameBn: string;
+  querySymptoms: string[];
+  topMatch: SymptomMatchResult | null;
+  alternatives: SymptomMatchResult[];
+  ipmChecklistBn: string[];
+  helpline: {
+    name: string;
+    number: string;
+    note: string;
+  };
+  safetyDisclaimer: string;
+}
+
+/**
+ * Deterministic symptom matching and IPM advisory engine for 6+ major Bangladeshi crops.
+ * Strictly adheres to safety constraints: no chemical doses, directs to Krishi Call Centre 16123.
+ */
+export function diagnoseCropSymptom(
+  cropNameOrId: string,
+  userSymptoms: string[]
+): CropDiagnosticResult {
+  const norm = (s: string) => s.trim().toLowerCase().normalize("NFC");
+  const cropQuery = norm(cropNameOrId);
+
+  const cropMap: Record<string, string> = {
+    rice: "ধান",
+    paddy: "ধান",
+    potato: "আলু",
+    brinjal: "বেগুন",
+    eggplant: "বেগুন",
+    tomato: "টমেটো",
+    onion: "পেঁয়াজ",
+    jute: "পাট",
+    mango: "আম",
+    maize: "ভুট্টা",
+    chilli: "মরিচ",
+    cabbage: "বাঁধাকপি",
+  };
+
+  const resolvedCropBn = cropMap[cropQuery] || cropNameOrId;
+
+  const candidates = CROP_DISEASES.filter(
+    (d) => norm(d.cropNameBn) === norm(resolvedCropBn) || d.id.startsWith(cropQuery)
+  );
+
+  const cleanSymptoms = userSymptoms.map(norm).filter(Boolean);
+
+  const scored: SymptomMatchResult[] = candidates.map((disease) => {
+    if (cleanSymptoms.length === 0) {
+      return {
+        disease,
+        matchScore: 0,
+        matchedSymptoms: [],
+        urgency: disease.severity === "high" ? "immediate" : "moderate",
+      };
+    }
+
+    const matchedTerms: string[] = [];
+    let matchHits = 0;
+
+    for (const sym of cleanSymptoms) {
+      const matchInSymptoms = disease.symptomsBn.toLowerCase().includes(sym);
+      const matchInTags = disease.symptomTags.some((tag) => tag.toLowerCase().includes(sym) || sym.includes(tag.toLowerCase()));
+      const matchInName = disease.diseaseNameBn.toLowerCase().includes(sym);
+
+      if (matchInSymptoms || matchInTags || matchInName) {
+        matchedTerms.push(sym);
+        matchHits += 1;
+      }
+    }
+
+    const matchScore = Math.min(100, Math.round((matchHits / cleanSymptoms.length) * 100));
+
+    return {
+      disease,
+      matchScore,
+      matchedSymptoms: matchedTerms,
+      urgency: disease.severity === "high" ? "immediate" : "moderate",
+    };
+  });
+
+  scored.sort((a, b) => b.matchScore - a.matchScore || (b.disease.severity === "high" ? 1 : -1));
+
+  const topMatch = scored.length > 0 && scored[0].matchScore > 0 ? scored[0] : null;
+  const alternatives = topMatch ? scored.slice(1).filter((x) => x.matchScore > 0) : scored;
+
+  const ipmChecklist: string[] = topMatch
+    ? [topMatch.disease.preventiveActionBn, topMatch.disease.nonChemicalBn]
+    : [
+        "রোগমুক্ত প্রত্যয়িত বীজ বা চারা ব্যবহার করুন।",
+        "জমি নিয়মিত পরিদর্শন করুন এবং আইল ও আগাছা পরিষ্কার রাখুন।",
+        "কোনো অস্পষ্ট রোগ দেখা দিলে সরাসরি পাতা বা আক্রান্ত অংশের নমুনা নিয়ে উপজেলা কৃষি অফিসে যোগাযোগ করুন।",
+      ];
+
+  return {
+    cropNameBn: resolvedCropBn,
+    querySymptoms: userSymptoms,
+    topMatch,
+    alternatives,
+    ipmChecklistBn: ipmChecklist,
+    helpline: {
+      name: "কৃষি কল সেন্টার (Krishi Call Centre)",
+      number: "16123",
+      note: "যেকোনো মোবাইল অপারেটর থেকে বিনামূল্যে সরাসরি কৃষি বিশেষজ্ঞের সাথে কথা বলুন (সকাল ৯টা - বিকাল ৫টা)।",
+    },
+    safetyDisclaimer:
+      "সতর্কতা: KormoPath কোনো রাসায়নিক কীটনাশকের মাত্রা বা ডোজ নিজে নির্ধারণ করে না। কীটনাশকের মোড়ক/বোতলের সরকারি অনুমোদিত লেবেল পড়ুন এবং ব্যবহারের পূর্বে উপসহকারী কৃষি কর্মকর্তা (SAAO) বা ১৬১২৩-এ নিশ্চিত হন।",
+  };
+}
 
 export interface CropOption {
   id: string;

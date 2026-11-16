@@ -573,3 +573,147 @@ export function createCustomQuestion(input: CustomQuestionInput): Question {
 export function evaluateViva(text: string, q: Question, seconds: number | null): Analysis {
   return analyzeAnswer(text, q, seconds);
 }
+
+// ---------------------------------------------------------------------------------------------
+// Cyber & MFS Scam Defense Simulator (Adversarial Inoculation Track — Scam Gym capability)
+// Deterministic evaluation of user sparring responses against psychological fraud tactics.
+
+export interface ScamScenario {
+  id: string;
+  category: "mfs_fraud" | "task_job" | "admission_scam" | "lottery_grant";
+  titleBn: string;
+  scammerPersonaBn: string;
+  openingPitchBn: string;
+  openingPitchEn: string;
+  manipulationTactic: "urgency" | "impersonation" | "fear" | "greed";
+  tacticExplanationBn: string;
+  fatalTriggers: string[];
+  safeDefenseTerms: string[];
+  goldenDefenseBn: string;
+  goldenDefenseEn: string;
+  helpline: string;
+}
+
+export interface ScamEvaluation {
+  verdict: "safe" | "risky" | "fatal";
+  score: number; // 0 to 100
+  feedbackBn: string;
+  tacticIdentified: string;
+  safetyAdviceBn: string;
+  officialHelpline: string;
+}
+
+export const SCAM_SCENARIOS: ScamScenario[] = [
+  {
+    id: "mfs-otp",
+    category: "mfs_fraud",
+    titleBn: "বিকাশ/নগদ ভুল লেনদেন ও পিন/ওটিপি ফাঁদ",
+    scammerPersonaBn: "ভুয়া এমএফএস হেড অফিস এক্সিকিউটিভ",
+    openingPitchBn: "স্যার, বিকাশ প্রধান কার্যালয় থেকে জামিল বলছি। আপনার অ্যাকাউন্টে ভুল করে ২৫,০০০ টাকা চলে গেছে। এখনই আপনার ফোনে যাওয়া ওটিপি (OTP) ও পিন কোডটি ভেরিফাই না করলে আপনার অ্যাকাউন্ট স্থায়ীভাবে লক হবে এবং সাইবার ক্রাইম মামলা হবে!",
+    openingPitchEn: "Sir, this is bKash Head Office. An erroneous transfer of 25,000 BDT entered your account. Verify the OTP and PIN immediately, or your account will be locked and police action taken!",
+    manipulationTactic: "urgency",
+    tacticExplanationBn: "তাড়াহুড়া ও ভয় প্রদর্শন (Urgency & Fear): অ্যাকাউন্ট বন্ধের ভয় দেখিয়ে চিন্তাভাবনা করার সময় না দিয়ে ওটিপি/পিন হাতিয়ে নেওয়ার চেষ্টা।",
+    fatalTriggers: ["পিন", "pin", "otp", "ওটিপি", "কোড", "পাঠাচ্ছি", "দিচ্ছি", "send", "code"],
+    safeDefenseTerms: ["১৬২৪৭", "16247", "হেল্পলাইন", "কাস্টমার কেয়ার", "থানা", "জিডি", "ব্লক করেন", "দিব না", "police", "helpline", "নো", "না"],
+    goldenDefenseBn: "বিকাশ বা কোনো ব্যাংক কখনো গ্রাহকের পিন বা ওটিপি চায় না। ভুল টাকা ঢুকলে কাস্টমার কেয়ার ১৬২৪৭-এ যোগাযোগ করুন। আমি কোনো কোড দেব না।",
+    goldenDefenseEn: "bKash never asks for PIN or OTP. If an erroneous transaction occurred, resolve it via 16247. I will never share any code.",
+    helpline: "বিকাশ: ১৬২৪৭ / নগদ: ১৬১৬৭ / সাইবার পুলিশ: ০১৩২০০০০৮৮৮",
+  },
+  {
+    id: "telegram-task",
+    category: "task_job",
+    titleBn: "টেলিগ্রাম/হোয়াটসঅ্যাপ রিমোট টাস্ক জব স্ক্যাম",
+    scammerPersonaBn: "ভুয়া অনলাইন রিক্রুটার",
+    openingPitchBn: "হাই! পার্টটাইম চাকরি চান? শুধু ইউটিউব ভিডিও লাইক ও গুগল ম্যাপে রিভিউ দিয়ে ঘরে বসে দৈনিক ৩,০০০ থেকে ৫,০০০ টাকা আয় করুন। প্রথম ভিআইপি টাস্ক আনলক করতে ২০০০ টাকা সিকিউরিটি ডিপোজিট পাঠান!",
+    openingPitchEn: "Looking for remote part-time work? Like YouTube videos for 3,000-5,000 BDT daily. Deposit 2,000 BDT to unlock VIP task earnings!",
+    manipulationTactic: "greed",
+    tacticExplanationBn: "অবাস্তব লোভ (Unrealistic Greed): সামান্য কাজে অবাস্তব আয়ের লোভ দেখিয়ে অগ্রিম 'সিকিউরিটি ফি' বা 'ডিপোজিট' হাতিয়ে নেওয়া।",
+    fatalTriggers: ["পাঠাচ্ছি", "টাকা দিচ্ছি", "ডিপোজিট", "send", "deposit", "কোথায় পাঠাব", "টাকা পাঠালাম"],
+    safeDefenseTerms: ["অগ্রিম দেব না", "ডিপোজিট না", "প্রতারণা", "scam", "না", "ভুয়া", "আগে টাকা কেন", "no advance", "ফ্রি"],
+    goldenDefenseBn: "প্রকৃত কোনো চাকরিদাতা কর্মী নিয়োগের জন্য অগ্রিম ডিপোজিট বা ফি চায় না। এটি প্রমাণিত টাস্ক স্ক্যাম।",
+    goldenDefenseEn: "Legitimate employers never demand advance deposits. Work that charges you to get paid is always a scam.",
+    helpline: "জাতীয় ভোক্তা অধিকার: ১৬১২১ / সিআইডি সাইবার পুলিশ: ০১৩২০০০০৮৮৮",
+  },
+  {
+    id: "admission-seat",
+    category: "admission_scam",
+    titleBn: "বিশ্ববিদ্যালয় ও মেডিকেল সিট নিশ্চিতকরণ প্রতারণা",
+    scammerPersonaBn: "ভুয়া ভর্তি ব্রোকার / সিন্ডিকেট",
+    openingPitchBn: "মেডিকেল ও পাবলিক বিশ্ববিদ্যালয়ে ভাইস-চ্যান্সেলর বিশেষ কোটায় মাত্র ২টি সিট বাকি আছে! আজ রাত ১২টার মধ্যে ৫০,০০০ টাকা টোকেন মানি বিকাশ করলে সিট শতভাগ নিশ্চিত করা হবে।",
+    openingPitchEn: "Only 2 VIP Vice-Chancellor quota seats left for Medical & Public University! Send 50,000 BDT token money via bKash by midnight to secure admission!",
+    manipulationTactic: "impersonation",
+    tacticExplanationBn: "প্রভাবশালী মহলের ভুয়া পরিচয় (Authority Impersonation): কোটা ও গোপন সংযোগের মিথ্যা দাবি করে অভিভাবকদের মানসিক দুর্বলতাকে কাজে লাগানো।",
+    fatalTriggers: ["পাঠাচ্ছি", "৫০ হাজার", "টাকা দিলাম", "রোল", "টোকেন মানি", "পাঠাব", "send money"],
+    safeDefenseTerms: ["মেধা তালিকা", "সার্কুলার", "কমিটি", "প্রতারক", "না", "জালিয়াতি", "circular", "merit", "scam", "নোটিশ"],
+    goldenDefenseBn: "বিশ্ববিদ্যালয় বা মেডিকেলে কোনো গোপন সিট বেচাকেনা হয় না। ভর্তি কেবল অফিসিয়াল মেধা তালিকা ও বিজ্ঞপ্তির মাধ্যমেই সম্ভব।",
+    goldenDefenseEn: "University admission is strictly merit-based through official circulars. Quota brokering is fraud.",
+    helpline: "সংশ্লিষ্ট বিশ্ববিদ্যালয়ের অফিসিয়াল হেল্পডেস্ক ও ৯৯৯",
+  },
+  {
+    id: "lottery-grant",
+    category: "lottery_grant",
+    titleBn: "সরকারি অনুদান ও লটারি উইনার প্রতারণা",
+    scammerPersonaBn: "ভুয়া যুব মন্ত্রণালয় লটারি কর্মকর্তা",
+    openingPitchBn: "অভিনন্দন! বাংলাদেশ ডিজিটাল উদ্যোক্তা লটারিতে আপনার সিম ৩ লক্ষ টাকা অনুদান জিতেছে। পুরস্কারের অর্থ ক্লেইম করতে মাত্র ১৫০০ টাকা গভর্নমেন্ট ক্লিয়ারেন্স ফি পাঠান!",
+    openingPitchEn: "Congratulations! Your mobile number won 300,000 BDT from Digital Entrepreneur Grant. Send 1,500 BDT tax clearance fee to claim your prize!",
+    manipulationTactic: "greed",
+    tacticExplanationBn: "লটারি প্রতারণা (Advance Fee Fraud): কখনো টিকিট না কাটা সত্ত্বেও ভুয়া কোটিপতি হওয়ার খবর দিয়ে ক্লিয়ারেন্স ফি আদায়।",
+    fatalTriggers: ["পাঠাচ্ছি", "১৫০০", "ফি দিলাম", "টাকা পাঠালাম", "send fee", "দিচ্ছি"],
+    safeDefenseTerms: ["লটারি কিনি নাই", "প্রতারণা", "১৬১২১", "ভুয়া", "না", "টাকা দিব না", "scam", "fake", "সরকারি কোনো লটারি নেই"],
+    goldenDefenseBn: "যে লটারির টিকিট আমি কিনিনি সেখানে অর্থ জেতা অসম্ভব। সরকারি অনুদানের জন্য কোনো আগাম ফি দিতে হয় না।",
+    goldenDefenseEn: "You cannot win a lottery you never entered. Government grants never require personal mobile transfers.",
+    helpline: "জাতীয় জরুরি সেবা: ৯৯৯ / ভোক্তা অধিকার: ১৬১২১",
+  },
+];
+
+export function evaluateScamDefense(scenarioId: string, userReply: string): ScamEvaluation {
+  const scenario = SCAM_SCENARIOS.find((s) => s.id === scenarioId) ?? SCAM_SCENARIOS[0];
+  const text = (userReply || "").toLowerCase().trim();
+
+  if (!text) {
+    return {
+      verdict: "risky",
+      score: 30,
+      feedbackBn: "কোনো উত্তর দেওয়া হয়নি। চুপ থাকলে প্রতারক বারবার চাপ সৃষ্টি করতে পারে। সরাসরি না বলুন।",
+      tacticIdentified: scenario.manipulationTactic,
+      safetyAdviceBn: scenario.goldenDefenseBn,
+      officialHelpline: scenario.helpline,
+    };
+  }
+
+  // Check fatal triggers
+  const hasFatal = scenario.fatalTriggers.some((t) => text.includes(t.toLowerCase()));
+  const hasSafe = scenario.safeDefenseTerms.some((t) => text.includes(t.toLowerCase()));
+
+  if (hasFatal && !hasSafe) {
+    return {
+      verdict: "fatal",
+      score: 0,
+      feedbackBn: "বিপজ্জনক উত্তর! আপনি পিন, ওটিপি বা টাকা পাঠানোর সম্মতি প্রকাশ করেছেন। এর ফলে তাৎক্ষণিক আর্থিক ক্ষতি হতো।",
+      tacticIdentified: scenario.manipulationTactic,
+      safetyAdviceBn: scenario.goldenDefenseBn,
+      officialHelpline: scenario.helpline,
+    };
+  }
+
+  if (hasSafe) {
+    return {
+      verdict: "safe",
+      score: 100,
+      feedbackBn: "চমৎকার ও নিরাপদ প্রতিক্রিয়া! আপনি দৃঢ়ভাবে অন্যায় দাবি প্রত্যাখ্যান করেছেন এবং প্রাতিষ্ঠানিক যাচাইয়ের কথা উল্লেখ করেছেন।",
+      tacticIdentified: scenario.manipulationTactic,
+      safetyAdviceBn: "এই ধরনের বার্তা এলে স্ক্রিনশট ও নম্বর সংরক্ষণ করে থানায় বা সংশ্লিষ্ট হেল্পলাইনে অভিযোগ করুন।",
+      officialHelpline: scenario.helpline,
+    };
+  }
+
+  // Ambiguous / questioning response
+  return {
+    verdict: "risky",
+    score: 50,
+    feedbackBn: "ঝুঁকিপূর্ণ উত্তর। আপনি কোনো পিন দেননি কিন্তু দ্বিধাদ্বন্দ্ব প্রকাশ করেছেন বা আলোচনা চালিয়ে যাচ্ছেন। প্রতারকরা কথা বাড়িয়ে ফাঁদে ফেলে।",
+    tacticIdentified: scenario.manipulationTactic,
+    safetyAdviceBn: scenario.goldenDefenseBn,
+    officialHelpline: scenario.helpline,
+  };
+}
