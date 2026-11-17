@@ -14,6 +14,7 @@ import ChakraAgent from '../components/chakra/ChakraAgent';
 import FarmerModeSwitch from '../components/farmer/FarmerModeSwitch';
 import { openCommandPalette } from '../components/CommandPalette';
 import FarmerAtmosphere from '../components/brand/FarmerAtmosphere';
+import { KormoPathLogo } from '@/components/brand/KormoPathLogo';
 import { MacNavPills, MacPortalToggle, MacPortalDock } from '../components/MacOSPortalChrome';
 
 export function useFarmerNav() {
@@ -242,6 +243,12 @@ export default function FarmerLayout() {
       <header className="farmer-header glass-bar sticky top-0 z-40">
         <div className="page-shell flex h-[64px] items-center justify-between gap-2.5 sm:gap-4">
           <div className="flex shrink-0 items-center gap-2 sm:gap-2.5">
+            {/* KormoPath home. A plain link (full page load), so this app's stylesheet never follows to KormoPath. */}
+            <a href="/" data-testid="f360-kormopath-home" title="KormoPath Home" aria-label="KormoPath Home"
+              className="flex h-10 shrink-0 items-center rounded-xl border border-border bg-white/80 px-2.5 shadow-2xs transition-colors hover:border-paddy-500">
+              <span className="hidden lg:inline-flex"><KormoPathLogo theme="light" variant="compact" size="sm" /></span>
+              <span className="inline-flex lg:hidden"><KormoPathLogo theme="light" variant="mark" size="sm" /></span>
+            </a>
             <BackButton />
             {macosPortal && <MacNavPills />}
             {upazila && (
