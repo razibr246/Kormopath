@@ -76,6 +76,14 @@ export function AppFooter({
               </li>
               <li>
                 <Link
+                  href="/rokkha"
+                  className="hover:text-orange-600 transition-colors inline-flex items-center gap-1"
+                >
+                  <span>{lang === "bn" ? "রক্ষা: প্রতারণা ও দুর্যোগে সুরক্ষা" : "Rokkha: scam & disaster safety"}</span>
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/judges"
                   className="hover:text-amber-600 font-medium transition-colors inline-flex items-center gap-1"
                 >

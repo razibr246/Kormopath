@@ -5,7 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { Check, ChevronDown, Sparkles } from "lucide-react";
 
 export interface AppItem {
-  id: "kormopath" | "path" | "feeguard" | "chuktiguard" | "admitbuddy" | "mediscan" | "shohoj" | "haatbazar" | "krishi" | "probaho";
+  id: "kormopath" | "path" | "feeguard" | "chuktiguard" | "admitbuddy" | "mediscan" | "shohoj" | "haatbazar" | "krishi" | "rokkha" | "probaho";
   nameEn: string;
   nameBn: string;
   categoryEn: string;
@@ -97,6 +97,15 @@ export const APPS_LIST: AppItem[] = [
     badge: "Track 4",
   },
   {
+    id: "rokkha",
+    nameEn: "Rokkha",
+    nameBn: "রক্ষা (প্রতারণা ও দুর্যোগে সুরক্ষা)",
+    categoryEn: "Scam & disaster safety",
+    categoryBn: "প্রতারণা ও দুর্যোগে সুরক্ষা",
+    href: "/rokkha",
+    badge: "New",
+  },
+  {
     id: "probaho",
     nameEn: "Probaho Coach",
     nameBn: "প্রবাহ স্পিকিং কোচ (ভাইভা)",
@@ -114,7 +123,7 @@ export function AppSwitcherDropdown({
   variant = "dark",
 }: {
   variant?: "dark" | "light";
-  currentAppId?: "kormopath" | "path" | "feeguard" | "chuktiguard" | "admitbuddy" | "mediscan" | "shohoj" | "haatbazar" | "krishi" | "probaho";
+  currentAppId?: "kormopath" | "path" | "feeguard" | "chuktiguard" | "admitbuddy" | "mediscan" | "shohoj" | "haatbazar" | "krishi" | "rokkha" | "probaho";
   lang?: "en" | "bn";
   onSelectApp?: (appId: string) => void;
 }) {
@@ -141,6 +150,8 @@ export function AppSwitcherDropdown({
       ? "haatbazar"
       : pathname?.startsWith("/krishi")
       ? "krishi"
+      : pathname?.startsWith("/rokkha")
+      ? "rokkha"
       : pathname?.startsWith("/probaho")
       ? "probaho"
       : "kormopath";
