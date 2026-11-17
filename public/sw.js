@@ -3,7 +3,7 @@
  * - Pages: network first; the last good copy is used only when offline; otherwise /offline.
  * - Hashed build assets (/_next/static) are immutable, so they are served cache first.
  * Bump VERSION to drop old caches after a release that changes this file's behaviour. */
-const VERSION = "kp-v2-1";
+const VERSION = "kp-v2-2";
 const PAGES = `${VERSION}-pages`;
 const ASSETS = `${VERSION}-assets`;
 const PRECACHE = ["/offline", "/favicon.svg", "/icon-512.png", "/apple-touch-icon.png"];
@@ -26,6 +26,14 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
   if (url.pathname.startsWith("/api/")) return;
+
+  // Share target (app/manifest.ts): the shared SMS stays on the phone. Answer here without a network
+  // request and move the text after "#", which browsers never send to a server.
+  if (url.pathname === "/rokkha/share") {
+    const shared = ["title", "text", "url"].map((k) => url.searchParams.get(k) || "").filter(Boolean).join("\n").slice(0, 5000);
+    event.respondWith(Response.redirect(new URL("/rokkha#share=" + encodeURIComponent(shared), self.location.origin).href, 303));
+    return;
+  }
 
   if (url.pathname.startsWith("/_next/static/") || /\.(?:woff2?|png|svg|ico)$/.test(url.pathname)) {
     event.respondWith(

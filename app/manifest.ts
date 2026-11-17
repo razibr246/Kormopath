@@ -18,7 +18,11 @@ export default function manifest(): MetadataRoute.Manifest {
       { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
       { src: "/apple-touch-icon.png", sizes: "180x180", type: "image/png", purpose: "any" },
     ],
+    // "Share" a suspicious SMS from the Messages app straight into Rokkha. public/sw.js catches
+    // /rokkha/share on the phone and moves the text after "#", so it is never sent to the server.
+    share_target: { action: "/rokkha/share", method: "GET", params: { title: "title", text: "text", url: "url" } },
     shortcuts: [
+      { name: "কলে আছেন? থামুন", short_name: "Call guard", url: "/rokkha#call", icons: [{ src: "/favicon.svg", sizes: "any", type: "image/svg+xml" }] },
       { name: "আমার পথ", short_name: "My Path", url: "/opportunities", icons: [{ src: "/favicon.svg", sizes: "any", type: "image/svg+xml" }] },
       { name: "হাটবাজার", short_name: "HaatBazar", url: "/haatbazar", icons: [{ src: "/favicon.svg", sizes: "any", type: "image/svg+xml" }] },
       { name: "মাঠসাথী", short_name: "MaathSathi", url: "/krishi", icons: [{ src: "/favicon.svg", sizes: "any", type: "image/svg+xml" }] },

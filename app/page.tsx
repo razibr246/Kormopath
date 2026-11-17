@@ -108,7 +108,7 @@ const TASKS: Array<{ href: string; bn: string; en: string; keys: string }> = [
   { href: "/mediscan", bn: "প্রেসক্রিপশন বুঝব", en: "Understand a prescription", keys: "prescription প্রেসক্রিপশন medicine ওষুধ doctor ডাক্তার dose" },
   { href: "/haatbazar", bn: "হাটে বেচব না আড়তে, হিসাব করব", en: "Market or wholesale: which pays more", keys: "crop ফসল farm কৃষি haat হাট weather আবহাওয়া spray স্প্রে truck ট্রাক দাম price" },
   { href: "/krishi", bn: "জমির কাজ, পশুপাখি ও সরকারি সহায়তা দেখব", en: "Plan field work, livestock and government support", keys: "farm কৃষি krishi মাঠ জমি land task কাজ cow গরু poultry মুরগি fish মাছ support সহায়তা card কার্ড voice ভয়েস sms" },
-  { href: "/rokkha", bn: "এই এসএমএস কি প্রতারণা, যাচাই করব", en: "Check if a message is a scam", keys: "scam প্রতারণা fraud otp ওটিপি pin পিন bkash বিকাশ nagad নগদ lottery লটারি sms এসএমএস cyclone ঘূর্ণিঝড় flood বন্যা disaster দুর্যোগ helpline হেল্পলাইন gd জিডি" },
+  { href: "/rokkha", bn: "এই এসএমএস কি প্রতারণা, যাচাই করব", en: "Check if a message is a scam", keys: "scam প্রতারণা fraud otp ওটিপি pin পিন bkash বিকাশ nagad নগদ lottery লটারি sms এসএমএস banglish link লিংক call কল guardian পাহারা cyclone ঘূর্ণিঝড় flood বন্যা disaster দুর্যোগ helpline হেল্পলাইন gd জিডি" },
   { href: "/settings", bn: "আমার ডেটা দেখব বা মুছব", en: "See or delete my data", keys: "data ডেটা privacy প্রাইভেসি delete মুছুন export backup ব্যাকআপ" },
 ];
 
@@ -150,7 +150,7 @@ const LIFECYCLE: Array<{ icon: LucideIcon; tone: string; bn: string; en: string;
     links: [{ href: "/krishi", bn: "মাঠসাথী", en: "MaathSathi" }, { href: "/haatbazar", bn: "হাটবাজার", en: "HaatBazar" }] },
   { icon: ShieldCheck, tone: "bg-amber-50 text-amber-800 ring-amber-200", bn: "সুরক্ষা", en: "Protect",
     when: { bn: "প্রতারণা চেনা, ভোক্তা অভিযোগ, তথ্যের ব্যাকআপ", en: "Spot scams, consumer complaints, back up data" },
-    links: [{ href: "/rokkha", bn: "রক্ষা", en: "Rokkha" }, { href: "/probaho#scam", bn: "প্রতারণা চিনুন", en: "Scam practice" }, { href: "/chuktiguard#dncrp", bn: "ভোক্তা অভিযোগ", en: "Consumer complaint" }, { href: "/settings", bn: "লক করা ব্যাকআপ", en: "Locked backup" }] },
+    links: [{ href: "/rokkha#call", bn: "কলে আছেন? থামুন", en: "On a call? Pause" }, { href: "/rokkha#check", bn: "এসএমএস যাচাই", en: "Check an SMS" }, { href: "/probaho#scam", bn: "প্রতারণা চিনুন", en: "Scam practice" }, { href: "/chuktiguard#dncrp", bn: "ভোক্তা অভিযোগ", en: "Consumer complaint" }, { href: "/settings", bn: "লক করা ব্যাকআপ", en: "Locked backup" }] },
 ];
 
 const PIPELINE = [

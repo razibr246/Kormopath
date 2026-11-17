@@ -52,7 +52,25 @@
 @keyframes rk-breathe { 50% { transform: scale(1.04) rotate(-2deg); } }
 @keyframes rk-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
+/* "On a call?" button: the first thing on the page, big enough for an older thumb. */
+.rk-callbtn {
+  display: flex; width: 100%; max-width: 560px; align-items: center; gap: 14px; min-height: 76px; padding: 14px 18px;
+  border-radius: 22px; color: #fff; text-align: left;
+  background: linear-gradient(135deg, #b4380f 0%, #8a2a0b 100%);
+  box-shadow: 0 18px 34px -18px rgba(138, 42, 11, 0.8), inset 0 1px rgba(255, 255, 255, 0.22);
+  transition: transform 0.18s ease;
+}
+.rk-callbtn:hover { transform: translateY(-1px); }
+.rk-callbtn:focus-visible { outline: 3px solid #f7c25a; outline-offset: 3px; }
+
+/* Full-screen call guard. */
+.rk-guard {
+  position: fixed; inset: 0; z-index: 80; overflow-y: auto;
+  background: radial-gradient(120% 80% at 50% 0%, #9a3412 0%, #5a1c08 70%, #3d1205 100%);
+  animation: rk-rise 0.22s ease-out both;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .rk-shield, .rk-enter > * { animation: none !important; }
-  .rk-ring circle, .rk-nav a { transition: none; }
+  .rk-shield, .rk-enter > *, .rk-guard { animation: none !important; }
+  .rk-ring circle, .rk-nav a, .rk-callbtn { transition: none; }
 }

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { checkMessage, highlightSegments, incidentReport, transferCheck, NO_HIT_BN, NO_HIT_EN, PAUSE_CAP_MINUTES, type TransferInputs } from "../lib/rokkha.ts";
+import { checkMessage, highlightSegments, incidentReport, transferCheck, inspectLinks, normalizeBdMobile, sanitizeGuardians, smsHref, NO_HIT_BN, NO_HIT_EN, PAUSE_CAP_MINUTES, CALL_GUARD_SECONDS, GUARDIAN_ALERT_BN, GUARDIAN_ALERT_EN, MAX_GUARDIANS, type TransferInputs } from "../lib/rokkha.ts";
 import { ROKKHA_HELPLINES, PREP_CHECKLIST, RECOVERY_STEPS, WARNING_LINKS } from "../lib/rokkhaData.ts";
 
 const ids = (text: string) => checkMessage(text).hits.map((h) => h.id);
@@ -116,4 +116,72 @@ test("Rokkha data: every helpline and link has an official source and check date
   for (const w of WARNING_LINKS) assert.match(w.source.url, /^https:\/\//);
   assert.equal(new Set(PREP_CHECKLIST.map((p) => p.id)).size, PREP_CHECKLIST.length);
   assert.ok(RECOVERY_STEPS.length >= 4);
+});
+
+test("Rokkha: Banglish (Bangla in English letters) scam text is read", () => {
+  const found = ids("Apnar bkash account block hoye jabe. Ami bkash theke bolchi, code ta din ekhoni. Kauke bolben na.");
+  for (const id of ["mfs_agent", "otp_pin", "pressure_secrecy"]) assert.ok(found.includes(id as never), id);
+  assert.ok(ids("vul kore apnar number e 5000 taka chole geche, ferot din").includes("mfs_refund"));
+  assert.ok(ids("Obhinondon! apni lucky draw te jitechen").includes("lottery_prize"));
+  assert.ok(ids("apnar chele durghotona te hospital e vorti").includes("relative_trouble"));
+  assert.ok(ids("Anydesk app ta install korun").includes("remote_access"));
+  assert.ok(ids("protidin 500 taka income, task kore aay korun").includes("investment_task"));
+  // Every Banglish hit still quotes the exact input text.
+  const text = "thana theke bolchi, ekhoni jorimana din";
+  for (const h of checkMessage(text).hits) for (const sp of h.spans) assert.equal(text.slice(sp.start, sp.end), sp.quote);
+});
+
+test("Rokkha: everyday Banglish and English stays quiet", () => {
+  for (const t of ["ami ajke office e jacchi, rate bari firbo. ma ke bolo khabar rakhte", "Meeting at 5pm tomorrow, bring the report", "kalke bazar theke dim ar dal ana lagbe", "Double room booked for Friday"]) {
+    assert.deepEqual(ids(t), [], t);
+  }
+});
+
+test("Rokkha: fine, bill and parcel payment lures", () => {
+  assert.ok(ids("Your traffic fine is unpaid. Pay now at brta-pay.top").includes("fine_bill"));
+  assert.ok(ids("ট্রাফিক জরিমানা পরিশোধ করুন এই লিংকে").includes("fine_bill"));
+  assert.ok(ids("apnar bidyut line kete dewa hobe aj rate").includes("fine_bill"));
+  assert.ok(ids("Your parcel is held at customs, pay delivery fee").includes("fine_bill"));
+});
+
+test("Rokkha link inspector flags tricks and never calls a link safe", () => {
+  const by = (t: string) => Object.fromEntries(inspectLinks(t).map((l) => [l.host, l]));
+  const r = by("http://brta-gov-bd.top/pay https://bk4sh-secure.xyz/login n4gad.click/update.apk bit.ly/x9 https://user@203.0.113.9/v https://xn--bksh-9qa.com");
+  assert.equal(r["brta-gov-bd.top"].pretendsToBe, "Government of Bangladesh");
+  assert.ok(r["brta-gov-bd.top"].flags.includes("not_encrypted"));
+  assert.equal(r["bk4sh-secure.xyz"].pretendsToBe, "bKash");
+  assert.deepEqual(r["n4gad.click"].flags.sort(), ["app_download", "brand_lookalike"]);
+  assert.ok(r["bit.ly"].flags.includes("shortener"));
+  assert.deepEqual(r["203.0.113.9"].flags.sort(), ["hidden_destination", "ip_address"]);
+  assert.ok(r["xn--bksh-9qa.com"].flags.includes("lookalike_letters"));
+  const real = by("https://www.bkash.com/en/help and https://www.bb.org.bd/x and https://dncrp.gov.bd");
+  assert.equal(real["www.bkash.com"].officialFor, "bKash");
+  assert.equal(real["www.bb.org.bd"].officialFor, "Bangladesh Bank");
+  assert.equal(real["dncrp.gov.bd"].officialFor, "Government of Bangladesh");
+  for (const l of Object.values(real)) assert.equal(l.flags.includes("brand_lookalike"), false);
+  assert.ok(!("safe" in real["www.bkash.com"]));
+  assert.deepEqual(inspectLinks("Tk.500 paid. Thanks."), []);
+  assert.ok(inspectLinks(Array.from({ length: 30 }, (_, i) => `site${i}.xyz`).join(" ")).length <= 10);
+});
+
+test("Rokkha guardian: Bangladesh mobile numbers, two at most, no personal data in the alert", () => {
+  assert.equal(normalizeBdMobile("01712345678"), "+8801712345678");
+  assert.equal(normalizeBdMobile("+880 1812-345678"), "+8801812345678");
+  assert.equal(normalizeBdMobile("০১৯১২৩৪৫৬৭৮"), "+8801912345678");
+  for (const bad of ["01212345678", "0171234567", "abc", "", "+447911123456"]) assert.equal(normalizeBdMobile(bad), null, bad);
+  const g = sanitizeGuardians([{ name: "Rina", number: "01712345678" }, { name: "dup", number: "+8801712345678" }, { number: "bad" }, { name: "Sumon", number: "01812345678" }, { name: "third", number: "01912345678" }]);
+  assert.equal(g?.length, MAX_GUARDIANS);
+  assert.deepEqual(g?.map((x) => x.number), ["+8801712345678", "+8801812345678"]);
+  assert.equal(sanitizeGuardians("nope"), null);
+  const href = smsHref(["01712345678", "junk"], GUARDIAN_ALERT_BN);
+  assert.match(href, /^sms:\+8801712345678\?body=/);
+  assert.equal(decodeURIComponent(href.split("body=")[1]), GUARDIAN_ALERT_BN);
+  for (const msg of [GUARDIAN_ALERT_BN, GUARDIAN_ALERT_EN]) assert.doesNotMatch(msg, /\d|৳|[০-৯]/);
+  assert.equal(CALL_GUARD_SECONDS, 15);
+});
+
+test("Rokkha report carries suspicious links", () => {
+  const r = incidentReport({ links: "http://brta-gov-bd.top/pay\nbit.ly/x9" });
+  assert.match(r.helpline, /brta-gov-bd\.top\/pay , bit\.ly\/x9/);
+  assert.match(r.gd, /Suspicious links/);
 });

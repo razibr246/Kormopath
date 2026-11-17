@@ -93,6 +93,40 @@ await p.click('[data-testid="rk-check"]');
 await wait(200);
 t = await p.$eval('[data-testid="rk-result"]', (e) => e.innerText).catch(() => "");
 check(t.includes("মানে এই নয় যে বার্তাটি নিরাপদ"), "Rokkha: no-hit result says it does NOT mean safe", t.slice(0, 120));
+
+// Banglish + link inspector: a fake bKash address is named as not official
+await p.evaluate(() => { const t = document.querySelector('[data-testid="rk-msg"]'); Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value").set.call(t, "Ami bkash theke bolchi, account block hoye jabe. otp ta din: https://bk4sh-secure.xyz/login"); t.dispatchEvent(new Event("input", { bubbles: true })); });
+await p.click('[data-testid="rk-check"]');
+await wait(200);
+const rk2 = await p.evaluate(() => ({ ids: [...document.querySelectorAll("[data-signal]")].map((e) => e.getAttribute("data-signal")), flags: [...document.querySelectorAll("[data-link-flags]")].map((e) => e.getAttribute("data-link-flags")).join("|"), report: document.querySelector('[data-testid="rk-report-links"]')?.value || "" }));
+check(rk2.ids.includes("mfs_agent") && rk2.ids.includes("pressure_secrecy") && rk2.flags.includes("brand_lookalike") && rk2.report.includes("bk4sh-secure.xyz"), "Rokkha: Banglish signs, fake-bKash link flagged, link copied into the report", `${rk2.ids.join(",")} / ${rk2.flags} / ${rk2.report}`);
+
+// Call guard: opens full screen, "continue" is held for the countdown, "I have hung up" closes it
+await p.click('[data-testid="rk-call-open"]');
+await wait(300);
+const g1 = await p.evaluate(() => ({ open: !!document.querySelector('[data-testid="rk-call-guard"]'), held: document.querySelector('[data-testid="rk-call-continue"]')?.disabled, tels: [...document.querySelectorAll('[data-testid="rk-call-guard"] a[href^="tel:"]')].map((a) => a.getAttribute("href")).join(",") }));
+check(g1.open && g1.held === true && g1.tels.includes("tel:16247") && g1.tels.includes("tel:999"), "Rokkha: call guard opens with official numbers and holds 'continue'", JSON.stringify(g1));
+await p.keyboard.press("Escape");
+await wait(200);
+check(!(await p.$('[data-testid="rk-call-guard"]')), "Rokkha: call guard closes");
+
+// Family guardian: needs a confirm step before saving; the alert opens the phone's SMS app
+await p.type("#rk-g-num", "01712345678");
+await p.click('[data-testid="rk-g-review"]');
+await wait(150);
+const beforeSave = await p.evaluate(() => localStorage.getItem("kormopath:rokkha:guardians"));
+await p.click('[data-testid="rk-g-save"]');
+await wait(300);
+const g2 = await p.evaluate(() => ({ stored: localStorage.getItem("kormopath:rokkha:guardians") || "", href: document.querySelector('[data-testid="rk-guardian-alert"]')?.getAttribute("href") || "" }));
+check((!beforeSave || beforeSave === "[]") && g2.stored.includes("+8801712345678") && g2.href.startsWith("sms:+8801712345678?body="), "Rokkha: guardian saved only after confirm; alert is an sms: link", `${beforeSave} -> ${g2.stored} / ${g2.href.slice(0, 40)}`);
+await p.close();
+
+// Share target fallback page: shared text lands in the checker and leaves the address bar
+p = await page(390, 844);
+await p.goto(`${BASE}/rokkha/share?text=${encodeURIComponent("vul kore taka geche, ferot din")}`, { waitUntil: "networkidle2" });
+await wait(500);
+const sh = await p.evaluate(() => ({ url: location.href, msg: document.querySelector('[data-testid="rk-msg"]')?.value || "", ids: [...document.querySelectorAll("[data-signal]")].map((e) => e.getAttribute("data-signal")) }));
+check(sh.msg.includes("ferot din") && sh.ids.includes("mfs_refund") && !sh.url.includes("ferot") && !sh.url.includes("text="), "Rokkha: shared SMS is checked and removed from the address bar", JSON.stringify(sh));
 await p.close();
 
 // Mobile: no horizontal scroll with the new strip

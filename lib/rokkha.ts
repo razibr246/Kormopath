@@ -1,8 +1,11 @@
 /*
  * Rokkha (রক্ষা) domain logic. NO imports — pure, deterministic and unit-tested (tests/rokkha.test.ts).
  *
- * - checkMessage: rule-based scam-signal finder for Bangla and English SMS, WhatsApp and call scripts.
- *   It quotes the exact text it matched. Finding nothing never means "safe".
+ * - checkMessage: rule-based scam-signal finder for Bangla, English and Banglish SMS, WhatsApp and call
+ *   scripts. It quotes the exact text it matched. Finding nothing never means "safe".
+ * - inspectLinks: explains link tricks (shorteners, number addresses, xn--, @, fake brand names). Never "safe".
+ * - Call guard and Family Guardian: pause text, Bangladesh mobile-number checks and a zero-PII sms: alert.
+ *   The ideas follow the BhashaShield design; a web page cannot see calls or SMS, so the user opens them.
  * - transferCheck: a cooling-off checklist before sending money. The pause length is a design choice
  *   (see PAUSE RULE below), not a statistic.
  * - incidentReport: plain-text report for an MFS helpline call and a police General Diary (GD).
@@ -45,7 +48,8 @@ export type SignalId =
   | "relative_trouble"
   | "suspicious_link"
   | "remote_access"
-  | "pressure_secrecy";
+  | "pressure_secrecy"
+  | "fine_bill";
 
 interface Rule {
   id: SignalId;
@@ -179,7 +183,37 @@ const RULES: Rule[] = [
       /(এখনই|জরুরি ভিত্তিতে|তাড়াতাড়ি|কাউকে (?:বলবেন|জানাবেন) না|গোপন রাখুন|অ্যাকাউন্ট (?:বন্ধ|ব্লক) (?:হয়ে যাবে|হবে|করা হবে)|[০-৯\d]+ (?:মিনিটের|ঘণ্টার) মধ্যে)/g,
     ],
   },
+  {
+    id: "fine_bill",
+    labelBn: "জরিমানা / বিল / পার্সেলের নামে টাকা",
+    labelEn: "Pay a fine, bill or parcel fee",
+    whyBn: "ট্রাফিক জরিমানা, বিদ্যুৎ বিল বা আটকে থাকা পার্সেলের কথা বলে লিংকে টাকা চাওয়া প্রতারণার পরিচিত কৌশল। এসএমএসের লিংকে টাকা দেবেন না; অফিসিয়াল অ্যাপ বা ওয়েবসাইট নিজে খুলে বকেয়া যাচাই করুন।",
+    whyEn: "Messages about a traffic fine, a power bill or a held parcel that ask you to pay through a link are a known trick. Never pay through the SMS link; open the official app or website yourself to check what you owe.",
+    patterns: [
+      /\b(?:traffic\s+(?:fine|violation|case|challan)|e-?challan|unpaid\s+(?:fine|toll|bill)|(?:electricity|electric|gas|water)\s+(?:bill|connection|line)[^.\n]{0,40}\b(?:due|overdue|disconnect(?:ed|ion)?|cut)|parcel[^.\n]{0,40}\b(?:held|on hold|customs|delivery (?:fee|charge)))\b/gi,
+      /(ট্রাফিক[^।\n]{0,10}(?:জরিমানা|মামলা)|জরিমানা[^।\n]{0,20}(?:পরিশোধ|দিন|জমা)|বিদ্যুৎ[^।\n]{0,30}(?:বিচ্ছিন্ন|কেটে দেওয়া|লাইন কাটা)|পার্সেল[^।\n]{0,30}(?:আটকে|কাস্টমস|ডেলিভারি চার্জ))/g,
+    ],
+  },
 ];
+
+/*
+ * Banglish: Bangla typed in English letters ("apnar account block hoye jabe, otp ta din").
+ * Many scam texts are written this way. Each entry adds one pattern to the rule with the same id.
+ * Spellings vary, so common variants are listed (v/bh, o/u). A match is a sign, never proof.
+ */
+const BANGLISH: Partial<Record<SignalId, RegExp>> = {
+  otp_pin: /\b(?:(?:otp|pin|code|kod)\s*(?:ta|ti|number|nombor|nambar)?\s*(?:din|den|dao|diye\s+din|bolun|bolen|bolo|pathan|pathen|pathao|share\s+korun)|gopon\s+(?:code|number|nombor|pin))\b/gi,
+  mfs_refund: /\b(?:(?:v|bh)ule|(?:v|bh)ul\s*kore|(?:v|bh)ul\s+(?:number|nambar|nombor)e?|(?:taka\s+)?ferot\s+(?:din|den|dao|diben|deben|pathan|pathen))\b/gi,
+  mfs_agent: /\b(?:bkash|bikash|nagad|rocket|upay)\b[^.\n]{0,30}\btheke\s+(?:bolchi|bolsi|call\s+korchi)\b/gi,
+  lottery_prize: /\b(?:lotari|puroskar|puraskar|jitechen|jitesen|bijoyi|obhinondon|abhinandan|gift\s+peyechen)\b/gi,
+  advance_fee: /\b(?:chakri|chakuri|job|visa|bidesh)\b[^.\n]{0,60}\b(?:fee|joma|advance|agrim|registration|processing|taka\s+(?:din|den|pathan|pathen|lagbe))\b/gi,
+  investment_task: /\b(?:taka\s+(?:double|dwigun|digun)|(?:double|dwigun|digun)\s+(?:hobe|korun|kore\s+din)|protidin\s+(?:\S+\s+){0,2}(?:aay|ay|income|inkam|lav|labh)|task\s+kore\s+(?:\S+\s+){0,2}(?:aay|ay|income|inkam)|nischit\s+(?:lav|labh|profit))\b/gi,
+  impersonation: /\b(?:police|pulish|thana|db\s+office|rab|court|adalot|bangladesh\s+bank|bank)\s+(?:theke|thake)\s+(?:bolchi|bolsi|call\s+korchi)\b/gi,
+  relative_trouble: /\b(?:apnar\s+(?:chele|meye|bhai|vai|bon|swami|shami|stri|bou|baba|abba|ma|amma)|durghotona|durghatona|griftar|greftar|hospital(?:e)?\s+(?:vorti|bhorti)|bipode)\b/gi,
+  remote_access: /\b(?:(?:app|apk)\s*(?:ta|ti)?\s+(?:install|download)\s+(?:korun|koren|den|dao|kore\s+nin)|screen\s+share\s+(?:korun|koren|den))\b/gi,
+  pressure_secrecy: /\b(?:ekhoni|ekhuni|akhoni|akhuni|taratari|(?:kauke|karo\s*ke)\s+(?:bolben|janaben)\s*na|gopon\s+rakh(?:un|en|ben)|account\s+(?:bondho|bondo|block)\s+(?:hoye\s+jabe|hobe|kora\s+hobe)|\d+\s+(?:minute|minit|ghonta|ghontar)\s+(?:er\s+)?(?:moddhe|modhe))\b/gi,
+  fine_bill: /\b(?:jorimana|(?:bidyut|biddut|current)\s+(?:line\s+)?(?:kete|bichchinno)|line\s+kete\s+(?:dewa|deya|deoa)\s+hobe)\b/gi,
+};
 
 export const NO_HIT_BN = "পরিচিত কোনো প্রতারণার লক্ষণ পাওয়া যায়নি — এর মানে এই নয় যে বার্তাটি নিরাপদ। সন্দেহ হলে অফিসিয়াল নম্বরে নিজে ফোন করে যাচাই করুন।";
 export const NO_HIT_EN = "No known signs found — this does NOT mean it is safe. If in doubt, call the official number yourself to check.";
@@ -191,7 +225,8 @@ export function checkMessage(input: string): MessageCheck {
   const hits: SignalHit[] = [];
   for (const rule of RULES) {
     const spans: Span[] = [];
-    for (const pattern of rule.patterns) {
+    const banglish = BANGLISH[rule.id];
+    for (const pattern of banglish ? [...rule.patterns, banglish] : rule.patterns) {
       const re = new RegExp(pattern.source, pattern.flags.includes("g") ? pattern.flags : pattern.flags + "g");
       let m: RegExpExecArray | null;
       while ((m = re.exec(text)) !== null) {
@@ -234,6 +269,131 @@ export function highlightSegments(check: MessageCheck): Array<{ text: string; id
   }
   if (pos < check.text.length) out.push({ text: check.text.slice(pos), ids: [] });
   return out;
+}
+
+// ---------------------------------------------------------------------------------------------
+// Link inspector. Reads each address in the text and explains what about it is risky.
+// It never calls a link safe: even a real official address can be copied into a scam message.
+// ---------------------------------------------------------------------------------------------
+
+export type LinkFlag = "shortener" | "ip_address" | "lookalike_letters" | "brand_lookalike" | "hidden_destination" | "not_encrypted" | "app_download";
+
+export interface LinkFinding {
+  /** Exact text from the message. */
+  url: string;
+  host: string;
+  flags: LinkFlag[];
+  /** Brand whose name the address uses without being its official domain. */
+  pretendsToBe?: string;
+  /** Brand whose official domain this is (still not a promise that the message is real). */
+  officialFor?: string;
+}
+
+const SHORTENERS = ["bit.ly", "tinyurl.com", "t.me", "wa.me", "goo.gl", "is.gd", "cutt.ly", "rb.gy", "ow.ly", "shorturl.at", "t.co", "tiny.cc", "s.id", "v.gd"];
+
+/** Official domains checked on the brands' own sites (see lib/rokkhaData.ts sources). */
+const BRANDS: Array<{ brand: string; domains: string[]; tokens: string[] }> = [
+  { brand: "bKash", domains: ["bkash.com"], tokens: ["bkash", "bikash"] },
+  { brand: "Nagad", domains: ["nagad.com.bd"], tokens: ["nagad"] },
+  { brand: "Bangladesh Bank", domains: ["bb.org.bd"], tokens: ["bangladeshbank"] },
+  { brand: "Government of Bangladesh", domains: ["gov.bd"], tokens: ["govbd"] },
+];
+
+const URL_RE = /\b(?:https?:\/\/[^\s<>"'(),]+|www\.[^\s<>"'(),]+|(?:[a-z0-9-]+\.)+(?:com|net|org|info|xyz|top|online|site|click|link|live|shop|app|io|me|cc|icu|buzz|club|bd|ly|gl|gd|at|co|id)(?:\/[^\s<>"'(),]*)?)/gi;
+
+const isOfficial = (host: string, domains: string[]) => domains.some((d) => host === d || host.endsWith("." + d));
+
+export const LINK_FLAG_TEXT: Record<LinkFlag, { bn: string; en: string }> = {
+  shortener: { bn: "ছোট করা লিংক — আসল ঠিকানা লুকানো।", en: "Shortened link — the real address is hidden." },
+  ip_address: { bn: "নামের বদলে শুধু সংখ্যার ঠিকানা — বৈধ প্রতিষ্ঠান সাধারণত এমন লিংক পাঠায় না।", en: "A number instead of a name — real organisations rarely send links like this." },
+  lookalike_letters: { bn: "অন্য ভাষার অক্ষর দিয়ে চেনা নামের মতো দেখানো হতে পারে (xn--)।", en: "May use letters from other alphabets to look like a familiar name (xn--)." },
+  brand_lookalike: { bn: "নামটি ব্যবহার করছে, কিন্তু এটি তাদের অফিসিয়াল ঠিকানা নয়।", en: "Uses the name, but this is not their official address." },
+  hidden_destination: { bn: "ঠিকানায় @ আছে — আসল গন্তব্য @-এর পরের অংশ।", en: "The address contains @ — the real destination is the part after it." },
+  not_encrypted: { bn: "https নয় — তথ্য সুরক্ষিতভাবে যায় না। এখানে কিছু লিখবেন না।", en: "Not https — what you type is not protected. Do not enter anything here." },
+  app_download: { bn: "লিংক থেকে অ্যাপ (APK) নামানো — অন্য কেউ আপনার ফোন চালাতে পারে।", en: "Downloads an app (APK) — it could let someone else control your phone." },
+};
+
+export function inspectLinks(input: string): LinkFinding[] {
+  const text = String(input ?? "").normalize("NFC").slice(0, MAX_MESSAGE_CHARS);
+  const out: LinkFinding[] = [];
+  for (const m of text.matchAll(URL_RE)) {
+    const url = m[0].replace(/[.,;:!?)\]।]+$/u, "");
+    if (!url || out.some((o) => o.url === url)) continue;
+    let rest = url.replace(/^https?:\/\//i, "");
+    const authority = rest.split(/[/?#]/)[0];
+    const flags: LinkFlag[] = [];
+    if (authority.includes("@")) flags.push("hidden_destination");
+    const host = authority.slice(authority.lastIndexOf("@") + 1).replace(/:\d+$/, "").replace(/\.$/, "").toLowerCase();
+    rest = rest.slice(authority.length);
+    if (!host.includes(".")) continue;
+    if (SHORTENERS.some((s) => host === s || host.endsWith("." + s))) flags.push("shortener");
+    if (/^\d{1,3}(?:\.\d{1,3}){3}$/.test(host)) flags.push("ip_address");
+    if (host.split(".").some((label) => label.startsWith("xn--"))) flags.push("lookalike_letters");
+    if (/^http:\/\//i.test(url)) flags.push("not_encrypted");
+    if (/\.apk(?:$|[?#])/i.test(rest)) flags.push("app_download");
+    // Undo common digit swaps (bk4sh, n4gad) and drop dots/dashes before looking for a brand name.
+    const flat = host.replace(/0/g, "o").replace(/1/g, "l").replace(/3/g, "e").replace(/4/g, "a").replace(/5/g, "s").replace(/[^a-z]/g, "");
+    let pretendsToBe: string | undefined;
+    let officialFor: string | undefined;
+    for (const b of BRANDS) {
+      if (isOfficial(host, b.domains)) { officialFor = b.brand; break; }
+      if (b.tokens.some((t) => flat.includes(t))) { pretendsToBe = b.brand; flags.push("brand_lookalike"); break; }
+    }
+    out.push({ url, host, flags, ...(pretendsToBe ? { pretendsToBe } : {}), ...(officialFor ? { officialFor } : {}) });
+    if (out.length >= 10) break;
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------------------------------------
+// Call guard and Family Guardian
+// ---------------------------------------------------------------------------------------------
+
+/** Cooling-off before "continue" in the call guard. A design choice (the BhashaShield design suggests
+ * about 15 seconds to break the caller's urgency), not a measured value. */
+export const CALL_GUARD_SECONDS = 15;
+
+export const CALL_GUARD_POINTS: Array<{ bn: string; en: string }> = [
+  { bn: "বিকাশ, নগদ, ব্যাংক বা পুলিশ কখনো ফোনে পিন বা ওটিপি চায় না।", en: "bKash, Nagad, banks and police never ask for your PIN or OTP on a call." },
+  { bn: "ফোনে কথা বলতে বলতে কাউকে টাকা পাঠাবেন না।", en: "Do not send money while you are still on the call." },
+  { bn: "কেউ অ্যাপ ইনস্টল বা স্ক্রিন শেয়ার করতে বললে করবেন না।", en: "Do not install an app or share your screen because a caller asked." },
+  { bn: "ফোন কেটে দিন। তারপর অফিসিয়াল নম্বরে নিজে ফোন করে যাচাই করুন।", en: "Hang up. Then call the official number yourself to check." },
+];
+
+export interface Guardian { name: string; number: string }
+export const MAX_GUARDIANS = 2;
+
+/** Bangladesh mobile numbers: 01[3-9] plus 8 digits, with or without +88. Returns +8801XXXXXXXXX or null. */
+export function normalizeBdMobile(raw: string): string | null {
+  const digits = String(raw ?? "")
+    .replace(/[০-৯]/g, (d) => String("০১২৩৪৫৬৭৮৯".indexOf(d)))
+    .replace(/[\s\-().]/g, "")
+    .replace(/^\+?88(?=01)/, "");
+  return /^01[3-9]\d{8}$/.test(digits) ? `+88${digits}` : null;
+}
+
+export function sanitizeGuardians(raw: unknown): Guardian[] | null {
+  if (!Array.isArray(raw)) return null;
+  const out: Guardian[] = [];
+  for (const g of raw) {
+    if (!g || typeof g !== "object") continue;
+    const o = g as Record<string, unknown>;
+    const number = typeof o.number === "string" ? normalizeBdMobile(o.number) : null;
+    if (!number || out.some((x) => x.number === number)) continue;
+    out.push({ name: typeof o.name === "string" ? clean(o.name, 40) : "", number });
+    if (out.length >= MAX_GUARDIANS) break;
+  }
+  return out;
+}
+
+/** The alert names no amount, number or message text: it only asks the guardian to call. */
+export const GUARDIAN_ALERT_BN = "রক্ষা সতর্কতা: কেউ ফোন বা মেসেজে আমার কাছে টাকা, ওটিপি বা পিন চাইছে। দয়া করে এখনই আমাকে ফোন করুন।";
+export const GUARDIAN_ALERT_EN = "Rokkha alert: someone is asking me for money, an OTP or PIN by call or message. Please call me right now.";
+
+/** Opens the phone's own SMS app with the alert filled in; the user still presses send. */
+export function smsHref(numbers: string[], body: string): string {
+  const to = numbers.map(normalizeBdMobile).filter((n): n is string => Boolean(n)).join(",");
+  return `sms:${to}?body=${encodeURIComponent(body)}`;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -348,6 +508,8 @@ export interface IncidentFields {
   receiverNumber?: string;
   yourName?: string;
   yourNumber?: string;
+  /** Suspicious links from the message, one per line. */
+  links?: string;
   whatHappened?: string;
 }
 
@@ -384,6 +546,7 @@ export function incidentReport(f: IncidentFields): IncidentReport {
     `লেনদেন আইডি (Transaction ID): ${v(f.transactionId, 40)}`,
     `যে নম্বর থেকে যোগাযোগ/টাকা চাওয়া হয়েছে (Sender number): ${v(f.senderNumber, 30)}`,
     `যে নম্বরে টাকা গেছে (Receiver number): ${v(f.receiverNumber, 30)}`,
+    `সন্দেহজনক লিংক (Suspicious links): ${clean(f.links, 600).replace(/\n+/g, " , ") || MISSING}`,
   ];
   const me = [`নাম (Name): ${v(f.yourName, 60)}`, `আমার নম্বর (My number): ${v(f.yourNumber, 30)}`];
 

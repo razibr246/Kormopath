@@ -1,15 +1,16 @@
 "use client";
 import "./rokkha.css";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { AlertTriangle, CheckCircle2, ClipboardCopy, CloudRain, HandCoins, LifeBuoy, MessageSquareWarning, Phone, ShieldCheck, Timer } from "lucide-react";
+import { AlertTriangle, BellRing, CheckCircle2, ClipboardCopy, ClipboardPaste, CloudRain, HandCoins, LifeBuoy, Link2, MessageSquareWarning, Phone, PhoneOff, ShieldCheck, Timer, Trash2, Users } from "lucide-react";
 import { AppHeader, SourceTag } from "@/components/layout/AppHeader";
 import { AppFooter } from "@/components/layout/AppFooter";
 import { storageKey, usePersistentState } from "@/lib/clientStore";
 import { DISTRICTS, type WeatherHour } from "@/lib/haatbazar";
 import {
-  checkMessage, highlightSegments, incidentReport, toBnDigits, transferCheck,
-  type PayMethod, type Requester, type TransferInputs,
+  CALL_GUARD_POINTS, CALL_GUARD_SECONDS, GUARDIAN_ALERT_BN, GUARDIAN_ALERT_EN, LINK_FLAG_TEXT, MAX_GUARDIANS,
+  checkMessage, highlightSegments, incidentReport, inspectLinks, normalizeBdMobile, sanitizeGuardians, smsHref, toBnDigits, transferCheck,
+  type Guardian, type PayMethod, type Requester, type TransferInputs,
 } from "@/lib/rokkha";
 import { PREP_CHECKLIST, PREP_SOURCES, RECOVERY_STEPS, ROKKHA_CHECKED, ROKKHA_HELPLINES, WARNING_LINKS } from "@/lib/rokkhaData";
 
@@ -20,6 +21,7 @@ const SAMPLE_SMS = "প্রিয় গ্রাহক, আমি বিক�
 const NAV = [
   { href: "#check", bn: "বার্তা যাচাই", en: "Check a message", icon: MessageSquareWarning },
   { href: "#pause", bn: "টাকা পাঠানোর আগে", en: "Before you send", icon: Timer },
+  { href: "#guardian", bn: "পরিবারের পাহারা", en: "Family guardian", icon: Users },
   { href: "#lost", bn: "টাকা হারিয়েছেন?", en: "Lost money?", icon: LifeBuoy },
   { href: "#ready", bn: "দুর্যোগ প্রস্তুতি", en: "Disaster ready", icon: CloudRain },
   { href: "#help", bn: "হেল্পলাইন", en: "Helplines", icon: Phone },
@@ -52,6 +54,31 @@ export default function RokkhaPage() {
   const bn = lang === "bn";
   const T = (b: string, e: string) => (bn ? b : e);
   const num = (n: number | string) => (bn ? toBnDigits(n) : String(n));
+  const [callOpen, setCallOpen] = useState(false);
+  const [shared, setShared] = useState<{ text: string; n: number } | null>(null);
+  const [reportLinks, setReportLinks] = useState("");
+  const [guardians, setGuardians] = usePersistentState<Guardian[]>(storageKey("rokkha", "guardians"), [], sanitizeGuardians);
+
+  // "#share=<text>" comes from the share target (public/sw.js); "#call" from the home-screen shortcut.
+  // The hash is cleared right away so shared text does not linger in the address bar or history.
+  useEffect(() => {
+    const read = () => {
+      const h = window.location.hash;
+      if (h.startsWith("#share=")) {
+        let text = "";
+        try { text = decodeURIComponent(h.slice(7)); } catch { text = ""; }
+        window.history.replaceState(null, "", "/rokkha#check");
+        if (text.trim()) setShared({ text: text.slice(0, 5000), n: Date.now() });
+        document.getElementById("check")?.scrollIntoView({ block: "start" });
+      } else if (h === "#call") {
+        window.history.replaceState(null, "", "/rokkha");
+        setCallOpen(true);
+      }
+    };
+    read();
+    window.addEventListener("hashchange", read);
+    return () => window.removeEventListener("hashchange", read);
+  }, []);
 
   return (
     <div className="min-h-screen bg-paper">
@@ -86,7 +113,14 @@ export default function RokkhaPage() {
               "Check a suspicious SMS or call script, pause before a risky transfer, know what to do if money is lost, and get ready for cyclones and floods. Everything runs on your phone.",
             )}
           </p>
-          <div className="mt-4 flex flex-wrap gap-2">
+          <button type="button" data-testid="rk-call-open" onClick={() => setCallOpen(true)} className="rk-callbtn mt-4">
+            <PhoneOff size={26} aria-hidden />
+            <span className="text-left">
+              <span className="block text-[18px] font-bold leading-tight">{T("কলে আছেন? কেউ টাকা বা ওটিপি চাইছে?", "On a call? Someone asking for money or an OTP?")}</span>
+              <span className="block text-[13.5px] font-medium opacity-90">{T("এখানে চাপুন — ১৫ সেকেন্ড থামুন, তারপর সিদ্ধান্ত নিন", "Tap here — pause 15 seconds before you decide")}</span>
+            </span>
+          </button>
+          <div className="mt-3 flex flex-wrap gap-2">
             <a href="#check" className="kp-btn-sun min-h-[50px] rounded-2xl px-5 text-[15.5px] font-bold"><MessageSquareWarning size={18} aria-hidden /> {T("বার্তা যাচাই করুন", "Check a message")}</a>
             <a href="tel:999" className="kp-btn-ghost min-h-[50px] rounded-2xl px-5 text-[15.5px] font-bold"><Phone size={18} aria-hidden /> {T("জরুরি ৯৯৯", "Emergency 999")}</a>
           </div>
@@ -98,9 +132,10 @@ export default function RokkhaPage() {
           ))}
         </nav>
 
-        <MessageChecker bn={bn} T={T} />
+        <MessageChecker bn={bn} T={T} shared={shared} guardians={guardians} onLinks={setReportLinks} />
         <PauseFlow bn={bn} T={T} num={num} />
-        <LostMoney bn={bn} T={T} />
+        <GuardianSection bn={bn} T={T} guardians={guardians} setGuardians={setGuardians} />
+        <LostMoney bn={bn} T={T} links={reportLinks} />
         <Readiness bn={bn} T={T} num={num} />
         <Helplines bn={bn} T={T} />
 
@@ -112,11 +147,143 @@ export default function RokkhaPage() {
         </p>
       </main>
       <AppFooter />
+      {callOpen && <CallGuard bn={bn} T={T} guardians={guardians} onClose={() => setCallOpen(false)} />}
     </div>
   );
 }
 
 type Txt = { bn: boolean; T: (b: string, e: string) => string };
+
+const OFFICIAL_CALLS = [
+  { tel: "16247", bn: "বিকাশ ১৬২৪৭", en: "bKash 16247" },
+  { tel: "16167", bn: "নগদ ১৬১৬৭", en: "Nagad 16167" },
+  { tel: "999", bn: "জরুরি ৯৯৯", en: "Emergency 999" },
+];
+
+/** Alert button for saved guardians; opens the phone's own SMS app, the user still presses send. */
+function GuardianAlert({ bn, T, guardians }: Txt & { guardians: Guardian[] }) {
+  if (!guardians.length) return <a href="#guardian" className="text-[14px] font-semibold text-amber-900 underline underline-offset-4">{T("পরিবারের কাউকে পাহারাদার হিসেবে যোগ করুন", "Add a family guardian")}</a>;
+  const names = guardians.map((g) => g.name || g.number).join(", ");
+  return (
+    <a data-testid="rk-guardian-alert" href={smsHref(guardians.map((g) => g.number), bn ? GUARDIAN_ALERT_BN : GUARDIAN_ALERT_EN)} className="kp-btn-ghost min-h-[48px] rounded-2xl px-4 font-bold">
+      <BellRing size={18} aria-hidden /> {T(`${names}-কে সতর্ক করুন (এসএমএস)`, `Alert ${names} (SMS)`)}
+    </a>
+  );
+}
+
+/*
+ * Full-screen pause for the moment a caller is pushing for money or a code (BhashaShield's
+ * "cognitive friction" idea, as far as a web page can go: it cannot see the call, so the user opens it).
+ */
+function CallGuard({ bn, T, guardians, onClose }: Txt & { guardians: Guardian[]; onClose: () => void }) {
+  const [left, setLeft] = useState(CALL_GUARD_SECONDS);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+  useEffect(() => {
+    const before = document.activeElement as HTMLElement | null;
+    closeRef.current?.focus();
+    const id = window.setInterval(() => setLeft((s) => (s > 0 ? s - 1 : 0)), 1000);
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onCloseRef.current(); };
+    window.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => { window.clearInterval(id); window.removeEventListener("keydown", onKey); document.body.style.overflow = ""; before?.focus?.(); };
+  }, []);
+  const n = (v: number) => (bn ? toBnDigits(v) : String(v));
+
+  return (
+    <div className="rk-guard" role="dialog" aria-modal="true" aria-labelledby="rk-guard-title" data-testid="rk-call-guard">
+      <div className="mx-auto flex min-h-full max-w-xl flex-col gap-4 px-4 py-6">
+        <p className="kp-eyebrow !text-orange-200">{T("রক্ষা · কল পাহারা", "Rokkha · call guard")}</p>
+        <h2 id="rk-guard-title" className="text-[clamp(26px,7vw,38px)] font-semibold leading-tight text-white">{T("থামুন। আগে ফোনটা কেটে দিন।", "Stop. Hang up first.")}</h2>
+        <ul className="space-y-2">
+          {CALL_GUARD_POINTS.map((p) => (
+            <li key={p.en} className="flex gap-3 rounded-2xl bg-white/10 p-3 text-[16px] leading-relaxed text-white ring-1 ring-white/20">
+              <AlertTriangle size={20} className="mt-1 shrink-0 text-amber-300" aria-hidden />
+              <span>{bn ? p.bn : p.en}</span>
+            </li>
+          ))}
+        </ul>
+        <div>
+          <p className="text-[14px] font-semibold text-orange-100">{T("ফোন কাটার পর নিজে ফোন করে যাচাই করুন:", "After hanging up, call yourself to check:")}</p>
+          <div className="mt-2 grid grid-cols-3 gap-2">
+            {OFFICIAL_CALLS.map((c) => (
+              <a key={c.tel} href={`tel:${c.tel}`} className="flex min-h-[52px] items-center justify-center gap-1 rounded-2xl bg-white px-2 text-center text-[14.5px] font-bold text-orange-900"><Phone size={16} aria-hidden /> {bn ? c.bn : c.en}</a>
+            ))}
+          </div>
+        </div>
+        <div className="rounded-2xl bg-white p-3"><GuardianAlert bn={bn} T={T} guardians={guardians} /></div>
+        <div className="mt-auto grid gap-2 pt-2">
+          <button ref={closeRef} type="button" onClick={onClose} className="min-h-[54px] rounded-2xl bg-amber-300 px-4 text-[17px] font-bold text-orange-950">{T("ফোন কেটে দিয়েছি", "I have hung up")}</button>
+          <button type="button" data-testid="rk-call-continue" onClick={onClose} disabled={left > 0} className="min-h-[48px] rounded-2xl px-4 text-[15px] font-semibold text-orange-100 ring-1 ring-white/40 disabled:opacity-60">
+            {left > 0 ? T(`${n(left)} সেকেন্ড ভাবুন…`, `Think for ${left} seconds…`) : T("বুঝেছি, তবুও চালিয়ে যাব", "I understand, continue anyway")}
+          </button>
+          <p className="sr-only" role="timer">{left > 0 ? T(`${n(left)} সেকেন্ড বাকি`, `${left} seconds left`) : ""}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function GuardianSection({ bn, T, guardians, setGuardians }: Txt & { guardians: Guardian[]; setGuardians: (g: Guardian[]) => void }) {
+  const [name, setName] = useState("");
+  const [number, setNumber] = useState("");
+  const [pending, setPending] = useState<Guardian | null>(null);
+  const [err, setErr] = useState("");
+  const review = () => {
+    const n = normalizeBdMobile(number);
+    if (!n) { setErr(T("সঠিক মোবাইল নম্বর লিখুন (যেমন ০১৭১২৩৪৫৬৭৮)।", "Enter a valid mobile number (e.g. 01712345678).")); return; }
+    if (guardians.some((g) => g.number === n)) { setErr(T("এই নম্বর আগেই আছে।", "This number is already saved.")); return; }
+    setErr(""); setPending({ name: name.trim().slice(0, 40), number: n });
+  };
+  const full = guardians.length >= MAX_GUARDIANS;
+
+  return (
+    <section id="guardian" className="rk-section rk-card p-5 sm:p-6" aria-labelledby="guardian-title">
+      <SectionHead id="guardian-title" icon={Users} title={T("পরিবারের পাহারাদার", "Family guardian")} sub={T("বাবা-মা বা কম অভিজ্ঞ কারও ফোনে এটি চালু রাখুন। বিপদে এক চাপে আপনার ছেলে-মেয়ে বা আপনজনের কাছে সতর্কবার্তা যায়।", "Set this up on a parent's or a new user's phone. In trouble, one tap sends an alert to a trusted family member.")} />
+      <ul className="grid gap-2 sm:grid-cols-2" data-testid="rk-guardians">
+        {guardians.map((g) => (
+          <li key={g.number} className="flex items-center justify-between gap-2 rounded-2xl bg-paper p-3 ring-1 ring-line">
+            <span className="min-w-0"><span className="block font-bold text-ink">{g.name || T("পাহারাদার", "Guardian")}</span><span className="font-mono text-[14px] text-slate-600">{bn ? toBnDigits(g.number) : g.number}</span></span>
+            <button type="button" onClick={() => setGuardians(guardians.filter((x) => x.number !== g.number))} className="kp-btn-ghost min-h-[44px] rounded-xl px-3" aria-label={T(`${g.name || g.number} মুছুন`, `Remove ${g.name || g.number}`)}><Trash2 size={16} aria-hidden /></button>
+          </li>
+        ))}
+      </ul>
+      {!full && !pending && (
+        <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+          <div>
+            <label htmlFor="rk-g-name" className="text-[13.5px] font-semibold text-slate-700">{T("নাম (যেমন: ছেলে, রিনা)", "Name (e.g. son, Rina)")}</label>
+            <input id="rk-g-name" value={name} onChange={(e) => setName(e.target.value)} maxLength={40} className="rk-field mt-1" />
+          </div>
+          <div>
+            <label htmlFor="rk-g-num" className="text-[13.5px] font-semibold text-slate-700">{T("মোবাইল নম্বর", "Mobile number")}</label>
+            <input id="rk-g-num" value={number} onChange={(e) => setNumber(e.target.value)} inputMode="tel" maxLength={20} className="rk-field mt-1 font-mono" placeholder="017XXXXXXXX" />
+          </div>
+          <button type="button" data-testid="rk-g-review" onClick={review} className="kp-btn-primary min-h-[48px] rounded-2xl px-5 font-bold">{T("যোগ করুন", "Add")}</button>
+        </div>
+      )}
+      {err && <p role="alert" className="mt-2 text-[14px] font-semibold text-red-700">{err}</p>}
+      {pending && (
+        <div className="mt-3 rounded-2xl bg-amber-50 p-4 ring-1 ring-amber-200" data-testid="rk-g-confirm">
+          <p className="text-[15px] text-amber-950">{T("এই নম্বরটি পাহারাদার হিসেবে সংরক্ষণ করবেন? শুধু এই ফোনেই থাকবে।", "Save this number as a guardian? It stays only on this phone.")}</p>
+          <p className="mt-1 font-mono text-[16px] font-bold text-ink">{pending.name ? `${pending.name} · ` : ""}{bn ? toBnDigits(pending.number) : pending.number}</p>
+          <p className="mt-1 text-[13px] text-amber-900">{T("আগে তাঁকে জানিয়ে অনুমতি নিন।", "Ask them first and get their OK.")}</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button type="button" data-testid="rk-g-save" onClick={() => { setGuardians([...guardians, pending]); setPending(null); setName(""); setNumber(""); }} className="kp-btn-primary min-h-[48px] rounded-2xl px-5 font-bold">{T("হ্যাঁ, সংরক্ষণ করুন", "Yes, save")}</button>
+            <button type="button" onClick={() => setPending(null)} className="kp-btn-ghost min-h-[48px] rounded-2xl px-4">{T("বাতিল", "Cancel")}</button>
+          </div>
+        </div>
+      )}
+      <div className="mt-4 flex flex-wrap items-center gap-3"><GuardianAlert bn={bn} T={T} guardians={guardians} /></div>
+      <p className="mt-3 text-[12.5px] leading-relaxed text-slate-500">
+        {T(
+          "সতর্কবার্তায় কোনো টাকার অঙ্ক, নম্বর বা মেসেজ থাকে না — শুধু \"এখনই আমাকে ফোন করুন\"। এটি আপনার ফোনের নিজের এসএমএস অ্যাপ থেকে যায়, সাধারণ এসএমএস খরচ লাগে; পাহারাদারের ফোনে ইন্টারনেট লাগে না। রক্ষা নিজে কোনো বার্তা পাঠায় না।",
+          "The alert holds no amount, number or message text — only \"call me now\". It goes from your phone's own SMS app at the normal SMS charge; the guardian needs no internet. Rokkha itself sends nothing.",
+        )}
+      </p>
+    </section>
+  );
+}
 
 function SectionHead({ id, icon: Icon, title, sub }: { id: string; icon: typeof ShieldCheck; title: string; sub: string }) {
   return (
@@ -130,11 +297,25 @@ function SectionHead({ id, icon: Icon, title, sub }: { id: string; icon: typeof 
   );
 }
 
-function MessageChecker({ bn, T }: Txt) {
+function MessageChecker({ bn, T, shared, guardians, onLinks }: Txt & { shared: { text: string; n: number } | null; guardians: Guardian[]; onLinks: (links: string) => void }) {
   const [text, setText] = useState("");
   const [checked, setChecked] = useState<string | null>(null);
+  const [pasteMsg, setPasteMsg] = useState("");
+  const [canPaste, setCanPaste] = useState(false);
   const result = useMemo(() => (checked === null ? null : checkMessage(checked)), [checked]);
   const segments = useMemo(() => (result ? highlightSegments(result) : []), [result]);
+  const links = useMemo(() => (checked === null ? [] : inspectLinks(checked)), [checked]);
+
+  useEffect(() => { setCanPaste(typeof navigator !== "undefined" && Boolean(navigator.clipboard?.readText)); }, []);
+  useEffect(() => { if (shared) { setText(shared.text); setChecked(shared.text); } }, [shared]);
+  useEffect(() => { onLinks(links.filter((l) => l.flags.length).map((l) => l.url).join("\n")); }, [links, onLinks]);
+
+  const paste = async () => {
+    try {
+      const t = (await navigator.clipboard.readText()).slice(0, 5000);
+      if (t.trim()) { setText(t); setChecked(t); setPasteMsg(""); } else setPasteMsg(T("ক্লিপবোর্ড খালি।", "The clipboard is empty."));
+    } catch { setPasteMsg(T("পেস্ট করা যায়নি — বক্সে চেপে ধরে পেস্ট করুন।", "Could not paste — long-press the box and paste.")); }
+  };
 
   return (
     <section id="check" className="rk-section rk-card p-5 sm:p-6" aria-labelledby="check-title">
@@ -143,9 +324,12 @@ function MessageChecker({ bn, T }: Txt) {
       <textarea id="rk-msg" data-testid="rk-msg" value={text} onChange={(e) => setText(e.target.value)} rows={5} maxLength={5000} className="rk-field mt-1 leading-relaxed" placeholder={T("যেমন: ভুলে আপনার নম্বরে টাকা চলে গেছে…", "e.g. I sent money to your number by mistake…")} />
       <div className="mt-3 flex flex-wrap gap-2">
         <button type="button" data-testid="rk-check" onClick={() => setChecked(text)} disabled={!text.trim()} className="kp-btn-primary min-h-[48px] rounded-2xl px-5 font-bold disabled:opacity-50">{T("লক্ষণ খুঁজুন", "Look for signs")}</button>
+        {canPaste && <button type="button" onClick={paste} className="kp-btn-ghost min-h-[48px] rounded-2xl px-4"><ClipboardPaste size={17} aria-hidden /> {T("পেস্ট করে যাচাই", "Paste and check")}</button>}
         <button type="button" onClick={() => { setText(SAMPLE_SMS); setChecked(SAMPLE_SMS); }} className="kp-btn-ghost min-h-[48px] rounded-2xl px-4">{T("নমুনা বার্তা দেখুন", "Try a sample")}</button>
         {text && <button type="button" onClick={() => { setText(""); setChecked(null); }} className="kp-btn-ghost min-h-[48px] rounded-2xl px-4">{T("মুছুন", "Clear")}</button>}
       </div>
+      {pasteMsg && <p role="status" className="mt-2 text-[13.5px] text-slate-600">{pasteMsg}</p>}
+      <p className="mt-2 text-[12.5px] text-slate-500">{T("টিপ: অ্যাপটি হোম স্ক্রিনে যোগ করলে মেসেজ অ্যাপ থেকে \"শেয়ার\" করে সরাসরি এখানে পাঠাতে পারবেন।", "Tip: add this app to your home screen, then use \"Share\" in your Messages app to send a text straight here.")}</p>
 
       <div aria-live="polite" className="mt-4">
         {result && (
@@ -170,7 +354,24 @@ function MessageChecker({ bn, T }: Txt) {
                 </ul>
               </>
             )}
-            <p className="text-[12.5px] text-slate-500">{T("এটি নিয়মভিত্তিক খোঁজ, এআই নয়। নতুন ধরনের প্রতারণা এই তালিকায় না-ও থাকতে পারে।", "This is a rule-based check, not AI. New kinds of scams may not be on the list.")}</p>
+            {links.length > 0 && (
+              <div className="rounded-2xl bg-white p-4 ring-1 ring-line" data-testid="rk-links">
+                <p className="flex items-center gap-2 text-[15px] font-bold text-ink"><Link2 size={18} aria-hidden /> {T("লিংক পরীক্ষা", "Link check")}</p>
+                <ul className="mt-2 space-y-3">
+                  {links.map((l) => (
+                    <li key={l.url} data-link-flags={l.flags.join(",")} className="text-[14px]">
+                      <p className="break-all font-mono text-[13.5px] text-slate-800">{l.host}</p>
+                      {l.pretendsToBe && <p className="mt-1 font-semibold text-orange-800">{T(`"${l.pretendsToBe}"-এর নাম ব্যবহার করছে, কিন্তু এটি তাদের অফিসিয়াল ঠিকানা নয়।`, `Uses the name "${l.pretendsToBe}", but this is not their official address.`)}</p>}
+                      {l.flags.filter((f) => f !== "brand_lookalike").map((f) => <p key={f} className="mt-1 text-orange-900">• {bn ? LINK_FLAG_TEXT[f].bn : LINK_FLAG_TEXT[f].en}</p>)}
+                      {l.officialFor && <p className="mt-1 text-slate-700">{T(`ঠিকানাটি ${l.officialFor}-এর নিজের, তবে প্রতারকেরা আসল লিংকও কপি করে পাঠায়। লিংকে না ঢুকে অ্যাপটি নিজে খুলুন।`, `This address belongs to ${l.officialFor}, but scammers copy real links too. Open the app yourself instead of the link.`)}</p>}
+                      {!l.flags.length && !l.officialFor && <p className="mt-1 text-slate-700">{T("বিশেষ কোনো চিহ্ন পাওয়া যায়নি — তবু অচেনা লিংকে পিন, পাসওয়ার্ড বা কার্ড নম্বর দেবেন না।", "No special signs found — still never enter a PIN, password or card number on an unknown link.")}</p>}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {result.hits.length > 0 && <div className="flex flex-wrap gap-2"><GuardianAlert bn={bn} T={T} guardians={guardians} /></div>}
+            <p className="text-[12.5px] text-slate-500">{T("এটি নিয়মভিত্তিক খোঁজ, এআই নয় — বাংলা, ইংরেজি ও ইংরেজি অক্ষরে লেখা বাংলা (Banglish) পড়ে। নতুন ধরনের প্রতারণা এই তালিকায় না-ও থাকতে পারে।", "This is a rule-based check, not AI — it reads Bangla, English and Bangla typed in English letters (Banglish). New kinds of scams may not be on the list.")}</p>
           </div>
         )}
       </div>
@@ -289,8 +490,9 @@ function PauseFlow({ bn, T, num }: Txt & { num: (n: number | string) => string }
   );
 }
 
-function LostMoney({ bn, T }: Txt) {
-  const [f, setF] = useState({ date: "", time: "", amount: "", method: "", transactionId: "", senderNumber: "", receiverNumber: "", yourName: "", yourNumber: "", whatHappened: "" });
+function LostMoney({ bn, T, links }: Txt & { links: string }) {
+  const [f, setF] = useState({ date: "", time: "", amount: "", method: "", transactionId: "", senderNumber: "", receiverNumber: "", yourName: "", yourNumber: "", links: "", whatHappened: "" });
+  useEffect(() => { if (links) setF((p) => ({ ...p, links })); }, [links]);
   const [which, setWhich] = useState<"helpline" | "gd">("helpline");
   const [copied, setCopied] = useState<string | null>(null);
   const report = incidentReport({ ...f, amountTaka: Number(f.amount.replace(/[^\d]/g, "")) || null });
@@ -332,6 +534,8 @@ function LostMoney({ bn, T }: Txt) {
         {input("yourName", "আপনার নাম", "Your name")}
         {input("yourNumber", "আপনার নম্বর", "Your number", { inputMode: "tel" })}
       </div>
+      <label htmlFor="rk-links" className="mt-3 block text-[13.5px] font-semibold text-slate-700">{T("সন্দেহজনক লিংক (বার্তা যাচাই থেকে আপনা-আপনি আসে)", "Suspicious links (filled in from the message check)")}</label>
+      <textarea id="rk-links" data-testid="rk-report-links" rows={2} maxLength={600} value={f.links} onChange={(e) => setF((p) => ({ ...p, links: e.target.value }))} className="rk-field mt-1 font-mono text-[13px]" />
       <label htmlFor="rk-what" className="mt-3 block text-[13.5px] font-semibold text-slate-700">{T("কী ঘটেছে", "What happened")}</label>
       <textarea id="rk-what" rows={3} maxLength={1500} value={f.whatHappened} onChange={(e) => setF((p) => ({ ...p, whatHappened: e.target.value }))} className="rk-field mt-1" />
 
