@@ -105,6 +105,11 @@ export function AgriculturalLifecycle() {
   const [activeStep, setActiveStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
 
+  // Respect reduced-motion: no auto-advancing carousel for those users.
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) setIsPlaying(false);
+  }, []);
+
   // Auto-play timer
   useEffect(() => {
     if (!isPlaying) return;
@@ -122,7 +127,7 @@ export function AgriculturalLifecycle() {
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-amber-200/60 pb-4">
         <div>
           <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-300 bg-amber-100/70 px-3 py-1 text-[11px] font-bold text-amber-900 mb-1.5">
-            <Sparkles size={13} className="text-amber-600 animate-spin" />
+            <Sparkles size={13} className="text-amber-600" aria-hidden />
             <span>জীবন্ত কৃষি চক্র ও কৃষক পরিক্রমা • Interactive Agriculture Journey</span>
           </div>
           <h3 className="display text-[22px] sm:text-[26px] font-extrabold text-slate-900 tracking-tight">
@@ -137,7 +142,8 @@ export function AgriculturalLifecycle() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsPlaying(!isPlaying)}
-            className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[12px] font-bold transition-all shadow-xs ${
+            aria-pressed={isPlaying}
+            className={`inline-flex min-h-[44px] items-center gap-1.5 rounded-xl px-3.5 text-[13px] font-bold transition-all shadow-xs ${
               isPlaying
                 ? "bg-amber-600 text-white hover:bg-amber-700"
                 : "border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100"
@@ -151,15 +157,15 @@ export function AgriculturalLifecycle() {
           <div className="flex items-center gap-1">
             <button
               onClick={() => setActiveStep((prev) => (prev - 1 + AGRI_STAGES.length) % AGRI_STAGES.length)}
-              className="rounded-xl border border-slate-200 bg-white p-2 text-slate-700 hover:bg-slate-50 transition-colors shadow-xs"
-              aria-label="Previous step"
+              className="grid h-11 w-11 place-items-center rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors shadow-xs"
+              aria-label="আগের ধাপ"
             >
               <ChevronLeft size={16} />
             </button>
             <button
               onClick={() => setActiveStep((prev) => (prev + 1) % AGRI_STAGES.length)}
-              className="rounded-xl border border-slate-200 bg-white p-2 text-slate-700 hover:bg-slate-50 transition-colors shadow-xs"
-              aria-label="Next step"
+              className="grid h-11 w-11 place-items-center rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors shadow-xs"
+              aria-label="পরের ধাপ"
             >
               <ChevronRight size={16} />
             </button>
@@ -180,7 +186,8 @@ export function AgriculturalLifecycle() {
                 setActiveStep(idx);
                 setIsPlaying(false);
               }}
-              className={`rounded-xl p-2.5 text-left transition-all border ${
+              aria-current={isActive ? "step" : undefined}
+              className={`min-h-[52px] rounded-xl p-2.5 text-left transition-all border ${
                 isActive
                   ? "border-amber-600 bg-amber-100/80 text-amber-950 font-bold shadow-xs ring-2 ring-amber-500/20"
                   : isDone
@@ -205,7 +212,7 @@ export function AgriculturalLifecycle() {
         {/* Animated Vector Canvas */}
         <div className="relative overflow-hidden rounded-2xl border border-amber-100 bg-gradient-to-b from-sky-100 via-amber-50/40 to-emerald-50/60 p-4 h-[260px] sm:h-[300px] flex items-center justify-center">
           {/* Animated Sky Elements */}
-          <div className="absolute top-4 left-6 flex items-center gap-2 text-amber-500 animate-pulse">
+          <div className="absolute top-4 left-6 flex items-center gap-2 text-amber-500 motion-safe:animate-pulse">
             <Sun size={32} className="text-amber-500 drop-shadow-md" />
             <span className="text-[11px] font-bold text-amber-800 bg-white/80 px-2 py-0.5 rounded-full border border-amber-200 backdrop-blur-xs">
               {stage.seasonBn}
@@ -355,7 +362,7 @@ export function AgriculturalLifecycle() {
                 <g transform="translate(380, 95)">
                   <line x1="20" y1="0" x2="20" y2="85" stroke="#78350f" strokeWidth="4" />
                   <polygon points="5,25 35,25 20,5" fill="#fef08a" stroke="#ca8a04" strokeWidth="2" />
-                  <circle cx="20" cy="22" r="6" fill="#facc15" className="animate-ping" />
+                  <circle cx="20" cy="22" r="6" fill="#facc15" className="motion-safe:animate-ping" />
                 </g>
                 {/* Farmer inspecting grain ripeness */}
                 <g transform="translate(140, 85)">
@@ -465,8 +472,9 @@ export function AgriculturalLifecycle() {
 
           {/* Expert Field Advisory */}
           <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3 text-[12px] text-emerald-950">
-            <strong className="block text-emerald-800 mb-0.5">🌾 বাংলাদেশ কৃষি গবেষণা কাউন্সিল (BARC) পরামর্শ:</strong>
+            <strong className="block text-emerald-800 mb-0.5">🌾 মাঠের সাধারণ পরামর্শ</strong>
             <span>{stage.advisoryBn}</span>
+            <span className="mt-1 block text-[11px] text-emerald-800/80">এলাকা ও জাতভেদে বদলায় — উপসহকারী কৃষি কর্মকর্তা বা কৃষি কল সেন্টার ১৬১২৩-এর সঙ্গে মিলিয়ে নিন।</span>
           </div>
         </div>
       </div>

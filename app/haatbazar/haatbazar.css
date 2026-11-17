@@ -1,0 +1,239 @@
+/*
+ * HaatBazar AI — page-scoped styles (imported only by app/haatbazar/page.tsx).
+ * Motion carries meaning: the truck makes the trip the calculator is about, results reveal in
+ * reading order, bars grow from zero. Everything stops under prefers-reduced-motion.
+ * Colours come from the Shonar Bangla Tailwind remap in app/globals.css via CSS variables.
+ */
+
+/* ---------- Hero: a field in perspective with the road to the far market ---------- */
+.hb-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 28px;
+  border: 1px solid rgb(0 0 0 / 0.06);
+  background:
+    radial-gradient(120% 90% at 85% 0%, oklch(0.93 0.09 85 / 0.85), transparent 60%),
+    linear-gradient(180deg, oklch(0.96 0.03 230) 0%, oklch(0.97 0.025 95) 52%, oklch(0.94 0.05 135) 100%);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.8) inset, 0 24px 60px -28px rgb(60 36 18 / 0.35);
+}
+
+.hb-scene {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 62%;
+  perspective: 520px;
+  perspective-origin: 50% 0%;
+  pointer-events: none;
+  z-index: -1;
+  container-type: inline-size;
+}
+.hb-field {
+  position: absolute;
+  left: -40%;
+  right: -40%;
+  top: 0;
+  height: 190%;
+  z-index: 0;
+  transform: rotateX(62deg);
+  transform-origin: 50% 0%;
+  background:
+    repeating-linear-gradient(90deg, oklch(0.62 0.13 140 / 0.55) 0 10px, oklch(0.72 0.14 128 / 0.35) 10px 26px),
+    linear-gradient(180deg, oklch(0.78 0.12 120), oklch(0.6 0.14 145));
+  mask-image: linear-gradient(180deg, transparent 0%, #000 22%, #000 100%);
+  animation: hb-field-drift 18s linear infinite;
+  will-change: background-position;
+}
+@keyframes hb-field-drift {
+  to { background-position: 52px 0, 0 0; }
+}
+.hb-road {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 22px;
+  height: 10px;
+  background: repeating-linear-gradient(90deg, oklch(0.55 0.04 70) 0 18px, oklch(0.7 0.04 75) 18px 30px);
+  border-radius: 999px;
+  opacity: 0.8;
+  z-index: 1;
+  transform: translateZ(1px);
+}
+.hb-sun {
+  position: absolute;
+  right: 9%;
+  top: 14%;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%, #fff6c9, oklch(0.84 0.16 80) 60%, oklch(0.78 0.17 60));
+  box-shadow: 0 0 0 10px oklch(0.88 0.12 85 / 0.25), 0 0 60px 20px oklch(0.88 0.14 85 / 0.45);
+  z-index: -1;
+  animation: hb-sun-breathe 6s ease-in-out infinite;
+}
+@media (max-width: 640px) {
+  .hb-sun { width: 46px; height: 46px; top: -12px; right: -12px; opacity: 0.85; }
+}
+@keyframes hb-sun-breathe {
+  50% { box-shadow: 0 0 0 16px oklch(0.88 0.12 85 / 0.18), 0 0 80px 26px oklch(0.88 0.14 85 / 0.38); }
+}
+/* The truck drives from the haat (left) to the far mokam (right): the decision on this page. */
+.hb-truck {
+  position: absolute;
+  bottom: 26px;
+  left: 0;
+  width: 54px;
+  height: 30px;
+  animation: hb-trip 9s cubic-bezier(.55, .05, .35, .95) infinite;
+  filter: drop-shadow(0 4px 4px rgb(40 24 10 / 0.25));
+  will-change: transform;
+  z-index: 2;
+}
+@keyframes hb-trip {
+  0% { transform: translateX(-70px); }
+  70% { transform: translateX(calc(100cqw - 92px)); }
+  88% { transform: translateX(calc(100cqw - 92px)); opacity: 1; }
+  100% { transform: translateX(calc(100cqw - 92px)); opacity: 0; }
+}
+.hb-pin {
+  position: absolute;
+  bottom: 2px;
+  display: grid;
+  place-items: center;
+  grid-auto-flow: column;
+  align-items: center;
+  gap: 5px;
+  font: 700 11.5px/1.1 var(--font-sans, system-ui);
+  color: oklch(0.32 0.05 60);
+  text-align: center;
+  white-space: nowrap;
+  z-index: 2;
+  transform: translateZ(1px);
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.85);
+  box-shadow: 0 2px 6px rgb(40 24 10 / 0.18);
+}
+.hb-pin i {
+  width: 12px;
+  height: 12px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  background: currentColor;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 0.2);
+}
+
+/* ---------- Verdict card ---------- */
+.hb-verdict {
+  position: relative;
+  border-radius: 22px;
+  background: rgb(255 255 255 / 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgb(255 255 255 / 0.9);
+  box-shadow: 0 18px 40px -22px rgb(40 24 10 / 0.45), 0 1px 0 rgb(255 255 255) inset;
+}
+.hb-verdict[data-good="true"] { outline: 2px solid oklch(0.55 0.13 155 / 0.55); }
+.hb-verdict[data-good="false"] { outline: 2px solid oklch(0.7 0.15 70 / 0.65); }
+
+.hb-figure {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+/* ---------- Cost waterfall: price → losses/costs → what you keep ---------- */
+.hb-wf-row { display: grid; grid-template-columns: minmax(0, 8.5rem) minmax(0, 1fr) auto; align-items: center; gap: 0.6rem; }
+@media (max-width: 420px) { .hb-wf-row { grid-template-columns: minmax(0, 6.6rem) minmax(0, 1fr) auto; gap: 0.45rem; } }
+.hb-wf-track { position: relative; height: 22px; border-radius: 8px; background: oklch(0.95 0.01 80); overflow: hidden; }
+.hb-wf-bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 8px;
+  transform-origin: left center;
+  transform: scaleX(0);
+  animation: hb-grow 0.7s cubic-bezier(.2, .8, .2, 1) forwards;
+  animation-delay: calc(var(--i, 0) * 90ms + 120ms);
+}
+.hb-wf-bar[data-kind="gross"] { background: linear-gradient(90deg, oklch(0.7 0.11 150), oklch(0.6 0.13 155)); }
+.hb-wf-bar[data-kind="cost"] { background: repeating-linear-gradient(135deg, oklch(0.7 0.14 35) 0 6px, oklch(0.76 0.12 40) 6px 12px); }
+.hb-wf-bar[data-kind="net"] { background: linear-gradient(90deg, oklch(0.5 0.12 155), oklch(0.42 0.1 160)); }
+.hb-wf-bar[data-kind="net-bad"] { background: linear-gradient(90deg, oklch(0.72 0.15 70), oklch(0.66 0.16 55)); }
+.hb-wf-marker {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  background: oklch(0.3 0.03 60);
+  box-shadow: 0 0 0 2px rgb(255 255 255 / 0.85);
+}
+@keyframes hb-grow { to { transform: scaleX(1); } }
+
+/* ---------- Sensitivity: diverging bars around today's price ---------- */
+.hb-div-bar {
+  height: 14px;
+  border-radius: 6px;
+  transition: width 0.45s cubic-bezier(.2, .8, .2, 1), background-color 0.3s;
+}
+
+/* ---------- Staged reveal in reading order ---------- */
+.hb-reveal > * {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: hb-rise 0.55s cubic-bezier(.2, .8, .2, 1) forwards;
+}
+.hb-reveal > *:nth-child(1) { animation-delay: 40ms; }
+.hb-reveal > *:nth-child(2) { animation-delay: 110ms; }
+.hb-reveal > *:nth-child(3) { animation-delay: 180ms; }
+.hb-reveal > *:nth-child(4) { animation-delay: 250ms; }
+.hb-reveal > *:nth-child(5) { animation-delay: 320ms; }
+.hb-reveal > *:nth-child(n + 6) { animation-delay: 380ms; }
+@keyframes hb-rise { to { opacity: 1; transform: none; } }
+
+/* ---------- Shared card + section heading ---------- */
+.hb-card {
+  border-radius: 24px;
+  border: 1px solid oklch(0.9 0.02 80);
+  background: rgb(255 255 255 / 0.92);
+  box-shadow: 0 1px 0 rgb(255 255 255) inset, 0 14px 34px -26px rgb(60 36 18 / 0.35);
+}
+.hb-icon-tile {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: 13px;
+  background: linear-gradient(160deg, oklch(0.95 0.06 130), oklch(0.88 0.09 140));
+  color: oklch(0.36 0.09 150);
+  box-shadow: 0 1px 0 rgb(255 255 255) inset, 0 6px 14px -8px oklch(0.45 0.1 150 / 0.6);
+}
+.hb-input {
+  min-height: 44px;
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid oklch(0.88 0.02 80);
+  background: #fff;
+  padding: 0.55rem 0.75rem;
+  font-size: 15px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.hb-input:focus-visible { outline: none; border-color: oklch(0.5 0.12 155); box-shadow: 0 0 0 3px oklch(0.75 0.12 150 / 0.35); }
+
+/* Rain chance bars grow upward once. */
+.hb-rain-bar { transform-origin: bottom; transform: scaleY(0); animation: hb-rise-y 0.6s cubic-bezier(.2, .8, .2, 1) forwards; animation-delay: calc(var(--i, 0) * 18ms); }
+@keyframes hb-rise-y { to { transform: scaleY(1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .hb-field, .hb-sun, .hb-truck, .hb-wf-bar, .hb-reveal > *, .hb-rain-bar { animation: none !important; }
+  .hb-wf-bar, .hb-rain-bar { transform: none; }
+  .hb-reveal > * { opacity: 1; transform: none; }
+  .hb-truck { transform: translateX(calc(50cqw - 27px)); }
+  .hb-div-bar { transition: none; }
+}
+
+@media print {
+  .hb-scene, .hb-sun, .hb-truck { display: none; }
+}
