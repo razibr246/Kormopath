@@ -9,7 +9,7 @@ import { banglaShare } from "@/lib/banglaSpeech";
 export const runtime = "nodejs";
 export const maxDuration = 35;
 
-const AppId = z.enum(["kormopath", "path", "chuktiguard", "feeguard", "admitbuddy", "mediscan", "shohoj", "haatbazar", "probaho"]);
+const AppId = z.enum(["kormopath", "path", "chuktiguard", "feeguard", "admitbuddy", "mediscan", "shohoj", "haatbazar", "krishi", "probaho"]);
 const Body = z.object({
   appId: AppId,
   messages: z.array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().trim().min(1).max(1200) })).min(1).max(10),
@@ -28,6 +28,7 @@ const APP_GUIDE: Record<z.infer<typeof AppId>, string> = {
   mediscan: `MediScan BD: reads prescription text, explains only what is visibly written, flags duplicate/known-caution pairs and emergency phrases, and optionally transcribes an image after explicit consent. It does not diagnose, prescribe, change doses, recommend brand switching, or call unknown medicine pairs safe. Unknown means no data. Patient/health data is sensitive; do not ask the user to paste it into Buddy. Emergency strip lists 999 and health service 16263.`,
   shohoj: `Shohoj Budget: voice/text/SMS expense entry, monthly budgets, recurring transactions, bill splitting, CSV export, and user-entered product price research. Every parsed transaction is reviewed before saving. Amount arithmetic is deterministic in integer poisha in lib/budget.ts. Product search can use web search when GEMINI_API_KEY is configured; coverage is incomplete and prices must be verified at the seller. Buddy cannot access local saved transactions.`,
   haatbazar: `HaatBazar AI: farmer-side crop planning, trip-margin and truck-share calculations, district weather and spray-window guidance, crop seasons and disease information. Price calculations use the farmer's own quoted local/wholesale prices; never invent market prices. No pesticide doses; follow the product label and contact Krishi Call Centre 16123.`,
+  krishi: `MaathSathi (মাঠসাথী): farmer field companion. Land records in decimals/bigha/acre, a crop budget from the farmer's own costs, expected harvest and price (integer poisha), a rotation check by crop family, today's tasks with forecast warnings, Bangla voice-to-task (confirmed before saving), an SMS summary for basic phones, Crop Doctor that says "not sure" when symptoms do not clearly match, livestock/poultry/fish record books, verified government support (input-support card, 10-taka account, SRDI soil test, 16123) and helplines 16123 (Krishi Call Centre, 8am–8pm, closed Fri/Sat/holidays) and 16358 (livestock, office hours). Never invent prices, yields, dates or subsidy amounts. No pesticide or veterinary doses; follow the product label and contact 16123 or the livestock office.`,
   probaho: `Probaho Coach: Bangla/English speaking and viva practice, question bank, answer structure feedback, scoring, and local progress. Feedback is coaching, not a certification or guaranteed score.`,
 };
 

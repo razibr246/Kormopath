@@ -13,7 +13,7 @@ KormoPath currently contains six standalone applications, a shared landing page 
 | 3. Win a direct client | Outreach | Writes the cold email and a bilingual (English/বাংলা) contract with an internet-shutdown clause | Email checked so every $ figure matches the contract; contract text is a fixed template (the AI never writes legal clauses) |
 | 4. Bring the money home | Treasurer | Compares payout channels and tracks income | Pure deterministic math with unit tests and reconciliation checks; FX lookup; CSV export |
 
-Other apps include HaatBazar AI (agriculture and market information), Shohoj Budget, MediScan BD (prescription text support), Probaho and AdmitBuddy. Availability and maturity vary; AI and third-party features need configuration and are not professional advice or a substitute for qualified review.
+Other apps include HaatBazar AI (agriculture and market information), MaathSathi (`/krishi`: land records, field tasks, crop doctor, livestock/poultry/fish books and verified government support for farmers), Shohoj Budget, MediScan BD (prescription text support), Probaho and AdmitBuddy. Availability and maturity vary; AI and third-party features need configuration and are not professional advice or a substitute for qualified review.
 
 My Path lets you bookmark search results or add your own links, track application status, record follow-up dates and outcomes, export each path to CSV, and download follow-up dates as an iCalendar file for Google Calendar or other calendars. The app does not send notifications itself. The tracker works in your browser without an API key.
 

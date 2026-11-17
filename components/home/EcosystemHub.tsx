@@ -399,6 +399,31 @@ export function EcosystemHub({
                 </p>
               </div>
 
+              {/* MaathSathi: the farmer's field companion, next to HaatBazar */}
+              <div className="rounded-xl border border-line bg-white p-4 hover:border-kept transition-all">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-lime-50 text-lime-800 font-bold">
+                      <Sprout size={20} />
+                    </span>
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="font-bold text-[15px] text-ink">মাঠসাথী · MaathSathi</h3>
+                        <span className="rounded bg-paper px-1.5 py-0.5 text-[10px] font-bold text-muted uppercase">Field &amp; Farm</span>
+                      </div>
+                      <p className="text-[12px] text-muted">Land, today&apos;s tasks, crop doctor, livestock &amp; fish, support</p>
+                    </div>
+                  </div>
+                  <Link href="/krishi" onClick={onClose} className="flex shrink-0 items-center gap-1 rounded-lg bg-emerald-700 px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-emerald-800 transition-colors">
+                    Open →
+                  </Link>
+                </div>
+                <p className="mt-2 text-[12px] text-muted">
+                  Bangla voice tasks confirmed before saving, forecast warnings before spraying, an SMS summary for basic
+                  phones, and only helplines and programmes checked on official sites. No doses, no invented prices.
+                </p>
+              </div>
+
               {/* 5. HaatBazar AI */}
               <div className="rounded-xl border border-line bg-white p-4 hover:border-kept transition-all">
                 <div className="flex items-start justify-between">

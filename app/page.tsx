@@ -26,8 +26,7 @@ import {
   ShieldCheck,
   Sprout,
   Wallet,
-  type LucideIcon,
-} from "lucide-react";
+  type LucideIcon, Tractor } from "lucide-react";
 
 type Lang = "en" | "bn";
 type Tool = {
@@ -80,6 +79,10 @@ const TOOLS: Record<"earn" | "life" | "farm", Tool[]> = {
       name: { bn: "হাটবাজার", en: "HaatBazar AI" },
       line: { bn: "আপনার দেওয়া দামে হাট বনাম আড়তের লাভ, জেলার আবহাওয়া আর স্প্রে করার সময়।", en: "Market vs wholesale margin at your own prices, district weather and spray windows." },
       chips: { bn: ["ট্রাক ভাগ", "কৃষি কল ১৬১২৩"], en: ["Truck share", "Krishi call 16123"] } },
+    { id: "krishi", href: "/krishi", icon: Tractor, tone: "bg-lime-50 text-lime-800 ring-lime-200", stripe: "from-lime-500 to-emerald-600",
+      name: { bn: "মাঠসাথী", en: "MaathSathi" },
+      line: { bn: "জমির খাতা, আজকের কাজ, ফসলের ডাক্তার, পশু-হাঁস-মুরগি-মাছের হিসাব আর সরকারি সহায়তা — বাংলায়, কথা বলে।", en: "Land records, today’s tasks, crop doctor, livestock, poultry and fish books, and government support — in Bangla, by voice." },
+      chips: { bn: ["কথা বলে কাজ", "এসএমএস সারাংশ"], en: ["Voice tasks", "SMS summary"] } },
   ],
 };
 
@@ -100,6 +103,7 @@ const TASKS: Array<{ href: string; bn: string; en: string; keys: string }> = [
   { href: "/shohoj-budget", bn: "সংসারের খরচ লিখে রাখব", en: "Track household spending", keys: "budget বাজেট expense খরচ bazar বাজার sms money হিসাব সংসার" },
   { href: "/mediscan", bn: "প্রেসক্রিপশন বুঝব", en: "Understand a prescription", keys: "prescription প্রেসক্রিপশন medicine ওষুধ doctor ডাক্তার dose" },
   { href: "/haatbazar", bn: "হাটে বেচব না আড়তে, হিসাব করব", en: "Market or wholesale: which pays more", keys: "crop ফসল farm কৃষি haat হাট weather আবহাওয়া spray স্প্রে truck ট্রাক দাম price" },
+  { href: "/krishi", bn: "জমির কাজ, পশুপাখি ও সরকারি সহায়তা দেখব", en: "Plan field work, livestock and government support", keys: "farm কৃষি krishi মাঠ জমি land task কাজ cow গরু poultry মুরগি fish মাছ support সহায়তা card কার্ড voice ভয়েস sms" },
   { href: "/settings", bn: "আমার ডেটা দেখব বা মুছব", en: "See or delete my data", keys: "data ডেটা privacy প্রাইভেসি delete মুছুন export backup ব্যাকআপ" },
 ];
 
@@ -138,7 +142,7 @@ const LIFECYCLE: Array<{ icon: LucideIcon; tone: string; bn: string; en: string;
     links: [{ href: "/mediscan", bn: "মেডিস্ক্যান", en: "MediScan" }] },
   { icon: Sprout, tone: "bg-lime-50 text-lime-800 ring-lime-200", bn: "মাঠ", en: "Field",
     when: { bn: "ফসল, আবহাওয়া আর হাটের হিসাব", en: "Crops, weather and market maths" },
-    links: [{ href: "/haatbazar", bn: "হাটবাজার", en: "HaatBazar" }] },
+    links: [{ href: "/krishi", bn: "মাঠসাথী", en: "MaathSathi" }, { href: "/haatbazar", bn: "হাটবাজার", en: "HaatBazar" }] },
   { icon: ShieldCheck, tone: "bg-amber-50 text-amber-800 ring-amber-200", bn: "সুরক্ষা", en: "Protect",
     when: { bn: "প্রতারণা চেনা, ভোক্তা অভিযোগ, তথ্যের ব্যাকআপ", en: "Spot scams, consumer complaints, back up data" },
     links: [{ href: "/probaho#scam", bn: "প্রতারণা চিনুন", en: "Scam practice" }, { href: "/chuktiguard#dncrp", bn: "ভোক্তা অভিযোগ", en: "Consumer complaint" }, { href: "/settings", bn: "লক করা ব্যাকআপ", en: "Locked backup" }] },

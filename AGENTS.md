@@ -63,6 +63,7 @@ Standalone client apps, each with a pure domain module (unit-tested, no imports)
 | MediScan BD | `app/mediscan` | `lib/prescription.ts` | `api/mediscan/ocr` (optional, consent-gated) |
 | Shohoj Budget | `app/shohoj-budget` | `lib/budget.ts` | — |
 | HaatBazar AI | `app/haatbazar` | `lib/haatbazar.ts` | `api/weather` (Open-Meteo) |
+| MaathSathi | `app/krishi` | `lib/krishi.ts`, reference data in `lib/krishiData.ts` | `api/weather` (Open-Meteo) |
 | Probaho Coach | `app/probaho` | `lib/speech.ts` | `api/probaho/coach` |
 | FeeGuard BD | `app/feeguard` | `lib/finops.ts` | `api/fx` |
 | ChuktiGuard | `app/chuktiguard` | re-exports `lib/finops.ts` / `lib/contract.ts` | — |
@@ -73,6 +74,7 @@ Hard rules for these apps (see `docs/`):
 - **Money is integer poisha** in `lib/budget.ts`; fee math lives only in `lib/finops.ts`. FeeGuard must render `Channel.steps` from the engine, never re-derive numbers in the page.
 - **MediScan:** never diagnose, prescribe or recommend a brand switch; "not in our list" is never "safe"; emergency strip stays visible; OCR needs `consent: true` and runs with `structured(..., { cache: false })`.
 - **HaatBazar:** no pesticide doses; refer to the product label and Krishi Call Centre 16123.
+- **MaathSathi (`/krishi`):** same no-dose rule, also for animal medicine (livestock call centre 16358). Prices, yields and vaccination dates are entered by the farmer; helplines and support programmes live in `lib/krishiData.ts`, each with an official source URL and check date. Voice-parsed tasks are confirmed before saving.
 - **Probaho (`api/probaho/coach`):** the quote check runs inside a per-request Zod `superRefine` against the answer, so an invented quote triggers the repair retry; the deterministic score in `lib/speech.ts` is never changed by the model.
 
 ## Domain boundaries

@@ -149,7 +149,7 @@ const FOOTER_GROUPS = [
   },
   {
     bn: "কৃষি", en: "Farm",
-    links: [["/haatbazar", "হাটবাজার: হিসাব ও আবহাওয়া"]],
+    links: [["/krishi", "মাঠসাথী: জমি, কাজ ও পশুপাখি"], ["/haatbazar", "হাটবাজার: হিসাব ও আবহাওয়া"]],
   },
 ] as const;
 

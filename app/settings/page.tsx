@@ -12,6 +12,7 @@ const APPS: { ns: AppNamespace; name: string; href: string; what: string; sensit
   { ns: "admitbuddy", name: "AdmitBuddy", href: "/admitbuddy", what: "প্রোফাইল, শর্টলিস্ট, আবেদনের অবস্থা ও নোট, তারিখ, কাগজপত্রের তালিকা, SOP খসড়া" },
   { ns: "probaho", name: "Probaho Coach", href: "/probaho", what: "অনুশীলনের স্কোর (ট্রান্সক্রিপ্ট শুধু আপনি চাইলে), মাইক সম্মতি" },
   { ns: "haatbazar", name: "HaatBazar AI", href: "/haatbazar", what: "দামের খাতা, কৃষি বাজার/পরিবহনের quote, জেলা" },
+  { ns: "krishi", name: "MaathSathi", href: "/krishi", what: "জমির খাতা, কাজের তালিকা, খরচের হিসাব, পশুপাখি-মাছের খাতা, জেলা" },
   { ns: "feeguard", name: "FeeGuard BD", href: "/feeguard", what: "পেমেন্ট রেকর্ড" },
   { ns: "chuktiguard", name: "ChuktiGuard", href: "/chuktiguard", what: "Service Pack ও চুক্তির খসড়া" },
   { ns: "platform", name: "KormoPath প্ল্যাটফর্ম", href: "/", what: "সাধারণ প্রোফাইল, My Path-এর অগ্রগতি, সংরক্ষিত সুযোগ, আবেদনের অবস্থা ও নোট", legacy: ["kormopath_unified_profile_v1", "kp-ledger"] },
