@@ -101,6 +101,14 @@ export function CommandPalette() {
       onSelect: () => router.push("/krishi"),
     },
     {
+      id: "rokkha",
+      title: "Rokkha — scam check, cooling-off pause, disaster readiness",
+      titleBn: "রক্ষা — প্রতারণা যাচাই, টাকা পাঠানোর আগে বিরতি, দুর্যোগ প্রস্তুতি",
+      category: "Navigation",
+      icon: <ShieldCheck size={16} className="text-amber-700" />,
+      onSelect: () => router.push("/rokkha"),
+    },
+    {
       id: "probaho",
       title: "Probaho Coach — Viva & Interview Practice",
       titleBn: "প্রবাহ কোচ — রিয়েল-টাইম স্পিকিং ও ভাইভা রাডার",

@@ -64,6 +64,7 @@ Standalone client apps, each with a pure domain module (unit-tested, no imports)
 | Shohoj Budget | `app/shohoj-budget` | `lib/budget.ts` | — |
 | HaatBazar AI | `app/haatbazar` | `lib/haatbazar.ts` | `api/weather` (Open-Meteo) |
 | MaathSathi | `app/krishi` | `lib/krishi.ts`, reference data in `lib/krishiData.ts` | `api/weather` (Open-Meteo) |
+| Rokkha | `app/rokkha` | `lib/rokkha.ts`, reference data in `lib/rokkhaData.ts` | `api/weather` (Open-Meteo) |
 | Probaho Coach | `app/probaho` | `lib/speech.ts` | `api/probaho/coach` |
 | FeeGuard BD | `app/feeguard` | `lib/finops.ts` | `api/fx` |
 | ChuktiGuard | `app/chuktiguard` | re-exports `lib/finops.ts` / `lib/contract.ts` | — |
@@ -75,6 +76,7 @@ Hard rules for these apps (see `docs/`):
 - **MediScan:** never diagnose, prescribe or recommend a brand switch; "not in our list" is never "safe"; emergency strip stays visible; OCR needs `consent: true` and runs with `structured(..., { cache: false })`. The adherence tracker (`lib/adherence.ts`, `app/mediscan/AdherenceTracker.tsx`) only counts doses against the user's own confirmed schedule (never proposes one), computes PDC over completed Asia/Dhaka days (a day is covered only if every dose was ticked), and shows a neutral "talk to your doctor or pharmacist" prompt below the PQA/CMS 80% threshold.
 - **HaatBazar:** no pesticide doses; refer to the product label and Krishi Call Centre 16123.
 - **MaathSathi (`/krishi`):** same no-dose rule, also for animal medicine (livestock call centre 16358). Prices, yields and vaccination dates are entered by the farmer; helplines and support programmes live in `lib/krishiData.ts`, each with an official source URL and check date. Voice-parsed tasks are confirmed before saving.
+- **Rokkha (`/rokkha`):** scam checks are rule-based (`checkMessage` in `lib/rokkha.ts`) and must quote the exact matched text; no hits is always worded as "no known signs found — this does NOT mean it is safe", never "safe". The cooling-off pause in `transferCheck` is a documented design rule, not a statistic. Helplines, warning links and the IFRC preparedness checklist live in `lib/rokkhaData.ts`, each with an official source URL and check date; never add a number from memory. Pasted messages and incident reports are never stored or sent; only checklist ticks, district and the pause end time are saved.
 - **Probaho (`api/probaho/coach`):** the quote check runs inside a per-request Zod `superRefine` against the answer, so an invented quote triggers the repair retry; the deterministic score in `lib/speech.ts` is never changed by the model.
 
 ## Domain boundaries

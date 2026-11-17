@@ -80,8 +80,23 @@ t = await p.$eval('[data-testid="ai-coach"]', (e) => e.innerText).catch(() => ""
 check(/improve next time/i.test(t), "Probaho: AI coach panel shows coaching", t.replace(/\n/g, " | ").slice(0, 200));
 await p.close();
 
+// Rokkha: paste a scam SMS, a quoted signal appears; no-hit text never says "safe"
+p = await page(390, 844);
+await p.goto(`${BASE}/rokkha`, { waitUntil: "networkidle2" });
+await p.type('[data-testid="rk-msg"]', "আপনার বিকাশ অ্যাকাউন্ট বন্ধ হয়ে যাবে। এখনই ওটিপি কোডটি বলুন: bit.ly/x1");
+await p.click('[data-testid="rk-check"]');
+await wait(200);
+const rk = await p.evaluate(() => ({ ids: [...document.querySelectorAll("[data-signal]")].map((e) => e.getAttribute("data-signal")), marks: document.querySelectorAll("mark.rk-mark").length }));
+check(rk.ids.includes("otp_pin") && rk.ids.includes("suspicious_link") && rk.marks > 0, "Rokkha: scam SMS shows quoted, highlighted signals", rk.ids.join(","));
+await p.evaluate(() => { const t = document.querySelector('[data-testid="rk-msg"]'); Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value").set.call(t, "Lunch at 1?"); t.dispatchEvent(new Event("input", { bubbles: true })); });
+await p.click('[data-testid="rk-check"]');
+await wait(200);
+t = await p.$eval('[data-testid="rk-result"]', (e) => e.innerText).catch(() => "");
+check(t.includes("মানে এই নয় যে বার্তাটি নিরাপদ"), "Rokkha: no-hit result says it does NOT mean safe", t.slice(0, 120));
+await p.close();
+
 // Mobile: no horizontal scroll with the new strip
-for (const route of ["/", "/judges", "/shohoj-budget", "/probaho"]) {
+for (const route of ["/", "/judges", "/shohoj-budget", "/probaho", "/rokkha"]) {
   p = await page(375, 812);
   await p.goto(`${BASE}${route}`, { waitUntil: "networkidle2" });
   const o = await p.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));

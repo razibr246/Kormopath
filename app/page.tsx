@@ -73,6 +73,10 @@ const TOOLS: Record<"earn" | "life" | "farm", Tool[]> = {
       name: { bn: "মেডিস্ক্যান", en: "MediScan BD" },
       line: { bn: "প্রেসক্রিপশনে যা লেখা আছে সহজ বাংলায় বোঝায়; রোগ নির্ণয় করে না।", en: "Explains what the prescription says in plain Bangla; never diagnoses." },
       chips: { bn: ["সময়সূচি", "জরুরি সতর্কতা"], en: ["Timetable", "Urgent flags"] } },
+    { id: "rokkha", href: "/rokkha", icon: ShieldCheck, tone: "bg-amber-50 text-amber-800 ring-amber-200", stripe: "from-amber-500 to-orange-600",
+      name: { bn: "রক্ষা", en: "Rokkha" },
+      line: { bn: "সন্দেহজনক এসএমএসের লক্ষণ, টাকা পাঠানোর আগে বিরতি, টাকা হারালে কী করবেন আর দুর্যোগের প্রস্তুতি।", en: "Scam signs in an SMS, a pause before you send money, what to do if money is lost, and disaster readiness." },
+      chips: { bn: ["প্রতারণা যাচাই", "বিরতির টাইমার"], en: ["Scam check", "Pause timer"] } },
   ],
   farm: [
     { id: "haatbazar", href: "/haatbazar", icon: Sprout, tone: "bg-emerald-50 text-emerald-800 ring-emerald-200", stripe: "from-emerald-500 to-lime-500",
@@ -104,6 +108,7 @@ const TASKS: Array<{ href: string; bn: string; en: string; keys: string }> = [
   { href: "/mediscan", bn: "প্রেসক্রিপশন বুঝব", en: "Understand a prescription", keys: "prescription প্রেসক্রিপশন medicine ওষুধ doctor ডাক্তার dose" },
   { href: "/haatbazar", bn: "হাটে বেচব না আড়তে, হিসাব করব", en: "Market or wholesale: which pays more", keys: "crop ফসল farm কৃষি haat হাট weather আবহাওয়া spray স্প্রে truck ট্রাক দাম price" },
   { href: "/krishi", bn: "জমির কাজ, পশুপাখি ও সরকারি সহায়তা দেখব", en: "Plan field work, livestock and government support", keys: "farm কৃষি krishi মাঠ জমি land task কাজ cow গরু poultry মুরগি fish মাছ support সহায়তা card কার্ড voice ভয়েস sms" },
+  { href: "/rokkha", bn: "এই এসএমএস কি প্রতারণা, যাচাই করব", en: "Check if a message is a scam", keys: "scam প্রতারণা fraud otp ওটিপি pin পিন bkash বিকাশ nagad নগদ lottery লটারি sms এসএমএস cyclone ঘূর্ণিঝড় flood বন্যা disaster দুর্যোগ helpline হেল্পলাইন gd জিডি" },
   { href: "/settings", bn: "আমার ডেটা দেখব বা মুছব", en: "See or delete my data", keys: "data ডেটা privacy প্রাইভেসি delete মুছুন export backup ব্যাকআপ" },
 ];
 
@@ -145,7 +150,7 @@ const LIFECYCLE: Array<{ icon: LucideIcon; tone: string; bn: string; en: string;
     links: [{ href: "/krishi", bn: "মাঠসাথী", en: "MaathSathi" }, { href: "/haatbazar", bn: "হাটবাজার", en: "HaatBazar" }] },
   { icon: ShieldCheck, tone: "bg-amber-50 text-amber-800 ring-amber-200", bn: "সুরক্ষা", en: "Protect",
     when: { bn: "প্রতারণা চেনা, ভোক্তা অভিযোগ, তথ্যের ব্যাকআপ", en: "Spot scams, consumer complaints, back up data" },
-    links: [{ href: "/probaho#scam", bn: "প্রতারণা চিনুন", en: "Scam practice" }, { href: "/chuktiguard#dncrp", bn: "ভোক্তা অভিযোগ", en: "Consumer complaint" }, { href: "/settings", bn: "লক করা ব্যাকআপ", en: "Locked backup" }] },
+    links: [{ href: "/rokkha", bn: "রক্ষা", en: "Rokkha" }, { href: "/probaho#scam", bn: "প্রতারণা চিনুন", en: "Scam practice" }, { href: "/chuktiguard#dncrp", bn: "ভোক্তা অভিযোগ", en: "Consumer complaint" }, { href: "/settings", bn: "লক করা ব্যাকআপ", en: "Locked backup" }] },
 ];
 
 const PIPELINE = [
