@@ -2,7 +2,7 @@
 
 **A Bangladesh-first collection of career, learning, finance, agriculture and health tools.**
 
-KormoPath currently contains six standalone applications, a shared landing page and Workspace tools. It is an early-stage web app: it does not have user accounts, a shared cloud profile, a database-backed workspace, or cross-device sync. Most saved data stays in browser local storage. The product audit and roadmap are in [`docs/audit/EXISTING_PROJECT_AUDIT.md`](docs/audit/EXISTING_PROJECT_AUDIT.md) and [`docs/research/FEATURE_OPPORTUNITY_MAP.md`](docs/research/FEATURE_OPPORTUNITY_MAP.md).
+KormoPath currently contains six standalone applications, a shared landing page and Workspace tools. It is an early-stage web app: it does not have user accounts, a shared cloud profile, a database-backed workspace, or cross-device sync. Most saved data stays in browser local storage. The product audit and roadmap are in [`docs/architecture/EXISTING_PROJECT_AUDIT.md`](docs/architecture/EXISTING_PROJECT_AUDIT.md) and [`docs/research/FEATURE_OPPORTUNITY_MAP.md`](docs/research/FEATURE_OPPORTUNITY_MAP.md).
 
 ## Current applications
 
