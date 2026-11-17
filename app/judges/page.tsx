@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Compass, ShieldCheck, ArrowRight, Play } from "lucide-react";
+import { Compass, ShieldCheck, ArrowRight, Play, FlaskConical } from "lucide-react";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { AppFooter } from "@/components/layout/AppFooter";
 import { LiveAssertionHarness } from "@/components/judges/LiveAssertionHarness";
@@ -73,6 +73,21 @@ export default function JudgesPage() {
             </Link>
           </div>
         </section>
+
+        {/* Measured results: every AI check, run on fixed inputs by scripts/eval.ts */}
+        <Link
+          href="/trust"
+          className="group flex flex-col gap-3 rounded-2xl border border-emerald-300 bg-emerald-50/80 p-5 shadow-xs transition-all hover:shadow-md sm:flex-row sm:items-center sm:justify-between sm:p-6"
+        >
+          <span className="flex items-start gap-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-700 text-white"><FlaskConical size={20} /></span>
+            <span className="min-w-0">
+              <span className="block text-[17px] font-bold text-slate-900">Measured, not claimed: see the numbers</span>
+              <span className="block text-[14px] leading-relaxed text-slate-700">Evidence-quote checks, hallucination probes, the pitch amount guard and fee reconciliation, run on fixed inputs by a script anyone can re-run, with honest limits.</span>
+            </span>
+          </span>
+          <span className="inline-flex shrink-0 items-center gap-1.5 text-[14px] font-bold text-emerald-800 group-hover:underline">Open measured results <ArrowRight size={15} /></span>
+        </Link>
 
         {/* Section 1: Flagship */}
         <section aria-labelledby="flag-h" className="rounded-2xl border border-slate-200/80 bg-white/80 backdrop-blur-md p-5 sm:p-6 shadow-xs hover:shadow-md transition-all">

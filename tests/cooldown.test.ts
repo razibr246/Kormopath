@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { createCooldown, RATE_LIMIT_COOLDOWN_MS } from "../lib/cooldown.ts";
+import { createCooldown, RATE_LIMIT_COOLDOWN_MS, MAX_COOLDOWN_MS } from "../lib/cooldown.ts";
 
 const chain = ["gemini-4-hydrogen", "gemini-3.5-flash-lite"];
 
@@ -29,6 +29,20 @@ test("cooldown: expires on its own and after a success", () => {
   c.mark("gemini-4-hydrogen", 10_000);
   c.clear("gemini-4-hydrogen");
   assert.deepEqual(c.order(chain), chain);
+});
+
+test("cooldown: repeated failures back off exponentially, capped, and a success resets", () => {
+  let t = 0;
+  const c = createCooldown(() => t);
+  c.mark("m", 120_000);
+  assert.equal(c.remainingMs("m"), 120_000);
+  c.mark("m", 120_000);
+  assert.equal(c.remainingMs("m"), 240_000);
+  for (let i = 0; i < 10; i++) c.mark("m", 120_000);
+  assert.equal(c.remainingMs("m"), MAX_COOLDOWN_MS);
+  c.clear("m");
+  c.mark("m", 120_000);
+  assert.equal(c.remainingMs("m"), 120_000);
 });
 
 test("cooldown: when every model is deferred, original order is kept", () => {

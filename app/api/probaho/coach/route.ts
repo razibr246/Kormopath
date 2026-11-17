@@ -71,7 +71,11 @@ export async function POST(req: Request) {
   tracer.log("rule-coach", `Built from deterministic analysis: ${a.covered.length}/${q.topics.length} topics covered`, "fallback");
   return NextResponse.json({
     engine: "rule-based",
-    strengths: a.covered.slice(0, 3).map((t) => ({ point: t.label, quote: t.terms.find((term) => answer.toLowerCase().includes(term.toLowerCase())) ?? t.label })),
+    // A strength is only listed with words the speaker actually said; never a topic label as a "quote".
+    strengths: a.covered
+      .map((t) => ({ point: t.label, quote: t.terms.find((term) => answer.toLowerCase().includes(term.toLowerCase())) }))
+      .filter((s): s is { point: string; quote: string } => Boolean(s.quote))
+      .slice(0, 3),
     gaps: (a.missing.length ? a.missing.slice(0, 3).map((t) => ({ tip: t.followUp })) : a.tips.slice(0, 2).map((tip) => ({ tip }))).slice(0, 3),
     stronger_sentence: null,
     trace: tracer.steps,

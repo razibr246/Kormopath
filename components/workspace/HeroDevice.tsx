@@ -188,7 +188,7 @@ export function HeroDevice() {
             </div>
           )}
 
-          {/* Tab 3: ChuktiGuard Shield */}
+          {/* Tab 3: Outreach contract */}
           {activeTab === "contract" && (
             <div className="hero-screen-content animate-fadeIn">
               <div className="hero-screen-heading">

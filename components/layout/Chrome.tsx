@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { AppSwitcherDropdown } from "@/components/layout/AppSwitcherDropdown";
 import { KormoPathLogo } from "@/components/brand/KormoPathLogo";
 import { FX_FALLBACK } from "@/lib/data";
-import { ArrowUpRight, LayoutGrid, Languages, Menu, Search, ShieldCheck, X } from "lucide-react";
+import { ArrowUpRight, FlaskConical, LayoutGrid, Languages, Menu, Search, ShieldCheck, X } from "lucide-react";
 
 const NAV = [
   { href: "/workspace", bn: "ওয়ার্কস্পেস", en: "Workspace" },
@@ -167,6 +167,9 @@ export function Footer() {
             </p>
             <Link href="/settings" className="kp-chip font-semibold">
               <ShieldCheck size={14} className="text-emerald-700" /> ডেটা ও প্রাইভেসি
+            </Link>
+            <Link href="/trust" className="kp-chip font-semibold">
+              <FlaskConical size={14} className="text-emerald-700" /> পরিমাপ করা ফল · Measured results
             </Link>
           </div>
           {FOOTER_GROUPS.map((group) => (

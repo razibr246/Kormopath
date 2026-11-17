@@ -44,7 +44,7 @@ export function StageContract({
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-kept text-white text-[13px] font-bold">
             <FileText size={16} />
           </span>
-          <span className="font-bold text-[15px] text-ink">Module 3: KormoPath ChuktiGuard</span>
+          <span className="font-bold text-[15px] text-ink">Step 3 · Outreach</span>
           <span className="rounded bg-white px-2 py-0.5 text-[11px] font-semibold text-muted border border-line">
             Direct-Client Pitch &amp; Blackout-Shield Legal Agent
           </span>

@@ -251,7 +251,7 @@ export function StageViva(props: {
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-kept text-white text-[13px] font-bold">
             <Code2 size={16} />
           </span>
-          <span className="font-bold text-[15px] text-ink">Module 2: KormoPath VivaForge</span>
+          <span className="font-bold text-[15px] text-ink">Step 2 · Examiner</span>
           <span className="rounded bg-white px-2 py-0.5 text-[11px] font-semibold text-muted border border-line">
             Live Bug-Hunt &amp; Voice Viva Verifier
           </span>

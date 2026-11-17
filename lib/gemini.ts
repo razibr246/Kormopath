@@ -14,7 +14,9 @@ const cooldown = createCooldown();
  *  - 404 (model not offered to this key)          -> next model
  *  - 401/403 (key rejected)                       -> next key
  *  - 429 (quota or rate limit for this key)       -> next key, then next model
- *  - 500/503/504 or network error                 -> retry the same model once, then next model
+ *  - 500/504 or network error                     -> retry the same model once, then next model
+ *  - 503 (model under high demand)                -> next model (retried once only if it is the last)
+ *  - 429 on every key, or a timeout               -> model is tried last for a while (lib/cooldown.ts)
  * Interactions are never stored on Google's side (store: false), which matters for MediScan.
  */
 
@@ -25,7 +27,7 @@ const API_REVISION = "2026-05-20";
 // them, and the current models are always appended, so a stale deployment setting cannot break AI.
 const RETIRED = /^gemini-(1\.|2\.|flash-lite-latest$|flash-latest$)/;
 const chain = (...names: Array<string | undefined>) => [...new Set(names.map((n) => n?.trim()).filter((n): n is string => Boolean(n) && !RETIRED.test(n!)))];
-export const TEXT_MODELS = chain(process.env.GEMINI_MODEL, process.env.GEMINI_FALLBACK_MODEL, "gemini-4-hydrogen", "gemini-3.5-flash-lite");
+export const TEXT_MODELS = chain(process.env.GEMINI_MODEL, process.env.GEMINI_FALLBACK_MODEL, "gemini-4-hydrogen", "gemini-3.5-flash-lite", "gemini-3.1-flash-lite");
 export const TTS_MODELS = chain(process.env.GEMINI_TTS_MODEL, "gemini-3.8-flash-tts", "gemini-3.8-flash-lite-tts");
 
 /** GEMINI_API_KEY first, then any extra keys in GEMINI_API_KEYS (comma-separated). Never logged. */
@@ -136,8 +138,10 @@ export async function interact(
           continue;
         }
         if (err.status === 404) { tracer.log(model, `Model not available to this key${keyLabel}; trying the next model`, "warn", ms); break; }
-        // Retry once on a server error; a timeout goes straight to the next (lighter) model.
-        if ((err.status >= 500 || (err.status === 0 && err.message !== "Gemini timed out")) && !retried) {
+        // Retry once on a server error; a timeout goes straight to the next (lighter) model, and so
+        // does 503 ("high demand" for this model) unless no other model is left to try.
+        const lastModel = m === models.length - 1;
+        if (((err.status >= 500 && (err.status !== 503 || lastModel)) || (err.status === 0 && err.message !== "Gemini timed out")) && !retried) {
           retried = true;
           tracer.log(model, `${err.message}; retrying once`, "warn", ms);
           await new Promise((r) => setTimeout(r, 600));

@@ -11,7 +11,7 @@ export const RATE_LIMIT_COOLDOWN_MS = 5 * 60_000;
 export const TIMEOUT_COOLDOWN_MS = 2 * 60_000;
 
 export type Cooldown = {
-  /** Defer this model until now + ms. */
+  /** Defer this model for ms, doubled for each failure since its last success (capped). */
   mark(model: string, ms: number): void;
   /** Forget a deferral, e.g. after the model answered. */
   clear(model: string): void;
@@ -21,8 +21,12 @@ export type Cooldown = {
   order(models: readonly string[]): string[];
 };
 
+/** Repeated failures double the deferral (2 min → 4 → 8 …) up to this cap; a success resets it. */
+export const MAX_COOLDOWN_MS = 30 * 60_000;
+
 export function createCooldown(now: () => number = () => Date.now()): Cooldown {
   const until = new Map<string, number>();
+  const strikes = new Map<string, number>();
   const remainingMs = (model: string) => {
     const t = until.get(model);
     if (t === undefined) return 0;
@@ -31,8 +35,12 @@ export function createCooldown(now: () => number = () => Date.now()): Cooldown {
     return left;
   };
   return {
-    mark: (model, ms) => { until.set(model, now() + Math.max(0, ms)); },
-    clear: (model) => { until.delete(model); },
+    mark: (model, ms) => {
+      const n = strikes.get(model) ?? 0;
+      strikes.set(model, n + 1);
+      until.set(model, now() + Math.min(Math.max(0, ms) * 2 ** n, MAX_COOLDOWN_MS));
+    },
+    clear: (model) => { until.delete(model); strikes.delete(model); },
     remainingMs,
     order: (models) => [
       ...models.filter((m) => remainingMs(m) === 0),

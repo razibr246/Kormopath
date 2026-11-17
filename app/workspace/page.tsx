@@ -11,7 +11,8 @@ import { StageMoney } from "@/components/workspace/StageMoney";
 import { EcosystemHub } from "@/components/home/EcosystemHub";
 import { PERSONAS, type Persona } from "@/lib/presets";
 import { CHALLENGES, challengeForTrack } from "@/lib/challenges";
-import { FEES, FX_FALLBACK, MACRO_STATS_2026, TRACKS, type Source } from "@/lib/data";
+import { FEES, FX_FALLBACK, TRACKS, type Source } from "@/lib/data";
+import EVAL from "@/lib/eval-results.json";
 import { compareChannels, best, checkInvariants, fmtBdt, type FeeValues } from "@/lib/finops";
 import { milestoneAmounts, type ContractInput } from "@/lib/contract";
 import { runTests, sha256 } from "@/lib/sandbox";
@@ -39,10 +40,10 @@ import {
 } from "lucide-react";
 
 const STAGES = [
-  { n: 1, title: "Compass", sub: "Skill & Market Auditor", icon: Compass },
-  { n: 2, title: "VivaForge", sub: "Bug-Hunt & Viva Verifier", icon: Code2 },
-  { n: 3, title: "ChuktiGuard", sub: "Pitch & 48h Contract", icon: FileText },
-  { n: 4, title: "TakaFlow", sub: "FinOps & NBR Tax Agent", icon: DollarSign },
+  { n: 1, title: "Auditor", sub: "Checks each skill against your CV", icon: Compass },
+  { n: 2, title: "Examiner", sub: "Code challenge + spoken viva", icon: Code2 },
+  { n: 3, title: "Outreach", sub: "Pitch + bilingual contract", icon: FileText },
+  { n: 4, title: "Treasurer", sub: "Fees, tax & taka received", icon: DollarSign },
 ] as const;
 
 const DEFAULT_FEES = Object.fromEntries(
@@ -113,13 +114,13 @@ export default function Home() {
   const remember = (label: string, validated: unknown, raw: string | null) =>
     setInspect((x) => ({ ...x, [label]: { label, validated, raw } }));
 
-  // ---- stage 1: Compass ----
+  // ---- stage 1: Auditor ----
   const [cv, setCv] = useState("");
   const [audit, setAudit] = useState<AuditResult | null>(null);
   const [auditBusy, setAuditBusy] = useState(false);
   const [auditErr, setAuditErr] = useState<string | null>(null);
 
-  // ---- stage 2: VivaForge ----
+  // ---- stage 2: Examiner ----
   const [challengeId, setChallengeId] = useState(CHALLENGES[0].id);
   const challenge = CHALLENGES.find((c) => c.id === challengeId)!;
   const [code, setCode] = useState(CHALLENGES[0].buggy);
@@ -133,7 +134,7 @@ export default function Home() {
   const [issuing, setIssuing] = useState(false);
   const [issueErr, setIssueErr] = useState<string | null>(null);
 
-  // ---- stage 3: ChuktiGuard ----
+  // ---- stage 3: Outreach ----
   const [contract, setContract] = useState<ContractInput>({
     freelancer: "",
     client: "",
@@ -154,7 +155,7 @@ export default function Home() {
   const [pitching, setPitching] = useState(false);
   const [pitchError, setPitchError] = useState<string | null>(null);
 
-  // ---- stage 4: TakaFlow ----
+  // ---- stage 4: Treasurer ----
   const [invoice, setInvoice] = useState(1000);
   const [withdrawals, setWithdrawals] = useState(1);
   const [claim, setClaim] = useState(true);
@@ -177,7 +178,7 @@ export default function Home() {
           throw new Error("FX response invalid");
         setFx({ usdBdt: d.usdBdt, live: Boolean(d.live), source: d.source });
         local(
-          "TakaFlow",
+          "Treasurer",
           "fx-rate-sync",
           `[FX-Sync: ${Math.round(performance.now() - t0)}ms] 1 USD = ৳${d.usdBdt.toFixed(2)} (${
             d.live ? "Live Interbank" : "2026 Base Benchmark"
@@ -188,7 +189,7 @@ export default function Home() {
       })
       .catch(() => {
         local(
-          "TakaFlow",
+          "Treasurer",
           "fx-rate-sync",
           `[FX-Sync: ${Math.round(performance.now() - t0)}ms] Using 2026 verified benchmark rate ৳${
             FX_FALLBACK.usdBdt
@@ -241,7 +242,7 @@ export default function Home() {
       setAuditErr(null);
       const t0 = performance.now();
       local(
-        "Compass",
+        "Auditor",
         "audit-start",
         `[Auditor] Sending CV to the audit agent; skills are checked against the CV text and valued with the indicative rate dataset`,
         0
@@ -255,7 +256,7 @@ export default function Home() {
         }
         setAudit(d);
         remember(
-          "Compass: CV Extraction & Valuation",
+          "Auditor: CV Extraction & Valuation",
           {
             extraction: d.extraction,
             skills: d.skills,
@@ -313,11 +314,11 @@ export default function Home() {
         if (d.error) setPitchError(d.error);
         else {
           setPitch(d);
-          remember("ChuktiGuard: Proposal Kit", { subject: d.subject, body: d.body }, d.raw);
+          remember("Outreach: Proposal Kit", { subject: d.subject, body: d.body }, d.raw);
           local(
-            "ChuktiGuard",
+            "Outreach",
             "pitch-generator",
-            `[ChuktiGuard: ${Math.round(performance.now() - t0)}ms] Proposal created; 20% platform fee eliminated`,
+            `[Outreach: ${Math.round(performance.now() - t0)}ms] Proposal created; 20% platform fee eliminated`,
             Math.round(performance.now() - t0)
           );
         }
@@ -337,7 +338,7 @@ export default function Home() {
       const ok = checkInvariants(cs);
       const b = best(cs);
       local(
-        "TakaFlow",
+        "Treasurer",
         "deterministic-finops",
         `[FinOps: deterministic, no model] Calculated 4 payout routes for $${inv}/mo: ${b.name} yields ${fmtBdt(
           b.netBdt
@@ -346,7 +347,7 @@ export default function Home() {
         ok.ok ? "ok" : "fail"
       );
       remember(
-        "TakaFlow: Route Comparison",
+        "Treasurer: Route Comparison",
         { invoiceUsd: inv, current: cur, fx: rate, channels: cs, invariant: ok },
         null
       );
@@ -367,7 +368,7 @@ export default function Home() {
     local(
       "KormoPath",
       "pipeline-start",
-      `[Pipeline] Starting the 4-stage path for ${p.name} (${p.city}): Compass → VivaForge → ChuktiGuard → TakaFlow`,
+      `[Pipeline] Starting the 4-stage path for ${p.name} (${p.city}): Auditor → Examiner → Outreach → Treasurer`,
       0
     );
 
@@ -380,7 +381,7 @@ export default function Home() {
     pickChallenge(ch.id);
 
     local(
-      "Compass",
+      "Auditor",
       "handoff",
       `[Handoff] ${a ? `Valued ${p.name} at $${a.valuation.rateUsd}/hr (indicative range)` : `Audit unavailable for ${p.name}; using the default track`}. Prepared bug-hunt: “${
         ch.title
@@ -402,9 +403,9 @@ export default function Home() {
     setContract(c);
 
     local(
-      "ChuktiGuard",
+      "Outreach",
       "legal-handoff",
-      `[ChuktiGuard: 85ms] Injected Clause 4 (48-Hour Force-Majeure & ৳12.5k UPS SLA) for $${p.client.valueUsd} agreement`,
+      `[Outreach: 85ms] Injected Clause 4 (48-Hour Force-Majeure & ৳12.5k UPS SLA) for $${p.client.valueUsd} agreement`,
       85
     );
 
@@ -427,7 +428,7 @@ export default function Home() {
     });
   };
 
-  // ---- stage 2: VivaForge Handlers ----
+  // ---- stage 2: Examiner Handlers ----
   const onRunTests = async () => {
     setRunning(true);
     setCompileError(null);
@@ -436,21 +437,21 @@ export default function Home() {
       if (r.compileError) {
         setCompileError(r.compileError);
         setResults(null);
-        local("VivaForge", "sandbox-worker", `Code syntax error: ${r.compileError}`, r.ms, "fail");
+        local("Examiner", "sandbox-worker", `Code syntax error: ${r.compileError}`, r.ms, "fail");
         return;
       }
       setResults(r.results);
       const pass = r.results.filter((x) => x.pass).length;
       local(
-        "VivaForge",
+        "Examiner",
         "sandbox-worker",
-        `[VivaForge: ${r.ms}ms] Executed ${r.results.length} tests in isolated Web Worker: ${pass} passed`,
+        `[Examiner: ${r.ms}ms] Executed ${r.results.length} tests in isolated Web Worker: ${pass} passed`,
         r.ms,
         pass === r.results.length ? "ok" : "warn"
       );
     } catch {
       setCompileError("Sandbox failed. Please refresh and retry.");
-      local("VivaForge", "sandbox-worker", "Worker crashed", 0, "fail");
+      local("Examiner", "sandbox-worker", "Worker crashed", 0, "fail");
     } finally {
       setRunning(false);
     }
@@ -463,16 +464,16 @@ export default function Home() {
       log(d.trace);
       if (!d.error) {
         setGrades((g) => ({ ...g, [qid]: d }));
-        remember(`VivaForge: Question ${qid}`, { covered: d.covered, score: d.score, feedback: d.feedback }, d.raw);
+        remember(`Examiner: Question ${qid}`, { covered: d.covered, score: d.score, feedback: d.feedback }, d.raw);
         local(
-          "VivaForge",
+          "Examiner",
           "viva-grader",
           `[Viva-Grade: Score ${d.score}/10] Grounded quotes: ${d.covered.length} rubric points satisfied`,
           45
         );
-      } else local("VivaForge", "viva-grader", d.error, 0, "fail");
+      } else local("Examiner", "viva-grader", d.error, 0, "fail");
     } catch {
-      local("VivaForge", "viva-grader", "Could not reach viva grader.", 0, "fail");
+      local("Examiner", "viva-grader", "Could not reach viva grader.", 0, "fail");
     } finally {
       setGrading(null);
     }
@@ -485,7 +486,7 @@ export default function Home() {
       const t0 = performance.now();
       const hash = await sha256(code);
       local(
-        "VivaForge",
+        "Examiner",
         "crypto-fingerprint",
         `[SHA-256: ${Math.round(performance.now() - t0)}ms] Fingerprinted verified code: ${hash.slice(0, 16)}…`,
         Math.round(performance.now() - t0)
@@ -511,7 +512,7 @@ export default function Home() {
       if (d.error) setIssueErr(d.error);
       else {
         setPassport({ token: d.token, id: d.id });
-        local("VivaForge", "passport-issuer", `[HMAC-Pass: Verified] Minted tamper-evident passport ${d.id}`, 30);
+        local("Examiner", "passport-issuer", `[HMAC-Pass: Verified] Minted tamper-evident passport ${d.id}`, 30);
       }
     } catch {
       setIssueErr("Could not issue passport.");
@@ -544,7 +545,7 @@ export default function Home() {
         return;
       }
       const r = d.receipt;
-      remember("TakaFlow: Receipt OCR", d.receipt, d.raw);
+      remember("Treasurer: Receipt OCR", d.receipt, d.raw);
       const usd =
         r.currency.toUpperCase() === "USD"
           ? r.amount
@@ -615,44 +616,49 @@ export default function Home() {
       />
 
       <main id="main" className="mx-auto max-w-7xl px-4 sm:px-6 space-y-12">
-        {/* Macro Stats Verified 2026 Bar */}
-        <section aria-label="Macro Statistics" className="mt-4 overflow-hidden rounded-2xl border border-slate-200/80 bg-white/90 backdrop-blur-md shadow-xs">
+        {/* Proof bar: every figure is live (FX) or measured by scripts/eval.ts (lib/eval-results.json). */}
+        <section aria-label={lang === "bn" ? "যাচাই করা ফলাফল" : "Measured results"} className="mt-4 overflow-hidden rounded-2xl border border-slate-200/80 bg-white/90 backdrop-blur-md shadow-xs">
           <div className="grid grid-cols-2 divide-x divide-line text-[12px] sm:grid-cols-4">
-            <div className="p-3.5 sm:p-4 text-center sm:text-left">
-              <span className="flex items-center justify-center sm:justify-start gap-1.5 text-muted">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                Active BD Freelancers
-              </span>
-              <strong className="block text-[16px] text-ink font-mono font-extrabold tabular-nums mt-0.5">{MACRO_STATS_2026.activeFreelancers}</strong>
-              <span className="text-[11px] text-muted font-mono">$550M–$650M Annual Flow</span>
-            </div>
-            <div className="p-3.5 sm:p-4 text-center sm:text-left">
-              <span className="flex items-center justify-center sm:justify-start gap-1.5 text-muted">
-                <span className="h-2 w-2 rounded-full bg-rose-500" />
-                Unemployed Youth Pool
-              </span>
-              <strong className="block text-[16px] text-leak font-mono font-extrabold tabular-nums mt-0.5">{MACRO_STATS_2026.unemployedYouthPool}</strong>
-              <span className="text-[11px] text-muted">Vulnerable to basic AI</span>
-            </div>
-            <div className="p-3.5 sm:p-4 text-center sm:text-left">
-              <span className="flex items-center justify-center sm:justify-start gap-1.5 text-muted">
-                <span className="h-2 w-2 rounded-full bg-orange-500" />
-                Direct Contract Upside
-              </span>
-              <strong className="block text-[16px] text-kept font-mono font-extrabold tabular-nums mt-0.5">+25%–30% Income</strong>
-              <Link href="/feeguard" className="text-[11px] text-kept font-semibold hover:underline">
-                Audit via FeeGuard BD →
-              </Link>
-            </div>
-            <div className="p-3.5 sm:p-4 text-center sm:text-left">
-              <span className="flex items-center justify-center sm:justify-start gap-1.5 text-muted">
-                <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                Clause 4 outage buffer
-              </span>
-              <strong className="block text-[16px] text-kept font-mono font-extrabold tabular-nums mt-0.5">48 Hours + ৳12.5k UPS</strong>
-              <span className="text-[11px] text-kept font-medium">In the contract template</span>
-            </div>
+            {[
+              {
+                dot: "bg-emerald-500",
+                label: lang === "bn" ? "সিভি থেকে উদ্ধৃতিসহ দক্ষতা" : "Skills quoted from the CV",
+                value: `${EVAL.audit.verifiedQuoteFound}/${EVAL.audit.verified}`,
+                note: lang === "bn" ? `${EVAL.audit.cvs}টি নমুনা সিভি` : `${EVAL.audit.cvs} sample CVs`,
+              },
+              {
+                dot: "bg-orange-500",
+                label: lang === "bn" ? "ফাঁদ-সিভি পরীক্ষা" : "Trap-CV tests passed",
+                value: `${EVAL.probes.filter((p) => p.passed).length}/${EVAL.probes.length}`,
+                note: lang === "bn" ? "কোনো দক্ষতা বানানো হয়নি" : "no invented skills",
+              },
+              {
+                dot: "bg-emerald-500",
+                label: lang === "bn" ? "ফি-হিসাব মিলেছে" : "Fee routes that reconcile",
+                value: `${(EVAL.fees.channelRoutes - EVAL.fees.failures).toLocaleString("en-US")}/${EVAL.fees.channelRoutes.toLocaleString("en-US")}`,
+                note: lang === "bn" ? `${EVAL.fees.cases.toLocaleString("en-US")}টি ইনপুট` : `${EVAL.fees.cases.toLocaleString("en-US")} generated inputs`,
+              },
+              {
+                dot: fx.live ? "bg-emerald-500" : "bg-amber-500",
+                label: fx.live ? (lang === "bn" ? "লাইভ রেট" : "Live USD → BDT") : (lang === "bn" ? "রেফারেন্স রেট" : "Reference USD → BDT"),
+                value: `৳${fx.usdBdt.toFixed(2)}`,
+                note: fx.source.label,
+              },
+            ].map((c) => (
+              <div key={c.label} className="p-3.5 sm:p-4 text-center sm:text-left">
+                <span className="flex items-center justify-center sm:justify-start gap-1.5 text-muted">
+                  <span className={`h-2 w-2 rounded-full ${c.dot}`} aria-hidden="true" />
+                  {c.label}
+                </span>
+                <strong className="block text-[16px] text-ink font-mono font-extrabold tabular-nums mt-0.5">{c.value}</strong>
+                <span className="block text-[11px] text-muted line-clamp-2">{c.note}</span>
+              </div>
+            ))}
           </div>
+          <Link href="/trust" className="flex items-center justify-center gap-1.5 border-t border-line px-3 py-2 text-[12px] font-semibold text-kept hover:bg-kept-soft/40">
+            {lang === "bn" ? "কীভাবে মাপা হয়েছে দেখুন" : "How these were measured"} ·{" "}
+            {new Date(EVAL.generatedAt).toLocaleDateString(lang === "bn" ? "bn-BD" : "en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Dhaka" })} →
+          </Link>
         </section>
 
         {/* Hero Section */}
@@ -811,7 +817,7 @@ export default function Home() {
                     onFile={async (f, gh) => {
                       try {
                         const file = await fileToB64(f);
-                        local("Compass", "ocr-upload", `${file.name} (${Math.round(f.size / 1024)} KB)`);
+                        local("Auditor", "ocr-upload", `${file.name} (${Math.round(f.size / 1024)} KB)`);
                         await runAudit(cv, { file, github: gh });
                       } catch (e) {
                         setAuditErr((e as Error).message);
@@ -833,7 +839,7 @@ export default function Home() {
                     onReveal={() => {
                       setAssisted(true);
                       setCode(challenge.reference);
-                      local("VivaForge", "show-reference", "Reference fix displayed; passport flagged as assisted", 0, "warn");
+                      local("Examiner", "show-reference", "Reference fix displayed; passport flagged as assisted", 0, "warn");
                     }}
                     grades={grades}
                     grading={grading}
@@ -1310,7 +1316,7 @@ export default function Home() {
                 <ChevronDown size={18} className="text-muted group-open:rotate-180 transition-transform" />
               </summary>
               <p className="mt-3 text-[14px] text-muted leading-relaxed">
-                Rather than accepting self-reported CV claims or AI-generated portfolios, VivaForge executes a realistic bug-hunt challenge inside an isolated browser Web Worker with a strict time budget. The user then answers two spoken viva questions via the Web Speech API, where points are only awarded if the examiner can quote literal phrases from the user&apos;s answer. Upon completion, a cryptographic HMAC SHA-256 fingerprint is minted and verifiable via a public <code className="font-mono text-ink">/verify</code> link.
+                Rather than accepting self-reported CV claims or AI-generated portfolios, Examiner executes a realistic bug-hunt challenge inside an isolated browser Web Worker with a strict time budget. The user then answers two spoken viva questions via the Web Speech API, where points are only awarded if the examiner can quote literal phrases from the user&apos;s answer. Upon completion, a cryptographic HMAC SHA-256 fingerprint is minted and verifiable via a public <code className="font-mono text-ink">/verify</code> link.
               </p>
             </details>
 
@@ -1320,7 +1326,7 @@ export default function Home() {
                 <ChevronDown size={18} className="text-muted group-open:rotate-180 transition-transform" />
               </summary>
               <p className="mt-3 text-[14px] text-muted leading-relaxed">
-                Under the Finance Act 2024 (Section 48), income from Information Technology Enabled Services (ITES) earned between 1 July 2024 and 30 June 2027 is 100% exempt from income tax in Bangladesh if received through formal banking channels. KormoPath TakaFlow provides an income ledger with receipt OCR verification that exports an audited CSV ledger ready for submission to your tax advisor and bank.
+                Under the Finance Act 2024 (Section 48), income from Information Technology Enabled Services (ITES) earned between 1 July 2024 and 30 June 2027 is 100% exempt from income tax in Bangladesh if received through formal banking channels. KormoPath Treasurer provides an income ledger with receipt OCR verification that exports an audited CSV ledger ready for submission to your tax advisor and bank.
               </p>
             </details>
           </div>

@@ -80,20 +80,6 @@ export const TRACKS: Track[] = [
   },
 ];
 
-export const MACRO_STATS_2026 = {
-  activeFreelancers: "700,000–750,000",
-  activeFreelancers2023: "500,000",
-  annualEarnings: "$550M–$650M",
-  avgMonthlyIncome: "$550–$800",
-  partTimeStudents: "৳18,000–৳62,000 / mo (~$150–$500/mo)",
-  youthParticipation: "75%–78%",
-  unemployedYouthPool: "2.7 Million",
-  marketplaceCommissionDrain: "10%–20%",
-  postBlackoutIncomeDropRisk: "20%–30%",
-  baseUsdBdt: 120.0,
-  recommendedUpsBufferBdt: "৳8,000–৳15,000",
-};
-
 export const FX_FALLBACK = {
   usdBdt: 120.0,
   source: {

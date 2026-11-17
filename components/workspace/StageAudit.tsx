@@ -70,9 +70,9 @@ export function StageAudit({
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-kept text-white text-[13px] font-bold">
             <Compass size={16} />
           </span>
-          <span className="font-bold text-[15px] text-ink">Module 1: KormoPath Compass</span>
+          <span className="font-bold text-[15px] text-ink">Step 1 · Auditor</span>
           <span className="rounded bg-white px-2 py-0.5 text-[11px] font-semibold text-muted border border-line">
-            Multimodal Skill &amp; AI-Obsolescence Auditor
+            Every skill must quote your CV
           </span>
         </div>
         <span className="text-[12px] font-medium text-muted">
@@ -91,7 +91,7 @@ export function StageAudit({
             )}
           </div>
           <p className="mb-2 text-[14px] text-muted">Paste CV text, or upload a CV photo, PDF or a Fiverr/Upwork profile screenshot.</p>
-          <p className="mb-3 rounded-lg bg-paper px-3 py-2 text-[12px] text-muted">Uploaded documents are processed through Vision OCR. Every claimed skill must strictly quote your source text or it gets rejected.</p>
+          <p className="mb-3 rounded-lg bg-paper px-3 py-2 text-[12px] text-muted">Photos and PDFs are read by Gemini. A skill is kept only if its quote is found word for word in your text; anything else is rejected.</p>
 
           {/* Pulse Scanning Animation indicator when busy */}
           {busy && (
@@ -162,7 +162,7 @@ export function StageAudit({
                 <Upload size={16} /> Upload Screenshot/PDF
               </Btn>
               <Btn onClick={() => selectedFile ? onFile(selectedFile, gh || undefined) : onRun(gh || undefined)} disabled={busy || (!selectedFile && !cv.trim()) || !consented}>
-                {busy ? <Loader2 size={16} className="animate-spin" /> : null} Audit with Compass
+                {busy ? <Loader2 size={16} className="animate-spin" /> : null} Check my skills
               </Btn>
             </div>
           </div>

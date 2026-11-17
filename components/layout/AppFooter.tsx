@@ -84,6 +84,14 @@ export function AppFooter({
               </li>
               <li>
                 <Link
+                  href="/trust"
+                  className="hover:text-emerald-700 font-medium transition-colors inline-flex items-center gap-1"
+                >
+                  <span>{lang === "bn" ? "যাচাই করা ফলাফল" : "Measured results"}</span>
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/settings"
                   className="hover:text-orange-600 transition-colors inline-flex items-center gap-1"
                 >
