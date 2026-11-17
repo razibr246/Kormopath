@@ -1,5 +1,10 @@
 import "server-only";
 import type { Tracer } from "./trace";
+import { createCooldown, RATE_LIMIT_COOLDOWN_MS, TIMEOUT_COOLDOWN_MS } from "./cooldown";
+
+// Per server instance: a model that was just rate-limited on every key, or timed out, is tried
+// last for a few minutes so each request does not pay the same wait again. See lib/cooldown.ts.
+const cooldown = createCooldown();
 
 /*
  * Gemini Interactions API client (POST /v1/interactions; v1beta for TTS).
@@ -92,7 +97,11 @@ export async function interact(
     tracer.log("gemini", "No GEMINI_API_KEY set", "fallback");
     return null;
   }
-  const models = options.models ?? TEXT_MODELS;
+  const models = cooldown.order(options.models ?? TEXT_MODELS);
+  for (const model of models) {
+    const left = cooldown.remainingMs(model);
+    if (left > 0) tracer.log(model, `Failed recently (rate limit or timeout); tried last for ${Math.ceil(left / 1000)} s more`, "warn");
+  }
   const path = `/${options.apiVersion ?? "v1"}/interactions`;
   // Total budget stays inside the route time limit (~30 s). Each attempt is capped so a slow
   // primary model still leaves time for the lighter fallback model.
@@ -104,6 +113,7 @@ export async function interact(
   for (let m = 0; m < models.length; m++) {
     const model = models[m];
     let retried = false;
+    let rateLimited = 0;
     for (let k = 0; k < keys.length; k++) {
       const remaining = deadline - performance.now();
       if (remaining < 2_000) { tracer.log(model, "Out of time before another attempt", "fail"); return null; }
@@ -114,12 +124,17 @@ export async function interact(
         const budget = m === models.length - 1 ? remaining : Math.min(attemptMs, remaining);
         const data = await post(path, keys[k], { model, store: false, ...request }, budget);
         tracer.log(model, `${options.label ?? "Interaction"} completed${keyLabel}`, "ok", Math.round(performance.now() - t0));
+        cooldown.clear(model);
         return { data, model };
       } catch (e) {
         const err = e as GeminiError;
         const ms = Math.round(performance.now() - t0);
         if (err.status === 401 || err.status === 403) { tracer.log(model, `Key rejected${keyLabel}; trying the next key`, "warn", ms); continue; }
-        if (err.status === 429) { tracer.log(model, `Quota or rate limit${keyLabel}; trying the next key`, "warn", ms); continue; }
+        if (err.status === 429) {
+          tracer.log(model, `Quota or rate limit${keyLabel}; trying the next key`, "warn", ms);
+          if (++rateLimited === keys.length) cooldown.mark(model, RATE_LIMIT_COOLDOWN_MS);
+          continue;
+        }
         if (err.status === 404) { tracer.log(model, `Model not available to this key${keyLabel}; trying the next model`, "warn", ms); break; }
         // Retry once on a server error; a timeout goes straight to the next (lighter) model.
         if ((err.status >= 500 || (err.status === 0 && err.message !== "Gemini timed out")) && !retried) {
@@ -130,6 +145,7 @@ export async function interact(
           continue;
         }
         tracer.log(model, `${err.message}; trying the next model`, "warn", ms);
+        if (err.message === "Gemini timed out") cooldown.mark(model, TIMEOUT_COOLDOWN_MS);
         break;
       }
     }
