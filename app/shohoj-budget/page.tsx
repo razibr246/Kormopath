@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { AppFooter } from "@/components/layout/AppFooter";
+import { RentPocketsPanel } from "@/components/apps/RentPocketsPanel";
 import { playClick, playCoinSound } from "@/lib/sound";
 import {
   CATEGORIES, categoryById, parseEntry, parseSms, summarizeMonth, budgetPace, splitBill, toCsv,
@@ -790,6 +791,7 @@ export default function ShohojBudgetPage() {
 
             <CategoryBudgetsPanel summary={summary} budgets={catBudgets} setBudgets={setCatBudgets} />
             <GoalsPanel goals={goals} setGoals={setGoals} today={today} />
+            <RentPocketsPanel month={month} today={today} recordedIncomePoisha={summary.incomePoisha} />
 
             {/* SMS */}
             <section aria-labelledby="sms-h" className="space-y-2 rounded-2xl border border-slate-200 bg-white p-5">
