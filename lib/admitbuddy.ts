@@ -1058,3 +1058,168 @@ export function toRoadmapMarkdown(
 
   return lines.join("\n");
 }
+
+// ---------------------------------------------------------------------------------------------
+// Study plan (পড়ার পরিকল্পনা): a deterministic, client-only day-by-day plan.
+//
+// The student enters the exam date, the chapters (with their own estimate of hours per chapter)
+// and the hours they can study per day. The planner walks the days from `start` up to the day
+// BEFORE the exam (nothing is ever scheduled on or after the exam date) and, each day:
+//   1. first places the spaced-retrieval revisions that are due (or carried over from a full day),
+//   2. then fills the remaining time with first-time study of the next chapter, round-robin across
+//      subjects so one subject does not take the whole first week.
+// Spacing rule: once a chapter's first study is finished on day D, it is revisited on D+1, D+3, D+7
+// and D+14. Any revision that would land on or after the exam date is clipped (not scheduled).
+// A revision that does not fit on its day slides to the next day with free time, still before the exam.
+// If chapters are left unstudied, or revisions cannot fit before the exam, the plan reports overload.
+// Days the student marks as lost (power cut, no internet, illness) get no sessions; the plan reflows.
+// All time is in whole minutes so the arithmetic is exact.
+// ---------------------------------------------------------------------------------------------
+export const REVISION_OFFSETS = [1, 3, 7, 14] as const;
+
+export interface StudyChapter { id: string; subject: string; title: string; hours: number }
+export interface StudyPlanInput {
+  start: string; // YYYY-MM-DD, first study day (usually today)
+  examDate: string; // YYYY-MM-DD, no sessions on or after this day
+  hoursPerDay: number;
+  chapters: StudyChapter[];
+  /** Minutes per revision session. Default 30. */
+  revisionMinutes?: number;
+  /** Days with no study (power cut, no internet, illness). */
+  blockedDates?: string[];
+}
+export interface StudySession {
+  id: string;
+  chapterId: string;
+  subject: string;
+  title: string;
+  kind: "learn" | "revise";
+  /** Revision round 1..4 (for +1, +3, +7, +14 days); 0 for first study. */
+  round: number;
+  minutes: number;
+}
+export interface StudyDay { date: string; sessions: StudySession[]; minutes: number; blocked: boolean; selfCheckBn: string; selfCheckEn: string }
+export interface StudyPlan {
+  days: StudyDay[];
+  studyDays: number;
+  availableMinutes: number;
+  neededMinutes: number;
+  /** Chapters whose first study could not be finished before the exam. */
+  unscheduled: string[];
+  /** Revisions dropped because no day before the exam had time for them. */
+  droppedRevisions: Array<{ chapterId: string; round: number }>;
+  /** Revisions not planned because their spacing date falls on or after the exam. */
+  clippedRevisions: number;
+  overload: boolean;
+  messagesBn: string[];
+}
+
+/** Metacognitive self-checks only: they ask the student to recall, never state a fact. */
+export const SELF_CHECKS: Array<{ bn: string; en: string }> = [
+  { bn: "বই বন্ধ করুন: মনে থাকা ৩টি বিষয় লিখুন।", en: "Close the book: write 3 things you remember." },
+  { bn: "আজকের অধ্যায়টা ১ মিনিটে কাউকে বোঝানোর মতো করে বলুন।", en: "Explain today's chapter aloud in one minute, as if to a friend." },
+  { bn: "কোন অংশটা সবচেয়ে কঠিন লাগল? এক লাইনে লিখে রাখুন।", en: "Which part felt hardest? Write it down in one line." },
+  { bn: "বই না দেখে নিজেই ২টি প্রশ্ন বানিয়ে উত্তর দিন।", en: "Without the book, make up 2 questions and answer them." },
+  { bn: "গতকালের পড়া থেকে একটা জিনিস মনে করুন, তারপর বই খুলে মিলিয়ে নিন।", en: "Recall one thing from yesterday, then open the book to check." },
+];
+
+const isoOk = (s: string) => /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(s + "T00:00:00Z")) && new Date(s + "T00:00:00Z").toISOString().startsWith(s);
+const plusDays = (iso: string, n: number) => new Date(Date.parse(iso + "T00:00:00Z") + n * 86_400_000).toISOString().slice(0, 10);
+
+export function validateStudyInput(i: StudyPlanInput): string | null {
+  if (!isoOk(i.start)) return "শুরুর তারিখ ঠিক নয়।";
+  if (!isoOk(i.examDate)) return "পরীক্ষার তারিখ দিন (YYYY-MM-DD)।";
+  if (i.examDate <= i.start) return "পরীক্ষার তারিখ আজকের পরে হতে হবে।";
+  if (daysBetween(i.start, i.examDate) > 400) return "পরিকল্পনা সর্বোচ্চ ৪০০ দিনের জন্য।";
+  if (!Number.isFinite(i.hoursPerDay) || i.hoursPerDay <= 0 || i.hoursPerDay > 16) return "দিনে কত ঘণ্টা পড়বেন, ০ থেকে ১৬-এর মধ্যে দিন।";
+  if (!i.chapters.length) return "অন্তত একটি অধ্যায় যোগ করুন।";
+  if (i.chapters.length > 200) return "সর্বোচ্চ ২০০টি অধ্যায়।";
+  for (const c of i.chapters) if (!Number.isFinite(c.hours) || c.hours <= 0 || c.hours > 100) return `"${c.title}" অধ্যায়ের ঘণ্টা ০ থেকে ১০০-এর মধ্যে দিন।`;
+  return null;
+}
+
+export function buildStudyPlan(i: StudyPlanInput): StudyPlan {
+  const err = validateStudyInput(i);
+  if (err) throw new Error(err);
+  const capacity = Math.round(i.hoursPerDay * 60);
+  const revMin = Math.max(5, Math.round(i.revisionMinutes ?? 30));
+  const blocked = new Set((i.blockedDates ?? []).filter(isoOk));
+
+  // Round-robin order across subjects, keeping each subject's own chapter order.
+  const bySubject = new Map<string, StudyChapter[]>();
+  for (const c of i.chapters) bySubject.set(c.subject, [...(bySubject.get(c.subject) ?? []), c]);
+  const queue: Array<{ ch: StudyChapter; left: number; part: number }> = [];
+  for (let k = 0, added = true; added; k++) {
+    added = false;
+    for (const list of bySubject.values()) if (list[k]) { queue.push({ ch: list[k], left: Math.round(list[k].hours * 60), part: 0 }); added = true; }
+  }
+
+  const pending: Array<{ ch: StudyChapter; round: number; due: string }> = [];
+  const days: StudyDay[] = [];
+  let clipped = 0;
+  const total = daysBetween(i.start, i.examDate);
+  for (let d = 0; d < total; d++) {
+    const date = plusDays(i.start, d);
+    const check = SELF_CHECKS[d % SELF_CHECKS.length];
+    if (blocked.has(date)) { days.push({ date, sessions: [], minutes: 0, blocked: true, selfCheckBn: check.bn, selfCheckEn: check.en }); continue; }
+    let free = capacity;
+    const sessions: StudySession[] = [];
+    // 1. due revisions, earliest due first
+    pending.sort((a, b) => a.due.localeCompare(b.due) || a.round - b.round);
+    for (let k = 0; k < pending.length && free >= revMin; ) {
+      const r = pending[k];
+      if (r.due > date) { k++; continue; }
+      sessions.push({ id: `${date}:${r.ch.id}:r${r.round}`, chapterId: r.ch.id, subject: r.ch.subject, title: r.ch.title, kind: "revise", round: r.round, minutes: revMin });
+      free -= revMin;
+      pending.splice(k, 1);
+    }
+    // 2. first-time study
+    while (free > 0 && queue.length) {
+      const q = queue[0];
+      const m = Math.min(free, q.left);
+      q.part++;
+      sessions.push({ id: `${date}:${q.ch.id}:l${q.part}`, chapterId: q.ch.id, subject: q.ch.subject, title: q.ch.title, kind: "learn", round: 0, minutes: m });
+      q.left -= m; free -= m;
+      if (q.left === 0) {
+        queue.shift();
+        REVISION_OFFSETS.forEach((off, idx) => {
+          const due = plusDays(date, off);
+          if (due >= i.examDate) clipped++;
+          else pending.push({ ch: q.ch, round: idx + 1, due });
+        });
+      }
+    }
+    days.push({ date, sessions, minutes: capacity - free, blocked: false, selfCheckBn: check.bn, selfCheckEn: check.en });
+  }
+
+  const studyDays = days.filter((d) => !d.blocked).length;
+  const availableMinutes = studyDays * capacity;
+  const unscheduled = queue.map((q) => q.ch.id);
+  const droppedRevisions = pending.map((p) => ({ chapterId: p.ch.id, round: p.round }));
+  const scheduledRev = days.reduce((a, d) => a + d.sessions.filter((s) => s.kind === "revise").length, 0);
+  const learnNeeded = i.chapters.reduce((a, c) => a + Math.round(c.hours * 60), 0);
+  // First study of every chapter plus every revision the plan wanted before the exam (placed or dropped).
+  const neededMinutes = learnNeeded + (scheduledRev + droppedRevisions.length) * revMin;
+  const overload = unscheduled.length > 0 || droppedRevisions.length > 0;
+  const messagesBn: string[] = [];
+  if (unscheduled.length) messagesBn.push(`সময় কম: পরীক্ষার আগে ${unscheduled.length}টি অধ্যায় প্রথমবার পড়াও শেষ হবে না। দিনে পড়ার সময় বাড়ান, অধ্যায় ভাগ করে নিন বা অগ্রাধিকার ঠিক করুন।`);
+  if (droppedRevisions.length) messagesBn.push(`${droppedRevisions.length}টি রিভিশনের জায়গা হয়নি। রিভিশন বাদ দিলে মনে রাখা কঠিন হয়।`);
+  if (clipped) messagesBn.push(`${clipped}টি রিভিশন পরীক্ষার দিন বা তার পরে পড়ত, তাই রাখা হয়নি।`);
+  if (blocked.size) messagesBn.push(`${days.filter((d) => d.blocked).length}টি দিন বাদ রাখা হয়েছে (বিদ্যুৎ/ইন্টারনেট নেই বা অন্য কারণে)।`);
+  return { days, studyDays, availableMinutes, neededMinutes, unscheduled, droppedRevisions, clippedRevisions: clipped, overload, messagesBn };
+}
+
+export function sanitizeStudyInput(raw: unknown): Omit<StudyPlanInput, "start"> | null {
+  if (!raw || typeof raw !== "object") return null;
+  const o = raw as Record<string, unknown>;
+  const examDate = typeof o.examDate === "string" && (o.examDate === "" || isoOk(o.examDate)) ? o.examDate : "";
+  const hoursPerDay = typeof o.hoursPerDay === "number" && Number.isFinite(o.hoursPerDay) && o.hoursPerDay > 0 && o.hoursPerDay <= 16 ? o.hoursPerDay : 3;
+  const chapters = Array.isArray(o.chapters) ? o.chapters.slice(0, 200).flatMap((c) => {
+    const x = (c ?? {}) as Record<string, unknown>;
+    if (typeof x.id !== "string" || typeof x.subject !== "string" || typeof x.title !== "string") return [];
+    const hours = typeof x.hours === "number" && Number.isFinite(x.hours) && x.hours > 0 && x.hours <= 100 ? x.hours : null;
+    return hours === null ? [] : [{ id: x.id.slice(0, 40), subject: x.subject.slice(0, 40), title: x.title.slice(0, 80), hours }];
+  }) : [];
+  const blockedDates = Array.isArray(o.blockedDates) ? o.blockedDates.filter((d): d is string => typeof d === "string" && isoOk(d)).slice(0, 400) : [];
+  return { examDate, hoursPerDay, chapters, blockedDates };
+}

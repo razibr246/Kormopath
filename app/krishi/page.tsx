@@ -3,18 +3,19 @@ import "./krishi.css";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
-  CalendarCheck, ClipboardList, CloudRain, Fish, House, Landmark, LifeBuoy, Map, MessageSquare, Mic, Phone, Stethoscope, Sun, TrendingUp,
+  BookOpenCheck, CalendarCheck, ClipboardList, CloudRain, Fish, House, Landmark, LifeBuoy, Map, MessageSquare, Mic, Phone, Stethoscope, Sun, TrendingUp,
 } from "lucide-react";
 import { AppHeader, SourceTag } from "@/components/layout/AppHeader";
 import { MaathSathiMark } from "@/components/apps/krishi/MaathSathiMark";
 import { AppFooter } from "@/components/layout/AppFooter";
 import { usePersistentState, storageKey, todayLocal } from "@/lib/clientStore";
 import { DISTRICTS, seasonForMonth, type WeatherHour } from "@/lib/haatbazar";
-import { bnNum, sanitizeHerds, sanitizeLogs, sanitizePlots, sanitizeTasks, taskBuckets, totalDecimals, type FarmLog, type FarmTask, type Herd, type Plot } from "@/lib/krishi";
+import { bnNum, sanitizeHarvests, sanitizeHerds, sanitizeLogs, sanitizePlots, sanitizeTasks, taskBuckets, totalDecimals, type FarmLog, type FarmTask, type HarvestRec, type Herd, type Plot } from "@/lib/krishi";
 import {
   AnimalSection, DoctorSection, FutureSection, HelpSection, LandSection, PlanSection, SmsSection, SupportSection, TodaySection, VoiceSection,
   uid, type BudgetRec, type Weather,
 } from "@/components/apps/krishi/Sections";
+import { FarmRecordSection } from "@/components/apps/krishi/FarmRecord";
 
 const TABS = [
   { id: "home", bn: "হোম", icon: House },
@@ -26,6 +27,7 @@ const TABS = [
   { id: "sms", bn: "এসএমএসে", icon: MessageSquare },
   { id: "doctor", bn: "ফসলের ডাক্তার", icon: Stethoscope },
   { id: "animals", bn: "পশু, হাঁস-মুরগি ও মাছ", icon: Fish },
+  { id: "record", bn: "খামারের খাতা", icon: BookOpenCheck },
   { id: "support", bn: "সরকারি সহায়তা", icon: Landmark },
   { id: "help", bn: "সাহায্য", icon: LifeBuoy },
 ] as const;
@@ -57,6 +59,7 @@ export default function KrishiPage() {
   const [herds, setHerds] = usePersistentState<Herd[]>(storageKey("krishi", "herds"), [], sanitizeHerds);
   const [logs, setLogs] = usePersistentState<FarmLog[]>(storageKey("krishi", "logs"), [], sanitizeLogs);
   const [budgets, setBudgets] = usePersistentState<BudgetRec[]>(storageKey("krishi", "budgets"), [], sanitizeBudgets);
+  const [harvests, setHarvests] = usePersistentState<HarvestRec[]>(storageKey("krishi", "harvests"), [], sanitizeHarvests);
 
   const [weather, setWeather] = useState<Weather>(null);
   const [weatherErr, setWeatherErr] = useState<string | null>(null);
@@ -193,6 +196,7 @@ export default function KrishiPage() {
           {tab === "sms" && <SmsSection tasks={tasks} today={today} weather={weather} />}
           {tab === "doctor" && <DoctorSection />}
           {tab === "animals" && <AnimalSection herds={herds} setHerds={setHerds} logs={logs} setLogs={setLogs} today={today} />}
+          {tab === "record" && <FarmRecordSection plots={plots} tasks={tasks} herds={herds} logs={logs} budgets={budgets} harvests={harvests} setHarvests={setHarvests} today={today} />}
           {tab === "support" && <SupportSection decimals={totalDecimals(plots)} />}
           {tab === "help" && <HelpSection />}
         </div>

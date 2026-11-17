@@ -4,7 +4,8 @@
  *
  * What lives here: land-unit conversion, crop budgets in integer poisha, rotation checks by botanical
  * family, task buckets, a Bangla voice-to-task parser (always confirmed by the farmer before saving),
- * SMS length/encoding, livestock/poultry/fish records and the Crop Doctor confidence verdict.
+ * SMS length/encoding, livestock/poultry/fish records, the Crop Doctor confidence verdict, farmer-entered
+ * harvest records and the farm record export (season summary + farmOS-shaped JSON logs).
  *
  * What never lives here: prices, yields, sowing dates, subsidy amounts or any pesticide/medicine dose.
  * Those are entered by the farmer (with where they heard it) or come from a sourced reference in
@@ -166,7 +167,8 @@ export function rotationCheck(history: Array<{ cropId: string }>): RotationCheck
 }
 
 // ---------------------------------------------------------------- dates and tasks
-export const isIsoDate = (s: string) => /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(s + "T00:00:00Z"));
+/** A real calendar date: 2026-02-30 is rejected (Date.parse alone would roll it over to March). */
+export const isIsoDate = (s: string) => /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(s + "T00:00:00Z")) && new Date(s + "T00:00:00Z").toISOString().startsWith(s);
 
 export function addDays(iso: string, days: number): string {
   const d = new Date(iso + "T00:00:00Z");
@@ -423,4 +425,229 @@ export function sanitizeLogs(raw: unknown): FarmLog[] | null {
     const nextDue = str(o.nextDue, 10);
     return [{ id, herdId, date, kind: o.kind as FarmLogKind, amount, note: str(o.note, 160) ?? undefined, nextDue: nextDue && isIsoDate(nextDue) ? nextDue : undefined }];
   });
+}
+
+// ---------------------------------------------------------------- harvest records (farmer-entered)
+/** One harvest the farmer weighed or counted, and what they sold of it. All numbers are the farmer's own. */
+export interface HarvestRec {
+  id: string;
+  plotId: string;
+  cropId: string;
+  date: string; // YYYY-MM-DD
+  kg: number;
+  soldKg?: number;
+  /** What the farmer says they received, in integer poisha. */
+  salePoisha?: number;
+  /** Who bought or where, as the farmer wrote it. */
+  buyer?: string;
+}
+
+export function sanitizeHarvests(raw: unknown): HarvestRec[] | null {
+  if (!Array.isArray(raw)) return null;
+  const qty = (v: unknown) => (typeof v === "number" && Number.isFinite(v) && v >= 0 && v < 1e9 ? v : undefined);
+  return raw.slice(0, 500).flatMap((h) => {
+    const o = (h ?? {}) as Record<string, unknown>;
+    const id = str(o.id, 40), plotId = str(o.plotId, 40), cropId = str(o.cropId, 30), date = str(o.date, 10);
+    const kg = qty(o.kg);
+    if (!id || !plotId || !cropId || !date || !isIsoDate(date) || kg === undefined) return [];
+    const sale = typeof o.salePoisha === "number" && Number.isInteger(o.salePoisha) && o.salePoisha >= 0 && o.salePoisha < 1e13 ? o.salePoisha : undefined;
+    return [{ id, plotId, cropId, date, kg, soldKg: qty(o.soldKg), salePoisha: sale, buyer: str(o.buyer, 80) ?? undefined }];
+  });
+}
+
+// ---------------------------------------------------------------- farm record export (খামারের খাতা)
+/*
+ * Builds a self-recorded farm record from what the farmer saved in MaathSathi: a plain-language season
+ * summary per plot, and a JSON export whose log entries are shaped like farmOS logs.
+ *
+ * farmOS log model (checked 2026-11-17 at https://farmos.org/model/type/log/ and /model/type/quantity/):
+ * every log has a name, a timestamp and a status (pending / done / abandoned); log types include
+ * activity, observation, input and harvest (also lab test, maintenance, medical, seeding, transplanting);
+ * a quantity has a measure (count, weight, volume, value, ...), a decimal value, units and an optional
+ * label. We use only activity, input, harvest and observation, and only "done" entries.
+ *
+ * Nothing here is verified: it is the farmer's own record. No quantity is invented. Completed spray or
+ * fertiliser tasks become input logs WITHOUT a quantity, because the app never records doses.
+ */
+export type FarmOsLogType = "activity" | "input" | "harvest" | "observation";
+export interface FarmOsQuantity { measure: "count" | "weight" | "volume" | "value"; value: number; units: string; label?: string }
+export interface FarmOsLog {
+  id: string;
+  type: FarmOsLogType;
+  /** ISO 8601 at local midnight, Bangladesh time (UTC+06:00, no daylight saving). */
+  timestamp: string;
+  name: string;
+  status: "done";
+  quantity: FarmOsQuantity[];
+  /** ids of plots (land assets) or herds (animal/pond assets) the log is about. */
+  asset: string[];
+  notes?: string;
+  /** Which MaathSathi record the log came from. */
+  source: "task" | "herd-log" | "harvest" | "soil-test";
+}
+
+/** The farmer's plan for one plot (from the planning tab). These are planned costs, not receipts. */
+export interface PlanBudget { plotId: string; cropId: string; costs: Array<{ label: string; taka: number }>; expectedKg: number; priceTaka: number; priceSource: string }
+
+export interface PlotSeason {
+  plotId: string;
+  name: string;
+  decimals: number;
+  /** Crops as the farmer listed them in the plot history (season label + crop). */
+  cropsGrown: Array<{ season: string; cropBn: string }>;
+  plannedCropBn: string | null;
+  sown: Array<{ date: string; title: string }>;
+  inputs: Array<{ date: string; kindBn: string; title: string }>;
+  otherWork: Array<{ date: string; title: string }>;
+  harvests: Array<{ date: string; cropBn: string; kg: number; soldKg: number | null; salePoisha: number | null; buyer: string | null }>;
+  harvestKg: number;
+  soldKg: number;
+  salePoisha: number;
+  /** Sum of the farmer's planned cost lines, in poisha; null when there is no plan. */
+  plannedCostPoisha: number | null;
+  soilTest: string | null;
+}
+
+export interface HerdRecord {
+  id: string; name: string; kindBn: string; count: number; unitBn: string;
+  milkL: number; eggs: number; fishKg: number; feedKg: number; salePoisha: number; expensePoisha: number;
+  vaccinations: string[]; illnesses: string[];
+}
+
+export interface FarmRecord {
+  period: { from: string; to: string };
+  generatedOn: string;
+  disclaimerBn: string;
+  disclaimerEn: string;
+  plots: PlotSeason[];
+  unassignedWork: Array<{ date: string; title: string }>;
+  herds: HerdRecord[];
+  logs: FarmOsLog[];
+  totals: { harvestKg: number; salePoisha: number; logCount: number };
+}
+
+export const FARM_RECORD_DISCLAIMER_BN = "এই খাতা কৃষক নিজে লিখেছেন (স্ব-লিখিত)। ঋণ কর্মকর্তা, বিমাকারী বা সমবায়ের কাজে লাগতে পারে, তবে কেউ যাচাই করেনি।";
+export const FARM_RECORD_DISCLAIMER_EN = "Self-recorded by the farmer; useful for a loan officer, insurer or cooperative; not verified.";
+
+const TASK_KIND_BN: Record<TaskKind, string> = { irrigate: "সেচ", fertilise: "সার", spray: "স্প্রে", weed: "নিড়ানি", sow: "বপন/রোপণ", harvest: "ফসল তোলা", market: "হাটে বিক্রি", animal: "পশুপাখি", fish: "মাছ", other: "অন্য কাজ" };
+/** sow → activity (farmOS "seeding" needs a plant asset we do not track); fertilise/spray → input with no quantity. */
+const TASK_LOG_TYPE: Record<TaskKind, FarmOsLogType> = { irrigate: "activity", fertilise: "input", spray: "input", weed: "activity", sow: "activity", harvest: "activity", market: "activity", animal: "activity", fish: "activity", other: "activity" };
+const INPUT_KINDS: TaskKind[] = ["fertilise", "spray", "irrigate"];
+
+const tsBd = (iso: string) => `${iso}T00:00:00+06:00`;
+const round1 = (n: number) => Math.round(n * 10) / 10;
+const round3 = (n: number) => Math.round(n * 1000) / 1000;
+const positive = (n: number) => (Number.isFinite(n) && n > 0 ? n : 0);
+
+export function buildFarmRecord(input: {
+  plots: Plot[]; tasks: FarmTask[]; herds: Herd[]; logs: FarmLog[]; harvests: HarvestRec[]; budgets?: PlanBudget[];
+  from: string; to: string; generatedOn: string;
+}): FarmRecord {
+  if (!isIsoDate(input.from) || !isIsoDate(input.to) || input.from > input.to) throw new Error("সময়কাল ঠিক নয়: শুরুর তারিখ শেষের তারিখের আগে দিন।");
+  const inRange = (d: string) => isIsoDate(d) && d >= input.from && d <= input.to;
+  const plotIds = new Set(input.plots.map((p) => p.id));
+  const doneTasks = input.tasks.filter((t) => t.done && inRange(t.date)).sort((a, b) => a.date.localeCompare(b.date));
+  const harvests = input.harvests.filter((h) => inRange(h.date) && Number.isFinite(h.kg) && h.kg >= 0).sort((a, b) => a.date.localeCompare(b.date));
+  const out: FarmOsLog[] = [];
+
+  for (const t of doneTasks) {
+    out.push({
+      id: `task-${t.id}`, type: TASK_LOG_TYPE[t.kind], timestamp: tsBd(t.date), name: `${TASK_KIND_BN[t.kind]}: ${t.title}`.slice(0, 160), status: "done",
+      quantity: [], asset: t.plotId && plotIds.has(t.plotId) ? [t.plotId] : [], notes: "তারিখটি কাজের তালিকার নির্ধারিত দিন (scheduled date of the task)", source: "task",
+    });
+  }
+  for (const h of harvests) {
+    const q: FarmOsQuantity[] = [{ measure: "weight", value: round3(h.kg), units: "kg", label: "harvested" }];
+    if (h.soldKg !== undefined) q.push({ measure: "weight", value: round3(h.soldKg), units: "kg", label: "sold" });
+    if (h.salePoisha !== undefined) q.push({ measure: "value", value: h.salePoisha / 100, units: "BDT", label: "sale received" });
+    out.push({ id: `harvest-${h.id}`, type: "harvest", timestamp: tsBd(h.date), name: `${cropBn(h.cropId)} তোলা`, status: "done", quantity: q, asset: plotIds.has(h.plotId) ? [h.plotId] : [], notes: h.buyer ? `ক্রেতা/বাজার: ${h.buyer}` : undefined, source: "harvest" });
+  }
+  for (const p of input.plots) {
+    const st = p.soilTest;
+    if (st?.tested && inRange(st.tested) && (st.ph !== undefined || st.organicMatterPct !== undefined)) {
+      const parts = [st.ph !== undefined ? `pH ${st.ph}` : null, st.organicMatterPct !== undefined ? `organic matter ${st.organicMatterPct}%` : null].filter(Boolean).join(", ");
+      out.push({ id: `soil-${p.id}`, type: "observation", timestamp: tsBd(st.tested), name: `মাটি পরীক্ষা: ${p.name}`, status: "done", quantity: [], asset: [p.id], notes: `${parts} (কৃষকের কার্ড থেকে লেখা)`, source: "soil-test" });
+    }
+  }
+  const herdById = new Map(input.herds.map((h) => [h.id, h]));
+  const herdLogs = input.logs.filter((l) => herdById.has(l.herdId) && inRange(l.date)).sort((a, b) => a.date.localeCompare(b.date));
+  for (const l of herdLogs) {
+    const herd = herdById.get(l.herdId)!;
+    const base = { id: `herd-${l.id}`, timestamp: tsBd(l.date), status: "done" as const, asset: [herd.id], notes: l.note, source: "herd-log" as const };
+    const amt = positive(l.amount);
+    switch (l.kind) {
+      case "milk-l": out.push({ ...base, type: "harvest", name: `দুধ: ${herd.name}`, quantity: [{ measure: "volume", value: round1(amt), units: "l" }] }); break;
+      case "eggs": out.push({ ...base, type: "harvest", name: `ডিম: ${herd.name}`, quantity: [{ measure: "count", value: Math.round(amt), units: "eggs" }] }); break;
+      case "fish-kg": out.push({ ...base, type: "harvest", name: `মাছ ধরা: ${herd.name}`, quantity: [{ measure: "weight", value: round3(amt), units: "kg" }] }); break;
+      case "feed-kg": out.push({ ...base, type: "input", name: `খাবার দেওয়া: ${herd.name}`, quantity: [{ measure: "weight", value: round3(amt), units: "kg", label: "feed" }] }); break;
+      case "expense": out.push({ ...base, type: "activity", name: `খরচ: ${herd.name}`, quantity: [{ measure: "value", value: Math.round(amt) / 100, units: "BDT", label: "expense" }] }); break;
+      case "sale": out.push({ ...base, type: "activity", name: `বিক্রি: ${herd.name}`, quantity: [{ measure: "value", value: Math.round(amt) / 100, units: "BDT", label: "sale received" }] }); break;
+      case "vaccination": out.push({ ...base, type: "activity", name: `টিকা দেওয়া: ${herd.name}`, quantity: [], notes: [l.note, l.nextDue ? `পরের তারিখ (অফিস যা বলেছে): ${l.nextDue}` : null].filter(Boolean).join(" · ") || undefined }); break;
+      case "illness": out.push({ ...base, type: "observation", name: `অসুখ: ${herd.name}`, quantity: [] }); break;
+    }
+  }
+  out.sort((a, b) => a.timestamp.localeCompare(b.timestamp) || a.id.localeCompare(b.id));
+
+  const plots: PlotSeason[] = input.plots.map((p) => {
+    const tasks = doneTasks.filter((t) => t.plotId === p.id);
+    const hs = harvests.filter((h) => h.plotId === p.id);
+    const plan = input.budgets?.find((b) => b.plotId === p.id);
+    const st = p.soilTest;
+    return {
+      plotId: p.id, name: p.name, decimals: p.decimals,
+      cropsGrown: p.history.map((h) => ({ season: h.season, cropBn: cropBn(h.cropId) })),
+      plannedCropBn: plan ? cropBn(plan.cropId) : null,
+      sown: tasks.filter((t) => t.kind === "sow").map((t) => ({ date: t.date, title: t.title })),
+      inputs: tasks.filter((t) => INPUT_KINDS.includes(t.kind)).map((t) => ({ date: t.date, kindBn: TASK_KIND_BN[t.kind], title: t.title })),
+      otherWork: tasks.filter((t) => t.kind !== "sow" && !INPUT_KINDS.includes(t.kind)).map((t) => ({ date: t.date, title: t.title })),
+      harvests: hs.map((h) => ({ date: h.date, cropBn: cropBn(h.cropId), kg: h.kg, soldKg: h.soldKg ?? null, salePoisha: h.salePoisha ?? null, buyer: h.buyer ?? null })),
+      harvestKg: round3(hs.reduce((a, h) => a + h.kg, 0)),
+      soldKg: round3(hs.reduce((a, h) => a + (h.soldKg ?? 0), 0)),
+      salePoisha: hs.reduce((a, h) => a + (h.salePoisha ?? 0), 0),
+      plannedCostPoisha: plan ? plan.costs.reduce((a, c) => a + Math.round(positive(c.taka) * 100), 0) : null,
+      soilTest: st && (st.ph !== undefined || st.organicMatterPct !== undefined)
+        ? [st.ph !== undefined ? `pH ${st.ph}` : null, st.organicMatterPct !== undefined ? `জৈব পদার্থ ${st.organicMatterPct}%` : null, st.tested ? `(${st.tested})` : null].filter(Boolean).join(" ")
+        : null,
+    };
+  });
+
+  const herds: HerdRecord[] = input.herds.map((h) => {
+    const ls = herdLogs.filter((l) => l.herdId === h.id);
+    const sum = (k: FarmLogKind) => ls.filter((l) => l.kind === k).reduce((a, l) => a + positive(l.amount), 0);
+    const meta = ANIMAL_KINDS.find((k) => k.id === h.kind)!;
+    return {
+      id: h.id, name: h.name, kindBn: meta.bn, count: h.count, unitBn: meta.unitBn,
+      milkL: round1(sum("milk-l")), eggs: Math.round(sum("eggs")), fishKg: round1(sum("fish-kg")), feedKg: round1(sum("feed-kg")),
+      salePoisha: Math.round(sum("sale")), expensePoisha: Math.round(sum("expense")),
+      vaccinations: ls.filter((l) => l.kind === "vaccination").map((l) => l.date),
+      illnesses: ls.filter((l) => l.kind === "illness").map((l) => `${l.date}${l.note ? `: ${l.note}` : ""}`),
+    };
+  });
+
+  return {
+    period: { from: input.from, to: input.to }, generatedOn: input.generatedOn,
+    disclaimerBn: FARM_RECORD_DISCLAIMER_BN, disclaimerEn: FARM_RECORD_DISCLAIMER_EN,
+    plots,
+    unassignedWork: doneTasks.filter((t) => !t.plotId || !plotIds.has(t.plotId)).map((t) => ({ date: t.date, title: t.title })),
+    herds,
+    logs: out,
+    totals: { harvestKg: round3(plots.reduce((a, p) => a + p.harvestKg, 0)), salePoisha: plots.reduce((a, p) => a + p.salePoisha, 0), logCount: out.length },
+  };
+}
+
+/** The downloadable JSON: farmOS-shaped logs plus the plots and herds they point to. */
+export function farmRecordJson(r: FarmRecord, plots: Plot[], herds: Herd[]): string {
+  return JSON.stringify({
+    format: "kormopath.maathsathi.farm-record/v1",
+    shapedLike: "farmOS logs (https://farmos.org/model/type/log/); not an official farmOS export",
+    verified: false,
+    disclaimer: { en: r.disclaimerEn, bn: r.disclaimerBn },
+    period: r.period,
+    generatedOn: r.generatedOn,
+    assets: {
+      land: plots.map((p) => ({ id: p.id, name: p.name, area: { value: p.decimals, units: "decimal (1/100 acre)" } })),
+      animal: herds.map((h) => ({ id: h.id, name: h.name, kind: h.kind, count: h.count })),
+    },
+    logs: r.logs,
+  }, null, 2);
 }
