@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { DataBackup } from "@/components/DataBackup";
+import { DataBackup } from "@/components/apps/DataBackup";
 import { ShieldCheck, Download, Trash2, HardDrive } from "lucide-react";
-import { AppHeader } from "@/components/AppHeader";
+import { AppHeader } from "@/components/layout/AppHeader";
 import { listKeys, removeStored, downloadText, type AppNamespace } from "@/lib/clientStore";
 
 const APPS: { ns: AppNamespace; name: string; href: string; what: string; sensitive?: boolean; legacy?: string[] }[] = [

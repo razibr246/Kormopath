@@ -4,8 +4,8 @@ import Link from "next/link";
 import {
   Pill, Upload, ShieldAlert, AlertTriangle, CheckCircle2, Printer, Phone, Info, Trash2, Save, HelpCircle, Calculator, Video, CalendarDays, CreditCard, UserRound, BellRing,
 } from "lucide-react";
-import { AppHeader } from "@/components/AppHeader";
-import { AppFooter } from "@/components/AppFooter";
+import { AppHeader } from "@/components/layout/AppHeader";
+import { AppFooter } from "@/components/layout/AppFooter";
 import {
   parsePrescriptionText, checkAllPairs, checkPair, detectRedFlags, drugById, comparePrices, unitsForCourse,
   DRUG_REFERENCE, buildSchedule, scheduleToIcs, SLOT_BN, type ParsedLine, type ParsedPrescription, type Slot,

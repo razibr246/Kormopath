@@ -28,7 +28,7 @@ npm run test:browser   # Puppeteer journeys in tests/e2e/*.mjs; needs a producti
 ## Architecture
 
 ### Core pipeline: `/workspace`
-`app/workspace/page.tsx` is one large client component running four stages in order: `StageAudit` → `StageViva` → `StageContract` → `StageMoney` (in `components/`). It holds the shared state; `Telemetry` renders the combined agent trace and "Inspect JSON" view.
+`app/workspace/page.tsx` is one large client component running four stages in order: `StageAudit` → `StageViva` → `StageContract` → `StageMoney` (in `components/workspace/`). It holds the shared state; `Telemetry` renders the combined agent trace and "Inspect JSON" view.
 
 | Stage | Server route | Deterministic core |
 |---|---|---|
@@ -68,7 +68,7 @@ Standalone client apps, each with a pure domain module (unit-tested, no imports)
 | ChuktiGuard | `app/chuktiguard` | re-exports `lib/finops.ts` / `lib/contract.ts` | — |
 
 Hard rules for these apps (see `docs/`):
-- **Never invent facts.** No made-up prices, admission dates, OCR confidences, doses or "safe" verdicts. Unverifiable data is user-entered with source and date, shown as a labelled example via `SourceTag` (`components/AppHeader.tsx`), or omitted. Missing stays missing.
+- **Never invent facts.** No made-up prices, admission dates, OCR confidences, doses or "safe" verdicts. Unverifiable data is user-entered with source and date, shown as a labelled example via `SourceTag` (`components/layout/AppHeader.tsx`), or omitted. Missing stays missing.
 - **Confirm before saving** anything parsed from speech, SMS or OCR (Shohoj, MediScan).
 - **Money is integer poisha** in `lib/budget.ts`; fee math lives only in `lib/finops.ts`. FeeGuard must render `Channel.steps` from the engine, never re-derive numbers in the page.
 - **MediScan:** never diagnose, prescribe or recommend a brand switch; "not in our list" is never "safe"; emergency strip stays visible; OCR needs `consent: true` and runs with `structured(..., { cache: false })`.
@@ -89,12 +89,40 @@ Hard rules for these apps (see `docs/`):
 - `middleware.ts` rejects API bodies over 256 KB with 413. Upload routes (base64) get 6.5 MB, but only if they are listed in its `UPLOAD_ROUTES` (currently `/api/audit`, `/api/receipt`, `/api/mediscan/ocr`); otherwise real uploads will be rejected.
 - Never commit `.env.local`, API keys or `PASSPORT_SECRET`.
 
+## Project structure
+
+```
+components/
+  brand/        KormoPathLogo (mark + wordmark)
+  layout/       AppHeader, AppFooter, Chrome (Navbar, Footer),
+                AppSwitcherDropdown, CommandPalette, StorageNotice,
+                BuildathonSticker, PwaSupport
+  buddy/        Buddy (AI assistant panel + draggable launcher)
+  home/         HeroOrbit, EcosystemHub
+  workspace/    StageAudit, StageViva, StageContract, StageMoney,
+                Telemetry, HeroDevice, ui (shared workspace primitives)
+  apps/         AgriculturalLifecycle, HaatMarket, OpportunityTracker,
+                DataBackup
+  judges/       LiveAssertionHarness, DemoPlayer
+lib/            Pure domain logic and server utilities (flat; each file's
+                purpose is in the Ecosystem apps table above)
+app/            Next.js App Router pages and API routes
+docs/
+  architecture/ System maps, feature inventory, user journeys
+  apps/         Per-app research & plan documents
+  research/     Competitor analysis, feature matrices, integrations
+  reports/      Platform audit, testing, production readiness, reliability
+  buildathon/   Demo script, pitch script
+tests/          Unit tests (*.test.ts) + e2e/ browser journeys
+public/         Favicon, icons, OG image, service worker
+```
+
 ## Gotchas
 
 - **Bangla text:** some characters (য়, ড়, ঢ়) exist as one codepoint or two; this repo contains both. Exact-string edits/comparisons on Bangla text can silently fail. Normalise with `.normalize("NFC")` in code (as `lib/budget.ts` does) and anchor scripted edits on nearby ASCII.
-- **Backups:** `/settings` lists, exports and deletes data per app. Export/import (`lib/backup.ts`, `components/DataBackup.tsx`) only accepts keys whose app namespace is in the allowlist in `lib/backup.ts`. A new app namespace must be added there, or its data is silently left out of backups.
+- **Backups:** `/settings` lists, exports and deletes data per app. Export/import (`lib/backup.ts`, `components/apps/DataBackup.tsx`) only accepts keys whose app namespace is in the allowlist in `lib/backup.ts`. A new app namespace must be added there, or its data is silently left out of backups.
 - **ChuktiGuard** used to carry its own fee math; it now re-exports from `lib/finops.ts`/`lib/contract.ts`. `lib/chuktiguard.ts` is the place to check if rail fees ever look divergent again.
-- **Shared UI:** `components/AppHeader.tsx` (header, skip link, privacy chip, `SourceTag`), `AppSwitcherDropdown` (`variant="light"` on white headers).
-- **Visual identity (v2, "Shonar Bangla"):** `app/globals.css` remaps Tailwind's colour scales (slate → warm earth, emerald → Padma green, orange → terracotta sun, amber → haldi, indigo → Bengal nil, blue → river, purple → jamdani plum). Each step keeps Tailwind's OKLCH lightness, so existing `text-slate-600` etc. keep their contrast; change hue/chroma there, not per page. Headings (`h1`, `h2`, `.display`) use Fraunces + Noto Serif Bengali via `next/font` in `app/layout.tsx`; numbers use JetBrains Mono. Shared pieces are `kp-*` classes (`kp-nav`, `kp-chip`, `kp-btn-primary`/`-sun`/`-ghost`, `kp-card`, `kp-eyebrow`, `kp-em` for the two-tone serif accent) inside `@layer components`, so Tailwind utilities like `hidden lg:flex` still override them. The logo is `KormoPathMark`/`KormoPathLogo` (`components/KormoPathLogo.tsx`); `public/favicon.svg`, `icon-512.png`, `apple-touch-icon.png` and `og-kormopath.png` are rendered from the same mark.
+- **Shared UI:** `components/layout/AppHeader.tsx` (header, skip link, privacy chip, `SourceTag`), `AppSwitcherDropdown` (`variant="light"` on white headers).
+- **Visual identity (v2, "Shonar Bangla"):** `app/globals.css` remaps Tailwind's colour scales (slate → warm earth, emerald → Padma green, orange → terracotta sun, amber → haldi, indigo → Bengal nil, blue → river, purple → jamdani plum). Each step keeps Tailwind's OKLCH lightness, so existing `text-slate-600` etc. keep their contrast; change hue/chroma there, not per page. Headings (`h1`, `h2`, `.display`) use Fraunces + Noto Serif Bengali via `next/font` in `app/layout.tsx`; numbers use JetBrains Mono. Shared pieces are `kp-*` classes (`kp-nav`, `kp-chip`, `kp-btn-primary`/`-sun`/`-ghost`, `kp-eyebrow`, `kp-em` for the two-tone serif accent) inside `@layer components`, so Tailwind utilities like `hidden lg:flex` still override them. The logo is `KormoPathMark`/`KormoPathLogo` (`components/brand/KormoPathLogo.tsx`); `public/favicon.svg`, `icon-512.png`, `apple-touch-icon.png` and `og-kormopath.png` are rendered from the same mark.
 - **UI conventions:** Tailwind v4 via `@tailwindcss/postcss`, theme in `app/globals.css`; `lucide-react` icons; English/বাংলা toggles kept in component state (`lang: "en" | "bn"`); `bnDigits` in `lib/contract.ts` converts digits to Bengali numerals.
-- `/judges` is a static English guide for buildathon judges, linked from `components/BuildathonSticker.tsx`.
+- `/judges` is a static English guide for buildathon judges, linked from `components/layout/BuildathonSticker.tsx`.

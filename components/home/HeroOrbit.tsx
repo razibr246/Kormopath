@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
-import { KormoPathMark } from "@/components/KormoPathLogo";
+import { KormoPathMark } from "@/components/brand/KormoPathLogo";
 
 export type OrbitTool = { href: string; label: string; icon: LucideIcon; tone: string };
 

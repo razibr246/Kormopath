@@ -2,8 +2,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { ShieldCheck } from "lucide-react";
-import { AppSwitcherDropdown, type AppItem } from "@/components/AppSwitcherDropdown";
-import { KormoPathLogo } from "@/components/KormoPathLogo";
+import { AppSwitcherDropdown, type AppItem } from "@/components/layout/AppSwitcherDropdown";
+import { KormoPathLogo } from "@/components/brand/KormoPathLogo";
 
 /**
  * Shared header for the ecosystem apps. Each app keeps its own colour and icon; the

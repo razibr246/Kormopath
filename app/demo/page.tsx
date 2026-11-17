@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { PlayCircle } from "lucide-react";
-import { AppHeader } from "@/components/AppHeader";
-import { DemoPlayer } from "@/components/DemoPlayer";
+import { AppHeader } from "@/components/layout/AppHeader";
+import { DemoPlayer } from "@/components/judges/DemoPlayer";
 
 export const metadata: Metadata = {
   title: "Demo video",

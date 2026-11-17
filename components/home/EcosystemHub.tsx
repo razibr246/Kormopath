@@ -35,38 +35,6 @@ export interface EcosystemHubProps {
   usdBdt: number;
 }
 
-export function EcosystemLauncherButton({ onClick, isOpen }: { onClick: () => void; isOpen: boolean }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`group relative flex items-center gap-2 rounded-xl border px-3 py-1.5 text-left transition-all ${
-        isOpen
-          ? "border-orange-500 bg-orange-500/20 text-orange-400 shadow-sm ring-2 ring-orange-500/30"
-          : "border-white/15 bg-white/5 hover:border-orange-500/50 hover:bg-white/10 text-white"
-      }`}
-      aria-label="KormoPath Ecosystem Hub"
-      title="Open 9-Dot Ecosystem Hub"
-    >
-      {/* 9-dot grid icon */}
-      <div className="grid grid-cols-3 gap-0.5 p-0.5" aria-hidden="true">
-        <span className="h-1 w-1 rounded-full bg-orange-400" />
-        <span className="h-1 w-1 rounded-full bg-orange-400" />
-        <span className="h-1 w-1 rounded-full bg-orange-400" />
-        <span className="h-1 w-1 rounded-full bg-orange-400" />
-        <span className="h-1 w-1 rounded-full bg-orange-400" />
-        <span className="h-1 w-1 rounded-full bg-orange-400" />
-        <span className="h-1 w-1 rounded-full bg-orange-400" />
-        <span className="h-1 w-1 rounded-full bg-orange-400" />
-        <span className="h-1 w-1 rounded-full bg-orange-400" />
-      </div>
-      <div className="hidden sm:block">
-        <span className="block text-[12px] font-bold leading-none text-white">Ecosystem</span>
-        <span className="block text-[10px] text-slate-400 leading-tight">6 Apps • Hub</span>
-      </div>
-      <span className="flex h-2 w-2 rounded-full bg-orange-400 animate-pulse" />
-    </button>
-  );
-}
 
 export function EcosystemHub({
   isOpen,

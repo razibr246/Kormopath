@@ -81,13 +81,13 @@ function getContrastRatio(hex1: string, hex2: string): number {
 
 describe("Tier 1 - Feature 1: Brand Identity & Vector Logo Integration", () => {
   test("1.1 KormoPathLogo component file exists and exports KormoPathLogo", () => {
-    assert.ok(projectFileExists("components/KormoPathLogo.tsx"), "components/KormoPathLogo.tsx must exist");
-    const src = readProjectFile("components/KormoPathLogo.tsx");
+    assert.ok(projectFileExists("components/brand/KormoPathLogo.tsx"), "components/KormoPathLogo.tsx must exist");
+    const src = readProjectFile("components/brand/KormoPathLogo.tsx");
     assert.match(src, /export\s+function\s+KormoPathLogo/, "Must export function KormoPathLogo");
   });
 
   test("1.2 KormoPathLogo supports variant, theme, size, and showSubtitle props", () => {
-    const src = readProjectFile("components/KormoPathLogo.tsx");
+    const src = readProjectFile("components/brand/KormoPathLogo.tsx");
     assert.match(src, /variant\?:/, "Must accept variant prop");
     assert.match(src, /theme\?:/, "Must accept theme prop");
     assert.match(src, /size\?:/, "Must accept size prop");
@@ -95,24 +95,24 @@ describe("Tier 1 - Feature 1: Brand Identity & Vector Logo Integration", () => {
   });
 
   test("1.3 KormoPathLogo renders vector SVG with 1:1 square aspect ratio (viewBox 0 0 64 64)", () => {
-    const src = readProjectFile("components/KormoPathLogo.tsx");
+    const src = readProjectFile("components/brand/KormoPathLogo.tsx");
     assert.match(src, /viewBox="0 0 64 64"/, "Must render SVG with viewBox 0 0 64 64");
     assert.match(src, /<svg[\s\S]*?>/, "Must contain svg element");
   });
 
   test("1.4 Navbar in components/Chrome.tsx integrates KormoPathLogo with dark theme", () => {
-    const src = readProjectFile("components/Chrome.tsx");
+    const src = readProjectFile("components/layout/Chrome.tsx");
     assert.match(src, /<KormoPathLogo[^>]*theme="light"[^>]*variant="full"/, "Navbar must integrate the full KormoPathLogo on its light glass pill");
     assert.doesNotMatch(src, /<img[^>]*src="\/kormopath-logo\.jpg"[^>]*alt="KormoPath Logo"/, "Navbar must not use letterboxed raster JPEG");
   });
 
   test("1.5 Footer in components/Chrome.tsx integrates KormoPathLogo with light theme", () => {
-    const src = readProjectFile("components/Chrome.tsx");
+    const src = readProjectFile("components/layout/Chrome.tsx");
     assert.match(src, /<KormoPathLogo[^>]*theme="light"/, "Footer must integrate KormoPathLogo with theme='light'");
   });
 
   test("1.6 AppHeader in components/AppHeader.tsx integrates KormoPathLogo with mobile visible mark", () => {
-    const src = readProjectFile("components/AppHeader.tsx");
+    const src = readProjectFile("components/layout/AppHeader.tsx");
     assert.match(src, /<KormoPathLogo[^>]*variant="compact"/, "AppHeader must render compact logo for desktop");
     assert.match(src, /<KormoPathLogo[^>]*variant="mark"/, "AppHeader must render mark-only logo for mobile screens");
   });
@@ -168,14 +168,14 @@ describe("Tier 1 - Feature 2: Design Tokens & Typography Hierarchy", () => {
 
 describe("Tier 1 - Feature 3: UI/UX Component Elevation & Capabilities", () => {
   test("3.1 components/ui.tsx primary button hover color matches brand orange palette", () => {
-    const src = readProjectFile("components/ui.tsx");
+    const src = readProjectFile("components/workspace/ui.tsx");
     assert.match(src, /hover:bg-orange|hover:bg-brand-orange/, "Primary button hover must use orange palette");
     assert.doesNotMatch(src, /hover:bg-\[#08583f\]/, "Primary button must not hover to green #08583f");
   });
 
   test("3.2 components/AppFooter.tsx exists and exports AppFooter for ecosystem apps", () => {
-    assert.ok(projectFileExists("components/AppFooter.tsx"), "components/AppFooter.tsx must exist");
-    const src = readProjectFile("components/AppFooter.tsx");
+    assert.ok(projectFileExists("components/layout/AppFooter.tsx"), "components/AppFooter.tsx must exist");
+    const src = readProjectFile("components/layout/AppFooter.tsx");
     assert.match(src, /export\s+function\s+AppFooter/, "Must export function AppFooter");
   });
 
@@ -186,21 +186,21 @@ describe("Tier 1 - Feature 3: UI/UX Component Elevation & Capabilities", () => {
   });
 
   test("3.4 components/HeroDevice.tsx renders product preview with benchmarks", () => {
-    const src = readProjectFile("components/HeroDevice.tsx");
+    const src = readProjectFile("components/workspace/HeroDevice.tsx");
     assert.match(src, /hero-device/, "Must contain hero-device markup");
     assert.match(src, /YOUR MONTHLY TAKE HOME/, "Must retain take home benchmark display");
   });
 
   test("3.5 Workspace stage components exist and export their respective modules", () => {
-    assert.ok(projectFileExists("components/StageAudit.tsx"), "StageAudit.tsx must exist");
-    assert.ok(projectFileExists("components/StageViva.tsx"), "StageViva.tsx must exist");
-    assert.ok(projectFileExists("components/StageContract.tsx"), "StageContract.tsx must exist");
-    assert.ok(projectFileExists("components/StageMoney.tsx"), "StageMoney.tsx must exist");
+    assert.ok(projectFileExists("components/workspace/StageAudit.tsx"), "StageAudit.tsx must exist");
+    assert.ok(projectFileExists("components/workspace/StageViva.tsx"), "StageViva.tsx must exist");
+    assert.ok(projectFileExists("components/workspace/StageContract.tsx"), "StageContract.tsx must exist");
+    assert.ok(projectFileExists("components/workspace/StageMoney.tsx"), "StageMoney.tsx must exist");
   });
 
   test("3.6 components/Telemetry.tsx exists and retains inspection capabilities", () => {
-    assert.ok(projectFileExists("components/Telemetry.tsx"), "Telemetry.tsx must exist");
-    const src = readProjectFile("components/Telemetry.tsx");
+    assert.ok(projectFileExists("components/workspace/Telemetry.tsx"), "Telemetry.tsx must exist");
+    const src = readProjectFile("components/workspace/Telemetry.tsx");
     assert.match(src, /Export Trace JSON/, "Must retain Export Trace JSON capability");
     assert.match(src, /Grounding Diff/, "Must retain Grounding Diff capability");
   });
@@ -266,13 +266,13 @@ describe("Tier 1 - Feature 5: Prefers-Reduced-Motion Compliance", () => {
 
 describe("Tier 1 - Feature 6: Responsive Layout (375px, 768px, 1280px)", () => {
   test("6.1 Mobile 375px: AppHeader title truncation and min-width constraint", () => {
-    const src = readProjectFile("components/AppHeader.tsx");
+    const src = readProjectFile("components/layout/AppHeader.tsx");
     assert.match(src, /min-w-0/, "AppHeader must use min-w-0 for flex children to prevent mobile bursting");
     assert.match(src, /truncate/, "AppHeader must use truncate on text labels");
   });
 
   test("6.2 Mobile 375px: Navbar hides non-critical desktop links to prevent horizontal overflow", () => {
-    const src = readProjectFile("components/Chrome.tsx");
+    const src = readProjectFile("components/layout/Chrome.tsx");
     assert.match(src, /hidden\s+lg:flex/, "Navbar desktop links must be hidden on mobile screens");
   });
 
@@ -287,8 +287,8 @@ describe("Tier 1 - Feature 6: Responsive Layout (375px, 768px, 1280px)", () => {
   });
 
   test("6.5 Desktop 1280px+: Main containers use max-width boundary to prevent unconstrained stretching", () => {
-    const chrome = readProjectFile("components/Chrome.tsx");
-    const appHeader = readProjectFile("components/AppHeader.tsx");
+    const chrome = readProjectFile("components/layout/Chrome.tsx");
+    const appHeader = readProjectFile("components/layout/AppHeader.tsx");
     assert.match(chrome, /max-w-\[1400px\]|max-w-7xl/, "Chrome must bound width with max-w");
     assert.match(appHeader, /max-w-7xl/, "AppHeader must bound width with max-w-7xl");
   });
@@ -317,7 +317,7 @@ describe("Tier 1 - Feature 7: Keyboard Navigation & Focus Accessibility", () => 
   });
 
   test("7.4 Skip link to main content is present with accessible text", () => {
-    const header = readProjectFile("components/AppHeader.tsx");
+    const header = readProjectFile("components/layout/AppHeader.tsx");
     assert.match(header, /href="#main"/, "AppHeader must provide skip link to #main");
     assert.match(header, /skip-link|sr-only\s+focus:not-sr-only/, "Skip link must be visually hidden until focused");
   });
@@ -367,12 +367,12 @@ describe("Tier 1 - Feature 8: WCAG AA Contrast Compliance (Mathematical Oracle)"
 describe("Tier 2 - Boundary & Corner Cases", () => {
   // Empty states across all 4 stages & Telemetry
   test("B.1 StageAudit handles empty CV input with placeholder prompt", () => {
-    const src = readProjectFile("components/StageAudit.tsx");
+    const src = readProjectFile("components/workspace/StageAudit.tsx");
     assert.match(src, /will appear here|Select any of the 3 Judge Presets/, "StageAudit must render guidance when empty");
   });
 
   test("B.2 StageViva handles unselected challenge with guidance", () => {
-    const src = readProjectFile("components/StageViva.tsx");
+    const src = readProjectFile("components/workspace/StageViva.tsx");
     assert.match(src, /aria-label="Choose challenge"|CHALLENGES/, "StageViva must provide challenge selection instructions");
   });
 
@@ -409,23 +409,23 @@ describe("Tier 2 - Boundary & Corner Cases", () => {
   });
 
   test("B.5 Telemetry handles empty trace steps gracefully", () => {
-    const src = readProjectFile("components/Telemetry.tsx");
+    const src = readProjectFile("components/workspace/Telemetry.tsx");
     assert.match(src, /steps\.length|No activity recorded|Awaiting pipeline actions/, "Telemetry must handle empty steps array");
   });
 
   // Viewport extremes & fluid scaling
   test("B.6 Viewport extreme: 320px ultra-compact mobile does not crash flex wrappers", () => {
-    const src = readProjectFile("components/AppHeader.tsx");
+    const src = readProjectFile("components/layout/AppHeader.tsx");
     assert.match(src, /shrink-0/, "AppHeader items must use shrink-0 on fixed width elements");
   });
 
   test("B.7 Viewport extreme: 375px mobile card padding scales down (p-3 or p-4)", () => {
-    const src = readProjectFile("components/AppFooter.tsx");
+    const src = readProjectFile("components/layout/AppFooter.tsx");
     assert.match(src, /px-4\s+py-10\s+sm:px-6/, "Footer padding must scale cleanly from mobile px-4 to desktop sm:px-6");
   });
 
   test("B.8 Viewport extreme: 1920px widescreen layout centers cleanly with margin auto", () => {
-    const src = readProjectFile("components/Chrome.tsx");
+    const src = readProjectFile("components/layout/Chrome.tsx");
     assert.match(src, /mx-auto/, "Header and Footer must use mx-auto for centered layout on widescreen");
   });
 
@@ -482,7 +482,7 @@ describe("Tier 2 - Boundary & Corner Cases", () => {
   });
 
   test("B.12 Long challenge code in StageViva renders in scrollable pre block", () => {
-    const src = readProjectFile("components/StageViva.tsx");
+    const src = readProjectFile("components/workspace/StageViva.tsx");
     assert.match(src, /font-mono|overflow-x-auto|max-h-/, "Code editor/viewer must support scrolling on long challenge code");
   });
 
@@ -494,7 +494,7 @@ describe("Tier 2 - Boundary & Corner Cases", () => {
 
   // Rapid interactions & state toggles
   test("B.14 Rapid interaction: language toggle between en and bn is idempotent", () => {
-    const src = readProjectFile("components/Chrome.tsx");
+    const src = readProjectFile("components/layout/Chrome.tsx");
     assert.match(src, /lang\s*===\s*"bn"\s*\?\s*"[^"]*"\s*:\s*"[^"]*"/, "Components must render language conditionally without mutating props");
   });
 
@@ -615,17 +615,17 @@ describe("Tier 2 - Boundary & Corner Cases", () => {
 
   // Focus traps & modal dialogs
   test("B.25 Focus trap: components/EcosystemHub.tsx dialog modal includes close button and backdrop", () => {
-    const src = readProjectFile("components/EcosystemHub.tsx");
+    const src = readProjectFile("components/home/EcosystemHub.tsx");
     assert.match(src, /onClose|aria-label="Close"|X size=/, "EcosystemHub must provide accessible close button");
   });
 
   test("B.26 Focus trap: components/CommandPalette.tsx supports keyboard Escape closure", () => {
-    const src = readProjectFile("components/CommandPalette.tsx");
+    const src = readProjectFile("components/layout/CommandPalette.tsx");
     assert.match(src, /Escape|e\.key === "Escape"/, "CommandPalette must listen for Escape key to close");
   });
 
   test("B.27 Focus trap: components/Telemetry.tsx mobile drawer sheet supports dismissal", () => {
-    const src = readProjectFile("components/Telemetry.tsx");
+    const src = readProjectFile("components/workspace/Telemetry.tsx");
     assert.match(src, /open|setOpen|drawer|sheet/i, "Telemetry mobile drawer must have toggle state");
     assert.match(src, /e\.key === "Escape"/, "Telemetry must listen for Escape key to close modals and drawer");
     assert.match(src, /removeEventListener\("keydown"/, "Telemetry must clean up keydown listener");
@@ -800,7 +800,7 @@ describe("Tier 2 - Boundary & Corner Cases", () => {
 
 describe("Tier 3 - Cross-Feature Combinations", () => {
   test("3.1 [Logo + Mobile Navigation]: KormoPathLogo variant='mark' renders in mobile AppHeader without pushing buttons offscreen at 375px", () => {
-    const header = readProjectFile("components/AppHeader.tsx");
+    const header = readProjectFile("components/layout/AppHeader.tsx");
     assert.match(header, /<KormoPathLogo[^>]*variant="mark"[^>]*size="sm"/, "Must render size='sm' mark logo on mobile");
     assert.match(header, /lg:hidden/, "Mobile logo must have lg:hidden toggle");
   });
@@ -817,12 +817,12 @@ describe("Tier 3 - Cross-Feature Combinations", () => {
   });
 
   test("3.4 [Logo + Dark Glass Navbar]: KormoPathLogo theme='dark' renders light cream text on dark surfaces", () => {
-    const logoSrc = readProjectFile("components/KormoPathLogo.tsx");
+    const logoSrc = readProjectFile("components/brand/KormoPathLogo.tsx");
     assert.match(logoSrc, /dark \? "text-\[#fbf3e8\]"/, "Dark theme logo must use light cream text");
   });
 
   test("3.5 [Logo + Light Glass AppHeader]: KormoPathLogo theme='light' renders dark ink text on paper", () => {
-    const logoSrc = readProjectFile("components/KormoPathLogo.tsx");
+    const logoSrc = readProjectFile("components/brand/KormoPathLogo.tsx");
     assert.match(logoSrc, /dark \? "text-\[#fbf3e8\]" : "text-\[#22180f\]"/, "Light theme logo must use dark ink text");
   });
 
@@ -837,12 +837,12 @@ describe("Tier 3 - Cross-Feature Combinations", () => {
   });
 
   test("3.8 [Contrast Compliance + Status Badges]: Source tags and confidence badges maintain readable contrast", () => {
-    const uiSrc = readProjectFile("components/ui.tsx");
+    const uiSrc = readProjectFile("components/workspace/ui.tsx");
     assert.match(uiSrc, /bg-kept-soft\s+text-kept/, "Official confidence tag must use readable soft background with kept text");
   });
 
   test("3.9 [Keyboard Navigation + Modal Drawers]: Telemetry and EcosystemHub modals provide accessible keyboard dismissal", () => {
-    const hub = readProjectFile("components/EcosystemHub.tsx");
+    const hub = readProjectFile("components/home/EcosystemHub.tsx");
     assert.match(hub, /role="dialog"|aria-modal="true"|aria-label/, "Modals must have dialog role or aria attributes");
   });
 
@@ -852,7 +852,7 @@ describe("Tier 3 - Cross-Feature Combinations", () => {
   });
 
   test("3.11 [Mobile Tap Targets + Interactive Buttons]: Button tap targets maintain minimum 44px height on touch viewports", () => {
-    const uiSrc = readProjectFile("components/ui.tsx");
+    const uiSrc = readProjectFile("components/workspace/ui.tsx");
     assert.match(uiSrc, /px-4\s+py-2\.5/, "Standard buttons must have generous touch padding");
     const wsSrc = readProjectFile("app/workspace/page.tsx");
     assert.match(wsSrc, /min-h-\[44px\]/, "Ecosystem hub button must satisfy 44px minimum touch target height");
@@ -957,7 +957,7 @@ describe("Tier 4 - Real-World Application Scenarios", () => {
     }
 
     // AppHeader ensures mobile logo mark across all ecosystem apps
-    const appHeaderSrc = readProjectFile("components/AppHeader.tsx");
+    const appHeaderSrc = readProjectFile("components/layout/AppHeader.tsx");
     assert.match(appHeaderSrc, /<KormoPathLogo[^>]*variant="mark"/, "AppHeader must render mark logo on mobile viewports");
     assert.match(appHeaderSrc, /skip-link/, "AppHeader must render skip-link for keyboard navigation");
   });
@@ -993,7 +993,7 @@ describe("Tier 4 - Real-World Application Scenarios", () => {
     assert.match(presetsSrc, /Arif Rahman|Nusrat Jahan|Tanvir Hossain/, "Presets must include candidate personas");
 
     // Verify Telemetry component retains step logs and fallback detection
-    const telemetrySrc = readProjectFile("components/Telemetry.tsx");
+    const telemetrySrc = readProjectFile("components/workspace/Telemetry.tsx");
     assert.match(telemetrySrc, /Deterministic Fallbacks|fallback/i, "Telemetry must track deterministic fallbacks");
     assert.match(telemetrySrc, /Export Trace JSON/, "Telemetry must support exporting trace logs");
   });

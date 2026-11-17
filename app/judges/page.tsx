@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Compass, ShieldCheck, ArrowRight, Play, Trophy, Award, Sparkles, Scale, CheckCircle2, XCircle, Zap, ShieldAlert, Stethoscope, Landmark, DollarSign } from "lucide-react";
-import { AppHeader } from "@/components/AppHeader";
-import { AppFooter } from "@/components/AppFooter";
-import { LiveAssertionHarness } from "@/components/LiveAssertionHarness";
+import { AppHeader } from "@/components/layout/AppHeader";
+import { AppFooter } from "@/components/layout/AppFooter";
+import { LiveAssertionHarness } from "@/components/judges/LiveAssertionHarness";
 
 export const metadata: Metadata = {
   title: "Judge tour",

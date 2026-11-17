@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { KormoPathLogo } from "@/components/KormoPathLogo";
+import { KormoPathLogo } from "@/components/brand/KormoPathLogo";
 import { ShieldCheck, Sparkles, ExternalLink, ArrowUpRight } from "lucide-react";
 
 export interface AppFooterProps {

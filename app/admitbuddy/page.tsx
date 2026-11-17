@@ -5,8 +5,8 @@ import {
   GraduationCap, Bookmark, BookmarkCheck, CalendarPlus, Download, ExternalLink, CheckCircle2, Circle, Trash2, Send, Copy,
   FileText, Bot, Info, AlertTriangle, ListChecks, Compass, Search,
 } from "lucide-react";
-import { AppHeader, SourceTag } from "@/components/AppHeader";
-import { AppFooter } from "@/components/AppFooter";
+import { AppHeader, SourceTag } from "@/components/layout/AppHeader";
+import { AppFooter } from "@/components/layout/AppFooter";
 import { saveUserProfile } from "@/lib/profile";
 import {
   UNIVERSITIES, OFFICIAL_RESOURCES, DOCUMENT_CHECKLIST, calculateMatches, generateDeadlines, validateUserDeadline,

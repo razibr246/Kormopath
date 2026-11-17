@@ -2,14 +2,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { AppSwitcherDropdown } from "@/components/AppSwitcherDropdown";
-import { KormoPathLogo } from "@/components/KormoPathLogo";
+import { AppSwitcherDropdown } from "@/components/layout/AppSwitcherDropdown";
+import { KormoPathLogo } from "@/components/brand/KormoPathLogo";
 import { FX_FALLBACK } from "@/lib/data";
 import { ArrowUpRight, LayoutGrid, Languages, Menu, Search, ShieldCheck, X } from "lucide-react";
-
-export function PlatformBadge() {
-  return null;
-}
 
 const NAV = [
   { href: "/workspace", bn: "ওয়ার্কস্পেস", en: "Workspace" },

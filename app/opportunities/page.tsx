@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { AppHeader } from "@/components/AppHeader";
-import { OpportunityTracker } from "@/components/OpportunityTracker";
+import { AppHeader } from "@/components/layout/AppHeader";
+import { OpportunityTracker } from "@/components/apps/OpportunityTracker";
 import { storageKey, usePersistentState } from "@/lib/clientStore";
 import {
   EMPTY_BOARD,

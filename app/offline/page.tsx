@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { KormoPathMark } from "@/components/KormoPathLogo";
+import { KormoPathMark } from "@/components/brand/KormoPathLogo";
 
 export const metadata: Metadata = { title: "অফলাইন", robots: { index: false } };
 

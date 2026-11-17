@@ -1,8 +1,8 @@
 "use client";
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import { AppHeader } from "@/components/AppHeader";
-import { AppFooter } from "@/components/AppFooter";
+import { AppHeader } from "@/components/layout/AppHeader";
+import { AppFooter } from "@/components/layout/AppFooter";
 import { FX_FALLBACK } from "@/lib/data";
 import { fmtBdt, splitMilestoneUsd } from "@/lib/finops";
 import { downloadText, storageKey, usePersistentState } from "@/lib/clientStore";

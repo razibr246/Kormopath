@@ -2,10 +2,10 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Sprout, Phone, CloudRain, Wind, Thermometer, Truck, NotebookPen, Trash2, AlertTriangle, CheckCircle2, CalendarDays, Bug, Camera, ExternalLink, Stethoscope, ShieldCheck, Check, PhoneCall } from "lucide-react";
-import { AppHeader, SourceTag } from "@/components/AppHeader";
-import { AppFooter } from "@/components/AppFooter";
-import { AgriculturalLifecycle } from "@/components/AgriculturalLifecycle";
-import { HaatMarket } from "@/components/HaatMarket";
+import { AppHeader, SourceTag } from "@/components/layout/AppHeader";
+import { AppFooter } from "@/components/layout/AppFooter";
+import { AgriculturalLifecycle } from "@/components/apps/AgriculturalLifecycle";
+import { HaatMarket } from "@/components/apps/HaatMarket";
 import {
   tripMargin, shareTruck, priceAgeDays, seasonForMonth, SEASONS, RICE_SEASONS, DISTRICTS, CROP_DISEASES, CROPS, KG_PER_MAUND,
   calculateSensitivityCurve, diagnoseCropSymptom, type SensitivityPoint, type CropDiagnosticResult,

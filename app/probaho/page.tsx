@@ -2,8 +2,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Mic, Square, Keyboard, Play, RotateCcw, CheckCircle2, XCircle, Lightbulb, MessageCircleQuestion, Trash2, TrendingUp, Info, Sparkles, Quote, Pencil, Plus, X, ShieldAlert, ShieldCheck, AlertTriangle, PhoneCall, Send, Lock } from "lucide-react";
-import { AppHeader } from "@/components/AppHeader";
-import { AppFooter } from "@/components/AppFooter";
+import { AppHeader } from "@/components/layout/AppHeader";
+import { AppFooter } from "@/components/layout/AppFooter";
 import {
   QUESTIONS, analyzeAnswer, progressSummary, starCheck, practiceStreak, createCustomQuestion, evaluateViva,
   SCAM_SCENARIOS, evaluateScamDefense, type Question, type Analysis, type SessionRecord, type ScamEvaluation,

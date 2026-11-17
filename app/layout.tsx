@@ -5,11 +5,11 @@ import "@fontsource/hind-siliguri/400.css";
 import "@fontsource/hind-siliguri/600.css";
 import "@fontsource/hind-siliguri/700.css";
 import "./globals.css";
-import { StorageNotice } from "@/components/StorageNotice";
-import { CommandPalette } from "@/components/CommandPalette";
-import { Buddy } from "@/components/Buddy";
-import { BuildathonSticker } from "@/components/BuildathonSticker";
-import { PwaSupport } from "@/components/PwaSupport";
+import { StorageNotice } from "@/components/layout/StorageNotice";
+import { CommandPalette } from "@/components/layout/CommandPalette";
+import { Buddy } from "@/components/buddy/Buddy";
+import { BuildathonSticker } from "@/components/layout/BuildathonSticker";
+import { PwaSupport } from "@/components/layout/PwaSupport";
 
 // Self-hosted at build time by next/font: no request to Google from the visitor's browser.
 const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", display: "swap", axes: ["opsz"], preload: false });

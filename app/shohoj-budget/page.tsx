@@ -6,8 +6,8 @@ import {
   TrendingDown, TrendingUp, Repeat, Users, Copy, MessageSquareText, Info, Search, ExternalLink, Target, PiggyBank,
   Smartphone,
 } from "lucide-react";
-import { AppHeader } from "@/components/AppHeader";
-import { AppFooter } from "@/components/AppFooter";
+import { AppHeader } from "@/components/layout/AppHeader";
+import { AppFooter } from "@/components/layout/AppFooter";
 import { playClick, playCoinSound } from "@/lib/sound";
 import {
   CATEGORIES, categoryById, parseEntry, parseSms, summarizeMonth, budgetPace, splitBill, toCsv,

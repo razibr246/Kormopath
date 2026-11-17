@@ -2,9 +2,9 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Navbar, Footer } from "@/components/Chrome";
-import { EcosystemHub } from "@/components/EcosystemHub";
-import { HeroOrbit } from "@/components/HeroOrbit";
+import { Navbar, Footer } from "@/components/layout/Chrome";
+import { EcosystemHub } from "@/components/home/EcosystemHub";
+import { HeroOrbit } from "@/components/home/HeroOrbit";
 import { FX_FALLBACK } from "@/lib/data";
 import {
   ArrowRight,

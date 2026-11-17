@@ -1,6 +1,6 @@
 import { check, usingDevSecret } from "@/lib/passport";
-import { Navbar } from "@/components/Chrome";
-import { AppFooter } from "@/components/AppFooter";
+import { Navbar } from "@/components/layout/Chrome";
+import { AppFooter } from "@/components/layout/AppFooter";
 import { BadgeCheck, ShieldX, ArrowRight, ShieldCheck, Lock } from "lucide-react";
 import Link from "next/link";
 

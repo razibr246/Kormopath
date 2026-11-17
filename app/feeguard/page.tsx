@@ -2,8 +2,8 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Percent, Download, Copy, CheckCircle2, AlertTriangle, RefreshCw, Scale, Trash2, Save, Info } from "lucide-react";
-import { AppHeader, SourceTag } from "@/components/AppHeader";
-import { AppFooter } from "@/components/AppFooter";
+import { AppHeader, SourceTag } from "@/components/layout/AppHeader";
+import { AppFooter } from "@/components/layout/AppFooter";
 import { FEES, FX_FALLBACK, TAX_RULES, MACRO, type Source } from "@/lib/data";
 import {
   compareChannels, best, checkInvariants, batchingSaving, effectiveCost, effectiveRate, channelsToCsv, fmtBdt,

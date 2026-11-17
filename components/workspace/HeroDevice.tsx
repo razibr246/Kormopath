@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { ArrowDownRight, ArrowUpRight, ShieldCheck, Award, Zap, Sparkles } from "lucide-react";
-import { KormoPathLogo } from "@/components/KormoPathLogo";
+import { KormoPathLogo } from "@/components/brand/KormoPathLogo";
 
 export type HeroDeviceTab = "finops" | "passport" | "contract";
 
