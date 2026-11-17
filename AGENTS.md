@@ -68,7 +68,7 @@ Hard rules for these apps (see `docs/`):
 - **Never invent facts.** No made-up prices, admission dates, OCR confidences, doses or "safe" verdicts. Unverifiable data is user-entered with source and date, shown as a labelled example via `SourceTag` (`components/AppHeader.tsx`), or omitted. Missing stays missing.
 - **Confirm before saving** anything parsed from speech, SMS or OCR (Shohoj, MediScan).
 - **Money is integer poisha** in `lib/budget.ts`; fee math lives only in `lib/finops.ts`. FeeGuard must render `Channel.steps` from the engine, never re-derive numbers in the page.
-- **MediScan:** never diagnose, prescribe or recommend a brand switch; "not in our list" is never "safe"; emergency strip stays visible; OCR needs `consent: true` and runs with `structured(..., { cache: false })`.
+- **MediScan:** never diagnose, prescribe or recommend a brand switch; "not in our list" is never "safe"; emergency strip stays visible; OCR needs `consent: true` and runs with `structured(..., { cache: false })`. The adherence tracker (`lib/adherence.ts`, `app/mediscan/AdherenceTracker.tsx`) only counts doses against the user's own confirmed schedule (never proposes one), computes PDC over completed Asia/Dhaka days (a day is covered only if every dose was ticked), and shows a neutral "talk to your doctor or pharmacist" prompt below the PQA/CMS 80% threshold.
 - **HaatBazar:** no pesticide doses; refer to the product label and Krishi Call Centre 16123.
 - **Probaho (`api/probaho/coach`):** the quote check runs inside a per-request Zod `superRefine` against the answer, so an invented quote triggers the repair retry; the deterministic score in `lib/speech.ts` is never changed by the model.
 
