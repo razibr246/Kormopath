@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   GraduationCap, Bookmark, BookmarkCheck, CalendarPlus, Download, ExternalLink, CheckCircle2, Circle, Trash2, Send, Copy,
-  FileText, Bot, Info, AlertTriangle, ListChecks, Compass, Search,
+  FileText, Bot, Info, AlertTriangle, ListChecks, Compass, Search, BookOpen,
 } from "lucide-react";
 import { AppHeader, SourceTag } from "@/components/layout/AppHeader";
 import { AppFooter } from "@/components/layout/AppFooter";
@@ -15,8 +15,9 @@ import {
   type StudentProfile, type UserDeadline, type ApplicationStatus, type ApplicationStage,
 } from "@/lib/admitbuddy";
 import { usePersistentState, storageKey, downloadText, todayLocal } from "@/lib/clientStore";
+import { StudyPlanner } from "@/components/apps/admitbuddy/StudyPlanner";
 
-type Tab = "discover" | "applications" | "sop" | "counselor" | "resources";
+type Tab = "discover" | "applications" | "study" | "sop" | "counselor" | "resources";
 
 const DEFAULT_PROFILE: StudentProfile = { name: "", sscGpa: 5, hscGpa: 5, group: "Science", maxBudgetPerSemester: 80000, preferredLocations: [], interests: [] };
 const LOCATIONS = [...new Set(UNIVERSITIES.map((u) => u.location))].sort();
@@ -98,6 +99,7 @@ export default function AdmitBuddyPage() {
   const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
     { id: "discover", label: "বিশ্ববিদ্যালয় খুঁজুন", icon: <Compass size={15} aria-hidden /> },
     { id: "applications", label: `আবেদন ট্র্যাকার${shortlist.length ? ` (${shortlist.length})` : ""}`, icon: <ListChecks size={15} aria-hidden /> },
+    { id: "study", label: "পড়ার পরিকল্পনা", icon: <BookOpen size={15} aria-hidden /> },
     { id: "sop", label: "SOP সহায়ক", icon: <FileText size={15} aria-hidden /> },
     { id: "counselor", label: "প্রশ্ন করুন", icon: <Bot size={15} aria-hidden /> },
     { id: "resources", label: "অফিসিয়াল লিংক", icon: <ExternalLink size={15} aria-hidden /> },
@@ -245,6 +247,7 @@ export default function AdmitBuddyPage() {
           />
         )}
 
+        {tab === "study" && <StudyPlanner today={today} />}
         {tab === "sop" && <SopStudio profile={profile} />}
         {tab === "counselor" && <Counselor matches={matches} />}
         {tab === "resources" && (
