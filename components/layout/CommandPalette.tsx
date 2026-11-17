@@ -101,6 +101,14 @@ export function CommandPalette() {
       onSelect: () => router.push("/krishi"),
     },
     {
+      id: "krishi-field",
+      title: "Satellite Field — season plan, water today, Ropon Radar",
+      titleBn: "স্যাটেলাইট মাঠ — মৌসুম পরিকল্পনা, আজ সেচ, রোপণ রাডার",
+      category: "Navigation",
+      icon: <Sprout size={16} className="text-sky-700" />,
+      onSelect: () => { window.location.href = "/krishi/field#/farmer"; },
+    },
+    {
       id: "rokkha",
       title: "Rokkha — scam check, cooling-off pause, disaster readiness",
       titleBn: "রক্ষা — প্রতারণা যাচাই, টাকা পাঠানোর আগে বিরতি, দুর্যোগ প্রস্তুতি",

@@ -648,6 +648,8 @@ export function Buddy() {
     { id: "security", icon: ShieldCheck, bn: "গোপনীয়তা", en: "Privacy" },
   ];
 
+  // The MaathSathi field app (FieldShift360) has its own agent, Chakra, in the same corner.
+  if (pathname?.startsWith("/krishi/field")) return null;
   return (
     <aside
       aria-label={bn ? "বাডি সহকারী" : "Buddy assistant"}

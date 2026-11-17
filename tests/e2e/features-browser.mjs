@@ -157,8 +157,30 @@ const ob3 = await p.evaluate(() => document.querySelector(".kp-orbit")?.dataset.
 check(ob3 === "none", "Home: orbit stays still under reduced motion", ob3);
 await p.close();
 
+// MaathSathi field app (FieldShift360 port): linked from MaathSathi, radar renders, storage stays in the krishi namespace
+p = await page(390, 844);
+await p.goto(`${BASE}/krishi`, { waitUntil: "networkidle2" });
+const fLink = await p.$eval('[data-testid="ms-field360-open"]', (a) => a.getAttribute("href")).catch(() => "");
+check(fLink === "/krishi/field#/farmer", "MaathSathi: links to the satellite field app", fLink);
+await p.evaluate(() => localStorage.clear());
+await p.goto(`${BASE}/krishi/field#/farmer/radar`, { waitUntil: "networkidle2", timeout: 60000 });
+for (let i = 0; i < 30; i++) { if (await p.evaluate(() => /Godagari|গোদাগাড়ী/.test(document.querySelector("h1")?.innerText ?? ""))) break; await wait(500); }
+const fr = await p.evaluate(() => ({ h1: document.querySelector("h1")?.innerText ?? "", keys: Object.keys(localStorage), buddy: !!document.querySelector('[aria-label*="Buddy"], [aria-label*="বাডি"]') }));
+check(/Godagari|গোদাগাড়ী/.test(fr.h1) && fr.keys.length > 0 && fr.keys.every((k) => k.startsWith("kormopath:")), "Field app: Ropon Radar renders; every stored key is kormopath:*", `${fr.h1.slice(0, 50)} / ${fr.keys.join(",").slice(0, 120)}`);
+const plans = await fetch(`${BASE}/api/field360/plans`);
+check(plans.status === 503, "Field app: shared plan board says not configured (no database)", String(plans.status));
+await p.close();
+// Arriving by client-side navigation (a next/link from home) loads the field app in a fresh document
+p = await page(1280, 900);
+await p.goto(`${BASE}/`, { waitUntil: "networkidle2" });
+await p.evaluate(() => { const a = document.querySelector('a[href="/krishi/field#/farmer"]'); a?.click(); });
+await wait(4000);
+const soft = await p.evaluate(() => ({ path: location.pathname, nav: new URL(performance.getEntriesByType("navigation")[0]?.name ?? location.href).pathname }));
+check(soft.path === "/krishi/field" && soft.nav === "/krishi/field", "Field app: client-side arrival reloads into its own document", JSON.stringify(soft));
+await p.close();
+
 // Mobile: no horizontal scroll with the new strip
-for (const route of ["/", "/judges", "/shohoj-budget", "/probaho", "/rokkha"]) {
+for (const route of ["/", "/judges", "/shohoj-budget", "/probaho", "/rokkha", "/krishi", "/krishi/field#/farmer"]) {
   p = await page(375, 812);
   await p.goto(`${BASE}${route}`, { waitUntil: "networkidle2" });
   const o = await p.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));

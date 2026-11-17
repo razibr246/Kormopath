@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 // Reject oversized API bodies before any route parses JSON. Upload routes accept base64 files
 // (Zod caps them at 6,000,000 chars); everything else is small text. This is defence in depth:
 // zod < 4.6.6 can use excessive memory on oversized collections (GHSA-mrhx-c7xc-m3w5).
-const UPLOAD_ROUTES = ["/api/audit", "/api/receipt", "/api/mediscan/ocr"];
+const UPLOAD_ROUTES = ["/api/audit", "/api/receipt", "/api/mediscan/ocr", "/api/field360/doctor"];
 const UPLOAD_LIMIT = 6_500_000;
 const DEFAULT_LIMIT = 256_000;
 

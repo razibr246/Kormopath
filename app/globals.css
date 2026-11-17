@@ -1,4 +1,6 @@
 @import "tailwindcss";
+/* FieldShift360 (field360/) has its own Tailwind build in field360/src/f360.css. */
+@source not "../field360";
 
 /*
  * KormoPath v2 identity: "Shonar Bangla".

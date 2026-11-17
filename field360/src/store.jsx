@@ -1,0 +1,450 @@
+// App-wide state: the selected farmer, their field, choices, requests and officer actions.
+// All data is local demo data. Each "service" this store calls (weather, places, the engine) is a plain function,
+// so swapping in a backend later means replacing those calls, not the components.
+import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import soilGodagari from './data/soil/soil_godagari.json';
+import soilDhamrai from './data/soil/soil_dhamrai.json';
+import soilSitakunda from './data/soil/soil_sitakunda.json';
+import soilDacope from './data/soil/soil_dacope.json';
+import soilBakerganj from './data/soil/soil_bakerganj.json';
+import soilGangachara from './data/soil/soil_gangachara.json';
+import soilGowainghat from './data/soil/soil_gowainghat.json';
+import soilFields from './data/soil/soil_fields.json';
+import srdiFrs from './data/soil/srdi_frs.json';
+import priceSeasons from './data/market/price_seasons.json';
+import cropEconomics from './data/market/crop_economics.json';
+import { buildDemo, unionsOf, upazilaOfUnion } from './data/demo.js';
+import { UPAZILAS } from './data/upazilas.js';
+import { PARCELS } from './data/parcels.js';
+import { makeClimate, timeMachine, whatIf, stationCorrect } from './engine/climate.js';
+import normals from './data/climate/station_normals.json';
+import { makeUnion } from './engine/world.js';
+import { decide } from './engine/decision.js';
+import { recommendRotation } from './engine/rotation.js';
+import { fetchLiveWeather, cropStage } from './engine/water.js';
+import { fieldWater } from './engine/fieldwater.js';
+import { findHotspots } from './engine/cluster.js';
+import { daysBetween, todayDhaka, bnDigits as bnDigitsOf } from './engine/dates.js';
+import { STORAGE_PREFIX } from './config/brand.js';
+import { srdiUnionOf, has } from './engine/soil.js';
+// each upazila's usual Aman transplanting day (Sentinel-1); the full radar data loads only on the radar pages
+import amanNormals from './data/radar/aman_normals.json';
+import { loadSharedPlans, sendSharedPlan } from './engine/sharedPlans.js';
+import { loadMessages, postMessage } from './engine/sharedMessages.js';
+import { PLAN_SEASON } from './engine/climate.js';
+import { appendAudit } from './engine/chakra.js';
+import { applyTest } from './engine/soiltest.js';
+import { mergeExclude } from './engine/constraints.js';
+
+// One NASA POWER record per upazila (60–100 KB each over the wire), fetched only when a page needs it: Godagari before
+// the first screen (the default farmer and the public pages' `clim` / `tm`), any other upazila when a farmer or officer
+// there is chosen, and all seven when the climate comparison scrolls into view. Farmer and officer screens read their
+// own upazila's from the store (useStore().clim / .tm / .officerClim).
+// Temperatures are corrected to the nearest BMD station's normals first (see stationCorrect in engine/climate.js).
+const CLIMATE_FILES = {
+  './data/climate/climate_bakerganj.json': () => import('./data/climate/climate_bakerganj.json').then((m) => m.default),
+  './data/climate/climate_dacope.json': () => import('./data/climate/climate_dacope.json').then((m) => m.default),
+  './data/climate/climate_dhamrai.json': () => import('./data/climate/climate_dhamrai.json').then((m) => m.default),
+  './data/climate/climate_gangachara.json': () => import('./data/climate/climate_gangachara.json').then((m) => m.default),
+  './data/climate/climate_godagari.json': () => import('./data/climate/climate_godagari.json').then((m) => m.default),
+  './data/climate/climate_gowainghat.json': () => import('./data/climate/climate_gowainghat.json').then((m) => m.default),
+  './data/climate/climate_sitakunda.json': () => import('./data/climate/climate_sitakunda.json').then((m) => m.default),
+};
+export const climates = {};
+const loading = {};
+export function loadClimate(id) {
+  if (climates[id]) return Promise.resolve(climates[id]);
+  if (!CLIMATE_FILES[`./data/climate/climate_${id}.json`]) return Promise.reject(new Error(`no climate file for ${id}`));
+  return (loading[id] ??= CLIMATE_FILES[`./data/climate/climate_${id}.json`]().then((j) => (climates[id] = makeClimate(stationCorrect(j, normals.stations[id])))));
+}
+export let clim = null; // Godagari, set by bootClimate() before the app first renders
+export let tm = null;
+// Each upazila's 25-season summary is worked out the first time a page asks for it, not for every upazila on start.
+const tmCache = {};
+export const bootClimate = () => loadClimate('godagari').then((c) => { clim = c; tm = tmCache.godagari = timeMachine(c); });
+export const tms = new Proxy(tmCache, { get: (o, k) => (k in o || typeof k !== 'string' || !climates[k] ? o[k] : (o[k] = timeMachine(climates[k]))) });
+// Soil: ISRIC SoilGrids at every union centre and registered field, and SRDI's fertilizer advice per union (all REAL).
+export const soilData = { provenance: soilGodagari.provenance, unions: Object.assign({}, ...[soilGodagari, soilDhamrai, soilSitakunda, soilDacope, soilBakerganj, soilGangachara, soilGowainghat].map((x) => x.unions)) };
+export const fieldSoil = soilFields.fields;
+export const srdi = srdiFrs;
+export const demo = buildDemo({ today: todayDhaka() }); // the seeded requests follow the real season
+
+const Ctx = createContext(null);
+
+// ---- saved demo state (per browser; safe to lose) ----
+const STATE_KEY = `${STORAGE_PREFIX}.demo.v5`; // v5: every farmer's fields from the upazila office registry
+const LANG_KEY = `${STORAGE_PREFIX}.lang`;
+const SAVED_KEYS = ['seenMsgs', 'irrigated', 'farmerId', 'profiles', 'priorities', 'exclude', 'constraints', 'pick', 'confirmed', 'fields', 'requests', 'advisories', 'escalations', 'seenAdvisories', 'officerUpazila', 'officerUnion', 'step', 'fieldCheck', 'scenario', 'harvests', 'parcelEdits', 'activeParcel', 'savedCompares', 'sawStrategies', 'chakra', 'soilTests', 'callNotes', 'farmerMode', 'macosPortal'];
+const readJSON = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } };
+const savedLang = () => {
+  try {
+    const v = localStorage.getItem(LANG_KEY);
+    return v === 'bn' || v === 'en' ? v : 'en';
+  } catch {
+    return 'en';
+  }
+};
+if (typeof document !== 'undefined') document.documentElement.lang = savedLang();
+
+const fresh = () => ({
+  lang: savedLang(),
+  farmerMode: 'advanced', // 'advanced' (full science suite) | 'simple' (accessible essential view for smallholders)
+  macosPortal: true, // optional macOS Liquid Glass chrome, traffic-light window controls & floating Dock in portal views
+  step: 0, // season planner step
+  farmerId: 'RAHIM',
+  fields: {}, // farmerId -> { lat, lon, union, village, villageBn, area_dec, last_crop, irrigation, confirmed }
+  parcelEdits: {}, // parcelId -> changes to a registered field, or a whole field the farmer added ({ added: true, … })
+  activeParcel: {}, // farmerId -> the parcel the season plan is for (default: the registry's main field)
+  profiles: {}, // farmerId -> what the farmer saved on their profile page (see pages/farmer/Profile.jsx)
+  priorities: [],
+  exclude: [], // crops this farmer cannot grow (no market, machine or seed): left out of the plan and Field Future
+  constraints: {}, // what the farmer has to work with (engine/constraints.js); the crops it rules out join exclude
+  pick: null, // {crop, shift} chosen by the farmer; null = follow the recommendation
+  confirmed: [], // plans confirmed by demo farmers -> added to union supply
+  harvests: {}, // farmerId -> { qty, price }
+  callNotes: [], // sealed officer call notes (engine/callnote.js), newest first; the audio itself is never kept
+  soilTests: {}, // parcel id (or farmer id without a parcel) -> the farmer's own soil test (engine/soiltest.js)
+  fieldCheck: null,
+  irrigated: {}, // farmerId -> 'YYYY-MM-DD' the farmer last irrigated (restarts the field water balance)
+  whatIf: 'normal', // what-if season for the recommendation: normal | dry | hot1 | hot2, or the sliders' 'c:<°C>:<rain factor>' (not saved)
+  live: null,
+  shared: { status: 'connecting', plans: [], at: null }, // the shared plan board (api/plans.js); not saved
+  daysAfter: null,
+  requests: demo.requests,
+  advisories: [], // {id, text, to:[farmerIds], at, cluster?, request?, upazila?}
+  escalations: [],
+  seenAdvisories: 0,
+  seenMsgs: {}, // farmerId -> ids of officer messages the farmer has seen (pop-up and bell)
+  remoteMsgs: [], // the current farmer's messages from api/messages.js; not saved
+  officerUpazila: 'godagari', // which upazila office the officer is signed in to
+  officerUnion: 'Deopara',
+  why: null,
+  dataInfo: false,
+  toast: null,
+  // Chakra Agent: manual or agent mode per role, task ids already handled (done or dismissed), the hash-chained audit log
+  chakra: { mode: { farmer: 'manual', officer: 'manual' }, handled: [], audit: [] },
+});
+
+function initial() {
+  const base = fresh();
+  const saved = readJSON(STATE_KEY);
+  if (!saved) return base;
+  for (const k of SAVED_KEYS) if (saved[k] !== undefined) base[k] = saved[k];
+  // Keep the visitor's own requests and their work on this season's sample ones; sample requests from another
+  // season (or from before seasons existed) give way to this season's.
+  if (Array.isArray(saved.requests)) {
+    const kept = new Map(saved.requests.filter((r) => r.demo && r.season).map((r) => [r.id, r]));
+    base.requests = [...saved.requests.filter((r) => !r.demo), ...demo.requests.map((r) => (kept.get(r.id)?.season === r.season ? kept.get(r.id) : r))];
+  }
+  // The officer's union must be one of their own upazila's.
+  const upz = UPAZILAS[base.officerUpazila] ?? UPAZILAS.godagari;
+  base.officerUpazila = upz.id;
+  if (!unionsOf(upz.id).some((u) => u.id === base.officerUnion)) base.officerUnion = upz.defaultUnion;
+  return base;
+}
+
+function reducer(s, a) {
+  switch (a.type) {
+    case 'set': return { ...s, ...a.patch };
+    case 'toggleExclude': return { ...s, exclude: (s.exclude ?? []).includes(a.id) ? s.exclude.filter((x) => x !== a.id) : [...(s.exclude ?? []), a.id] };
+    case 'togglePriority': {
+      const has = s.priorities.includes(a.id);
+      let p = has ? s.priorities.filter((x) => x !== a.id) : [...s.priorities, a.id];
+      if (p.length > 2) p = p.slice(-2);
+      return { ...s, priorities: p, pick: null };
+    }
+    case 'chooseFarmer': return { ...s, farmerId: a.id, step: 0, pick: null, priorities: [], fieldCheck: null, daysAfter: null, seenAdvisories: 0, remoteMsgs: [] };
+    case 'markSeen': return { ...s, seenMsgs: { ...s.seenMsgs, [a.id]: [...new Set([...(s.seenMsgs[a.id] ?? []), ...a.ids])].slice(-300) } };
+    case 'confirmPlan': return { ...s, confirmed: s.confirmed.filter((p) => p.plot_id !== a.plan.plot_id).concat(a.plan) };
+    case 'setField': {
+      // Saving the land also moves an already-confirmed plan to the new union/area.
+      const f = a.field;
+      const confirmed = s.confirmed.map((p) => (p.plot_id === a.id ? { ...p, union: f.union, area_dec: f.area_dec } : p));
+      return { ...s, fields: { ...s.fields, [a.id]: { ...f, confirmed: true } }, confirmed, pick: null };
+    }
+    // A field marked or moved by the farmer waits for the upazila office (pending); the office verifies it or puts
+    // it back where the registry has it.
+    case 'saveSoilTest': return { ...s, soilTests: { ...s.soilTests, [a.id]: a.test } };
+    case 'clearSoilTest': { const { [a.id]: _gone, ...rest } = s.soilTests ?? {}; return { ...s, soilTests: rest }; }
+    case 'saveParcel': return { ...s, parcelEdits: { ...s.parcelEdits, [a.parcel.id]: { ...s.parcelEdits[a.parcel.id], ...a.parcel } } };
+    case 'verifyParcel': return { ...s, parcelEdits: { ...s.parcelEdits, [a.id]: { ...s.parcelEdits[a.id], pending: false, source: 'office', verified: a.date } } };
+    case 'resetParcel': {
+      // Back to the registered position and size; a boundary someone measured stays (it is not the pin's to undo).
+      const { [a.id]: gone, ...rest } = s.parcelEdits;
+      return { ...s, parcelEdits: gone?.boundary && !gone.added ? { ...rest, [a.id]: { id: a.id, boundary: gone.boundary } } : rest };
+    }
+    // Plan the season for one of the farmer's fields: it becomes the field every screen works from.
+    case 'useParcel': {
+      const p = a.parcel;
+      const f = { lat: p.lat, lon: p.lon, union: p.union, village: p.village, villageBn: p.villageBn, area_dec: p.area_dec, last_crop: p.last_crop, irrigation: p.irrigation, confirmed: true };
+      const confirmed = s.confirmed.map((c) => (c.plot_id === a.id ? { ...c, union: f.union, area_dec: f.area_dec } : c));
+      return { ...s, fields: { ...s.fields, [a.id]: f }, activeParcel: { ...s.activeParcel, [a.id]: p.id }, confirmed, pick: null };
+    }
+    case 'setProfile': return { ...s, profiles: { ...s.profiles, [a.id]: { ...s.profiles[a.id], ...a.profile, savedAt: Date.now() } } };
+    case 'addRequest': return { ...s, requests: [a.req, ...s.requests.filter((r) => r.id !== a.req.id)] };
+    case 'updateRequest': return { ...s, requests: s.requests.map((r) => (a.ids.includes(r.id) ? { ...r, ...a.patch } : r)) };
+    case 'addAdvisory': return { ...s, advisories: [a.adv, ...s.advisories.filter((x) => x.id !== a.adv.id)] };
+    case 'escalate': return { ...s, escalations: [a.esc, ...s.escalations.filter((e) => e.id !== a.esc.id)] };
+    case 'addCallNote': return { ...s, callNotes: [a.note, ...s.callNotes.filter((n) => n.id !== a.note.id)].slice(0, 50) };
+    case 'linkCallNote': return { ...s, callNotes: s.callNotes.map((n) => (n.id === a.id ? { ...n, requestId: a.requestId } : n)) };
+    case 'removeCallNote': return { ...s, callNotes: s.callNotes.filter((n) => n.id !== a.id) };
+    case 'recordHarvest': return { ...s, harvests: { ...s.harvests, [a.id]: a.value } };
+    case 'chakraMode': return { ...s, chakra: { ...s.chakra, mode: { ...s.chakra.mode, [a.role]: a.mode } } };
+    // One step the agent took or a person decided: the task is handled and the audit log gets an entry.
+    case 'chakraLog': return { ...s, chakra: { ...s.chakra, handled: a.task ? [...new Set([...s.chakra.handled, a.task])].slice(-400) : s.chakra.handled, audit: appendAudit(s.chakra.audit, a.entry) } };
+    case 'toast': return { ...s, toast: a.toast ? { ...a.toast, at: Date.now() } : null };
+    case 'reset': return { ...fresh(), lang: s.lang, live: s.live, toast: { bn: 'নমুনা তথ্য শুরুর অবস্থায় ফেরানো হয়েছে', en: 'Demo data reset to the start', at: Date.now() } };
+    default: return s;
+  }
+}
+
+export function StoreProvider({ children }) {
+  const [s, dispatch] = useReducer(reducer, undefined, initial);
+
+  // Save the demo state (photos are dropped to stay within browser storage limits).
+  useEffect(() => {
+    const out = {};
+    for (const k of SAVED_KEYS) out[k] = s[k];
+    out.requests = s.requests.map((r) => (r.image && r.image.length > 150000 ? { ...r, image: null, imageDropped: true } : r));
+    try { localStorage.setItem(STATE_KEY, JSON.stringify(out)); } catch { /* storage full or blocked: keep going without saving */ }
+  }, [s]);
+  useEffect(() => { try { localStorage.setItem(LANG_KEY, s.lang); } catch { /* storage unavailable */ } document.documentElement.lang = s.lang; }, [s.lang]);
+  useEffect(() => {
+    if (!s.toast) return undefined;
+    const t = setTimeout(() => dispatch({ type: 'toast', toast: null }), 3400);
+    return () => clearTimeout(t);
+  }, [s.toast]);
+
+  // Demo farmers with any land the user has marked on the map, and the name they saved on their profile, applied on top.
+  const farmers = useMemo(() => demo.farmers.map((f) => {
+    const p = s.profiles[f.id];
+    const name = p?.nameBn || p?.nameEn ? { bn: p.nameBn || f.name.bn, en: p.nameEn || f.name.en } : f.name;
+    return s.fields[f.id] || p ? { ...f, ...s.fields[f.id], name } : f;
+  }), [s.fields, s.profiles]);
+  const farmerById = useMemo(() => new Map(farmers.map((f) => [f.id, f])), [farmers]);
+  const world = useMemo(() => ({ ...demo, farmers }), [farmers]);
+  const farmer = farmerById.get(s.farmerId) ?? farmers[0];
+  const unionSoil = soilData.unions[farmer.union];
+  // Every registered field with the farmers' and officers' changes on top, and the fields farmers added.
+  const parcels = useMemo(() => [
+    ...PARCELS.map((p) => (s.parcelEdits[p.id] ? { ...p, ...s.parcelEdits[p.id] } : p)),
+    ...Object.values(s.parcelEdits).filter((p) => p.added),
+  ], [s.parcelEdits]);
+  const myParcels = useMemo(() => parcels.filter((p) => p.owner === farmer.id), [parcels, farmer.id]);
+  const activeParcel = myParcels.find((p) => p.id === s.activeParcel[farmer.id]) ?? myParcels.find((p) => p.main) ?? myParcels[0] ?? null;
+  const srdiUnion = useMemo(() => srdiUnionOf(srdi, farmer.union), [farmer.union]);
+  // The field's own SoilGrids cell when it is a registered field still where it was read; otherwise the union's centre.
+  const soil = useMemo(() => {
+    const fs = activeParcel && fieldSoil[activeParcel.id];
+    const here = fs && Math.abs(fs.at[0] - farmer.lat) < 0.0005 && Math.abs(fs.at[1] - farmer.lon) < 0.0005;
+    const phys = (srdiUnion?.physiography ?? []).filter(Boolean);
+    // SRDI's soil types: river silt (পলি মাটি) everywhere, and khiyar soil (খিয়ার মাটি) on Godagari's Barind uplands.
+    const landform = upazilaOfUnion(farmer.union).id === 'godagari' && phys.some((x) => has(x, 'খিয়ার')) ? 'barind' : phys.length ? 'floodplain' : null;
+    // The farmer's own soil test, where entered, is laid over the estimate (the estimate kept in soil.tested).
+    const test = s.soilTests?.[activeParcel?.id ?? farmer.id];
+    return applyTest({ ...unionSoil, ...(here ? fs : {}), scope: here ? 'field' : 'union', landform, physiography: phys }, test);
+  }, [unionSoil, activeParcel, farmer.lat, farmer.lon, farmer.union, farmer.id, srdiUnion, s.soilTests]);
+  // The farmer's upazila (from their union) sets the climate and neighbours they are planned against.
+  const upazila = upazilaOfUnion(farmer.union);
+  const officerUpazila = UPAZILAS[s.officerUpazila] ?? UPAZILAS.godagari;
+  // Until another upazila's climate has arrived, the figures are worked on Godagari's and nothing is shown (below).
+  const [, climateArrived] = useState(0);
+  const climReady = !!climates[upazila.id] && !!climates[officerUpazila.id];
+  useEffect(() => {
+    if (climReady) return;
+    Promise.all([loadClimate(upazila.id), loadClimate(officerUpazila.id)]).then(() => climateArrived((n) => n + 1), () => climateArrived((n) => n + 1));
+  }, [climReady, upazila.id, officerUpazila.id]);
+  const fclim = climates[upazila.id] ?? clim;
+  const officerClim = climates[officerUpazila.id] ?? clim;
+
+  // Every confirmed plan: all users' from the shared board, with this browser's own on top (it may not have synced yet).
+  const confirmedAll = useMemo(() => {
+    const byPlot = new Map(s.shared.plans.map((p) => [p.plot_id, { ...p, src: 'shared' }]));
+    for (const p of s.confirmed) byPlot.set(p.plot_id, { ...p, src: byPlot.has(p.plot_id) ? 'shared' : 'local' });
+    return [...byPlot.values()];
+  }, [s.shared.plans, s.confirmed]);
+  const unions = useMemo(() => Object.fromEntries(unionsOf(upazila.id).map((u) => [u.id, makeUnion(fclim, world, u.id, confirmedAll.filter((p) => p.plot_id !== s.farmerId))])), [world, confirmedAll, s.farmerId, upazila.id, fclim]);
+  // The officer's upazila only: every "whole upazila" figure, ranking and broadcast is scoped to it.
+  const unionsAll = useMemo(() => Object.fromEntries(unionsOf(officerUpazila.id).map((u) => [u.id, makeUnion(officerClim, world, u.id, confirmedAll)])), [world, confirmedAll, officerUpazila.id, officerClim]);
+  const upazilaFarmers = useMemo(() => farmers.filter((f) => unionsAll[f.union]), [farmers, unionsAll]);
+  const union = unions[farmer.union];
+  const climW = useMemo(() => whatIf(fclim, s.whatIf), [fclim, s.whatIf]);
+  const econ = useMemo(() => ({ prices: priceSeasons, costs: cropEconomics, srdiUnion, landform: soil.landform }), [srdiUnion, soil.landform]);
+  // today's date, so a sowing day already gone is not offered (it changes once a day; the planner re-runs then)
+  const planToday = todayDhaka();
+  // The farmer's own "cannot grow" list and the crops their constraints rule out, as one list for every plan.
+  const excludeAll = useMemo(() => mergeExclude(s.exclude, s.constraints), [s.exclude, s.constraints]);
+  const decision = useMemo(() => decide({ clim: climW, soil, plot: farmer, union, priorities: s.priorities, econ, today: planToday, exclude: excludeAll }), [climW, farmer, soil, union, s.priorities, econ, planToday, excludeAll]);
+  // What decide() was given, on the measured climate: the "how this was made" panel re-runs it in other climates.
+  const decisionArgs = useMemo(() => ({ clim: fclim, soil, plot: farmer, union, priorities: s.priorities, econ, today: planToday, exclude: excludeAll }), [fclim, soil, farmer, union, s.priorities, econ, planToday, excludeAll]);
+  // The as-measured answer, kept alongside so a what-if can show what changed.
+  const decisionBase = useMemo(() => (climW === fclim ? decision : decide({ clim: fclim, soil, plot: farmer, union, priorities: s.priorities, econ, today: planToday, exclude: excludeAll })), [excludeAll, climW, fclim, decision, farmer, soil, union, s.priorities, econ, planToday]);
+  const chosen = useMemo(() => {
+    if (!s.pick) return decision.rec;
+    return decision.all.find((r) => r.crop.id === s.pick.crop && r.shift === s.pick.shift) ?? decision.rec;
+  }, [decision, s.pick]);
+  // The upazila's usual T. Aman transplanting day, from Sentinel-1 radar (2017–2025 median): the next crop must be off by then.
+  const amanDoy = amanNormals.transplantNormal[upazila.id];
+  const amanT = amanDoy ? Date.UTC(PLAN_SEASON, 0, amanDoy) : null;
+  const rotation = useMemo(() => recommendRotation({ clim: climW, soil, plot: farmer, chosen, priorities: s.priorities, amanT }), [climW, farmer, soil, chosen, s.priorities, amanT]);
+  const hotspots = useMemo(() => findHotspots(s.requests), [s.requests]);
+
+  // Every message an officer sends from this browser goes to the message store, so it reaches the farmer's own phone.
+  const synced = useRef(null);
+  useEffect(() => {
+    if (!synced.current) { synced.current = new Set(s.advisories.map((a) => a.id)); return; } // what was there at start is not resent
+    for (const a of s.advisories) if (!synced.current.has(a.id)) {
+      synced.current.add(a.id);
+      try {
+        if (typeof BroadcastChannel !== 'undefined') {
+          const bc = new BroadcastChannel('fs360_peer_sync');
+          bc.postMessage({ type: 'peerAdvisory', advisory: { ...a, from: a.from } });
+          bc.close();
+        }
+      } catch { /* broadcast error safe fallback */ }
+      postMessage({ ...a, from: a.from });
+    }
+  }, [s.advisories]);
+  // The farmer's own messages: read on start, every 30 seconds and on coming back; a new one raises a phone
+  // notification when the farmer has allowed them.
+  const known = useRef(null);
+  const langRef = useRef(s.lang);
+  langRef.current = s.lang;
+  const refreshMessages = useCallback(async () => {
+    const list = await loadMessages(farmer.id);
+    if (!list) return;
+    if (known.current && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+      const title = langRef.current === 'bn' ? 'কৃষি কর্মকর্তার নতুন বার্তা' : 'New message from Agricultural Officer';
+      for (const m of list) if (!known.current.has(m.id)) { try { new Notification(title, { body: m.text.slice(0, 140), tag: m.id }); } catch { /* not allowed here */ } }
+    }
+    known.current = new Set(list.map((m) => m.id));
+    dispatch({ type: 'set', patch: { remoteMsgs: list } });
+  }, [farmer.id]);
+  useEffect(() => {
+    known.current = null;
+    refreshMessages();
+    const t = setInterval(() => { if (document.visibilityState === 'visible') refreshMessages(); }, 30000);
+    const back = () => document.visibilityState === 'visible' && refreshMessages();
+    document.addEventListener('visibilitychange', back);
+    return () => { clearInterval(t); document.removeEventListener('visibilitychange', back); };
+  }, [refreshMessages]);
+
+  // Peer-to-peer cross-tab synchronization for live multi-user demonstrations and offline sync:
+  useEffect(() => {
+    if (typeof BroadcastChannel === 'undefined') return undefined;
+    let bc;
+    try {
+      bc = new BroadcastChannel('fs360_peer_sync');
+      bc.onmessage = (ev) => {
+        const data = ev?.data;
+        if (!data) return;
+        if (data.type === 'peerPlan' && data.plan) {
+          dispatch({ type: 'confirmPlan', plan: data.plan });
+        } else if (data.type === 'peerAdvisory' && data.advisory) {
+          dispatch({ type: 'addAdvisory', adv: data.advisory });
+        }
+      };
+    } catch { /* unsupported in restricted sandboxes */ }
+    return () => { try { bc?.close(); } catch { /* noop */ } };
+  }, []);
+
+  // The shared plan board: read on start, every 30 seconds, and whenever the app comes back to the screen.
+  const refreshShared = useCallback(async () => {
+    const r = await loadSharedPlans();
+    dispatch({ type: 'set', patch: { shared: r.status === 'live' ? r : { status: 'offline', reason: r.reason, plans: [], at: null } } });
+  }, []);
+  useEffect(() => {
+    refreshShared();
+    const t = setInterval(() => { if (document.visibilityState === 'visible') refreshShared(); }, 30000);
+    const back = () => document.visibilityState === 'visible' && refreshShared();
+    document.addEventListener('visibilitychange', back);
+    window.addEventListener('focus', back);
+    return () => { clearInterval(t); document.removeEventListener('visibilitychange', back); window.removeEventListener('focus', back); };
+  }, [refreshShared]);
+  // Confirm a plan here and on the shared board, then read the board again so every count is current.
+  const confirmPlan = useCallback(async (plan) => {
+    dispatch({ type: 'confirmPlan', plan });
+    try {
+      if (typeof BroadcastChannel !== 'undefined') {
+        const bc = new BroadcastChannel('fs360_peer_sync');
+        bc.postMessage({ type: 'peerPlan', plan });
+        bc.close();
+      }
+    } catch { /* broadcast error safe fallback */ }
+    const ok = await sendSharedPlan(plan);
+    if (ok) await refreshShared();
+    return ok;
+  }, [refreshShared]);
+
+  useEffect(() => {
+    let alive = true;
+    dispatch({ type: 'set', patch: { live: null } });
+    fetchLiveWeather(farmer.lat, farmer.lon).then((w) => { if (alive) dispatch({ type: 'set', patch: { live: w || false } }); });
+    return () => { alive = false; };
+  }, [farmer.lat, farmer.lon]);
+
+  // Today's work runs on the real date: days since this crop's planting day (negative before it goes in),
+  // live weather at the field, and the FAO-56 water balance of this field's own soil.
+  const today = todayDhaka();
+  const daysAfter = daysBetween(chosen.t0, today);
+  const live = s.live || null;
+  const weather = live ?? { rain7: null, rainNext3: null, tmax: null, unavailable: true, loading: s.live === null };
+  const stage = cropStage(chosen.crop, daysAfter);
+  const fw = useMemo(() => fieldWater({ crop: chosen.crop, plantT: chosen.t0, soil, area_dec: farmer.area_dec, wx: live, today, reset: s.irrigated[farmer.id] ?? null, fieldCheck: s.fieldCheck }),
+    [chosen.crop, chosen.t0, soil, farmer.area_dec, live, today, s.irrigated, farmer.id, s.fieldCheck]);
+  const water = fw?.reasons ? { color: fw.color, reasons: fw.reasons, fw }
+    : fw?.mode === 'before' ? { color: 'GREEN', fw, reasons: [{ bn: `${chosen.crop.name.bn} ${chosen.crop.action.bn} ${bnDigitsOf(-fw.dToday)} দিন পরে; এখন সেচের প্রশ্ন নেই`, en: `${chosen.crop.action.en} the ${chosen.crop.name.en.toLowerCase()} in ${-fw.dToday} days; no watering question yet` }] }
+      : fw?.mode === 'after' ? { color: 'GREEN', fw, reasons: [{ bn: 'এই ফসলের মৌসুম শেষ', en: 'This crop’s season is over' }] }
+        : { color: 'YELLOW', fw: null, reasons: [{ bn: s.live === null ? 'আবহাওয়া আনা হচ্ছে…' : 'আবহাওয়া আনা যায়নি, তাই জমির মাটি হাতে নিয়ে দেখে ঠিক করুন', en: s.live === null ? 'Fetching the weather…' : 'Could not fetch the weather, so feel the soil in the field to decide' }] };
+  // This farmer's messages: those delivered through the message store, plus any sent from this same browser.
+  const myAdvisories = useMemo(() => {
+    const byId = new Map(s.remoteMsgs.map((m) => [m.id, m]));
+    for (const a of s.advisories) if (a.to.includes(farmer.id) && !byId.has(a.id)) byId.set(a.id, a);
+    // The same words sent twice about the same request or topic are one message to the farmer.
+    const seen = new Set();
+    return [...byId.values()].sort((a, b) => (b.sent ?? b.at) - (a.sent ?? a.at))
+      .filter((m) => { const k = `${m.request ?? m.cluster ?? m.weather ?? m.upazila ?? ''}|${m.text.trim()}`; if (seen.has(k)) return false; seen.add(k); return true; });
+  }, [s.remoteMsgs, s.advisories, farmer.id]);
+  const seenIds = s.seenMsgs[farmer.id] ?? [];
+  const unreadMsgs = myAdvisories.filter((a) => !seenIds.includes(a.id));
+  const confirmedPlan = s.confirmed.find((p) => p.plot_id === farmer.id) ?? null;
+  // A field the upazila office has registered is known before the farmer ever opens the app.
+  const landConfirmed = !!s.fields[farmer.id]?.confirmed || (!!activeParcel && !activeParcel.pending);
+
+  const T = useCallback((bn, en) => (s.lang === 'bn' ? bn : en), [s.lang]);
+  const L = useCallback((o) => (o ? (s.lang === 'bn' ? o.bn : o.en) : ''), [s.lang]);
+  const toast = useCallback((bn, en) => dispatch({ type: 'toast', toast: { bn, en } }), []);
+  const farmerOf = useCallback((id) => farmerById.get(id), [farmerById]);
+
+  const profile = useMemo(() => ({ ...(farmer.mobile ? { mobile: farmer.mobile } : {}), ...s.profiles[farmer.id] }), [farmer.mobile, s.profiles, farmer.id]);
+  const markSeen = useCallback((ids) => dispatch({ type: 'markSeen', id: farmer.id, ids: ids ?? myAdvisories.map((a) => a.id) }), [farmer.id, myAdvisories]);
+
+  const toggleFarmerMode = useCallback(() => {
+    dispatch({ type: 'set', patch: { farmerMode: s.farmerMode === 'simple' ? 'advanced' : 'simple' } });
+  }, [s.farmerMode]);
+
+  const macosPortal = s.macosPortal !== false;
+  const toggleMacosPortal = useCallback(() => {
+    dispatch({ type: 'set', patch: { macosPortal: !macosPortal } });
+  }, [macosPortal]);
+
+  const value = useMemo(() => ({
+    s, dispatch, T, L, toast, farmer, farmers, farmerOf, soil, union, unions, unionsAll, decision, decisionBase, decisionArgs, chosen, rotation, hotspots, excludeAll,
+    profile, upazila, clim: fclim, tm: tms[upazila.id], officerUpazila, officerClim, upazilaFarmers,
+    today, daysAfter, demoNow: today, weather, liveWeather: !!live, stage, water,
+    myAdvisories, unreadMsgs, unreadAdvisories: unreadMsgs.length, markSeen, confirmedPlan, landConfirmed,
+    parcels, myParcels, activeParcel, srdiUnion, econ, shared: s.shared, refreshShared, confirmPlan, confirmedAll,
+    farmerMode: s.farmerMode ?? 'advanced', isSimpleMode: s.farmerMode === 'simple', toggleFarmerMode,
+    macosPortal, toggleMacosPortal,
+  }), [
+    s, dispatch, T, L, toast, farmer, farmers, farmerOf, soil, union, unions, unionsAll, decision, decisionBase, decisionArgs, chosen, rotation, hotspots, excludeAll,
+    profile, upazila, fclim, officerUpazila, officerClim, upazilaFarmers,
+    today, daysAfter, weather, live, stage, water,
+    myAdvisories, unreadMsgs, markSeen, confirmedPlan, landConfirmed,
+    parcels, myParcels, activeParcel, srdiUnion, econ, refreshShared, confirmPlan, confirmedAll,
+    toggleFarmerMode, macosPortal, toggleMacosPortal,
+  ]);
+  return <Ctx.Provider value={value}>{climReady ? children : <div className="grid min-h-[60vh] place-items-center text-[15px] text-muted" role="status">{s.lang === 'bn' ? 'নাসার আবহাওয়ার তথ্য আসছে…' : 'Loading NASA weather data…'}</div>}</Ctx.Provider>;
+}
+
+export const useStore = () => useContext(Ctx);
