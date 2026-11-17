@@ -93,6 +93,14 @@ export function CommandPalette() {
       onSelect: () => router.push("/haatbazar"),
     },
     {
+      id: "krishi",
+      title: "MaathSathi — land, tasks, livestock & support",
+      titleBn: "মাঠসাথী — জমি, আজকের কাজ, পশুপাখি ও সরকারি সহায়তা",
+      category: "Navigation",
+      icon: <Sprout size={16} className="text-lime-700" />,
+      onSelect: () => router.push("/krishi"),
+    },
+    {
       id: "probaho",
       title: "Probaho Coach — Viva & Interview Practice",
       titleBn: "প্রবাহ কোচ — রিয়েল-টাইম স্পিকিং ও ভাইভা রাডার",

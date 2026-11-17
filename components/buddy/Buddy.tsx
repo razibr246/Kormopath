@@ -26,6 +26,7 @@ import { storageKey, usePersistentState } from "@/lib/clientStore";
 
 export const CREW_APPS = [
   { id: "haatbazar", bnName: "হাটবাজার", name: "HaatBazar AI", tag: "কৃষি ও আবহাওয়া", route: "/haatbazar", icon: "🌾" },
+  { id: "krishi", bnName: "মাঠসাথী", name: "MaathSathi", tag: "জমি, কাজ ও পশুপাখি", route: "/krishi", icon: "🚜" },
   { id: "kormopath", bnName: "ওয়ার্কস্পেস", name: "KormoPath Workspace", tag: "সিভি থেকে পেমেন্ট", route: "/workspace", icon: "🧭" },
   { id: "chuktiguard", bnName: "চুক্তিগার্ড", name: "ChuktiGuard", tag: "আইন ও বিভ্রাট ধারা", route: "/chuktiguard", icon: "🛡️" },
   { id: "feeguard", bnName: "ফি-গার্ড", name: "FeeGuard BD", tag: "বৈদেশিক মুদ্রা ও কর", route: "/feeguard", icon: "৳" },
@@ -40,6 +41,7 @@ export type AppId = (typeof CREW_APPS)[number]["id"];
 /** Tools a reply names (Bangla or English), so the answer can offer one-tap "open" buttons. */
 const APP_MENTIONS: Array<[AppId, RegExp]> = [
   ["haatbazar", /হাটবাজার|haat\s*bazar/i],
+  ["krishi", /মাঠসাথী|maath\s*sathi/i],
   ["kormopath", /ওয়ার্কস্পেস|workspace/i],
   ["chuktiguard", /চুক্তিগার্ড|chukti\s*guard/i],
   ["feeguard", /ফি-?গার্ড|fee\s*guard/i],
@@ -70,6 +72,7 @@ type AssistantMode = "manual" | "agent";
 
 function appForPath(path: string | null): AppId {
   if (path?.startsWith("/haatbazar")) return "haatbazar";
+  if (path?.startsWith("/krishi")) return "krishi";
   if (path?.startsWith("/chuktiguard")) return "chuktiguard";
   if (path?.startsWith("/feeguard")) return "feeguard";
   if (path?.startsWith("/admitbuddy")) return "admitbuddy";
@@ -80,6 +83,7 @@ function appForPath(path: string | null): AppId {
 }
 
 const CHIP_SUGGESTIONS_EN: Record<AppId, string[]> = {
+  krishi: ["Add a task by voice", "Can I spray today?", "Which support can I get?", "Livestock helpline?"],
   haatbazar: [
     "What to plant?",
     "Compare the options",
@@ -135,6 +139,7 @@ const CHIP_SUGGESTIONS_EN: Record<AppId, string[]> = {
 };
 
 const CHIP_SUGGESTIONS_BN: Record<AppId, string[]> = {
+  krishi: ["কথা বলে কাজ যোগ", "আজ স্প্রে করা যাবে?", "কোন সরকারি সহায়তা পাব?", "পশুর জন্য কোন নম্বরে ফোন?"],
   haatbazar: [
     "কী চাষ করব?",
     "বিকল্পগুলো তুলনা করুন",
@@ -189,6 +194,11 @@ const CHIP_SUGGESTIONS_BN: Record<AppId, string[]> = {
 };
 
 const APP_TASKS: Record<AppId, Array<{ title: string; desc: string; query: string }>> = {
+  krishi: [
+    { title: "আজকের কাজ ও আবহাওয়া", desc: "জমির কাজের তালিকা, স্প্রে-সেচের দিনে পূর্বাভাসের সতর্কতা।", query: "Can I spray today?" },
+    { title: "সরকারি সহায়তার পথ", desc: "কৃষি কার্ড থেকে শুরু; কোন সেবার আগে কোনটা লাগে।", query: "Which support can I get?" },
+    { title: "পশুপাখি ও মাছের খাতা", desc: "দুধ, ডিম, মাছ, খরচ-বিক্রি আর অফিসের দেওয়া টিকার তারিখ।", query: "Livestock helpline?" },
+  ],
   haatbazar: [
     { title: "কী চাষ করবেন ও সার প্রস্তুত", desc: "মৌসুম, জমি ও বীজের প্রস্তুতি; সারের মাত্রা প্যাকেটের নির্দেশনা বা কৃষি কর্মকর্তার কাছ থেকে নিন।", query: "What to plant?" },
     { title: "ওষুধ ছিটানোর আবহাওয়া দেখুন", desc: "বৃষ্টি ও বাতাসের পূর্বাভাসের উপর ভিত্তি করে স্প্রে উইন্ডো দেখুন।", query: "Water today?" },

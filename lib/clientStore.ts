@@ -11,7 +11,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
  * - Every read goes through a sanitiser: stored data is treated as untrusted input.
  * - Nothing here leaves the browser.
  */
-export type AppNamespace = "shohoj" | "mediscan" | "admitbuddy" | "probaho" | "haatbazar" | "feeguard" | "chuktiguard" | "platform";
+export type AppNamespace = "shohoj" | "mediscan" | "admitbuddy" | "probaho" | "haatbazar" | "krishi" | "feeguard" | "chuktiguard" | "platform";
 
 export const storageKey = (app: AppNamespace, name: string) => `kormopath:${app}:${name}`;
 

@@ -21,6 +21,7 @@ export default function manifest(): MetadataRoute.Manifest {
     shortcuts: [
       { name: "আমার পথ", short_name: "My Path", url: "/opportunities", icons: [{ src: "/favicon.svg", sizes: "any", type: "image/svg+xml" }] },
       { name: "হাটবাজার", short_name: "HaatBazar", url: "/haatbazar", icons: [{ src: "/favicon.svg", sizes: "any", type: "image/svg+xml" }] },
+      { name: "মাঠসাথী", short_name: "MaathSathi", url: "/krishi", icons: [{ src: "/favicon.svg", sizes: "any", type: "image/svg+xml" }] },
       { name: "সহজ বাজেট", short_name: "Budget", url: "/shohoj-budget", icons: [{ src: "/favicon.svg", sizes: "any", type: "image/svg+xml" }] },
     ],
   };
