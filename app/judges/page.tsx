@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Compass, ShieldCheck, ArrowRight, Play, Trophy, Award, Sparkles, Scale, CheckCircle2, XCircle, Zap, ShieldAlert, Stethoscope, Landmark, DollarSign } from "lucide-react";
+import { Compass, ShieldCheck, ArrowRight, Play } from "lucide-react";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { AppFooter } from "@/components/layout/AppFooter";
 import { LiveAssertionHarness } from "@/components/judges/LiveAssertionHarness";
@@ -25,44 +25,6 @@ const APPS = [
   { name: "FeeGuard BD", href: "/feeguard", what: "Freelance payout fee & tax checker", tryIt: "Compare 4 payout routes with NBR ITES tax exemption notice and 2.5% Bangladesh Bank cash incentives.", trust: "Every fee line reconciles to the exact poisha; statutory Bangladesh Bank circular citations." },
   { name: "AdmitBuddy", href: "/admitbuddy", what: "University admission planner", tryIt: "Click 'Try an example' → see fit scores, shortlist BUET, and check SOP readability with Flesch score.", trust: "Never invents admission dates: students add dates from official circulars, with the source." },
   { name: "MediScan BD", href: "/mediscan", what: "Prescription reader & interaction warning", tryIt: "Click a sample prescription → see medicine, dose, and food timing in plain Bangla.", trust: "Never diagnoses; unknown drug pairs are 'no data', never 'safe'; emergency strip stays visible." },
-];
-
-const BENCHMARK_COMPARISONS = [
-  {
-    rubric: "Statutory Law & Consumer Dispute",
-    opponent: "Ebarki (Legal Petition Builder)",
-    opponentFlaw: "Requires Python FastAPI server, English-heavy UI, slow PDF compilation, no statutory freelance contracts.",
-    kormopathEdge: "Client-side instantaneous DNCRP petition generation under Sections 45 & 52 of 2009 Act + Freelancer Payment Demands under Section 73 Contract Act 1872; 1-click email & 16121 hotline.",
-    score: "100/100",
-  },
-  {
-    rubric: "Financial Deficit & Baki Ledger",
-    opponent: "LaMP (SME Smart Ledger)",
-    opponentFlaw: "Proprietary cloud vision dependency, floating point rounding errors, lacks cash insolvency date forecasting.",
-    kormopathEdge: "100% deterministic integer poisha accounting, 30-day cashflow simulator identifying the exact day balance turns negative, penny-accurate Baki installment scheduler with bilingual SMS reminders.",
-    score: "100/100",
-  },
-  {
-    rubric: "Cyber Scam & Social Engineering Defense",
-    opponent: "Scam Gym (Phishing Simulator)",
-    opponentFlaw: "Freeform conversational LLM prone to jailbreaks and hallucinated guidance; no emergency directory.",
-    kormopathEdge: "Deterministic behavioral evaluation (safe / risky / fatal) across 4 high-risk vectors (bKash OTP, Telegram tasks, admission leaks, lottery frauds); integrated CID Cyber Police (01730336431) & 999 hotlines.",
-    score: "100/100",
-  },
-  {
-    rubric: "Agricultural Diagnostics & Market Viability",
-    opponent: "AgroLeaf AI (Crop Disease Scanner)",
-    opponentFlaw: "Restricted strictly to paddy/rice leaf imagery; high cellular data bandwidth required for farmers.",
-    kormopathEdge: "Lightweight offline diagnostic tree covering 6 national staples (Rice, Potato, Brinjal, Tomato, Onion, Jute), verified organic IPM steps, zero unauthorized chemical dosage, direct link to Krishi 16123.",
-    score: "100/100",
-  },
-  {
-    rubric: "Remittance FX & Tax Exemption Compliance",
-    opponent: "Jachai AI / ScamShield (SMS Fraud)",
-    opponentFlaw: "Basic keyword heuristic regex on MFS SMS; no real-time multi-rail fee reconciliation.",
-    kormopathEdge: "4-way payout comparison (Upwork direct wire, bKash remittance, Payoneer, Western Union), official NBR ITES tax certificate generator, and 2.5% Bangladesh Bank cash incentive calculation.",
-    score: "100/100",
-  },
 ];
 
 export default function JudgesPage() {
@@ -133,64 +95,10 @@ export default function JudgesPage() {
           <LiveAssertionHarness />
         </section>
 
-        {/* Section 2: Competitive Benchmark Matrix */}
-        <section aria-labelledby="matrix-h" className="rounded-2xl border border-slate-200/80 bg-white/80 backdrop-blur-md p-5 sm:p-6 shadow-xs hover:shadow-md transition-all space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
-            <div className="flex items-center gap-2">
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-100 text-orange-800 text-[13px] font-bold">2</span>
-              <h2 id="matrix-h" className="text-[19px] font-bold text-slate-900">
-                AIgnite 2026 Competitive Benchmark Matrix (100/100 Evaluation)
-              </h2>
-            </div>
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-[12px] font-bold text-emerald-800">
-              <Trophy size={14} /> Overall Score: 100/100
-            </span>
-          </div>
-          <p className="text-[13.5px] text-slate-600 leading-relaxed">
-            How KormoPath systemically addresses the single biggest limitation in each leading finalist project from the YUNet AIgnite 2026 gallery:
-          </p>
-
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[700px] text-left text-[13px]">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50/70 text-[11px] uppercase tracking-wider text-slate-500">
-                  <th className="py-2.5 px-3 rounded-l-lg">Track / Capability</th>
-                  <th className="py-2.5 px-3">Top Finalist Competitor</th>
-                  <th className="py-2.5 px-3">Competitor Vulnerability</th>
-                  <th className="py-2.5 px-3">KormoPath Decisive Edge</th>
-                  <th className="py-2.5 px-3 text-right rounded-r-lg">Score</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {BENCHMARK_COMPARISONS.map((item, idx) => (
-                  <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="py-3 px-3 font-bold text-slate-900 align-top">
-                      {item.rubric}
-                    </td>
-                    <td className="py-3 px-3 font-semibold text-slate-700 align-top">
-                      {item.opponent}
-                    </td>
-                    <td className="py-3 px-3 text-slate-500 align-top text-[12px]">
-                      {item.opponentFlaw}
-                    </td>
-                    <td className="py-3 px-3 text-slate-800 font-medium align-top leading-relaxed text-[12.5px]">
-                      <span className="text-emerald-700 font-bold mr-1">✓</span>
-                      {item.kormopathEdge}
-                    </td>
-                    <td className="py-3 px-3 text-right font-mono font-bold text-emerald-700 align-top">
-                      {item.score}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        {/* Section 3: Seven Ecosystem Apps */}
+        {/* Section 2: Seven Ecosystem Apps */}
         <section aria-labelledby="apps-h" className="space-y-4">
           <h2 id="apps-h" className="text-[19px] font-bold text-slate-900 flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-100 text-orange-800 text-[13px] font-bold">3</span>
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-100 text-orange-800 text-[13px] font-bold">2</span>
             <span>Seven everyday apps (Bangla-first UI, English headers)</span>
           </h2>
           <div className="grid gap-4 sm:grid-cols-2">
