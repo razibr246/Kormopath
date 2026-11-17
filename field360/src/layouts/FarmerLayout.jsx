@@ -3,7 +3,6 @@ import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { PageOutlet, ScrollProgress, useScrollOnNavigate } from '../components/Motion';
 import { ScrollNavigator } from '../components/SectionNav';
 import { Radar as RadarIcon, Bell, Compass, ChevronDown, ChevronLeft, ChevronRight, Home, ScanLine, Sprout, Droplets, LifeBuoy, HandCoins, Wheat, Telescope, MapPinned, Ellipsis, X, Mic, UserRound, LogOut, MessageSquareText, Satellite, Search } from 'lucide-react';
-import BrandMark from '../components/brand/BrandMark';
 import { LangToggle, PlaceholderBanner, ResetDemo, BackButton, SkipToMain } from '../components/chrome';
 import MessagePopup from '../components/MessagePopup';
 import { useStore, demo } from '../store';
@@ -245,7 +244,6 @@ export default function FarmerLayout() {
           <div className="flex shrink-0 items-center gap-2 sm:gap-2.5">
             <BackButton />
             {macosPortal && <MacNavPills />}
-            <a href="/krishi" aria-label={T('মাঠসাথী', 'MaathSathi')} className="shrink-0"><span className="hidden sm:block"><BrandMark /></span><span className="sm:hidden"><BrandMark compact size={38} /></span></a>
             {upazila && (
               <div className="hidden 2xl:flex shrink-0 items-center gap-1.5 rounded-full border border-primary-200/70 bg-primary-50/80 px-2.5 py-1 text-[11.5px] font-semibold text-primary-900 shadow-2xs backdrop-blur-xs">
                 <span className="telemetry-pulse shrink-0" />
@@ -256,7 +254,8 @@ export default function FarmerLayout() {
             )}
           </div>
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2 xl:gap-2.5">
-            <ChakraAgent role="farmer" />
+            {/* KormoPath: no header button; Chakra opens from its floating orb (and Ctrl+K). */}
+            <ChakraAgent role="farmer" headerButton={false} />
             <MacPortalToggle className="hidden min-[1800px]:inline-flex" />
             <button
               type="button"

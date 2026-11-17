@@ -514,7 +514,7 @@ function Verdict({
   );
 }
 
-function BangladeshChakraAgent({ role }) {
+function BangladeshChakraAgent({ role, headerButton = true }) {
   const { T, L, macosPortal, toast } = useStore();
   const c = useChakra(role);
   const [open, setOpen] = useState(false);
@@ -623,7 +623,7 @@ function BangladeshChakraAgent({ role }) {
   const headerVerdictAction = role === 'officer' && (snoozedAll || verdictMinimized) && c.verdicts.length > 0;
   return (
     <>
-      <button type="button" onClick={headerVerdictAction ? restoreVerdict : openPanel} data-tour="chakra"
+      {headerButton && <button type="button" onClick={headerVerdictAction ? restoreVerdict : openPanel} data-tour="chakra"
         className={`relative hidden h-9 sm:h-10 items-center gap-1.5 rounded-xl border px-2 text-[14px] font-semibold shadow-2xs transition-all duration-200 hover:scale-105 active:scale-95 sm:inline-flex sm:px-2.5 shrink-0 ${c.mode === 'agent' ? 'border-primary-700 bg-primary-950 text-white' : 'border-border bg-white text-ink hover:bg-primary-50'}`}
         aria-label={headerVerdictAction ? T(`অপেক্ষমাণ ${num(c.verdicts.length, 'bn')}টি অনুমোদন খুলুন`, `Open ${c.verdicts.length} pending approvals`) : `${L(AGENT_NAME)}, ${c.mode === 'agent' ? T('এজেন্ট চালু', 'agent on') : T('ম্যানুয়াল', 'manual')}`}
         title={headerVerdictAction ? T('অপেক্ষমাণ অনুমোদন পপআপ খুলুন', 'Restore queued approval popups') : `${L(AGENT_NAME)} (Ctrl+K)`}>
@@ -631,7 +631,7 @@ function BangladeshChakraAgent({ role }) {
         <span className="hidden md:inline">{T('চক্র', 'Chakra')}</span>
         {c.mode === 'agent' && <span className="hidden rounded-md bg-paddy-300 px-1 text-[10.5px] font-bold uppercase text-primary-950 md:inline">{T('চালু', 'on')}</span>}
         {badge > 0 && <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-500 px-1.5 text-[11px] font-extrabold text-white shadow-xs ml-1 shrink-0">{T(num(badge, 'bn'), String(badge))}</span>}
-      </button>
+      </button>}
       {/* In a portal: the header's backdrop-filter would otherwise make it the box these fixed layers sit in. */}
       {createPortal(<>
       {!open && (
@@ -684,5 +684,5 @@ export default function ChakraAgent(props) {
   if (props.abroad) {
     return <AbroadChakraAgent role={props.role} context={props.abroad} />;
   }
-  return <BangladeshChakraAgent role={props.role} />;
+  return <BangladeshChakraAgent role={props.role} headerButton={props.headerButton !== false} />;
 }
