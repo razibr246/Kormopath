@@ -11,6 +11,7 @@ import {
   DRUG_REFERENCE, buildSchedule, scheduleToIcs, SLOT_BN, type ParsedLine, type ParsedPrescription, type Slot,
 } from "@/lib/prescription";
 import { usePersistentState, storageKey, downloadText, todayLocal } from "@/lib/clientStore";
+import { AdherenceTracker } from "./AdherenceTracker";
 
 // Fictional examples for trying the reader. Not real patients, doctors or hospitals.
 const SAMPLES = [
@@ -442,6 +443,8 @@ export default function MediScanPage() {
             )}
           </section>
         </div>
+
+        <AdherenceTracker lines={parsed.lines} />
 
         <section className="rounded-2xl border border-slate-200 bg-white p-5 text-[12px] leading-relaxed text-slate-600">
           <h2 className="mb-1 text-[14px] font-bold text-slate-800">সীমাবদ্ধতা ও উৎস</h2>
