@@ -129,6 +129,34 @@ const sh = await p.evaluate(() => ({ url: location.href, msg: document.querySele
 check(sh.msg.includes("ferot din") && sh.ids.includes("mfs_refund") && !sh.url.includes("ferot") && !sh.url.includes("text="), "Rokkha: shared SMS is checked and removed from the address bar", JSON.stringify(sh));
 await p.close();
 
+// MediScan fever watch: day 3+ means watch closely; one WHO warning sign means hospital now, with 999
+p = await page(390, 844);
+await p.goto(`${BASE}/mediscan#dengue`, { waitUntil: "networkidle2" });
+await p.evaluate(() => { const i = document.querySelector("#fv-start"); const d = new Date(Date.now() + 6 * 3600e3 - 3 * 86400e3).toISOString().slice(0, 10); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(i, d); i.dispatchEvent(new Event("input", { bubbles: true })); });
+await wait(200);
+const fv1 = await p.$eval('[data-testid="fever-result"]', (e) => e.dataset.level).catch(() => "");
+await p.click('[data-sign="bleeding"] input');
+await wait(200);
+const fv2 = await p.evaluate(() => ({ level: document.querySelector('[data-testid="fever-result"]')?.dataset.level, tel999: !!document.querySelector('[data-testid="fever-result"] a[href="tel:999"]'), stored: localStorage.getItem("kormopath:mediscan:feverWatch") }));
+check(fv1 === "watch_closely" && fv2.level === "go_now" && fv2.tel999 && JSON.parse(fv2.stored || "{\"checks\":[]}").checks.length === 0, "MediScan: fever day 4 = watch closely; a warning sign = hospital now + 999; nothing saved without tapping save", `${fv1} -> ${JSON.stringify(fv2)}`);
+await p.close();
+
+// Home orbit: the living 3D orbit runs, and stays still under reduced motion
+p = await page(390, 844);
+await p.goto(`${BASE}/`, { waitUntil: "networkidle2" });
+await p.evaluate(() => document.querySelector(".kp-orbit")?.scrollIntoView());
+await wait(600);
+const ob1 = await p.evaluate(() => [...document.querySelectorAll(".kp-orbit-node")].map((n) => n.style.left).join("|"));
+await wait(900);
+const ob2 = await p.evaluate(() => ({ live: document.querySelector(".kp-orbit")?.dataset.live, pos: [...document.querySelectorAll(".kp-orbit-node")].map((n) => n.style.left).join("|"), links: document.querySelectorAll(".kp-orbit-node a[href]").length }));
+check(ob2.live === "true" && ob1 !== ob2.pos && ob2.links >= 9, "Home: 3D orbit moves and every node stays a link", `${ob2.links} links`);
+await p.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
+await p.reload({ waitUntil: "networkidle2" });
+await wait(600);
+const ob3 = await p.evaluate(() => document.querySelector(".kp-orbit")?.dataset.live ?? "none");
+check(ob3 === "none", "Home: orbit stays still under reduced motion", ob3);
+await p.close();
+
 // Mobile: no horizontal scroll with the new strip
 for (const route of ["/", "/judges", "/shohoj-budget", "/probaho", "/rokkha"]) {
   p = await page(375, 812);
