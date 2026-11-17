@@ -93,3 +93,8 @@
   .ms-sun, .ms-cloud, .ms-stalk, .ms-rain i, .ms-enter > *, .ms-mic[data-on="true"]::after { animation: none !important; }
   .ms-tab, .ms-tilt { transition: none; }
 }
+
+/* Header mark: the seedling leans with the wind, rooted at its base. */
+.ms-mark-sprout { transform-origin: 14px 36px; animation: ms-mark-sway 4.8s ease-in-out infinite; }
+@keyframes ms-mark-sway { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(4deg); } }
+@media (prefers-reduced-motion: reduce) { .ms-mark-sprout { animation: none; } }

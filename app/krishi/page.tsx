@@ -3,9 +3,10 @@ import "./krishi.css";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
-  CalendarCheck, ClipboardList, Fish, House, Landmark, LifeBuoy, Map, MessageSquare, Mic, Phone, Sprout, Stethoscope, TrendingUp,
+  CalendarCheck, ClipboardList, CloudRain, Fish, House, Landmark, LifeBuoy, Map, MessageSquare, Mic, Phone, Stethoscope, Sun, TrendingUp,
 } from "lucide-react";
 import { AppHeader, SourceTag } from "@/components/layout/AppHeader";
+import { MaathSathiMark } from "@/components/apps/krishi/MaathSathiMark";
 import { AppFooter } from "@/components/layout/AppFooter";
 import { usePersistentState, storageKey, todayLocal } from "@/lib/clientStore";
 import { DISTRICTS, seasonForMonth, type WeatherHour } from "@/lib/haatbazar";
@@ -88,7 +89,24 @@ export default function KrishiPage() {
 
   return (
     <div className="min-h-screen bg-paper">
-      <AppHeader appId="krishi" href="/krishi" name="মাঠসাথী" taglineBn="জমি, কাজ, আবহাওয়া, পশুপাখি — মাঠের সব হিসাব এক জায়গায়" taglineEn="Your field companion" icon={<Sprout size={22} />} accent="from-emerald-600 to-lime-700" />
+      <AppHeader
+        appId="krishi"
+        href="/krishi"
+        name="মাঠসাথী"
+        taglineBn="মাঠের সব হিসাব"
+        icon={<MaathSathiMark />}
+        accent="from-transparent to-transparent"
+        right={
+          <span
+            className="kp-chip hidden !h-8 !rounded-full !text-[12px] font-semibold sm:inline-flex"
+            title={weather ? `${DISTRICTS.find((d) => d.id === district)?.nameBn ?? ""} · পরের ৬ ঘণ্টা (${weather.source.label})` : "আবহাওয়া লোড হচ্ছে"}
+          >
+            {weather?.rainLikely ? <CloudRain size={14} className="text-sky-700" aria-hidden /> : <Sun size={14} className="text-amber-600" aria-hidden />}
+            <span>{season.nameBn}</span>
+            {weather?.temp != null && <span className="font-mono text-ink">· {bnNum(weather.temp)}°</span>}
+          </span>
+        }
+      />
 
       <main id="main" className="mx-auto max-w-6xl space-y-6 px-4 pb-24 pt-4 sm:px-6">
         {/* Hero: a living field. Rain falls when the next 6 hours look wet. */}
