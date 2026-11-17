@@ -12,7 +12,7 @@ test("allDayIcs writes valid all-day events with alarms and skips bad dates", ()
   assert.match(ics, /BEGIN:VALARM/);
   assert.equal((ics.match(/BEGIN:VEVENT/g) ?? []).length, 1, "invalid date must be skipped");
   assert.match(ics, /Acme Ltd/);
-  assert.ok(ics.includes("\\,") && ics.includes("\;") && ics.includes("\\n"), "text must be escaped");
+  assert.ok(ics.includes("\\,") && ics.includes("\\;") && ics.includes("\\n"), "text must be escaped");
   for (const line of ics.split("\r\n")) assert.ok(new TextEncoder().encode(line).length <= 75, `line too long: ${line}`);
 });
 

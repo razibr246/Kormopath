@@ -12,7 +12,7 @@ export interface AllDayEvent {
 
 export const isIsoDate = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(value + "T00:00:00Z")) && new Date(value + "T00:00:00Z").toISOString().startsWith(value);
 
-const escape = (value: string) => value.replace(/\\/g, "\\\\").replace(/\r\n|\r|\n/g, "\\n").replace(/;/g, "\;").replace(/,/g, "\\,");
+const escape = (value: string) => value.replace(/\\/g, "\\\\").replace(/\r\n|\r|\n/g, "\\n").replace(/;/g, "\\;").replace(/,/g, "\\,");
 
 /** Fold lines at 75 UTF-8 octets without splitting a codepoint (Bangla is 3 bytes per char). */
 function fold(line: string): string {
