@@ -136,7 +136,7 @@ URGENT FIELD LEVEL SAAO PROTOCOLS:
 4. INPUT SAFETY: Move harvested paddy, urea bags, and seeds to cyclone-resistant storage.
 5. POST-EVENT FLUSHING: Rapidly drain freshwater to flush out storm salinity.
 
-Issued via FieldShift 360 Ropon Radar Intelligence Engine
+Issued via MaathSathi Ropon Radar Intelligence Engine
 Timestamp: ${new Date().toISOString()}
 =====================================================`;
 

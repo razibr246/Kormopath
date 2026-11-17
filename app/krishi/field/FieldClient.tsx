@@ -1,6 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
+import { FieldOpening } from "@/components/apps/krishi/FieldOpening";
 
 // FieldShift360 reads window, localStorage and Leaflet at import time, so it only ever renders in the browser.
 const Field360App = dynamic(() => import("@/field360/src/Field360App"), {
@@ -8,13 +9,7 @@ const Field360App = dynamic(() => import("@/field360/src/Field360App"), {
   loading: () => <Opening />,
 });
 
-function Opening() {
-  return (
-    <div className="grid min-h-[60vh] place-items-center text-[15px] text-slate-600" role="status">
-      মাঠের তথ্য খোলা হচ্ছে… · Opening field tools…
-    </div>
-  );
-}
+const Opening = () => <FieldOpening step="page" />;
 
 /**
  * FieldShift360 brings its own global stylesheet (field360/src/f360.css: its Tailwind build, body and html rules).

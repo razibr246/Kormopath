@@ -96,7 +96,7 @@ export default function KrishiPage() {
         appId="krishi"
         href="/krishi"
         name="মাঠসাথী"
-        taglineBn="মাঠের সব হিসাব"
+        taglineBn="খামারের খাতা"
         icon={<MaathSathiMark />}
         accent="from-transparent to-transparent"
         right={
@@ -138,12 +138,12 @@ export default function KrishiPage() {
             never stays behind on MaathSathi's pages. */}
         <section className="ms-card ms-field360 grid gap-4 p-5 sm:grid-cols-[1fr_auto] sm:items-center sm:p-6" aria-labelledby="ms-f360-h" data-testid="ms-field360">
           <div className="min-w-0">
-            <p className="kp-eyebrow">স্যাটেলাইট · মাটি · মৌসুম</p>
-            <h2 id="ms-f360-h" className="mt-1 text-[clamp(21px,3vw,27px)] font-semibold leading-tight text-slate-900">স্যাটেলাইট মাঠ: <em className="kp-em">জমির পুরো হিসাব</em></h2>
-            <p className="mt-1 max-w-[62ch] text-[14.5px] leading-relaxed text-slate-700">নাসার ২৫ মৌসুমের আবহাওয়া, সেন্টিনেলের মাঠের ছবি আর ISRIC মাটির তথ্য দিয়ে মৌসুম পরিকল্পনা, আজ সেচ লাগবে কি না, ফসলের ডাক্তার, জমির ভবিষ্যৎ আর রোপণ রাডার। নমুনা কৃষকের জমি দিয়ে দেখানো; আসল তথ্যের উৎস প্রতিটি পাতায় লেখা।</p>
+            <p className="kp-eyebrow">মাঠসাথী · জমির পরিকল্পনা</p>
+            <h2 id="ms-f360-h" className="mt-1 text-[clamp(21px,3vw,27px)] font-semibold leading-tight text-slate-900">কী লাগাবেন, <em className="kp-em">আজ কী করবেন</em></h2>
+            <p className="mt-1 max-w-[62ch] text-[14.5px] leading-relaxed text-slate-700">নাসার ২৫ মৌসুমের আবহাওয়া, সেন্টিনেলের মাঠের ছবি আর ISRIC মাটির তথ্য দিয়ে মৌসুম পরিকল্পনা, আজ সেচ লাগবে কি না, ফসলের ডাক্তার, জমির ভবিষ্যৎ আর রোপণ রাডার। এই খাতার কাজ, পশুপাখি আর খরচের পাশাপাশি। নমুনা কৃষকের জমি দিয়ে দেখানো; আসল তথ্যের উৎস প্রতিটি পাতায় লেখা।</p>
           </div>
           <div className="flex flex-wrap gap-2 sm:flex-col">
-            <a href="/krishi/field#/farmer" className="kp-btn-primary ms-big-btn" data-testid="ms-field360-open"><Satellite size={18} aria-hidden /> মাঠ খুলুন</a>
+            <a href="/krishi/field#/farmer" className="kp-btn-primary ms-big-btn" data-testid="ms-field360-open"><Satellite size={18} aria-hidden /> জমির পরিকল্পনা</a>
             <a href="/krishi/field#/farmer/radar" className="kp-btn-ghost ms-big-btn"><Radar size={18} aria-hidden /> রোপণ রাডার</a>
           </div>
         </section>

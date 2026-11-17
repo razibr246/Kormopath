@@ -79,9 +79,9 @@ const readJSON = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'nu
 const savedLang = () => {
   try {
     const v = localStorage.getItem(LANG_KEY);
-    return v === 'bn' || v === 'en' ? v : 'en';
+    return v === 'bn' || v === 'en' ? v : 'bn'; // KormoPath is Bangla first
   } catch {
-    return 'en';
+    return 'bn';
   }
 };
 if (typeof document !== 'undefined') document.documentElement.lang = savedLang();

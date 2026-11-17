@@ -53,7 +53,7 @@ export default function RotationPoster({ ff, ctx, onClose }) {
             <h1 className="mt-1 text-[38px] font-extrabold leading-tight">{L(farmer.name)}</h1>
             <p className="text-[18px] text-muted">{T(`${farmer.villageBn}, ${upazila.name.bn} · ${n(farmer.area_dec)} শতক`, `${farmer.village}, ${upazila.name.en} · ${farmer.area_dec} decimal`)}</p>
           </div>
-          <div className="text-right text-[14px] font-bold text-primary-800">FieldShift 360<div className="font-normal text-muted">{T('নাসার তথ্যে', 'with NASA data')}</div></div>
+          <div className="text-right text-[14px] font-bold text-primary-800">MaathSathi<div className="font-normal text-muted">{T('নাসার তথ্যে', 'with NASA data')}</div></div>
         </header>
 
         {b.rot.cycle.map((y, yi) => (

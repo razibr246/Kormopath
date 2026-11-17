@@ -24,7 +24,7 @@ export const FARMER_TOUR = [
   // ── start ──
   { chapter: 'start', path: '/farmer',
     title: { bn: 'স্বাগতম! চলুন পুরো অ্যাপটা একসঙ্গে ঘুরে দেখি', en: 'Welcome! Let’s walk through the whole app together' },
-    say: { bn: 'FieldShift 360 আপনার জমির জন্য একটা মাঠের সহকারী: কী লাগাবেন, কবে লাগাবেন, আজ সেচ দেবেন কি না, পাতায় দাগ পড়লে কী করবেন, কবে কাটবেন আর বেচবেন, আর দশ বছরে আপনার মাটির কী হবে।', en: 'FieldShift 360 is a field assistant for your land: what to plant and when, whether to water today, what to do about spotted leaves, when to cut and sell, and what happens to your soil over ten years.' },
+    say: { bn: 'MaathSathi আপনার জমির জন্য একটা মাঠের সহকারী: কী লাগাবেন, কবে লাগাবেন, আজ সেচ দেবেন কি না, পাতায় দাগ পড়লে কী করবেন, কবে কাটবেন আর বেচবেন, আর দশ বছরে আপনার মাটির কী হবে।', en: 'MaathSathi is a field assistant for your land: what to plant and when, whether to water today, what to do about spotted leaves, when to cut and sell, and what happens to your soil over ten years.' },
     why: { bn: 'সব হিসাব আপনার নিজের জমির জায়গা, মাটি, সেচ আর ২৫ বছরের নাসা আবহাওয়া থেকে, তাই পরামর্শটা পাশের গ্রামের নয়, আপনার জমির।', en: 'Everything is worked out from your own field’s place, soil and water and 25 years of NASA weather, so the advice is for your field, not the next village’s.' },
     try: { bn: '"পরের ধাপ" চাপুন, বা কি-বোর্ডে → আর ← কি। যেকোনো অধ্যায়ে যেতে ওপরের তালিকা খুলুন। বন্ধ করতে ✕ বা Esc।', en: 'Press "Next", or the → and ← keys. Open the list at the top to jump to any chapter. ✕ or Esc closes it.' } },
 

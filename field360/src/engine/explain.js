@@ -157,7 +157,7 @@ export function compareText({ cols, lang, field, firm }) {
   const dg = (x) => (bn ? String(x).replace(/[0-9]/g, (c) => '০১২৩৪৫৬৭৮৯'[c]) : String(x));
   const role = { now: bn ? 'এখনকার ফসল' : 'Now', rec: bn ? 'পরামর্শ' : 'Advised', alt: bn ? 'বিকল্প' : 'Option' };
   const line = ({ role: r, o }) => `${role[r]}: ${o.crop.name[lang]} — ${bn ? 'নম্বর' : 'score'} ${dg(Math.round(o.score))}, ${bn ? 'ঠিকঠাক মৌসুম' : 'good seasons'} ${dg(o.bt.now.safe)}/${dg(o.bt.now.n)}${o.water ? `, ${bn ? 'পানি' : 'water'} ${dg(o.water.mm)} ${bn ? 'মিমি' : 'mm'}` : ''}${o.money ? `, ${bn ? 'লাভ/বিঘা' : 'profit/bigha'} ৳${dg(Math.round(o.money.net))}` : ''}`;
-  const head = bn ? `${field}: এই রবির ফসল নিয়ে FieldShift 360-এর হিসাব` : `${field}: FieldShift 360's working for this Rabi`;
+  const head = bn ? `${field}: এই রবির ফসল নিয়ে মাঠসাথীর হিসাব` : `${field}: MaathSathi's working for this Rabi`;
   const tail = firm === 'close' ? (bn ? 'হিসাবে ফসলগুলো কাছাকাছি; আপনার মত চাই।' : 'The options are close; I would like your view.') : (bn ? 'এটা নিয়ে আপনার মত চাই।' : 'I would like your view on this.');
   return [head, ...cols.map(line), tail].join('\n');
 }

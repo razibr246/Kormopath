@@ -65,7 +65,7 @@ export default function CarbonFinance({ ff, ctx, w, rotName }) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'FieldShift360_modelled_GHG_scenario.json';
+    link.download = 'MaathSathi_modelled_GHG_scenario.json';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

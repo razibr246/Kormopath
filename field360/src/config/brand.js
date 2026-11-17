@@ -2,7 +2,7 @@
 // Change PROJECT_NAME here and every logo, title, footer, page heading and the HTML <title>/meta update.
 // (vite.config.js reads this file to fill %PROJECT_NAME% and %PROJECT_DESCRIPTION% in index.html.)
 
-export const PROJECT_NAME = 'FieldShift 360';
+export const PROJECT_NAME = 'MaathSathi';
 export const PROJECT_TEAM = 'BRM AstraX Team';
 
 // The logo sets the last word of the name in the accent colour ("FieldShift" + "360").

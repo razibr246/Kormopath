@@ -73,7 +73,7 @@ export default function SmsMode() {
 
   return (
     <div>
-      <PageHeader eyebrow={T('ফিচার ফোনেও', 'On a feature phone too')} title={T('এসএমএসে FieldShift', 'FieldShift by SMS')}
+      <PageHeader eyebrow={T('ফিচার ফোনেও', 'On a feature phone too')} title={T('এসএমএসে মাঠসাথী', 'MaathSathi by SMS')}
         subtitle={T('স্মার্টফোন বা ইন্টারনেট ছাড়াই: একটি শব্দ বা নিজের ভাষায় প্রশ্ন লিখে পাঠালে একই হিসাবের উত্তর আসে, বাংলা বা ইংরেজিতে, এসএমএসের মাপে।', 'No smartphone or internet needed: send a keyword, or a question in your own words, and the same engine answers in Bangla or English, cut to SMS size.')} tags={['RULE']} />
       <div className="grid gap-6 lg:grid-cols-[minmax(0,420px)_1fr]">
         {/* The phone */}

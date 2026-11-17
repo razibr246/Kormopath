@@ -72,7 +72,7 @@ export default function ActCard() {
 
   const share = async () => {
     try {
-      if (navigator.share) { await navigator.share({ title: 'FieldShift 360', text }); return; }
+      if (navigator.share) { await navigator.share({ title: 'MaathSathi', text }); return; }
       await navigator.clipboard.writeText(text);
       toast('লেখাটা কপি হয়েছে: যেকোনো জায়গায় পেস্ট করে পাঠান', 'Copied: paste it anywhere to send');
     } catch { /* the farmer closed the share sheet */ }
@@ -185,7 +185,7 @@ export default function ActCard() {
               <div className="rounded-2xl border border-primary-200 bg-primary-50/70 p-3.5 flex items-center justify-between">
                 <div>
                   <div className="font-bold text-primary-950">{T('গণপ্রজাতন্ত্রী বাংলাদেশ সরকার · কৃষি সম্প্রসারণ অধিদপ্তর (DAE)', 'Govt. of Bangladesh · Department of Agricultural Extension')}</div>
-                  <div className="text-[12px] text-primary-800/80">{T('প্রকল্প: ফিল্ডশিফ্ট ৩৬০ · নাসা আর্থ অবজারভেশন ডিসিশন সাপোর্ট সিস্টেম', 'FieldShift 360 · NASA Earth Observation Decision Support')}</div>
+                  <div className="text-[12px] text-primary-800/80">{T('প্রকল্প: মাঠসাথী · নাসা আর্থ অবজারভেশন ডিসিশন সাপোর্ট সিস্টেম', 'MaathSathi · NASA Earth Observation Decision Support')}</div>
                 </div>
                 <span className="rounded-lg bg-primary-700 px-2.5 py-1 text-[11px] font-bold text-white uppercase tracking-wider">
                   VERIFIED

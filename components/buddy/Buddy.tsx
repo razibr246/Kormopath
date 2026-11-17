@@ -26,7 +26,7 @@ import { storageKey, usePersistentState } from "@/lib/clientStore";
 
 export const CREW_APPS = [
   { id: "haatbazar", bnName: "হাটবাজার", name: "HaatBazar AI", tag: "কৃষি ও আবহাওয়া", route: "/haatbazar", icon: "🌾" },
-  { id: "krishi", bnName: "মাঠসাথী", name: "MaathSathi", tag: "জমি, কাজ ও পশুপাখি", route: "/krishi", icon: "🚜" },
+  { id: "krishi", bnName: "মাঠসাথী", name: "MaathSathi", tag: "জমি, কাজ ও পশুপাখি", route: "/krishi/field#/farmer", icon: "🚜" },
   { id: "rokkha", bnName: "রক্ষা", name: "Rokkha", tag: "প্রতারণা ও দুর্যোগে সুরক্ষা", route: "/rokkha", icon: "🛡️" },
   { id: "kormopath", bnName: "ওয়ার্কস্পেস", name: "KormoPath Workspace", tag: "সিভি থেকে পেমেন্ট", route: "/workspace", icon: "🧭" },
   { id: "chuktiguard", bnName: "চুক্তিগার্ড", name: "ChuktiGuard", tag: "আইন ও বিভ্রাট ধারা", route: "/chuktiguard", icon: "🛡️" },

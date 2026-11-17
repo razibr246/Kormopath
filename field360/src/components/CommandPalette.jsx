@@ -368,7 +368,7 @@ export default function CommandPalette() {
         category: T('সিস্টেম ও পছন্দ', 'System & Preferences'),
         icon: Clapperboard,
         title: T('৩ মিনিটের ডেমো গল্প চালু করুন', 'Start 3-Minute Demo Tour'),
-        sub: T('প্ল্যাটফর্মের মূল সুবিধাগুলোর পরিচিতিমূলক ট্যুর', 'Interactive guided walkthrough of the FieldShift ecosystem'),
+        sub: T('প্ল্যাটফর্মের মূল সুবিধাগুলোর পরিচিতিমূলক ট্যুর', 'Interactive guided walkthrough of MaathSathi'),
         action: () => startTour(dispatch, navigate),
         keywords: ['tour', 'demo', 'help', 'walkthrough', 'guide'],
       },
@@ -442,7 +442,7 @@ export default function CommandPalette() {
               setQuery(e.target.value);
               setSelectedIndex(0);
             }}
-            placeholder={T('যেকোনো পাতা, কৃষক, উপজেলা বা ফসল খুঁজুন... (যেমন: ডাক্তার, রাডার, ধান)', 'Search anything across FieldShift 360... (e.g. Doctor, Radar, Wheat)')}
+            placeholder={T('যেকোনো পাতা, কৃষক, উপজেলা বা ফসল খুঁজুন... (যেমন: ডাক্তার, রাডার, ধান)', 'Search anything in MaathSathi... (e.g. Doctor, Radar, Wheat)')}
             className="w-full bg-transparent text-[16px] font-medium text-ink outline-none placeholder:text-muted/60"
           />
           {query && (
@@ -527,7 +527,7 @@ export default function CommandPalette() {
             </span>
           </div>
           <span className="text-[11.5px] font-medium text-primary-800">
-            {T('ফিল্ডশিফট ৩৬০ ইকোসিস্টেম', 'FieldShift 360 Ecosystem')}
+            {T('মাঠসাথী', 'MaathSathi')}
           </span>
         </div>
       </div>

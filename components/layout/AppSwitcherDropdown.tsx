@@ -93,7 +93,7 @@ export const APPS_LIST: AppItem[] = [
     nameBn: "মাঠসাথী (জমি, কাজ ও পশুপাখি)",
     categoryEn: "Agriculture & Field",
     categoryBn: "মাঠের কাজ ও খামার",
-    href: "/krishi",
+    href: "/krishi/field#/farmer",
     badge: "Track 4",
   },
   {

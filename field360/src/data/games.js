@@ -51,7 +51,7 @@ export const GAMES = {
     name: { bn: 'মৌসুমের লড়াই', en: 'Season Showdown' },
     kind: { bn: 'গল্পের খেলা · ৬টি অধ্যায়', en: 'Story game · 6 chapters' },
     audience: { bn: 'নতুনদের জন্য সেরা শুরু', en: 'Best first game' }, time: { bn: '৫ মিনিট', en: '5 min' },
-    seo: { en: 'Season Showdown: six real problems in one winter (Rabi) season. Choose the old habit or the right FieldShift tool, and see the harvest.' },
+    seo: { en: 'Season Showdown: six real problems in one winter (Rabi) season. Choose the old habit or the right MaathSathi tool, and see the harvest.' },
   },
 };
 

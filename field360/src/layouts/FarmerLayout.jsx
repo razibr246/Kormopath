@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { PageOutlet, ScrollProgress, useScrollOnNavigate } from '../components/Motion';
 import { ScrollNavigator } from '../components/SectionNav';
-import { Radar as RadarIcon, Bell, Compass, ChevronDown, ChevronLeft, ChevronRight, Home, ScanLine, Sprout, Droplets, LifeBuoy, HandCoins, Wheat, Telescope, MapPinned, Ellipsis, X, Mic, UserRound, LogOut, MessageSquareText, Satellite, Search } from 'lucide-react';
+import { BookOpenCheck, Radar as RadarIcon, Bell, Compass, ChevronDown, ChevronLeft, ChevronRight, Home, ScanLine, Sprout, Droplets, LifeBuoy, HandCoins, Wheat, Telescope, MapPinned, Ellipsis, X, Mic, UserRound, LogOut, MessageSquareText, Satellite, Search } from 'lucide-react';
 import { LangToggle, PlaceholderBanner, ResetDemo, BackButton, SkipToMain } from '../components/chrome';
 import MessagePopup from '../components/MessagePopup';
 import { useStore, demo } from '../store';
@@ -27,6 +27,7 @@ export function useFarmerNav() {
       { to: '/farmer/doctor', icon: ScanLine, label: T('ফসলের ডাক্তার', 'Crop doctor'), mid: T('ডাক্তার', 'Doctor'), short: T('ডাক্তার', 'Doctor') },
       { to: '/farmer/voice', icon: Mic, label: T('কথা বলে জানুন', 'Ask by voice'), mid: T('ভয়েস সহকারী', 'Voice Agent'), short: T('ভয়েস', 'Voice') },
       { to: '/farmer/help', icon: LifeBuoy, label: T('সাহায্য ও বার্তা', 'Help & Messages'), mid: T('সাহায্য', 'Help'), short: T('সাহায্য', 'Help') },
+      { to: '/farmer/book', icon: BookOpenCheck, label: T('খামারের খাতা', 'Farm book'), mid: T('খাতা', 'Farm book'), short: T('খাতা', 'Book') },
     ];
   }
   return [
@@ -43,6 +44,7 @@ export function useFarmerNav() {
     { to: '/farmer/harvest', icon: Wheat, label: T('ফসল তোলা ও বিক্রি', 'Harvest'), mid: T('ফসল তোলা', 'Harvest'), short: T('ফসল তোলা', 'Harvest') },
     { to: '/farmer/signals', icon: Satellite, label: T('মাঠের সংকেত', 'Field signals'), short: T('সংকেত', 'Signals') },
     { to: '/farmer/radar', icon: RadarIcon, label: T('রোপণ রাডার', 'Ropon Radar'), short: T('রাডার', 'Radar') },
+    { to: '/farmer/book', icon: BookOpenCheck, label: T('খামারের খাতা', 'Farm book'), short: T('খাতা', 'Book') },
   ];
 }
 

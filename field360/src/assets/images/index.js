@@ -202,12 +202,12 @@ export const IMAGES = {
   taraDream: {
     src: taraDream1600, srcSet: `${taraDream900} 900w, ${taraDream1600} 1600w`, width: 1672, height: 941, focus: '45% 45%',
     alt: { bn: 'স্বপ্নে লাল ফ্রক পরা হাসিখুশি এক বাংলাদেশি মেয়ে হাসিমুখের ছোট্ট উপগ্রহ তারার হাত ধরে ভোরের আকাশে উড়ছে; নিচে সবুজ ধানখেত, নদী, টিনের ঘর, আর শুকনো জমিতে পড়া বৃষ্টির ফোঁটা', en: 'In a dream, a laughing Bangladeshi girl in a red frock flies through the dawn sky holding hands with Tara, a small smiling satellite; below are green paddy fields, a river, tin-roofed homes, and raindrops falling on a dry field' },
-    credit: { artist: 'AI image (ChatGPT)', license: 'made for FieldShift 360', ai: true },
+    credit: { artist: 'AI image (ChatGPT)', license: 'made for MaathSathi', ai: true },
   },
   meetFarmers: {
     src: meetFarmers1600, srcSet: `${meetFarmers900} 900w, ${meetFarmers1600} 1600w`, width: 1672, height: 941, focus: '50% 40%',
     alt: { bn: 'গোধূলির আলোয় খেতের ধারে বাংলাদেশ, ভারত, পাকিস্তান, নেপাল, ভুটান আর মিয়ানমারের কৃষক পরিবার, নিজেদের পোশাকে, হাতে কাস্তে, কোদাল, ধানের আঁটি আর ঝুড়ি, পাশে তাঁদের সন্তান', en: 'At golden hour, farming families from Bangladesh, India, Pakistan, Nepal, Bhutan and Myanmar stand at the edge of a field in their own clothes, holding a sickle, a hoe, sheaves and a basket, with their children beside them' },
-    credit: { artist: 'AI image (ChatGPT)', license: 'made for FieldShift 360', ai: true },
+    credit: { artist: 'AI image (ChatGPT)', license: 'made for MaathSathi', ai: true },
   },
   // Season Showdown's card: a real farmer in his mustard field on a winter (Rabi) morning (scripts/photos/game_cards.py).
   seasonShowdown: {

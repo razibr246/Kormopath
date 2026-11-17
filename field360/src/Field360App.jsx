@@ -10,6 +10,7 @@ import { MotionManager } from './components/Motion';
 import '@fontsource-variable/noto-sans-bengali/index.css';
 import 'leaflet/dist/leaflet.css';
 import './f360.css';
+import { FieldOpening } from '@/components/apps/krishi/FieldOpening';
 
 const load = (f, pick) => lazy(() => f().then((m) => (pick ? { default: m[pick] } : m)));
 const FarmerLayout = load(() => import('./layouts/FarmerLayout'));
@@ -27,6 +28,12 @@ const MyFarm = load(() => import('./pages/farmer/MyFarm'));
 const FarmerVoice = load(() => import('./pages/farmer/Voice'));
 const SmsMode = load(() => import('./pages/farmer/SmsMode'));
 const Radar = load(() => import('./pages/officer/Radar'));
+
+// খামারের খাতা (tasks, livestock, costs) is MaathSathi's own page at /krishi. replace() keeps Back on the field app.
+function FarmBook() {
+  useEffect(() => { window.location.replace('/krishi'); }, []);
+  return <FieldOpening step="page" />;
+}
 
 function PageLoading() {
   const store = useStore();
@@ -81,6 +88,7 @@ function Routed() {
           <Route path="voice" element={page(<FarmerVoice />)} />
           <Route path="sms" element={page(<SmsMode />)} />
           <Route path="radar" element={page(<Radar />)} />
+          <Route path="book" element={<FarmBook />} />
         </Route>
         {/* Officer links inside the farmer pages: the radar is ported, the rest of the officer app is not. */}
         <Route path="/officer/radar" element={<Navigate to="/farmer/radar" replace />} />
@@ -98,7 +106,7 @@ export default function Field360App() {
   // The default farmer's NASA climate (Godagari) must arrive before the store renders, as in FieldShift360's main.jsx.
   const [ready, setReady] = useState(false);
   useEffect(() => { bootClimate().then(() => setReady(true), () => setReady(true)); }, []);
-  if (!ready) return <div className="f360 grid min-h-[60vh] place-items-center text-[15px]" role="status">Loading NASA weather data… · নাসার আবহাওয়ার তথ্য আসছে…</div>;
+  if (!ready) return <FieldOpening step="data" />;
   return (
     <div className="f360">
       <AppError>

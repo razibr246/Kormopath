@@ -26,7 +26,7 @@ import {
   ShieldCheck,
   Sprout,
   Wallet,
-  type LucideIcon, Satellite, Tractor } from "lucide-react";
+  type LucideIcon, Tractor } from "lucide-react";
 
 type Lang = "en" | "bn";
 type Tool = {
@@ -83,14 +83,10 @@ const TOOLS: Record<"earn" | "life" | "farm", Tool[]> = {
       name: { bn: "হাটবাজার", en: "HaatBazar AI" },
       line: { bn: "আপনার দেওয়া দামে হাট বনাম আড়তের লাভ, জেলার আবহাওয়া আর স্প্রে করার সময়।", en: "Market vs wholesale margin at your own prices, district weather and spray windows." },
       chips: { bn: ["ট্রাক ভাগ", "কৃষি কল ১৬১২৩"], en: ["Truck share", "Krishi call 16123"] } },
-    { id: "krishi", href: "/krishi", icon: Tractor, tone: "bg-lime-50 text-lime-800 ring-lime-200", stripe: "from-lime-500 to-emerald-600",
+    { id: "krishi", href: "/krishi/field#/farmer", icon: Tractor, tone: "bg-lime-50 text-lime-800 ring-lime-200", stripe: "from-lime-500 to-emerald-600",
       name: { bn: "মাঠসাথী", en: "MaathSathi" },
-      line: { bn: "জমির খাতা, আজকের কাজ, ফসলের ডাক্তার, পশু-হাঁস-মুরগি-মাছের হিসাব আর সরকারি সহায়তা — বাংলায়, কথা বলে।", en: "Land records, today’s tasks, crop doctor, livestock, poultry and fish books, and government support — in Bangla, by voice." },
-      chips: { bn: ["কথা বলে কাজ", "এসএমএস সারাংশ"], en: ["Voice tasks", "SMS summary"] } },
-    { id: "field", href: "/krishi/field#/farmer", icon: Satellite, tone: "bg-sky-50 text-sky-800 ring-sky-200", stripe: "from-sky-500 to-emerald-600",
-      name: { bn: "স্যাটেলাইট মাঠ", en: "Satellite Field" },
-      line: { bn: "নাসার ২৫ মৌসুমের আবহাওয়া, সেন্টিনেল ছবি আর মাটির তথ্যে মৌসুম পরিকল্পনা, সেচ, ফসলের ডাক্তার আর রোপণ রাডার।", en: "Season plan, water today, crop doctor and Ropon Radar from 25 seasons of NASA weather, Sentinel images and soil data." },
-      chips: { bn: ["রোপণ রাডার", "জমির ভবিষ্যৎ"], en: ["Ropon Radar", "Field future"] } },
+      line: { bn: "কী লাগাবেন, আজ সেচ লাগবে কি না, ফসলের ডাক্তার, রোপণ রাডার আর খামারের খাতা — নাসা, সেন্টিনেল আর মাটির তথ্যে, বাংলায়।", en: "What to plant, whether to water today, crop doctor, Ropon Radar and the farm book — from NASA, Sentinel and soil data, in Bangla." },
+      chips: { bn: ["রোপণ রাডার", "খামারের খাতা"], en: ["Ropon Radar", "Farm book"] } },
   ],
 };
 
@@ -113,7 +109,7 @@ const TASKS: Array<{ href: string; bn: string; en: string; keys: string }> = [
   { href: "/mediscan#dengue", bn: "জ্বর হলে কী কী লক্ষণ দেখব", en: "Fever and dengue warning signs", keys: "fever জ্বর dengue ডেঙ্গু vomit বমি bleeding রক্ত hospital হাসপাতাল" },
   { href: "/haatbazar", bn: "হাটে বেচব না আড়তে, হিসাব করব", en: "Market or wholesale: which pays more", keys: "crop ফসল farm কৃষি haat হাট weather আবহাওয়া spray স্প্রে truck ট্রাক দাম price" },
   { href: "/krishi/field#/farmer", bn: "স্যাটেলাইটে জমি, সেচ আর রোপণের সময় দেখব", en: "See my field by satellite: water, planting time and Ropon Radar", keys: "satellite স্যাটেলাইট nasa নাসা sentinel radar রাডার রোপণ ropon aman আমন সেচ water irrigation soil মাটি field future ভবিষ্যৎ fieldshift" },
-  { href: "/krishi", bn: "জমির কাজ, পশুপাখি ও সরকারি সহায়তা দেখব", en: "Plan field work, livestock and government support", keys: "farm কৃষি krishi মাঠ জমি land task কাজ cow গরু poultry মুরগি fish মাছ support সহায়তা card কার্ড voice ভয়েস sms" },
+  { href: "/krishi", bn: "খামারের খাতা: কাজ, পশুপাখি ও খরচ লিখব", en: "Plan field work, livestock and government support", keys: "farm কৃষি krishi মাঠ জমি land task কাজ cow গরু poultry মুরগি fish মাছ support সহায়তা card কার্ড voice ভয়েস sms" },
   { href: "/rokkha", bn: "এই এসএমএস কি প্রতারণা, যাচাই করব", en: "Check if a message is a scam", keys: "scam প্রতারণা fraud otp ওটিপি pin পিন bkash বিকাশ nagad নগদ lottery লটারি sms এসএমএস banglish link লিংক call কল guardian পাহারা cyclone ঘূর্ণিঝড় flood বন্যা disaster দুর্যোগ helpline হেল্পলাইন gd জিডি" },
   { href: "/settings", bn: "আমার ডেটা দেখব বা মুছব", en: "See or delete my data", keys: "data ডেটা privacy প্রাইভেসি delete মুছুন export backup ব্যাকআপ" },
 ];
@@ -153,7 +149,7 @@ const LIFECYCLE: Array<{ icon: LucideIcon; tone: string; bn: string; en: string;
     links: [{ href: "/mediscan#dengue", bn: "জ্বর ও ডেঙ্গু সংকেত", en: "Fever & dengue signs" }, { href: "/mediscan#adherence", bn: "ওষুধ খাওয়ার হিসাব", en: "Taking my medicines" }, { href: "/mediscan", bn: "প্রেসক্রিপশন বুঝুন", en: "Read a prescription" }] },
   { icon: Sprout, tone: "bg-lime-50 text-lime-800 ring-lime-200", bn: "মাঠ", en: "Field",
     when: { bn: "ফসল, আবহাওয়া আর হাটের হিসাব", en: "Crops, weather and market maths" },
-    links: [{ href: "/krishi", bn: "মাঠসাথী", en: "MaathSathi" }, { href: "/haatbazar", bn: "হাটবাজার", en: "HaatBazar" }] },
+    links: [{ href: "/krishi/field#/farmer", bn: "মাঠসাথী", en: "MaathSathi" }, { href: "/haatbazar", bn: "হাটবাজার", en: "HaatBazar" }] },
   { icon: ShieldCheck, tone: "bg-amber-50 text-amber-800 ring-amber-200", bn: "সুরক্ষা", en: "Protect",
     when: { bn: "প্রতারণা চেনা, ভোক্তা অভিযোগ, তথ্যের ব্যাকআপ", en: "Spot scams, consumer complaints, back up data" },
     links: [{ href: "/rokkha#call", bn: "কলে আছেন? থামুন", en: "On a call? Pause" }, { href: "/rokkha#check", bn: "এসএমএস যাচাই", en: "Check an SMS" }, { href: "/probaho#scam", bn: "প্রতারণা চিনুন", en: "Scam practice" }, { href: "/chuktiguard#dncrp", bn: "ভোক্তা অভিযোগ", en: "Consumer complaint" }, { href: "/settings", bn: "লক করা ব্যাকআপ", en: "Locked backup" }] },

@@ -414,7 +414,7 @@ export function EcosystemHub({
                       <p className="text-[12px] text-muted">Land, today&apos;s tasks, crop doctor, livestock &amp; fish, support</p>
                     </div>
                   </div>
-                  <Link href="/krishi" onClick={onClose} className="flex shrink-0 items-center gap-1 rounded-lg bg-emerald-700 px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-emerald-800 transition-colors">
+                  <Link href="/krishi/field#/farmer" onClick={onClose} className="flex shrink-0 items-center gap-1 rounded-lg bg-emerald-700 px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-emerald-800 transition-colors">
                     Open →
                   </Link>
                 </div>

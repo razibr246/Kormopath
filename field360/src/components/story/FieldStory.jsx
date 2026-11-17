@@ -135,7 +135,7 @@ export default function FieldStory({ ff, ctx: fctx, onClose }) {
         g.globalAlpha = ease(t * 2);
         g.fillStyle = C.ink; g.font = `800 80px ${FONT}`; wrap(g, T('সিদ্ধান্ত আপনার।', 'The decision is yours.'), 90, 480, 900, 96);
         g.fillStyle = C.muted; g.font = `500 44px ${FONT}`; wrap(g, T(`উপজেলা কৃষি অফিসার ${officer}-এর সঙ্গে কথা বলুন`, `Talk to your upazila agriculture officer, ${officer}`), 90, 620, 900, 62);
-        g.fillStyle = C.green; g.font = `800 60px ${FONT}`; g.fillText('FieldShift 360', 90, 900);
+        g.fillStyle = C.green; g.font = `800 60px ${FONT}`; g.fillText('MaathSathi', 90, 900);
         g.fillStyle = C.muted; g.font = `500 30px ${FONT}`; wrap(g, T('নাসা POWER · GPM IMERG · NEX-GDDP-CMIP6 · ISRIC SoilGrids · FAOSTAT। নমুনা কৃষক; মডেলের হিসাব, ভবিষ্যদ্বাণী নয়।', 'NASA POWER · GPM IMERG · NEX-GDDP-CMIP6 · ISRIC SoilGrids · FAOSTAT. A sample farmer; model estimates, not forecasts.'), 90, 980, 900, 44);
         g.globalAlpha = 1;
       } },
@@ -154,7 +154,7 @@ export default function FieldStory({ ff, ctx: fctx, onClose }) {
     scenes[k].draw(g, t);
     // progress dots and the brand line on every frame
     scenes.forEach((_, i) => { g.beginPath(); g.arc(90 + i * 34, 1270, 9, 0, 7); g.fillStyle = i <= k ? C.green : '#c9d6c6'; g.fill(); });
-    g.fillStyle = C.muted; g.font = `600 30px ${FONT}`; g.textAlign = 'right'; g.fillText('FieldShift 360 · NASA Space Apps 2026', W - 90, 1280); g.textAlign = 'left';
+    g.fillStyle = C.muted; g.font = `600 30px ${FONT}`; g.textAlign = 'right'; g.fillText('MaathSathi · KormoPath', W - 90, 1280); g.textAlign = 'left';
   };
   const frame = (ms) => {
     let acc = 0, k = 0;
