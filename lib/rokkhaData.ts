@@ -12,9 +12,10 @@
  *  - 16121: dncrp.gov.bd / dncrp.portal.gov.bd pages (certificate error on direct fetch; text read from the
  *    search index of the official domain).
  *  - PCSW hotline 01320000888: Bangladesh Police portal page (police.portal.gov.bd, same method).
- *  - 1090: Department of Disaster Management IVR page (ddm.portal.gov.bd, same method). Note: the
- *    bangladesh.gov.bd emergency list prints "১০২" next to "দুর্যোগের আগাম বার্তা" (the same number it gives
- *    the fire service), so we cite the agency that runs the IVR and tell people to use 999 in an emergency.
+ *  - 1090: Ministry of Disaster Management and Relief e-service page "দুর্যোগের আগাম বার্তার জন্য আইভিআর ১০৯০"
+ *    (modmr.gov.bd, from the official domain's search index), rechecked 2026-11-17. Note: the bangladesh.gov.bd
+ *    emergency list prints "১০২" next to this service (the fire-service number), so we cite the ministry
+ *    that runs the IVR and tell people to use 999 in an emergency.
  *  - BMD and FFWC: home pages opened directly; we link to them, we do not repeat their warnings.
  *
  * Dropped: no separate number for BMD or FFWC was found on their sites, so none is shown.
@@ -114,7 +115,7 @@ export const ROKKHA_HELPLINES: RokkhaHelpline[] = [
     forEn: "Recorded weather, cyclone and flood messages, any time.",
     noteBn: "এটি রেকর্ড করা বার্তা; বিপদে পড়লে ৯৯৯-এ ফোন করুন।",
     group: "disaster",
-    source: { label: "দুর্যোগ ব্যবস্থাপনা অধিদপ্তর (ddm.portal.gov.bd)", url: "https://ddm.portal.gov.bd/site/page/5de3f14d-66fe-447e-b61a-67300e680fd7/", checked: ROKKHA_CHECKED },
+    source: { label: "দুর্যোগ ব্যবস্থাপনা ও ত্রাণ মন্ত্রণালয় (modmr.gov.bd)", url: "https://modmr.gov.bd/pages/files/694031d4a31054345f0d16a0", checked: ROKKHA_CHECKED },
   },
 ];
 
