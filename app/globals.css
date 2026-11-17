@@ -23,7 +23,7 @@
 
   /* Surfaces: warm paper, not blue-white */
   --color-ink: #22180f;
-  --color-paper: #fbf6ee;
+  --color-paper: #fcf9f3; /* brightened from #fbf6ee so it stays clean, not yellow-grey, on projectors */
   --color-paper-deep: #f4eadb;
   --color-card: #fffdf9;
   --color-card-elevated: #ffffff;
@@ -73,8 +73,8 @@
   --color-slate-100: oklch(96.8% 0.004 62);
   --color-slate-200: oklch(92.9% 0.007 62);
   --color-slate-300: oklch(86.9% 0.012 62);
-  --color-slate-400: oklch(55.6% 0.022 62);
-  --color-slate-500: oklch(51.8% 0.025 62);
+  --color-slate-400: oklch(50% 0.022 62); /* was 55.6%: 4.42:1 on paper, under WCAG AA; now 5.74:1 */
+  --color-slate-500: oklch(47% 0.025 62); /* was 51.8% (5.19:1); now 6.53:1 for small helper text */
   --color-slate-600: oklch(44.6% 0.024 62);
   --color-slate-700: oklch(37.2% 0.024 62);
   --color-slate-800: oklch(27.9% 0.023 62);
@@ -343,8 +343,8 @@ body {
     radial-gradient(1100px 560px at 8% -8%, rgba(217, 84, 58, 0.09), transparent 62%),
     radial-gradient(900px 520px at 100% 2%, rgba(14, 107, 79, 0.09), transparent 62%),
     radial-gradient(900px 640px at 50% 112%, rgba(201, 144, 65, 0.1), transparent 60%),
-    linear-gradient(rgba(110, 72, 36, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(110, 72, 36, 0.04) 1px, transparent 1px);
+    linear-gradient(rgba(110, 72, 36, 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(110, 72, 36, 0.022) 1px, transparent 1px);
   background-size: auto, auto, auto, 32px 32px, 32px 32px;
   font-family: var(--font-sans); font-size: 17px; line-height: 1.6; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
 }

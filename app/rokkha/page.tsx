@@ -121,7 +121,7 @@ export default function RokkhaPage() {
             </span>
           </button>
           <div className="mt-3 flex flex-wrap gap-2">
-            <a href="#check" className="kp-btn-sun min-h-[50px] rounded-2xl px-5 text-[15.5px] font-bold"><MessageSquareWarning size={18} aria-hidden /> {T("বার্তা যাচাই করুন", "Check a message")}</a>
+            <a href="#check" className="kp-btn-ghost min-h-[50px] rounded-2xl px-5 text-[15.5px] font-bold"><MessageSquareWarning size={18} aria-hidden /> {T("বার্তা যাচাই করুন", "Check a message")}</a>
             <a href="tel:999" className="kp-btn-ghost min-h-[50px] rounded-2xl px-5 text-[15.5px] font-bold"><Phone size={18} aria-hidden /> {T("জরুরি ৯৯৯", "Emergency 999")}</a>
           </div>
         </section>
