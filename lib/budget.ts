@@ -775,3 +775,229 @@ export function calculateBakiInstallments(
     smsReminderTemplateEn: smsEn,
   };
 }
+
+// ---------------------------------------------------------------------------------------------
+// Rent & bills pockets (ভাড়া ও বিলের পকেট). Escrow-style: income is set aside for each fixed due
+// before its due date, earliest due first. Integer poisha only; the reconciliation invariant is
+// paidThisMonth + setAside + leftToSpend === income whenever income covers what has been paid.
+// Payment records are SELF-RECORDED by the user; nothing here verifies that money moved.
+
+export type DueKind = "rent" | "electricity" | "gas" | "water" | "school" | "internet" | "loan" | "other";
+
+export const DUE_KINDS: { id: DueKind; en: string; bn: string }[] = [
+  { id: "rent", en: "Rent", bn: "বাসা ভাড়া" },
+  { id: "electricity", en: "Electricity", bn: "বিদ্যুৎ বিল" },
+  { id: "gas", en: "Gas", bn: "গ্যাস বিল" },
+  { id: "water", en: "Water", bn: "পানির বিল" },
+  { id: "school", en: "School fee", bn: "স্কুলের বেতন" },
+  { id: "internet", en: "Internet", bn: "ইন্টারনেট" },
+  { id: "loan", en: "Loan instalment", bn: "ঋণের কিস্তি" },
+  { id: "other", en: "Other due", bn: "অন্যান্য" },
+];
+
+export interface FixedDue {
+  id: string;
+  kind: DueKind;
+  name: string;
+  amountPoisha: number;
+  dueDay: number; // 1-31; clamped to the month's last day
+  createdAt: string;
+}
+
+export interface DuePayment {
+  id: string;
+  dueId: string;
+  month: string; // YYYY-MM the payment settles
+  dueDate: string; // YYYY-MM-DD snapshot of the due date for that month
+  paidOn: string; // YYYY-MM-DD the user says they paid
+  amountPoisha: number;
+  name: string; // snapshot of the due's name, so history survives deleting the due
+  recordedAt: string; // ISO
+}
+
+const MONTH_RE = /^\d{4}-(0[1-9]|1[0-2])$/;
+
+export const daysInMonthOf = (month: string): number => {
+  const [y, m] = month.split("-").map(Number);
+  return new Date(Date.UTC(y, m, 0)).getUTCDate();
+};
+
+/** Due date of a monthly due in a given month. Day 31 in a 30-day month (or February) becomes the last day. */
+export function dueDateInMonth(dueDay: number, month: string): string {
+  const d = Math.min(Math.max(1, Math.floor(dueDay)), daysInMonthOf(month));
+  return `${month}-${String(d).padStart(2, "0")}`;
+}
+
+export function shiftMonth(month: string, by: number): string {
+  const [y, m] = month.split("-").map(Number);
+  const idx = y * 12 + (m - 1) + by;
+  return `${Math.floor(idx / 12)}-${String((idx % 12) + 1).padStart(2, "0")}`;
+}
+
+export const isPaidOnTime = (p: Pick<DuePayment, "paidOn" | "dueDate">): boolean => p.paidOn <= p.dueDate;
+
+export const daysLate = (p: Pick<DuePayment, "paidOn" | "dueDate">): number => Math.max(0, dayNumber(p.paidOn) - dayNumber(p.dueDate));
+
+export interface PocketLine {
+  dueId: string;
+  kind: DueKind;
+  name: string;
+  amountPoisha: number;
+  dueDate: string;
+  daysLeft: number; // negative when the due date has passed
+  status: "paid" | "covered" | "partial" | "uncovered";
+  setAsidePoisha: number; // 0 for paid dues
+  shortfallPoisha: number; // what income cannot cover
+  overdue: boolean; // unpaid and the due date has passed
+  payment: DuePayment | null;
+  paidOnTime: boolean | null;
+}
+
+export interface PocketPlan {
+  month: string;
+  incomePoisha: number;
+  paidPoisha: number; // payments recorded this month
+  setAsidePoisha: number; // sum of setAsidePoisha over unpaid lines, exactly
+  leftToSpendPoisha: number; // never negative
+  shortfallPoisha: number; // sum of line shortfalls
+  lines: PocketLine[]; // sorted by due date, then name
+  uncoveredIds: string[];
+}
+
+/**
+ * Plan the month's pockets. Paid dues come out of income first (the money is gone), then the rest
+ * of income is set aside for unpaid dues in due-date order. Every amount is an integer, so the
+ * pockets add up to the total set aside with no rounding loss.
+ */
+export function planPockets(dues: FixedDue[], incomePoisha: number, month: string, payments: DuePayment[], today: string): PocketPlan {
+  const income = Number.isInteger(incomePoisha) && incomePoisha > 0 ? incomePoisha : 0;
+  const paidMap = new Map(payments.filter((p) => p.month === month).map((p) => [p.dueId, p]));
+  const sorted = dues
+    .map((d) => ({ d, dueDate: dueDateInMonth(d.dueDay, month) }))
+    .sort((a, b) => a.dueDate.localeCompare(b.dueDate) || a.d.name.localeCompare(b.d.name) || a.d.id.localeCompare(b.d.id));
+
+  let paid = 0;
+  for (const { d } of sorted) { const p = paidMap.get(d.id); if (p) paid += p.amountPoisha; }
+  let available = Math.max(0, income - paid);
+
+  const lines: PocketLine[] = sorted.map(({ d, dueDate }) => {
+    const payment = paidMap.get(d.id) ?? null;
+    const daysLeft = dayNumber(dueDate) - dayNumber(today);
+    if (payment) {
+      return { dueId: d.id, kind: d.kind, name: d.name, amountPoisha: d.amountPoisha, dueDate, daysLeft, status: "paid", setAsidePoisha: 0, shortfallPoisha: 0, overdue: false, payment, paidOnTime: isPaidOnTime(payment) };
+    }
+    const setAside = Math.min(d.amountPoisha, available);
+    available -= setAside;
+    const shortfall = d.amountPoisha - setAside;
+    const status: PocketLine["status"] = shortfall === 0 ? "covered" : setAside > 0 ? "partial" : "uncovered";
+    return { dueId: d.id, kind: d.kind, name: d.name, amountPoisha: d.amountPoisha, dueDate, daysLeft, status, setAsidePoisha: setAside, shortfallPoisha: shortfall, overdue: daysLeft < 0, payment: null, paidOnTime: null };
+  });
+
+  return {
+    month,
+    incomePoisha: income,
+    paidPoisha: paid,
+    setAsidePoisha: lines.reduce((a, l) => a + l.setAsidePoisha, 0),
+    leftToSpendPoisha: available,
+    shortfallPoisha: lines.reduce((a, l) => a + l.shortfallPoisha, 0),
+    lines,
+    uncoveredIds: lines.filter((l) => l.status === "partial" || l.status === "uncovered").map((l) => l.dueId),
+  };
+}
+
+/** Record (or replace) the payment of one due for one month. Pure: returns a new array. */
+export function markDuePaid(payments: DuePayment[], due: FixedDue, month: string, paidOn: string, recordedAt: string, amountPoisha = due.amountPoisha): DuePayment[] {
+  if (!MONTH_RE.test(month) || !ISO_DATE.test(paidOn)) throw new Error("Invalid month or payment date.");
+  if (!Number.isInteger(amountPoisha) || amountPoisha <= 0 || amountPoisha > MAX_POISHA) throw new Error("Invalid payment amount.");
+  const record: DuePayment = { id: `${due.id}:${month}`, dueId: due.id, month, dueDate: dueDateInMonth(due.dueDay, month), paidOn, amountPoisha, name: due.name, recordedAt };
+  return [...payments.filter((p) => !(p.dueId === due.id && p.month === month)), record];
+}
+
+export const unmarkDuePaid = (payments: DuePayment[], dueId: string, month: string): DuePayment[] =>
+  payments.filter((p) => !(p.dueId === dueId && p.month === month));
+
+export interface MonthPaymentHistory {
+  month: string;
+  records: DuePayment[];
+  onTime: number;
+  late: number;
+  totalPoisha: number;
+}
+
+/** Payment history grouped by month, newest month first. */
+export function paymentHistory(payments: DuePayment[]): MonthPaymentHistory[] {
+  const byMonth = new Map<string, DuePayment[]>();
+  for (const p of payments) byMonth.set(p.month, [...(byMonth.get(p.month) ?? []), p]);
+  return [...byMonth.entries()]
+    .sort((a, b) => b[0].localeCompare(a[0]))
+    .map(([month, records]) => {
+      const sorted = [...records].sort((a, b) => a.dueDate.localeCompare(b.dueDate) || a.name.localeCompare(b.name));
+      const onTime = sorted.filter(isPaidOnTime).length;
+      return { month, records: sorted, onTime, late: sorted.length - onTime, totalPoisha: sorted.reduce((a, r) => a + r.amountPoisha, 0) };
+    });
+}
+
+export const PAYMENT_RECORD_LABEL_EN = "SELF-RECORDED PAYMENT RECORD. Entered by the payer in KormoPath Shohoj Budget on their own device. NOT verified by KormoPath or by any bank or MFS provider or landlord. Ask for receipts or statements to verify.";
+export const PAYMENT_RECORD_LABEL_BN = "নিজে লেখা পরিশোধের রেকর্ড। পরিশোধকারী নিজের ডিভাইসে সহজ বাজেটে লিখেছেন। KormoPath, ব্যাংক, এমএফএস বা বাড়িওয়ালা এটি যাচাই করেনি। যাচাইয়ের জন্য রসিদ বা স্টেটমেন্ট দেখুন।";
+
+/** CSV "payment record" a user can show a landlord or lender. The label rows say it is self-recorded. No BOM. */
+export function paymentRecordCsv(payments: DuePayment[], generatedOn: string, holder = ""): string {
+  const rows: (string | number)[][] = [
+    [PAYMENT_RECORD_LABEL_EN],
+    [PAYMENT_RECORD_LABEL_BN],
+    [`Generated on ${generatedOn}${holder.trim() ? ` for ${holder.trim().slice(0, 80)}` : ""}`],
+    [],
+    ["month", "due", "due_date", "paid_on", "amount_bdt", "on_time", "days_late", "verified"],
+  ];
+  const sorted = [...payments].sort((a, b) => a.month.localeCompare(b.month) || a.dueDate.localeCompare(b.dueDate) || a.name.localeCompare(b.name));
+  for (const p of sorted) rows.push([p.month, p.name, p.dueDate, p.paidOn, (p.amountPoisha / 100).toFixed(2), isPaidOnTime(p) ? "yes" : "no", daysLate(p), "no (self-recorded)"]);
+  const onTime = sorted.filter(isPaidOnTime).length;
+  rows.push([], [`Summary: ${sorted.length} payments recorded; ${onTime} on or before the due date; ${sorted.length - onTime} late.`]);
+  return rows.map((r) => r.map(sanitizeCsvCell).join(",")).join("\n") + "\n";
+}
+
+const DUE_KIND_IDS = new Set(DUE_KINDS.map((k) => k.id));
+
+export function sanitizeDues(input: unknown): FixedDue[] | null {
+  if (!Array.isArray(input)) return null;
+  const out: FixedDue[] = [];
+  for (const d of input.slice(0, 50)) {
+    if (!d || typeof d !== "object") continue;
+    const o = d as Record<string, unknown>;
+    if (typeof o.id !== "string" || !o.id || typeof o.name !== "string" || !o.name.trim()) continue;
+    if (!Number.isInteger(o.amountPoisha) || (o.amountPoisha as number) <= 0 || (o.amountPoisha as number) > MAX_POISHA) continue;
+    if (!Number.isInteger(o.dueDay) || (o.dueDay as number) < 1 || (o.dueDay as number) > 31) continue;
+    out.push({
+      id: o.id.slice(0, 64),
+      kind: DUE_KIND_IDS.has(o.kind as DueKind) ? (o.kind as DueKind) : "other",
+      name: o.name.trim().slice(0, 60),
+      amountPoisha: o.amountPoisha as number,
+      dueDay: o.dueDay as number,
+      createdAt: typeof o.createdAt === "string" ? o.createdAt.slice(0, 40) : "",
+    });
+  }
+  return out;
+}
+
+export function sanitizeDuePayments(input: unknown): DuePayment[] | null {
+  if (!Array.isArray(input)) return null;
+  const out: DuePayment[] = [];
+  const seen = new Set<string>();
+  for (const d of input.slice(0, 2000)) {
+    if (!d || typeof d !== "object") continue;
+    const o = d as Record<string, unknown>;
+    if (typeof o.id !== "string" || typeof o.dueId !== "string" || typeof o.name !== "string") continue;
+    if (typeof o.month !== "string" || !MONTH_RE.test(o.month)) continue;
+    if (typeof o.dueDate !== "string" || !ISO_DATE.test(o.dueDate) || !o.dueDate.startsWith(o.month)) continue;
+    if (typeof o.paidOn !== "string" || !ISO_DATE.test(o.paidOn)) continue;
+    if (!Number.isInteger(o.amountPoisha) || (o.amountPoisha as number) <= 0 || (o.amountPoisha as number) > MAX_POISHA) continue;
+    const key = `${o.dueId}:${o.month}`;
+    if (seen.has(key)) continue; // one payment per due per month
+    seen.add(key);
+    out.push({
+      id: o.id.slice(0, 80), dueId: o.dueId.slice(0, 64), month: o.month, dueDate: o.dueDate, paidOn: o.paidOn,
+      amountPoisha: o.amountPoisha as number, name: o.name.slice(0, 60), recordedAt: typeof o.recordedAt === "string" ? o.recordedAt.slice(0, 40) : "",
+    });
+  }
+  return out;
+}

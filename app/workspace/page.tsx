@@ -848,6 +848,7 @@ export default function Home() {
                     issuing={issuing}
                     onIssue={onIssue}
                     issueError={issueErr}
+                    documentSkills={audit?.skills.filter((s) => s.verdict === "verified").map((s) => s.name) ?? []}
                   />
                 )}
                 {stage === 3 && (

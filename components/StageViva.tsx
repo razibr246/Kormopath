@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { CHALLENGES, type Challenge } from "@/lib/challenges";
 import type { TestResult, VivaGrade, PassportState } from "@/lib/types";
 import { Panel, Btn, inputCls } from "./ui";
+import { buildOpenBadge, readPassportPayload } from "@/lib/badge";
 import {
   Play,
   Volume2,
@@ -19,6 +20,7 @@ import {
   Zap,
   Code2,
   ShieldCheck,
+  Download,
 } from "lucide-react";
 
 type SR = {
@@ -201,6 +203,8 @@ export function StageViva(props: {
   issuing: boolean;
   onIssue: () => void;
   issueError: string | null;
+  /** CV skills the auditor matched to evidence; listed as tags, labelled as not tested. */
+  documentSkills?: string[];
 }) {
   const { challenge: ch, results } = props;
   const passed = results?.filter((r) => r.pass).length ?? 0;
@@ -214,6 +218,23 @@ export function StageViva(props: {
   const [shareError, setShareError] = useState("");
   const [vivaConsent, setVivaConsent] = useState(false);
   const link = shareUrl;
+  const [badgeError, setBadgeError] = useState("");
+  const downloadBadge = () => {
+    if (!props.passport) return;
+    setBadgeError("");
+    const payload = readPassportPayload(props.passport.token);
+    if (!payload) { setBadgeError("পাসপোর্ট পড়া যায়নি, ব্যাজ তৈরি হয়নি। / Could not read the passport, so no badge was made."); return; }
+    const badge = buildOpenBadge({ passport: payload, passportId: props.passport.id, token: props.passport.token, origin: window.location.origin, documentSkills: props.documentSkills });
+    const blob = new Blob([JSON.stringify(badge, null, 2) + "\n"], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `kormopath-open-badge-${props.passport.id}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
   const createShareLink = async () => {
     if (!props.passport) return;
     setShareError("");
@@ -475,6 +496,21 @@ export function StageViva(props: {
                   {link ? "View share proof" : "Create share link first"}
                 </a>
               </div>
+            </div>
+            <div className="mt-4 rounded-xl border border-amber-300/70 bg-amber-50/80 p-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-[13px] font-bold text-slate-900">Open Badge (JSON) · ওপেন ব্যাজ</p>
+                <Btn variant="ghost" onClick={downloadBadge}>
+                  <Download size={15} /> Download as Open Badge (JSON)
+                </Btn>
+              </div>
+              <p className="mt-1 text-xs text-slate-700">
+                Open Badges 3.0-shaped file, <strong>unsigned</strong>: it has no Data Integrity proof, so a badge wallet cannot verify it by itself. Its evidence link opens <span className="font-mono">/verify</span>, where KormoPath checks the passport signature.
+              </p>
+              <p className="mt-1 text-xs text-slate-600">
+                ফাইলটি স্বাক্ষরহীন; আসল কি না তা যাচাই হয় শুধু ভেতরের /verify লিংকে। এই লিংক ও ফাইলে আপনার নাম ও code fingerprint থাকে, তাই যাকে দেবেন ভেবে দিন।
+              </p>
+              {badgeError && <p role="alert" className="mt-1 text-xs text-red-700 font-semibold">{badgeError}</p>}
             </div>
           </div>
         ) : (
