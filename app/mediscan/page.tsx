@@ -12,6 +12,7 @@ import {
 } from "@/lib/prescription";
 import { usePersistentState, storageKey, downloadText, todayLocal } from "@/lib/clientStore";
 import { AdherenceTracker } from "./AdherenceTracker";
+import { FeverWatch } from "./FeverWatch";
 
 // Fictional examples for trying the reader. Not real patients, doctors or hospitals.
 const SAMPLES = [
@@ -155,6 +156,8 @@ export default function MediScanPage() {
             প্রেসক্রিপশনে যা লেখা আছে — কোন ওষুধ, দিনে কয়বার, কতদিন, খাবারের আগে না পরে — তা পরিষ্কার করে দেখায়। যা লেখা নেই বা আমরা চিনি না, তা স্পষ্ট করে জানায়। এটি ডাক্তার বা ফার্মাসিস্টের বিকল্প নয়; ডোজ বা ওষুধ নিজে থেকে বদলাবেন না।
           </p>
         </section>
+
+        <FeverWatch />
 
         {/* Demo only: fictional doctors. Collapsed so it never competes with the prescription reader. */}
         <details className="group rounded-2xl border border-dashed border-amber-300 bg-amber-50/40 p-5">

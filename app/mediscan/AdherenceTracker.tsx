@@ -186,7 +186,7 @@ export function AdherenceTracker({ lines }: { lines: ParsedLine[] }) {
     })[c.status];
 
   return (
-    <section aria-labelledby="adh-h" className="space-y-4 rounded-2xl border border-emerald-200 bg-white p-4 sm:p-5 print:hidden" data-testid="adherence">
+    <section id="adherence" aria-labelledby="adh-h" className="scroll-mt-24 space-y-4 rounded-2xl border border-emerald-200 bg-white p-4 sm:p-5 print:hidden" data-testid="adherence">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
           <h2 id="adh-h" className="flex items-center gap-2 text-[18px] font-extrabold"><ClipboardCheck size={20} className="text-emerald-700" aria-hidden /> {t("ওষুধ খাওয়ার হিসাব", "Taking my medicines")}</h2>
