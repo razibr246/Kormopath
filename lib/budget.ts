@@ -379,27 +379,53 @@ export function splitBill(totalTaka: number, people: number): number[] {
 export type MfsProvider =
   | "bkash_app"
   | "bkash_ussd"
+  | "bkash_priyo"
   | "nagad_app"
   | "nagad_ussd"
   | "rocket_app"
   | "rocket_atm";
+
+export interface MfsFeeSource {
+  label: string;
+  url: string;
+  checked: string; // YYYY-MM-DD
+}
 
 export interface MfsFeeConfig {
   id: MfsProvider;
   nameBn: string;
   nameEn: string;
   ratePct: number;
-  channel: "App" | "USSD" | "ATM";
+  channel: "App" | "USSD" | "ATM" | "Agent";
   method: Method;
+  /** true only when the rate was read on the provider's own official page (see source). */
+  verified: boolean;
+  /** Every rate can be overridden by the user to match their own app (Shohoj wallets panel). */
+  userEditable: true;
+  source?: MfsFeeSource;
+  noteBn?: string;
+  noteEn?: string;
 }
 
+const BKASH_CASHOUT_SOURCE: MfsFeeSource = { label: "bKash — Cash Out from Agent (official)", url: "https://www.bkash.com/en/products-services/cashout/cashout-from-agent", checked: "2026-11-17" };
+const BKASH_PRIYO_SOURCE: MfsFeeSource = { label: "bKash — Priyo Agent cash out (official)", url: "https://www.bkash.com/en/products-services/cashout", checked: "2026-11-17" };
+const UNVERIFIED_BN = "সরকারি পাতায় যাচাই করা যায়নি — নিজের অ্যাপে চার্জ দেখে হার বদলে নিন।";
+const UNVERIFIED_EN = "Not confirmed on an official page — check your app and edit the rate.";
+
+/**
+ * MFS cash-out rates. Only bKash's agent rates were confirmed on bkash.com (checked 2026-11-17):
+ * Tk 18.50 per 1,000 at any agent (app or *247#) and Tk 13.95 per 1,000 at up to 2 Priyo Agents for the first
+ * Tk 50,000 a month. The other rates are older starter values kept for the existing calculator; they are marked
+ * unverified and the user can override every rate.
+ */
 export const MFS_FEE_RATES: Record<MfsProvider, MfsFeeConfig> = {
-  bkash_app: { id: "bkash_app", nameBn: "বিকাশ অ্যাপ (১.৪৯%)", nameEn: "bKash App (1.49%)", ratePct: 1.49, channel: "App", method: "bKash" },
-  bkash_ussd: { id: "bkash_ussd", nameBn: "বিকাশ ইউএসএসডি (*২৪৭#) (১.৮৫%)", nameEn: "bKash USSD (*247#) (1.85%)", ratePct: 1.85, channel: "USSD", method: "bKash" },
-  nagad_app: { id: "nagad_app", nameBn: "নগদ অ্যাপ (১.২৫%)", nameEn: "Nagad App (1.25%)", ratePct: 1.25, channel: "App", method: "Nagad" },
-  nagad_ussd: { id: "nagad_ussd", nameBn: "নগদ ইউএসএসডি (*১৬৭#) (১.৫০%)", nameEn: "Nagad USSD (*167#) (1.50%)", ratePct: 1.50, channel: "USSD", method: "Nagad" },
-  rocket_app: { id: "rocket_app", nameBn: "রকেট অ্যাপ (১.৬৭%)", nameEn: "Rocket App (1.67%)", ratePct: 1.67, channel: "App", method: "Rocket" },
-  rocket_atm: { id: "rocket_atm", nameBn: "রকেট ডিবিবিএল এটিএম (০.৯০%)", nameEn: "Rocket DBBL ATM (0.90%)", ratePct: 0.90, channel: "ATM", method: "Rocket" },
+  bkash_app: { id: "bkash_app", nameBn: "বিকাশ অ্যাপ (১.৪৯%, যাচাই হয়নি)", nameEn: "bKash App (1.49%, unverified)", ratePct: 1.49, channel: "App", method: "bKash", verified: false, userEditable: true, noteBn: "বিকাশের সরকারি পাতায় এজেন্ট থেকে অ্যাপ ও *২৪৭# দুটোতেই ১০০০ টাকায় ১৮.৫০ টাকা লেখা আছে। " + UNVERIFIED_BN, noteEn: "bkash.com lists Tk 18.50 per 1,000 at agents for both app and *247#. " + UNVERIFIED_EN },
+  bkash_ussd: { id: "bkash_ussd", nameBn: "বিকাশ এজেন্ট (অ্যাপ বা *২৪৭#) (১.৮৫%)", nameEn: "bKash agent (app or *247#) (1.85%)", ratePct: 1.85, channel: "USSD", method: "bKash", verified: true, userEditable: true, source: BKASH_CASHOUT_SOURCE },
+  bkash_priyo: { id: "bkash_priyo", nameBn: "বিকাশ প্রিয় এজেন্ট (১.৩৯৫%, মাসে ৫০,০০০ টাকা পর্যন্ত)", nameEn: "bKash Priyo Agent (1.395%, up to Tk 50,000/month)", ratePct: 1.395, channel: "Agent", method: "bKash", verified: true, userEditable: true, source: BKASH_PRIYO_SOURCE, noteBn: "সর্বোচ্চ ২টি প্রিয় এজেন্ট নম্বর; মাসে ৫০,০০০ টাকার বেশি হলে ১.৮৫%।", noteEn: "Up to 2 Priyo Agent numbers; above Tk 50,000 a month the 1.85% rate applies." },
+  nagad_app: { id: "nagad_app", nameBn: "নগদ অ্যাপ (১.২৫%, যাচাই হয়নি)", nameEn: "Nagad App (1.25%, unverified)", ratePct: 1.25, channel: "App", method: "Nagad", verified: false, userEditable: true, noteBn: UNVERIFIED_BN, noteEn: UNVERIFIED_EN },
+  nagad_ussd: { id: "nagad_ussd", nameBn: "নগদ ইউএসএসডি (*১৬৭#) (১.৫০%, যাচাই হয়নি)", nameEn: "Nagad USSD (*167#) (1.50%, unverified)", ratePct: 1.50, channel: "USSD", method: "Nagad", verified: false, userEditable: true, noteBn: UNVERIFIED_BN, noteEn: UNVERIFIED_EN },
+  rocket_app: { id: "rocket_app", nameBn: "রকেট এজেন্ট (১.৬৭%, যাচাই হয়নি)", nameEn: "Rocket agent (1.67%, unverified)", ratePct: 1.67, channel: "App", method: "Rocket", verified: false, userEditable: true, noteBn: UNVERIFIED_BN, noteEn: UNVERIFIED_EN },
+  rocket_atm: { id: "rocket_atm", nameBn: "রকেট ডিবিবিএল এটিএম (০.৯০%, যাচাই হয়নি)", nameEn: "Rocket DBBL ATM (0.90%, unverified)", ratePct: 0.90, channel: "ATM", method: "Rocket", verified: false, userEditable: true, noteBn: UNVERIFIED_BN, noteEn: UNVERIFIED_EN },
 };
 
 export interface MfsFeeResult {
@@ -410,20 +436,28 @@ export interface MfsFeeResult {
   provider: MfsProvider;
 }
 
+/** Fee in integer poisha, rounded UP, using integer maths (rate in thousandths of a percent) so 1.395% is exact. */
+export function feePoishaAt(amountPoisha: number, ratePct: number): number {
+  const amount = Math.max(0, Math.round(amountPoisha));
+  const milli = Math.max(0, Math.round(ratePct * 1000)); // 1.395% -> 1395
+  return amount > 0 && milli > 0 ? Math.ceil((amount * milli) / 100000) : 0;
+}
+
 /**
  * Calculate MFS cash-out fee in integer poisha with ceiling.
  * Banking invariant: Fractional poisha rounds UP so neither customer nor agent under-accounts.
- * Math: Math.ceil((amountPoisha * ratePct) / 100).
+ * `ratePctOverride` lets the caller use the user's own rate instead of the starter value.
  */
-export function calculateMfsCashoutFee(amountTakaOrPoisha: number, provider: MfsProvider, isPoisha = false): MfsFeeResult {
+export function calculateMfsCashoutFee(amountTakaOrPoisha: number, provider: MfsProvider, isPoisha = false, ratePctOverride?: number): MfsFeeResult {
   const amountPoisha = isPoisha ? Math.max(0, Math.round(amountTakaOrPoisha)) : toPoisha(Math.max(0, amountTakaOrPoisha));
   const config = MFS_FEE_RATES[provider] ?? MFS_FEE_RATES.bkash_app;
-  const feePoisha = amountPoisha > 0 ? Math.ceil((amountPoisha * config.ratePct) / 100) : 0;
+  const ratePct = typeof ratePctOverride === "number" && Number.isFinite(ratePctOverride) && ratePctOverride >= 0 && ratePctOverride <= 10 ? ratePctOverride : config.ratePct;
+  const feePoisha = feePoishaAt(amountPoisha, ratePct);
   return {
     amountPoisha,
     feePoisha,
     totalWithFeePoisha: amountPoisha + feePoisha,
-    ratePct: config.ratePct,
+    ratePct,
     provider: config.id,
   };
 }

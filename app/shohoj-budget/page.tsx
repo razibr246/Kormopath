@@ -4,11 +4,16 @@ import Link from "next/link";
 import {
   Wallet, Mic, MicOff, Trash2, Pencil, Check, X, AlertTriangle, Download, Undo2,
   TrendingDown, TrendingUp, Repeat, Users, Copy, MessageSquareText, Info, Search, ExternalLink, Target, PiggyBank,
-  Smartphone,
+  Smartphone, ShoppingBasket, HandCoins, UtensilsCrossed, Gem, NotebookPen,
 } from "lucide-react";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { AppFooter } from "@/components/layout/AppFooter";
 import { RentPocketsPanel } from "@/components/apps/RentPocketsPanel";
+import { WalletsPanel } from "@/components/apps/shohoj/WalletsPanel";
+import { DharLedger } from "@/components/apps/shohoj/DharLedger";
+import { BazarList } from "@/components/apps/shohoj/BazarList";
+import { MessLedger } from "@/components/apps/shohoj/MessLedger";
+import { ZakatHub } from "@/components/apps/shohoj/ZakatHub";
 import { playClick, playCoinSound } from "@/lib/sound";
 import {
   CATEGORIES, categoryById, parseEntry, parseSms, summarizeMonth, budgetPace, splitBill, toCsv,
@@ -77,6 +82,18 @@ const EXAMPLES = [
   "ক্লায়েন্টের পেমেন্ট পেলাম ১৫০০০ টাকা",
 ];
 
+// সংসার: the household money workspace. The ledger is the home view; each module has a hash so it can be linked.
+const VIEWS = [
+  { id: "ledger", bn: "হিসাব", icon: NotebookPen },
+  { id: "wallets", bn: "হাতের টাকা ও ওয়ালেট", icon: Wallet },
+  { id: "dhar", bn: "দেনা-পাওনা", icon: HandCoins },
+  { id: "bazar", bn: "বাজারের তালিকা", icon: ShoppingBasket },
+  { id: "mess", bn: "মেস ও ফ্ল্যাট", icon: UtensilsCrossed },
+  { id: "zakat", bn: "যাকাত ও সঞ্চয়", icon: Gem },
+] as const;
+type View = (typeof VIEWS)[number]["id"];
+const viewFromHash = (h: string): View => (VIEWS.some((v) => v.id === h.replace(/^#/, "")) ? (h.replace(/^#/, "") as View) : "ledger");
+
 export default function ShohojBudgetPage() {
   const [txs, setTxs, txState] = usePersistentState<Transaction[]>(storageKey("shohoj", "transactions.v2"), [], (r) => sanitizeTransactions(r));
   const [budgetPoisha, setBudgetPoisha] = usePersistentState<number>(storageKey("shohoj", "monthlyBudget"), toPoisha(20000), sanitizeBudget);
@@ -89,6 +106,18 @@ export default function ShohojBudgetPage() {
   const [input, setInput] = useState("");
   const [sms, setSms] = useState("");
   const [draft, setDraft] = useState<Draft | null>(null);
+  const [view, setView] = useState<View>("ledger");
+  useEffect(() => {
+    const sync = () => setView(viewFromHash(window.location.hash));
+    sync();
+    window.addEventListener("hashchange", sync);
+    return () => window.removeEventListener("hashchange", sync);
+  }, []);
+  const openView = (v: View) => {
+    window.history.replaceState(null, "", v === "ledger" ? window.location.pathname : `#${v}`);
+    setView(v);
+    window.scrollTo({ top: 0 });
+  };
   const [lastDeleted, setLastDeleted] = useState<Transaction | null>(null);
   const [voiceLang, setVoiceLang] = useState<"bn-BD" | "en-US">("bn-BD");
   const [recording, setRecording] = useState(false);
@@ -163,6 +192,14 @@ export default function ShohojBudgetPage() {
           : []),
       ],
     });
+  };
+
+  const openDraftFromBazar = (e: { amountPoisha: number; note: string; date: string }) => {
+    setDraft({
+      editingId: null, type: "expense", amount: String(e.amountPoisha / 100), categoryId: "grocery", method: "Cash",
+      date: e.date || today, note: e.note.slice(0, 200), source: "manual", matched: [], issues: [],
+    });
+    openView("ledger");
   };
 
   const openDraftFromSms = (text: string) => {
@@ -366,12 +403,24 @@ export default function ShohojBudgetPage() {
         appId="shohoj"
         href="/shohoj-budget"
         name="Shohoj Budget"
-        taglineBn="সহজ বাজেট · বলুন, যাচাই করুন, সংরক্ষণ করুন"
+        taglineBn="সংসারের হিসাব · বলুন, যাচাই করুন, সংরক্ষণ করুন"
         icon={<Wallet size={22} />}
         accent="from-emerald-500 to-teal-700"
       />
 
+      <nav aria-label="সংসারের অংশ" className="sticky top-0 z-30 border-b border-slate-200 bg-[#f7faf8]/95 backdrop-blur" data-testid="shongshar-nav">
+        <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-4 py-2 sm:px-6 [scrollbar-width:none]">
+          {VIEWS.map((v) => (
+            <button key={v.id} type="button" onClick={() => openView(v.id)} aria-current={view === v.id ? "page" : undefined} data-view={v.id}
+              className={`inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-[14px] font-semibold transition-colors ${view === v.id ? "border-emerald-700 bg-emerald-700 text-white" : "border-slate-200 bg-white text-slate-700 hover:border-emerald-400"}`}>
+              <v.icon size={16} aria-hidden /> {v.bn}
+            </button>
+          ))}
+        </div>
+      </nav>
+
       <main id="main" className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 motion-safe:animate-rise-in">
+        {view === "ledger" ? (<>
         <section aria-labelledby="product-search-title" className="space-y-3 rounded-2xl border border-emerald-200/80 bg-white/80 backdrop-blur-md p-5 sm:p-6 shadow-xs hover:shadow-md transition-all">
           <div>
             <h1 id="product-search-title" className="flex items-center gap-2 text-[20px] font-extrabold text-slate-900"><Search size={21} className="text-emerald-700" aria-hidden /> পণ্যের দাম ও তথ্য খুঁজুন</h1>
@@ -855,6 +904,15 @@ export default function ShohojBudgetPage() {
             </p>
           </aside>
         </div>
+        </>) : (
+          <div className="mx-auto max-w-5xl">
+            {view === "wallets" && <WalletsPanel txs={txs} />}
+            {view === "dhar" && <DharLedger />}
+            {view === "bazar" && <BazarList onAddExpense={openDraftFromBazar} />}
+            {view === "mess" && <MessLedger />}
+            {view === "zakat" && <ZakatHub />}
+          </div>
+        )}
       </main>
       <AppFooter lang="bn" />
     </div>
@@ -1202,7 +1260,7 @@ function SpendingDonutChart({ summary }: { summary: MonthSummary }) {
 
 function MfsFeeCalculatorPanel() {
   const [calcAmount, setCalcAmount] = useState(1000);
-  const providers: MfsProvider[] = ["bkash_app", "bkash_ussd", "nagad_app", "nagad_ussd", "rocket_app", "rocket_atm"];
+  const providers: MfsProvider[] = ["bkash_ussd", "bkash_priyo", "bkash_app", "nagad_app", "nagad_ussd", "rocket_app", "rocket_atm"];
 
   return (
     <section aria-labelledby="mfs-h" className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5">
@@ -1210,7 +1268,7 @@ function MfsFeeCalculatorPanel() {
         <Smartphone size={17} aria-hidden /> এমএফএস ক্যাশ-আউট ক্যালকুলেটর
       </h2>
       <p className="text-[12px] text-slate-500">
-        বিকাশ, নগদ ও রকেট এজেন্ট বা এটিএম থেকে টাকা তোলার প্রকৃত সরকারি চার্জ হিসাব করুন।
+        বিকাশ, নগদ ও রকেট থেকে টাকা তোলার চার্জ হিসাব করুন। প্রতিষ্ঠানের নিজের পাতায় মিলিয়ে দেখা হারের পাশে উৎস দেওয়া আছে; বাকিগুলো যাচাই হয়নি, তাই ওয়ালেট অংশে নিজের হার বসিয়ে নিন।
       </p>
       <div>
         <label className="text-[11px] font-bold text-slate-600">
@@ -1232,6 +1290,7 @@ function MfsFeeCalculatorPanel() {
             <div key={p} className="flex items-center justify-between rounded-lg bg-slate-50 p-2 text-[12px]">
               <div>
                 <span className="font-semibold text-slate-800">{config.nameBn}</span>
+                {config.source ? <a href={config.source.url} target="_blank" rel="noopener noreferrer" className="block text-[10.5px] font-semibold text-emerald-700 underline">উৎস: {config.source.label} · {config.source.checked}</a> : <span className="block text-[10.5px] font-semibold text-amber-700">যাচাই হয়নি — নিজের হার দিয়ে মিলিয়ে নিন</span>}
               </div>
               <div className="text-right">
                 <span className="font-bold text-slate-900 font-mono">চার্জ: ৳{(res.feePoisha / 100).toFixed(2)}</span>

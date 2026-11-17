@@ -157,6 +157,26 @@ const ob3 = await p.evaluate(() => document.querySelector(".kp-orbit")?.dataset.
 check(ob3 === "none", "Home: orbit stays still under reduced motion", ob3);
 await p.close();
 
+// Shohoj সংসার modules: every tab renders from its link; a dhar entry saves only after the review step
+p = await page(375, 812);
+await p.goto(`${BASE}/shohoj-budget`, { waitUntil: "networkidle2" });
+await p.evaluate(() => localStorage.clear());
+const shTabs = [];
+for (const [v, id] of [["wallets", "wallets-panel"], ["dhar", "dhar-ledger"], ["bazar", "bazar-list"], ["mess", "mess-ledger"], ["zakat", "zakat-hub"]]) {
+  await p.goto(`${BASE}/shohoj-budget#${v}`, { waitUntil: "networkidle2" });
+  await wait(400);
+  if (await p.$(`[data-testid="${id}"]`)) shTabs.push(v);
+}
+check(shTabs.length === 5, "Shohoj: wallets, dhar, bazar, mess and zakat tabs open from their links", shTabs.join(","));
+await p.goto(`${BASE}/shohoj-budget#dhar`, { waitUntil: "networkidle2" });
+await p.type('[data-testid="dhar-name"]', "রাকিব"); await p.type('[data-testid="dhar-amount"]', "500");
+await p.click('[data-testid="dhar-review"]'); await wait(300);
+const dBefore = await p.evaluate(() => JSON.parse(localStorage.getItem("kormopath:shohoj:dhar") || "[]").length);
+await p.click('[data-testid="dhar-save"]'); await wait(400);
+const dAfter = await p.evaluate(() => JSON.parse(localStorage.getItem("kormopath:shohoj:dhar") || "[]").length);
+check(dBefore === 0 && dAfter === 1, "Shohoj: dhar entry saved only after confirm", `${dBefore} -> ${dAfter}`);
+await p.close();
+
 // MaathSathi field app (FieldShift360 port): linked from MaathSathi, radar renders, storage stays in the krishi namespace
 p = await page(390, 844);
 await p.goto(`${BASE}/krishi`, { waitUntil: "networkidle2" });
@@ -180,7 +200,7 @@ check(soft.path === "/krishi/field" && soft.nav === "/krishi/field", "Field app:
 await p.close();
 
 // Mobile: no horizontal scroll with the new strip
-for (const route of ["/", "/judges", "/shohoj-budget", "/probaho", "/rokkha", "/krishi", "/krishi/field#/farmer"]) {
+for (const route of ["/", "/judges", "/shohoj-budget", "/probaho", "/rokkha", "/krishi", "/krishi/field#/farmer", "/shohoj-budget#mess"]) {
   p = await page(375, 812);
   await p.goto(`${BASE}${route}`, { waitUntil: "networkidle2" });
   const o = await p.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
