@@ -1,0 +1,42 @@
+/* MediScan doctors: depth and motion, CSS only (transform/opacity). All of it stops under reduced motion. */
+.dr-card { position: relative; transform-style: preserve-3d; transform: perspective(900px) rotateX(var(--dr-rx, 0deg)) rotateY(var(--dr-ry, 0deg)); transition: transform .35s cubic-bezier(.22, 1, .36, 1), box-shadow .35s; will-change: transform; }
+.dr-card:hover { box-shadow: 0 22px 44px -28px rgba(20, 60, 90, .55); }
+.dr-card-lift { transform: perspective(900px) translateZ(18px); }
+
+.dr-avatar { position: relative; display: inline-grid; place-items: center; width: 64px; height: 64px; flex-shrink: 0; }
+.dr-avatar-face { position: relative; z-index: 1; display: grid; place-items: center; width: 56px; height: 56px; border-radius: 999px; background: linear-gradient(145deg, #e0f2fe, #a5d8f3); color: #0c4a6e; font: 700 18px/1 var(--font-sans); box-shadow: inset 0 -6px 12px rgba(12, 74, 110, .18), 0 8px 16px -10px rgba(12, 74, 110, .6); }
+.dr-avatar-ring { position: absolute; inset: 0; border-radius: 999px; background: conic-gradient(from 0deg, rgba(14, 165, 233, .0), rgba(14, 165, 233, .55), rgba(16, 185, 129, .45), rgba(14, 165, 233, 0)); transform: translateZ(-8px); animation: dr-ring 9s linear infinite; }
+.dr-dot { position: absolute; right: 2px; bottom: 4px; z-index: 2; width: 13px; height: 13px; border-radius: 999px; border: 2px solid #fff; }
+.dr-dot-online { background: #10b981; }
+.dr-dot-online::after { content: ""; position: absolute; inset: -2px; border-radius: 999px; background: #10b981; animation: dr-pulse 1.8s ease-out infinite; }
+.dr-dot-today { background: #0ea5e9; }
+.dr-dot-busy { background: #f59e0b; }
+.dr-dot-offline { background: #94a3b8; }
+@keyframes dr-ring { to { transform: translateZ(-8px) rotate(360deg); } }
+@keyframes dr-pulse { 0% { transform: scale(1); opacity: .6; } 100% { transform: scale(2.4); opacity: 0; } }
+
+/* Four-step booking path: the line fills and each node pops as its step completes. */
+.dr-path { display: grid; grid-template-columns: repeat(4, 1fr); position: relative; }
+.dr-path::before { content: ""; position: absolute; left: 12.5%; right: 12.5%; top: 15px; height: 3px; border-radius: 3px; background: #e2e8f0; }
+.dr-path-fill { position: absolute; left: 12.5%; top: 15px; height: 3px; width: 75%; border-radius: 3px; background: linear-gradient(90deg, #0ea5e9, #10b981); transform-origin: left; transform: scaleX(var(--dr-progress, 0)); transition: transform .6s cubic-bezier(.22, 1, .36, 1); }
+.dr-node { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
+.dr-node-dot { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 999px; border: 2px solid #cbd5e1; background: #fff; color: #64748b; font: 700 14px/1 var(--font-mono); transition: background-color .3s, border-color .3s, color .3s; }
+.dr-node-done .dr-node-dot { border-color: #10b981; background: #10b981; color: #fff; animation: dr-pop .45s cubic-bezier(.34, 1.6, .64, 1); }
+.dr-node-now .dr-node-dot { border-color: #0ea5e9; color: #0369a1; }
+@keyframes dr-pop { 0% { transform: scale(.6); } 100% { transform: scale(1); } }
+
+/* Payment stamp: settles only for a payment an admin really verified. */
+.dr-stamp { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border: 2px solid #047857; border-radius: 10px; color: #047857; font-weight: 800; line-height: 1.4; transform: rotate(-5deg); }
+.dr-stamp-in { animation: dr-stamp .55s cubic-bezier(.2, 1.6, .4, 1) both; }
+.dr-stamp-demo { border-style: dashed; border-color: #b45309; color: #b45309; }
+@keyframes dr-stamp { 0% { transform: rotate(-5deg) scale(1.9); opacity: 0; } 100% { transform: rotate(-5deg) scale(1); opacity: 1; } }
+
+.dr-rise { animation: dr-rise .5s cubic-bezier(.22, 1, .36, 1) both; }
+@keyframes dr-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .dr-card, .dr-path-fill, .dr-node-dot { transition: none; }
+  .dr-card { transform: none !important; }
+  .dr-avatar-ring, .dr-dot-online::after, .dr-node-done .dr-node-dot, .dr-stamp-in, .dr-rise { animation: none; }
+}
+@media print { .dr-card { transform: none !important; box-shadow: none; } }

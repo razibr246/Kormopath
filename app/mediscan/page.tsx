@@ -2,10 +2,8 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
-  Pill, Upload, ShieldAlert, AlertTriangle, CheckCircle2, Printer, Phone, Info, Trash2, Save, HelpCircle, Calculator, Video, CalendarDays, CreditCard, UserRound, BellRing,
+  Pill, Upload, ShieldAlert, AlertTriangle, CheckCircle2, Printer, Phone, Info, Trash2, Save, HelpCircle, Calculator, CalendarDays, BellRing,
 } from "lucide-react";
-import { AppHeader } from "@/components/layout/AppHeader";
-import { AppFooter } from "@/components/layout/AppFooter";
 import {
   parsePrescriptionText, checkAllPairs, checkPair, detectRedFlags, drugById, comparePrices, unitsForCourse,
   DRUG_REFERENCE, buildSchedule, scheduleToIcs, SLOT_BN, type ParsedLine, type ParsedPrescription, type Slot,
@@ -47,12 +45,6 @@ const sanitizeSaved = (raw: unknown): SavedRx[] | null =>
 
 const MEAL: Record<string, string> = { before: "খাবারের আগে", after: "খাবারের পরে", with: "খাবারের সাথে" };
 
-// Clearly fictional demo profiles. Replace only with verified provider data and a real booking/payment integration.
-const DEMO_DOCTORS = [
-  { id: "demo-1", name: "ডা. সায়মা রহমান", specialty: "মেডিসিন বিশেষজ্ঞ", experience: "১০ বছরের অভিজ্ঞতা (ডেমো)", fee: 500 },
-  { id: "demo-2", name: "ডা. আরিফুল ইসলাম", specialty: "শিশু স্বাস্থ্য", experience: "৮ বছরের অভিজ্ঞতা (ডেমো)", fee: 600 },
-  { id: "demo-3", name: "ডা. নুসরাত জাহান", specialty: "চর্ম ও অ্যালার্জি", experience: "৬ বছরের অভিজ্ঞতা (ডেমো)", fee: 550 },
-];
 
 export default function MediScanPage() {
   const [text, setText] = useState("");
@@ -67,12 +59,6 @@ export default function MediScanPage() {
   const [saveLabel, setSaveLabel] = useState("");
   const [pairA, setPairA] = useState("azithromycin");
   const [pairB, setPairB] = useState("antacid-almg");
-  const [doctorId, setDoctorId] = useState(DEMO_DOCTORS[0].id);
-  const [consultationType, setConsultationType] = useState<"phone" | "video">("phone");
-  const [appointmentSlot, setAppointmentSlot] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("bkash");
-  const [demoBooking, setDemoBooking] = useState(false);
-  const selectedDoctor = DEMO_DOCTORS.find((doctor) => doctor.id === doctorId) ?? DEMO_DOCTORS[0];
 
   const parsed = useMemo(() => parsePrescriptionText(text), [text]);
   const redFlags = useMemo(() => detectRedFlags(`${text}\n${symptoms}`), [text, symptoms]);
@@ -131,24 +117,7 @@ export default function MediScanPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f6f9fb] text-slate-900 antialiased">
-      <AppHeader taglineEn="Understand your prescription safely"
-        appId="mediscan"
-        href="/mediscan"
-        name="MediScan BD"
-        taglineBn="প্রেসক্রিপশন বুঝতে সহায়তা · রোগ নির্ণয় নয়"
-        icon={<Pill size={22} />}
-        accent="from-sky-600 to-cyan-700"
-      />
-
-      {/* Always-visible emergency strip */}
-      <div className="border-b border-red-200 bg-red-50 print:hidden">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2 text-[13px] text-red-900 sm:px-6">
-          <span className="inline-flex items-center gap-1.5 font-bold"><Phone size={14} aria-hidden /> জরুরি অবস্থায়: <a href="tel:999" className="underline">999</a> (জাতীয় জরুরি সেবা — অ্যাম্বুলেন্স, পুলিশ, ফায়ার)</span>
-          <span>স্বাস্থ্য পরামর্শ: <a href="tel:16263" className="font-semibold underline">16263</a> (স্বাস্থ্য বাতায়ন)</span>
-        </div>
-      </div>
-
+    <>
       <main id="main" className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 motion-safe:animate-rise-in">
         <section className="rounded-2xl border border-sky-100/80 bg-white/80 backdrop-blur-md p-5 sm:p-6 shadow-xs hover:shadow-md transition-all">
           <h1 className="text-[26px] font-extrabold leading-tight tracking-tight text-slate-900 sm:text-[32px]">ডাক্তারের প্রেসক্রিপশন সহজ বাংলায় বুঝে নিন</h1>
@@ -159,59 +128,17 @@ export default function MediScanPage() {
 
         <FeverWatch />
 
-        {/* Demo only: fictional doctors. Collapsed so it never competes with the prescription reader. */}
-        <details className="group rounded-2xl border border-dashed border-amber-300 bg-amber-50/40 p-5">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-[14px] font-bold text-amber-950">
-            <span>নমুনা: ডাক্তার বুকিং কেমন হতে পারে (ডেমো · আসল ডাক্তার নেই, টাকা নেওয়া হয় না)</span>
-            <span aria-hidden className="text-amber-700 transition-transform group-open:rotate-180">⌄</span>
-          </summary>
-          <div className="mt-4 flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h2 id="appointment-title" className="flex items-center gap-2 text-[20px] font-extrabold"><CalendarDays size={21} className="text-violet-700" aria-hidden /> ডাক্তারের সাথে পরামর্শ বুক করুন</h2>
-              <p className="mt-1 text-[13px] text-slate-600">ডেমো ডাক্তার বেছে ফোন বা ভিডিও পরামর্শের নমুনা বুকিং করুন।</p>
-            </div>
-            <span className="rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-[11px] font-bold text-amber-900">ডেমো · বাস্তব চিকিৎসক নন</span>
-          </div>
-          <div className="mt-4 grid gap-4 md:grid-cols-2">
-            <div className="space-y-3">
-              <label className="block text-[13px] font-bold">ডাক্তার বেছে নিন
-                <select value={doctorId} onChange={(event) => { setDoctorId(event.target.value); setDemoBooking(false); }} className="mt-1 block w-full rounded-xl border border-slate-200 bg-white px-3 py-2 font-normal">
-                  {DEMO_DOCTORS.map((doctor) => <option key={doctor.id} value={doctor.id}>{doctor.name} · {doctor.specialty}</option>)}
-                </select>
-              </label>
-              <div className="flex items-center gap-3 rounded-xl bg-violet-50 p-3">
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-violet-100 text-violet-800"><UserRound size={22} aria-hidden /></span>
-                <div className="min-w-0 text-[13px]"><strong className="block">{selectedDoctor.name}</strong><span className="text-slate-600">{selectedDoctor.specialty} · {selectedDoctor.experience}</span></div>
-              </div>
-              <fieldset>
-                <legend className="mb-1.5 text-[13px] font-bold">পরামর্শের ধরন</legend>
-                <div className="flex flex-wrap gap-2">
-                  <button type="button" aria-pressed={consultationType === "phone"} onClick={() => { setConsultationType("phone"); setDemoBooking(false); }} className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-[13px] font-bold ${consultationType === "phone" ? "border-violet-600 bg-violet-50 text-violet-900" : "border-slate-200"}`}><Phone size={16} aria-hidden /> ফোন কল</button>
-                  <button type="button" aria-pressed={consultationType === "video"} onClick={() => { setConsultationType("video"); setDemoBooking(false); }} className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-[13px] font-bold ${consultationType === "video" ? "border-violet-600 bg-violet-50 text-violet-900" : "border-slate-200"}`}><Video size={16} aria-hidden /> ভিডিও কল</button>
-                </div>
-              </fieldset>
-            </div>
-            <div className="space-y-3">
-              <label className="block text-[13px] font-bold">সময় বেছে নিন
-                <select value={appointmentSlot} onChange={(event) => { setAppointmentSlot(event.target.value); setDemoBooking(false); }} className="mt-1 block w-full rounded-xl border border-slate-200 bg-white px-3 py-2 font-normal">
-                  <option value="">একটি সময় বেছে নিন</option>
-                  <option value="আজ, সন্ধ্যা ৭:০০">আজ, সন্ধ্যা ৭:০০</option>
-                  <option value="আগামীকাল, সকাল ১০:৩০">আগামীকাল, সকাল ১০:৩০</option>
-                  <option value="আগামীকাল, বিকেল ৪:০০">আগামীকাল, বিকেল ৪:০০</option>
-                </select>
-              </label>
-              <label className="block text-[13px] font-bold">ডেমো পেমেন্ট পদ্ধতি
-                <select value={paymentMethod} onChange={(event) => setPaymentMethod(event.target.value)} className="mt-1 block w-full rounded-xl border border-slate-200 bg-white px-3 py-2 font-normal">
-                  <option value="bkash">বিকাশ (নমুনা)</option><option value="nagad">নগদ (নমুনা)</option><option value="card">কার্ড (নমুনা)</option>
-                </select>
-              </label>
-              <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-3 text-[14px]"><span className="inline-flex items-center gap-2 text-slate-700"><CreditCard size={17} aria-hidden /> পরামর্শ ফি</span><strong>৳{selectedDoctor.fee}</strong></div>
-              <button type="button" disabled={!appointmentSlot} onClick={() => setDemoBooking(true)} className="w-full rounded-xl bg-violet-700 px-4 py-3 text-[14px] font-bold text-white hover:bg-violet-800 disabled:cursor-not-allowed disabled:opacity-40">বুকিং ও ডেমো পেমেন্ট নিশ্চিত করুন</button>
-            </div>
-          </div>
-          {demoBooking && <div role="status" className="mt-4 rounded-xl border border-emerald-300 bg-emerald-50 p-4 text-[13px] text-emerald-950"><strong className="block">নমুনা অ্যাপয়েন্টমেন্ট তৈরি হয়েছে</strong><span>{selectedDoctor.name} · {consultationType === "phone" ? "ফোন কল" : "ভিডিও কল"} · {appointmentSlot} · ৳{selectedDoctor.fee} ({paymentMethod === "bkash" ? "বিকাশ" : paymentMethod === "nagad" ? "নগদ" : "কার্ড"})</span><p className="mt-1">এটি শুধু ডেমো: কোনো টাকা কাটা হয়নি, বুকিং ডাক্তারকে পাঠানো হয়নি, এবং কল/ভিডিও সংযোগ চালু নেই।</p></div>}
-          <p className="mt-3 text-[11px] leading-relaxed text-slate-500">ডাক্তারদের নাম, সময় ও ফি কাল্পনিক। এই নমুনায় কোনো পেমেন্ট নেওয়া, চিকিৎসকের সাথে সংযোগ বা প্রকৃত অ্যাপয়েন্টমেন্ট তৈরি হয় না।</p>
-        </details>
+        {/* Doctors and consultation moved to /mediscan/doctors (demo profiles until a doctor is verified). */}
+        <Link href="/mediscan/doctors" className="group flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-sky-200 bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md" data-testid="mediscan-doctors-link">
+          <span className="flex items-center gap-3">
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-sky-100 text-sky-800"><CalendarDays size={21} aria-hidden /></span>
+            <span>
+              <strong className="block text-[17px] text-slate-900">ডাক্তারের সাথে ফোন বা ভিডিও পরামর্শ</strong>
+              <span className="text-[14px] text-slate-600">বিশেষজ্ঞ খুঁজুন, ফি আগে দেখুন, সময় বেছে নিন। এখন শুধু ডেমো প্রোফাইল।</span>
+            </span>
+          </span>
+          <span className="text-[14px] font-bold text-sky-800 group-hover:underline">ডাক্তার খুঁজুন →</span>
+        </Link>
 
         {redFlags.length > 0 && (
           <section role="alert" className="rounded-2xl border-2 border-red-500 bg-red-50 p-5">
@@ -460,8 +387,7 @@ export default function MediScanPage() {
           <p className="mt-2"><Link href="/settings" className="font-semibold text-sky-700 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] rounded">সংরক্ষিত ডেটা দেখুন বা মুছুন</Link></p>
         </section>
       </main>
-      <AppFooter lang="bn" />
-    </div>
+    </>
   );
 }
 

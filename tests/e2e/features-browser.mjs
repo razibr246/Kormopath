@@ -193,6 +193,28 @@ const la = String(lj.answer ?? "");
 check(lr.status === 200 && /৯৯৯|999|১০৯|109/.test(la.slice(0, 120)) && Array.isArray(lj.trace), "Legal assistant: a violence question opens with 999/109, with a trace", `${lj.engine} ${la.slice(0, 80)}`);
 await p.close();
 
+// MediScan health hub: emergency finder answers fast with no account; the assistant routes red flags to 999;
+// demo doctors never show the real bKash number
+p = await page(390, 844);
+await b.defaultBrowserContext().overridePermissions(BASE, ["geolocation"]);
+await p.setGeolocation({ latitude: 23.7389, longitude: 90.3956 });
+await p.goto(`${BASE}/mediscan/emergency`, { waitUntil: "networkidle2" });
+const emT0 = Date.now();
+await p.click('[data-testid="find-nearest"]');
+for (let i = 0; i < 40; i++) { if (await p.$('[data-testid="hospital-card"]')) break; await wait(250); }
+const em = await p.evaluate(() => ({ cards: document.querySelectorAll('[data-testid="hospital-card"]').length, c999: !!document.querySelector('a[href="tel:999"]'), avail: /\bavailable\b/i.test(document.querySelector('[data-testid="hospital-results"]')?.innerText ?? "") }));
+check(em.cards >= 3 && em.c999 && !em.avail && Date.now() - emT0 < 8000, "Health: emergency finder lists hospitals within seconds (offline copy if Overpass is busy), 999 visible, never 'available'", `${em.cards} cards in ${Date.now() - emT0} ms`);
+await p.goto(`${BASE}/mediscan/assistant`, { waitUntil: "networkidle2" });
+await p.click('[data-testid="redflag-none"]'); await wait(150);
+await p.type('[data-testid="symptom-input"]', "বুকে প্রচণ্ড ব্যথা আর শ্বাস নিতে কষ্ট হচ্ছে");
+await p.click('[data-testid="symptom-submit"]'); await wait(600);
+check(await p.evaluate(() => /999|৯৯৯/.test(document.querySelector('[data-testid="redflag-alert"]')?.innerText ?? "")), "Health assistant: chest pain typed as text goes straight to 999");
+await p.goto(`${BASE}/mediscan/doctors`, { waitUntil: "networkidle2" });
+await p.evaluate(() => document.querySelector('[data-testid="doctor-card"] button')?.click()); await wait(500);
+const dr = await p.evaluate(() => ({ cards: document.querySelectorAll('[data-testid="doctor-card"]').length, demo: !!document.querySelector('[data-testid="demo-pay-banner"]'), num: document.body.innerText.replace(/[০-৯]/g, (d) => String("০১২৩৪৫৬৭৮৯".indexOf(d))).includes("01927228826") }));
+check(dr.cards === 5 && dr.demo && !dr.num, "Health: demo doctor booking shows the demo banner and never the real bKash number", JSON.stringify(dr));
+await p.close();
+
 // MaathSathi field app (FieldShift360 port): linked from MaathSathi, radar renders, storage stays in the krishi namespace
 p = await page(390, 844);
 await p.goto(`${BASE}/krishi`, { waitUntil: "networkidle2" });
@@ -216,7 +238,7 @@ check(soft.path === "/krishi/field" && soft.nav === "/krishi/field", "Field app:
 await p.close();
 
 // Mobile: no horizontal scroll with the new strip
-for (const route of ["/", "/judges", "/shohoj-budget", "/probaho", "/rokkha", "/krishi", "/krishi/field#/farmer", "/shohoj-budget#mess"]) {
+for (const route of ["/", "/judges", "/shohoj-budget", "/probaho", "/rokkha", "/krishi", "/krishi/field#/farmer", "/shohoj-budget#mess", "/mediscan/emergency", "/mediscan/doctors", "/mediscan/assistant"]) {
   p = await page(375, 812);
   await p.goto(`${BASE}${route}`, { waitUntil: "networkidle2" });
   const o = await p.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));

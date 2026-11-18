@@ -355,7 +355,7 @@ body {
 h1.font-black, h1.font-extrabold, h2.font-black, h2.font-extrabold, .display.font-black, .display.font-extrabold { font-weight: 700; }
 .num, .font-mono { font-variant-numeric: tabular-nums; }
 /* Two-tone serif accent: <em class="kp-em"> inside a heading. */
-.kp-em { font-style: italic; font-weight: 600; background: linear-gradient(110deg, #b8412b 5%, #c99041 55%, #0e6b4f 100%); -webkit-background-clip: text; background-clip: text; color: transparent; padding-right: .04em; }
+.kp-em { font-style: italic; font-weight: 600; background: linear-gradient(110deg, #b8412b 5%, #c99041 55%, #0e6b4f 100%); -webkit-background-clip: text; background-clip: text; color: transparent; padding: .2em .34em .1em 0; margin-right: -.3em; -webkit-box-decoration-break: clone; box-decoration-break: clone; } /* Wider paint box, same spacing (padding cancelled by the negative margin): background-clip only paints inside the box, and in Bangla the reph (র্) trails past the end of the word, so without it "পরামর্শ" shows as "পরামশ". */
 
 ::selection { background: #f6d9b8; color: #4a2410; }
 header { box-shadow:none; }

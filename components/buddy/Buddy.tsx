@@ -649,7 +649,7 @@ export function Buddy() {
   ];
 
   // MaathSathi field (Chakra) and the legal assistant have their own agent in the same corner.
-  if (pathname?.startsWith("/krishi/field") || pathname?.startsWith("/legal/assistant")) return null; // both have their own agent in that corner
+  if (pathname?.startsWith("/krishi/field") || pathname?.startsWith("/legal/assistant") || pathname?.startsWith("/mediscan/emergency") || pathname?.startsWith("/mediscan/assistant")) return null; // own agent or emergency screen in that corner
   return (
     <aside
       aria-label={bn ? "বাডি সহকারী" : "Buddy assistant"}

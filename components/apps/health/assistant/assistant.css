@@ -1,0 +1,42 @@
+/* MediScan health assistant + services motion. Transform/opacity only; everything stops under reduced motion.
+   Emergency (red-flag) results never animate: they must appear at once. */
+
+/* ---- 3D body map: a stylised figure that turns between front and back (rotateY) ---- */
+.hb-stage { perspective: 900px; }
+.hb-flip { position: relative; width: 100%; aspect-ratio: 1 / 2; /* same as the figure viewBox (120 × 240) */ transform-style: preserve-3d; transition: transform .7s cubic-bezier(.22, 1, .36, 1); will-change: transform; }
+.hb-flip[data-side="back"] { transform: rotateY(180deg); }
+.hb-face { position: absolute; inset: 0; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.hb-face-back { transform: rotateY(180deg); }
+.hb-part { cursor: pointer; fill: #e7f1f6; stroke: #5b8aa3; stroke-width: 1.4; transition: fill .2s, transform .2s; transform-box: fill-box; transform-origin: center; }
+.hb-part:hover { fill: #cfe5ef; }
+.hb-part:focus-visible { outline: none; stroke: #0b5a7c; stroke-width: 2.6; }
+.hb-part[data-on="true"] { fill: #8ec5dc; stroke: #0b5a7c; animation: hb-tap .35s cubic-bezier(.34, 1.56, .64, 1); }
+@keyframes hb-tap { 0% { transform: scale(.94); } 100% { transform: scale(1); } }
+.hb-shadow { fill: rgba(60, 36, 18, .12); }
+.hb-idle { animation: hb-sway 6s ease-in-out infinite; transform-origin: 50% 90%; }
+@keyframes hb-sway { 0%, 100% { transform: rotate(-.6deg); } 50% { transform: rotate(.6deg); } }
+
+/* ---- calm breathing orb while the answer loads ---- */
+.hb-orb { position: relative; width: 64px; height: 64px; }
+.hb-orb::before, .hb-orb::after { content: ""; position: absolute; inset: 0; border-radius: 50%; }
+.hb-orb::before { background: radial-gradient(circle at 35% 30%, #e0f4fb, #7fc3dd 55%, #2f7f9f); box-shadow: 0 10px 26px -10px rgba(16, 92, 124, .55); animation: hb-breathe 4s ease-in-out infinite; }
+.hb-orb::after { border: 2px solid rgba(47, 127, 159, .35); animation: hb-ring 4s ease-out infinite; }
+@keyframes hb-breathe { 0%, 100% { transform: scale(.88); } 50% { transform: scale(1); } }
+@keyframes hb-ring { 0% { transform: scale(.9); opacity: .9; } 70% { transform: scale(1.45); opacity: 0; } 100% { opacity: 0; } }
+
+/* ---- specialty result card flips in ---- */
+.hb-card-in { animation: hb-card .65s cubic-bezier(.22, 1, .36, 1) both; transform-origin: 50% 0; backface-visibility: hidden; }
+@keyframes hb-card { 0% { transform: perspective(900px) rotateX(-70deg) translateY(-6px); opacity: 0; } 100% { transform: perspective(900px) rotateX(0) translateY(0); opacity: 1; } }
+
+/* ---- services cards rise in with a stagger (delay set inline) ---- */
+.hb-rise { animation: hb-rise .55s cubic-bezier(.22, 1, .36, 1) both; }
+@keyframes hb-rise { 0% { transform: translateY(14px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+.hb-lift { transition: transform .25s cubic-bezier(.22, 1, .36, 1), box-shadow .25s; }
+.hb-lift:hover { transform: translateY(-2px); box-shadow: 0 18px 36px -24px rgba(16, 70, 92, .45); }
+
+@media (prefers-reduced-motion: reduce) {
+  .hb-flip { transition: none; }
+  .hb-idle, .hb-part[data-on="true"], .hb-orb::before, .hb-orb::after, .hb-card-in, .hb-rise { animation: none; }
+  .hb-lift, .hb-part { transition: none; }
+  .hb-lift:hover { transform: none; }
+}

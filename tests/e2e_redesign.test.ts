@@ -951,7 +951,18 @@ describe("Tier 4 - Real-World Application Scenarios", () => {
 
     for (const appPath of apps) {
       assert.ok(projectFileExists(appPath), `${appPath} must exist`);
-      const src = readProjectFile(appPath);
+      let src = readProjectFile(appPath);
+      const layoutPath = appPath.replace(/page\.tsx$/, "layout.tsx");
+      if (projectFileExists(layoutPath)) {
+        src += "\n" + readProjectFile(layoutPath);
+        const shellMatch = src.match(/import\s*\{\s*(\w+Shell)\s*\}\s*from\s*["']([^"']+)["']/);
+        if (shellMatch) {
+          const shellFile = shellMatch[2].replace(/^@\//, "") + ".tsx";
+          if (projectFileExists(shellFile)) {
+            src += "\n" + readProjectFile(shellFile);
+          }
+        }
+      }
       assert.match(src, /AppHeader/, `${appPath} must render AppHeader`);
       assert.match(src, /min-h-screen/, `${appPath} must provide root container`);
     }
