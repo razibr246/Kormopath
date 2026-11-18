@@ -402,11 +402,12 @@ export default function Home() {
     };
     setContract(c);
 
+    // A real step: the reviewed template (lib/contract.ts) is filled with validated inputs; no model involved.
     local(
       "Outreach",
       "legal-handoff",
-      `[Outreach: 85ms] Injected Clause 4 (48-Hour Force-Majeure & ৳12.5k UPS SLA) for $${p.client.valueUsd} agreement`,
-      85
+      `Filled reviewed Clause 4 (outage buffer: deadlines extend by the outage + ${c.bufferHours} h) for the $${p.client.valueUsd} agreement from the fixed template`,
+      0
     );
 
     await runPitch(c, a, null);
@@ -1090,12 +1091,12 @@ export default function Home() {
                   Health &amp; Services Track
                 </span>
                 <p className="text-[13px] text-muted mt-2 leading-relaxed">
-                  Handwriting prescription OCR, plain Bangla dosage explanation, and DGDA generic cost comparator saving 30–50% BDT.
+                  Reads a prescription photo, explains what it says in plain Bangla (never diagnoses or changes a dose), finds the nearest emergency hospital and books doctors.
                 </p>
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   <span className="text-[10px] font-semibold bg-white border border-line px-2 py-0.5 rounded text-ink/80">Vision OCR</span>
-                  <span className="text-[10px] font-semibold bg-white border border-line px-2 py-0.5 rounded text-ink/80">Bangla Dosages</span>
-                  <span className="text-[10px] font-semibold bg-white border border-line px-2 py-0.5 rounded text-ink/80">30-50% Savings</span>
+                  <span className="text-[10px] font-semibold bg-white border border-line px-2 py-0.5 rounded text-ink/80">Plain Bangla</span>
+                  <span className="text-[10px] font-semibold bg-white border border-line px-2 py-0.5 rounded text-ink/80">Emergency hospitals</span>
                 </div>
               </div>
               <Link

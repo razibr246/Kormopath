@@ -7,14 +7,26 @@
  * (lib/health/doctors.ts isRealBookable); demo bookings never show it.
  */
 
-export const PAYMENT_CONFIG = {
+/*
+ * Real payments are OFF. Doctor verification currently happens only on the admin's own device (/mediscan/admin has no
+ * server and no login), so anyone could "verify" a fake doctor locally; a payment screen showing a real number would
+ * then be a ready-made scam screenshot. The owner's receiving number therefore stays out of the public bundle
+ * (receiver: null) until doctors are verified on a server with an authenticated admin, ideally with a bKash merchant
+ * account rather than personal Send Money. Set it here (or from a server route) only then.
+ */
+export const PAYMENT_CONFIG: {
+  provider: "bkash";
+  receiver: string | null;
+  kind: "personal-send-money";
+  merchantApi: boolean;
+} = {
   provider: "bkash",
-  receiver: "01927228826",
+  receiver: null,
   kind: "personal-send-money",
-  ownerConfirmed: true, // provided by the project owner on 2026-11-18
-  ownerConfirmedOn: "2026-11-18",
   merchantApi: false, // switch to the official bKash merchant payment API once an approved merchant account exists
-} as const;
+};
+/** True only when a receiving number is configured: until then no screen shows a number to pay. */
+export const realPaymentsEnabled = (): boolean => PAYMENT_CONFIG.receiver !== null;
 
 export type PaymentStatus = "unpaid" | "pending" | "verified" | "failed" | "refunded";
 

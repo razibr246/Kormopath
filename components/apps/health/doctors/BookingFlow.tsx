@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { AlertTriangle, CheckCircle2, ClipboardCopy, MessageSquareText, Phone, ShieldAlert, Video, X } from "lucide-react";
 import { TYPE_LABEL, upcomingSlots, isRealBookable, type ConsultType, type Doctor } from "@/lib/health/doctors";
-import { PAYMENT_CONFIG, formatTaka } from "@/lib/health/payments";
+import { PAYMENT_CONFIG, formatTaka, realPaymentsEnabled } from "@/lib/health/payments";
 import { bookingMessage, createBooking, submitTrxId, type Booking } from "@/lib/health/booking";
 import { bnNum, randBytes, StatusChip, T as tr, useBookings } from "./shared";
 
@@ -155,9 +155,9 @@ export function BookingFlow({ doctor, lang, onClose, followUpOf }: { doctor: Doc
               <p className="text-[15px] font-bold text-slate-800">{T("৪. বিকাশে পেমেন্ট", "4. Pay with bKash")}</p>
               <ol className="list-decimal space-y-1 pl-5 text-[14.5px] leading-relaxed text-slate-700">
                 <li>{T("বিকাশ অ্যাপে \"সেন্ড মানি\" বেছে নিন।", "In the bKash app choose \"Send Money\".")}</li>
-                <li>{T("নম্বর", "Number")}: {real && !live.demo
+                <li>{T("নম্বর", "Number")}: {real && !live.demo && realPaymentsEnabled()
                   ? <strong className="font-mono text-[16px] text-slate-900">{PAYMENT_CONFIG.receiver}</strong>
-                  : <strong className="text-amber-800">{T("যাচাইকৃত ডাক্তার যুক্ত হলে নম্বর দেখাবে", "shown once a verified doctor is added")}</strong>}</li>
+                  : <strong className="text-amber-800">{T("আসল পেমেন্ট এখনো চালু হয়নি — কাউকে টাকা পাঠাবেন না। কেউ কর্মপথের নামে নম্বর দিলে সেটি প্রতারণা হতে পারে।", "Real payments are not open yet — don't send money to anyone. A number given in KormoPath's name may be a scam.")}</strong>}</li>
                 <li>{T("টাকা", "Amount")}: <strong className="font-mono">{formatTaka(live.feePoisha, lang)}</strong> · {T("রেফারেন্সে লিখুন", "Reference")}: <strong className="font-mono">{live.ref}</strong></li>
                 <li>{T("বিকাশের কনফার্মেশন এসএমএস থেকে TrxID নিচে লিখুন।", "Enter the TrxID from bKash's confirmation SMS below.")}</li>
               </ol>
@@ -180,7 +180,7 @@ export function BookingFlow({ doctor, lang, onClose, followUpOf }: { doctor: Doc
               <pre className="whitespace-pre-wrap rounded-xl border border-slate-200 bg-slate-50 p-3 font-mono text-[13px] leading-[1.6] text-slate-800">{msg}</pre>
               <div className="flex flex-wrap gap-2">
                 <button type="button" onClick={copy} className="kp-btn-ghost inline-flex min-h-[44px] items-center gap-2 px-4 text-[14px]"><ClipboardCopy size={16} aria-hidden /> {copied ? T("কপি হয়েছে", "Copied") : T("বার্তা কপি", "Copy message")}</button>
-                {real && !live.demo && <>
+                {real && !live.demo && realPaymentsEnabled() && <>
                   <a href={`sms:${PAYMENT_CONFIG.receiver}?body=${encodeURIComponent(msg)}`} className="kp-btn-ghost inline-flex min-h-[44px] items-center gap-2 px-4 text-[14px]"><MessageSquareText size={16} aria-hidden /> SMS</a>
                   <a href={`https://wa.me/88${PAYMENT_CONFIG.receiver}?text=${encodeURIComponent(msg)}`} target="_blank" rel="noopener noreferrer" className="kp-btn-ghost inline-flex min-h-[44px] items-center gap-2 px-4 text-[14px]">WhatsApp</a>
                 </>}

@@ -77,3 +77,43 @@ test("services: 999 first, every entry sourced and dated, phones are dialable di
     if (s.phone) assert.match(s.phone, /^\d{3,6}$/, s.id);
   }
 });
+
+test("red flags are caught in everyday wording (Bangla, Banglish, English)", async () => {
+  const { findRedFlags } = await import("../lib/health/specialty.ts");
+  const urgent: Array<[string, string]> = [
+    ["father, 70, chest hurts, left arm heavy, sweating a lot", "chest_pain"],
+    ["pain in my chest since morning", "chest_pain"],
+    ["বুকে খুব ব্যথা করছে", "chest_pain"],
+    ["abbur buk e betha korche", "chest_pain"],
+    ["my mother's left arm feels numb and heavy", "chest_pain"],
+    ["he can't breathe properly", "breathing"],
+    ["শ্বাস নিতে খুব কষ্ট হচ্ছে", "breathing"],
+    ["baby breathing very fast", "child_fever_danger"],
+    ["he collapsed in the bathroom", "unconscious"],
+    ["দাদু অজ্ঞান হয়ে গেছে", "unconscious"],
+    ["bleeding a lot from the leg", "bleeding"],
+    ["অনেক রক্ত পড়ছে থামছে না", "bleeding"],
+    ["I want to die", "self_harm"],
+    ["আর বাঁচতে ইচ্ছা করে না", "self_harm"],
+    ["her face is drooping on one side", "stroke"],
+    ["কথা জড়িয়ে যাচ্ছে", "stroke"],
+    ["my son drank kerosene", "poisoning"],
+    ["bachcha kerosene kheyeche", "poisoning"],
+    ["she is pregnant and bleeding", "pregnancy_bleeding"],
+    ["hit by a bus, head bleeding", "severe_injury"],
+  ];
+  for (const [text, id] of urgent) {
+    const ids = findRedFlags(text).map((f) => f.id);
+    assert.ok(ids.includes(id as never), `"${text}" should raise ${id}, got [${ids.join(",")}]`);
+  }
+  const routine = ["knee pain for three weeks", "পিঠে হালকা ব্যথা", "itchy rash on my arm", "চোখ লাল হয়ে আছে", "toothache since yesterday", "mild headache in the evening"];
+  for (const text of routine) assert.deepEqual(findRedFlags(text).map((f) => f.id), [], `"${text}" should not be an emergency`);
+});
+
+test("health guard catches doses in words, hedged diagnoses and unlisted medicines", async () => {
+  const { unsafeIn } = await import("../lib/health/healthGuard.ts");
+  for (const bad of ["give half a teaspoon three times daily", "it sounds like dengue", "this could be typhoid", "try montelukast", "domperidone helps", "আধা চামচ দিনে তিনবার", "মনে হচ্ছে ডেঙ্গু"]) {
+    assert.ok(unsafeIn(bad), `should block: ${bad}`);
+  }
+  for (const ok of ["See a medicine specialist and tell them how long the cough has lasted.", "একজন শিশু বিশেষজ্ঞ দেখান।"]) assert.equal(unsafeIn(ok), null, ok);
+});

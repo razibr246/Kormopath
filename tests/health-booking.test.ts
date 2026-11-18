@@ -48,7 +48,8 @@ test("slots skip past times today (Dhaka) and the doctor's off days", () => {
 });
 
 test("payment config is the owner's personal bKash, not a merchant API", () => {
-  assert.equal(PAYMENT_CONFIG.receiver, "01927228826");
+  // Real payments stay off (no number in the public bundle) until doctors are verified on a server.
+  assert.equal(PAYMENT_CONFIG.receiver, null);
   assert.equal(PAYMENT_CONFIG.merchantApi, false);
 });
 

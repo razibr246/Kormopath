@@ -135,6 +135,19 @@ function kindOf(tags: Record<string, unknown>): PlaceKind | null {
   return null;
 }
 
+/**
+ * Map data sometimes tags shops as hospitals (seen in Dhaka: "Meherun Homeo Pharmacy" with amenity=hospital and
+ * emergency=yes). Someone in an emergency must never be sent to one, so places whose own name says pharmacy,
+ * homeopathy, dispensary or outpatient-only are dropped, as are diagnostic centres that do not also say hospital.
+ */
+const NOT_EMERGENCY = /pharma|ফার্মে|ফার্মা|homeo|হোমিও|dispensary|ডিসপেনসারি|\boutdoor\b|আউটডোর|\bopd\b|\bchamber\b|চেম্বার|drug ?store|ওষুধের দোকান|optical|dental|ডেন্টাল/i;
+const DIAGNOSTIC = /diagnostic|ডায়াগনস্টিক|ডায়াগনস্টিক/i;
+const HOSPITAL_WORD = /hospital|হাসপাতাল|clinic|ক্লিনিক|medical college|মেডিকেল কলেজ/i;
+export function notEmergencyCare(name: string): boolean {
+  if (NOT_EMERGENCY.test(name)) return true;
+  return DIAGNOSTIC.test(name) && !HOSPITAL_WORD.test(name);
+}
+
 /** Turn one Overpass element into a Place, or null if it lacks a position, a name or a relevant tag. */
 export function parseElement(el: Raw): Place | null {
   if (!el || typeof el !== "object") return null;
@@ -146,8 +159,11 @@ export function parseElement(el: Raw): Place | null {
   if (!inBangladesh(lat, lon)) return null;
   const nameBn = str(tags["name:bn"]);
   const nameEn = str(tags["name:en"]);
-  const name = str(tags.name) ?? nameBn ?? nameEn;
-  if (!name) return null; // an unnamed point is not something to send a patient to
+  const rawName = str(tags.name) ?? nameBn ?? nameEn;
+  if (!rawName) return null; // an unnamed point is not something to send a patient to
+  // Some volunteers join several places in one name ("X Hospital;X Diagnostic Center"): show the first.
+  const name = rawName.split(";")[0].trim() || rawName;
+  if (kind !== "ambulance_station" && notEmergencyCare([name, nameBn, nameEn].filter(Boolean).join(" "))) return null;
   const type = typeof el.type === "string" && /^(node|way|relation)$/.test(el.type) ? el.type : "node";
   const id = typeof el.id === "number" || typeof el.id === "string" ? String(el.id) : "0";
   const specs = (str(tags["healthcare:speciality"], 400) ?? "").split(/[;,]/).map((s) => s.trim().toLowerCase()).filter(Boolean).slice(0, 20);

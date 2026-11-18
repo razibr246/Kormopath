@@ -111,6 +111,7 @@ export async function interact(
   const attemptMs = options.attemptMs ?? 12_000;
   const started = performance.now();
   const deadline = started + timeoutMs;
+  let attempts = 0, rejected = 0;
 
   for (let m = 0; m < models.length; m++) {
     const model = models[m];
@@ -131,7 +132,8 @@ export async function interact(
       } catch (e) {
         const err = e as GeminiError;
         const ms = Math.round(performance.now() - t0);
-        if (err.status === 401 || err.status === 403) { tracer.log(model, `Key rejected${keyLabel}; trying the next key`, "warn", ms); continue; }
+        attempts++;
+        if (err.status === 401 || err.status === 403) { rejected++; tracer.log(model, `Key rejected${keyLabel}; trying the next key`, "warn", ms); continue; }
         if (err.status === 429) {
           tracer.log(model, `Quota or rate limit${keyLabel}; trying the next key`, "warn", ms);
           if (++rateLimited === keys.length) cooldown.mark(model, RATE_LIMIT_COOLDOWN_MS);
@@ -153,6 +155,12 @@ export async function interact(
         break;
       }
     }
+  }
+  if (attempts > 0 && rejected === attempts) {
+    // Every attempt was refused (401/403): the deployment's key is invalid or revoked, not a model outage.
+    tracer.log("gemini", "Every API key was rejected (401/403): GEMINI_API_KEY in this deployment is invalid or revoked — fix it in the hosting settings", "fail", Math.round(performance.now() - started));
+    console.error("[gemini] all API keys rejected (401/403); check GEMINI_API_KEY / GEMINI_API_KEYS in the deployment settings");
+    return null;
   }
   tracer.log("gemini", "No model or key could answer", "fail", Math.round(performance.now() - started));
   return null;

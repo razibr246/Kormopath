@@ -27,10 +27,17 @@ export interface AssistOutput {
   tellDoctor: string[];
 }
 
+// Doses and schedules written in words ("half a teaspoon three times daily", "আধা চামচ দিনে তিনবার").
+const WORD_DOSE = /\b(?:half|one|two|three|a|1\/2)\s+(?:a\s+)?(?:tea|table)?spoons?\b|\b(?:one|two|three|four|1|2|3|4)\s+(?:times|tablets?|capsules?|drops?|puffs?)\b|\b(?:every|each)\s+\d+\s*(?:hours?|hrs?)\b|\btimes (?:a |per )?(?:day|daily)\b|\b(?:twice|thrice) daily\b|(?:আধা|এক|দুই|তিন)\s*চামচ|দিনে\s*(?:এক|দুই|তিন|চার)\s*বার|ঘণ্টা\s*পর\s*পর/i;
+// A diagnosis offered as a guess is still a diagnosis.
+const HEDGED_DIAGNOSIS = /\b(?:sounds|looks|seems) like (?:a |an )?\w+|\b(?:could|might|may) (?:well )?be (?:a |an )?(?:case of |sign of )?(?:dengue|typhoid|malaria|covid|infection|pneumonia|asthma|diabetes|cancer|tb|tuberculosis|ulcer|heart attack|stroke|appendicitis|jaundice)\b|মনে হচ্ছে\s*(?:আপনার|তার)?\s*\S*\s*(?:ডেঙ্গু|টাইফয়েড|ম্যালেরিয়া|জন্ডিস|নিউমোনিয়া|ডায়াবেটিস|ক্যান্সার|আলসার)|সম্ভবত\s*(?:ডেঙ্গু|টাইফয়েড|ম্যালেরিয়া|জন্ডিস|নিউমোনিয়া|ডায়াবেটিস|ক্যান্সার|আলসার)/i;
+// Generic drug-name endings, so medicines missing from MEDICINE_WORDS are still caught (montelukast, domperidone…).
+const DRUG_SUFFIX = /\b[a-z]{3,}(?:prazole|mycin|cillin|floxacin|olol|pril|sartan|statin|lukast|peridone|tadine|ifene|azepam|oxetine|triptan|dronate|parin|cycline|conazole|vir)\b/i;
+
 /** Text that reads as a dose, medicine suggestion or diagnosis, or null when clean. */
 export function unsafeIn(text: string): string | null {
   const t = ascii(norm(text));
-  const m = t.match(DOSE) ?? t.match(FREQUENCY) ?? t.match(MEDICINE_WORDS) ?? t.match(DIAGNOSIS);
+  const m = t.match(DOSE) ?? t.match(FREQUENCY) ?? t.match(WORD_DOSE) ?? t.match(MEDICINE_WORDS) ?? t.match(DRUG_SUFFIX) ?? t.match(DIAGNOSIS) ?? t.match(HEDGED_DIAGNOSIS);
   return m ? m[0] : null;
 }
 

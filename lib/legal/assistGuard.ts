@@ -21,11 +21,20 @@ const CRISIS = [
   "প্রাণনাশ", "হুমকি দিচ্ছে", "অপহরণ", "পাচার", "এসিড", "আটকে রেখেছে", "আটকে রাখা", "শিশুকে মার", "বাচ্চাকে মার", "রক্ত",
   "marche", "maarche", "nirjaton", "dhorshon", "atmohotta",
   "suicide", "kill myself", "kill me", "rape", "beating me", "beats me", "abuse", "kidnap", "trafficking", "acid attack", "locked me", "threatening to kill",
+  "domestic violence", "want to die",
+];
+// Everyday phrasing in English and Banglish ("my husband hits me every night", "amake mare", "marbe bole hymki").
+const CRISIS_PATTERNS: readonly RegExp[] = [
+  /\b(hits?|hitting|hurts?|slaps?|slapping|punch(es|ed|ing)?|kicks?|kicking|chok(es|ed|ing)|beat(s|en|ing)?|burn(s|ed)?)\b[\s\S]{0,12}\b(me|her|him|us|my (wife|mother|mom|sister|daughter|son|child|kids?))\b/i,
+  /\b(threaten(s|ed|ing)?|will|going to|gonna)\b[\s\S]{0,20}\b(kill|hurt|burn|throw acid)\b/i,
+  /\b(amake|amay|amaire|take|oke|bou ke|bachcha ke|baccha ke)\s*(mare|maare|marche|maarche|pitay|petay|marbe|mere felbe|mere fel)\b/i,
+  /\b(mere felbe|mere felar|marbe bole|khun korbe|acid marbe)\b/i,
+  /(মেরে ফেলবে|মেরে ফেলার|প্রাণে মারার|খুন করবে|এসিড মারবে|গায়ে হাত তোলে|গায়ে হাত তুলে)/,
 ];
 
 export function isCrisis(text: string): boolean {
   const t = norm(text);
-  return CRISIS.some((w) => t.includes(w.normalize("NFC").toLowerCase()));
+  return CRISIS.some((w) => t.includes(w.normalize("NFC").toLowerCase())) || CRISIS_PATTERNS.some((re) => re.test(t));
 }
 
 export interface GuardContext {
@@ -40,7 +49,9 @@ export interface GuardIssue {
 
 const SECTION = /(ধারা|অনুচ্ছেদ|উপধারা|দফা)\s*[-:]?\s*[0-9]|section\s*[0-9]|\bsec\.?\s*[0-9]|\barticle\s*[0-9]|\brule\s*[0-9]/i;
 const MONEY = /([0-9][0-9,.]*\s*(টাকা|tk\.?|taka|bdt|৳|লাখ|লক্ষ|হাজার|lakh|crore|কোটি))|((৳|tk\.?|bdt)\s*[0-9])/i;
-const PROMISE = /(মামলা|কেস|আবেদন)\s*(দায়ের|দাখিল|ফাইল|জমা)\s*(হয়ে গেছে|করা হয়েছে|হয়েছে|করে দিয়েছি)|নিশ্চিতভাবে\s*(জিত|পাবেন)|অবশ্যই\s*জিতবেন|আপনি\s*জিতবেন|গ্যারান্টি|guarantee|you will win|your (case|application) (is|has been) (filed|submitted|registered)|i (have )?filed/i;
+const PROMISE = /(মামলা|কেস|আবেদন)\s*(দায়ের|দাখিল|ফাইল|জমা)\s*(হয়ে গেছে|করা হয়েছে|হয়েছে|করে দিয়েছি)|নিশ্চিতভাবে\s*(জিত|পাবেন)|অবশ্যই\s*(জিতবেন|পাবেন)|আপনি\s*জিতবেন|পাবেনই|গ্যারান্টি|guarantee|you will win|your (case|application) (is|has been) (filed|submitted|registered)|i (have )?filed/i;
+// Eligibility and outcomes are decided by the legal aid office or the court, never by us.
+const DECIDES_FOR_THEM = /\byou (are|'re) (definitely |certainly |clearly )?(eligible|qualified|entitled)\b|\byou (will|'ll) (definitely |surely |certainly )?(get|win|receive|be granted)\b|\b(definitely|certainly) (will|get|win)\b|\b(don'?t|do not|won'?t) need (a |any )?lawyer\b|no need (for|of) (a )?lawyer|আপনি\s*(অবশ্যই\s*)?যোগ্য|আইনজীবীর\s*(কোনো\s*)?(দরকার|প্রয়োজন)\s*নেই|নিশ্চিত(ভাবে)?\s*পাবেন/i;
 
 /** Every problem in a model answer, or [] when it can be shown. */
 export function checkAnswer(answer: string, ctx: GuardContext): GuardIssue[] {
@@ -61,6 +72,7 @@ export function checkAnswer(answer: string, ctx: GuardContext): GuardIssue[] {
   if (SECTION.test(t)) issues.push({ code: "section", detail: "Do not cite section, article or rule numbers." });
   if (MONEY.test(t)) issues.push({ code: "money", detail: "Do not state taka amounts, fees or income thresholds." });
   if (PROMISE.test(t)) issues.push({ code: "promise", detail: "Never say a case is filed or promise an outcome; the legal aid office or court decides." });
+  if (DECIDES_FOR_THEM.test(t)) issues.push({ code: "promise", detail: "Never tell the person they are eligible, will win/get something, or don't need a lawyer; say they may qualify and the legal aid office or court decides." });
   if (ctx.crisis) {
     const first = t.split(/[।.!?\n]/).find((s) => s.trim()) ?? "";
     if (!/(999|109)/.test(first)) issues.push({ code: "crisis_first", detail: "The person may be in danger: the first sentence must tell them to call 999 (or 109 for women and children) now." });

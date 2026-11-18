@@ -72,3 +72,17 @@ test("everyday land wording reaches a land answer, not 'tell me more'", async ()
   const q = matchInquiry("জমির দলিল নিয়ে ভাইয়ের সাথে ঝামেলা");
   assert.ok(q && /জমি|ওয়ারিশ|উত্তরাধিকার/.test(q.questionBn + q.answerBn), q?.questionBn);
 });
+
+test("legal crisis is caught in everyday English and Banglish", () => {
+  for (const t of ["My husband hits me every night", "he beats her and the kids", "amake mare protidin", "shoshur bari theke mere felbe bolche", "he threatened to kill me", "my brother is going to throw acid"]) {
+    assert.ok(isCrisis(t), `should be crisis: ${t}`);
+  }
+  for (const t of ["land dispute with my brother", "how do I apply for legal aid", "my landlord kept the deposit"]) assert.equal(isCrisis(t), false, t);
+});
+
+test("legal guard rejects telling people they are eligible, will win, or need no lawyer", () => {
+  for (const a of ["You are eligible for free legal aid.", "You will definitely get custody.", "You do not need a lawyer for this.", "আপনি অবশ্যই পাবেন।"]) {
+    assert.ok(checkAnswer(a, { crisis: false }).some((i) => i.code === "promise"), a);
+  }
+  assert.deepEqual(checkAnswer("You may qualify; the legal aid office decides. Call 16699.", { crisis: false }), []);
+});

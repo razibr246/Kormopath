@@ -102,3 +102,18 @@ test("offline OSM snapshot parses with the live parser and finds hospitals near 
   const places = parseOverpass({ elements: near });
   assert.ok(places.filter((p) => p.kind !== "ambulance_station").length >= 3, `only ${places.length} places`);
 });
+
+test("shops mis-tagged as hospitals are never offered in an emergency", async () => {
+  const { parseElement, notEmergencyCare } = await import("../lib/health/hospitals.ts");
+  const at = { lat: 23.738, lon: 90.396 };
+  const pharmacy = parseElement({ type: "node", id: 1, ...at, tags: { amenity: "hospital", emergency: "yes", name: "Meherun Homeo Pharmacy" } });
+  assert.equal(pharmacy, null);
+  assert.equal(parseElement({ type: "node", id: 2, ...at, tags: { amenity: "hospital", name: "Government Outdoor Dispensary (GOD)" } }), null);
+  assert.equal(parseElement({ type: "node", id: 3, ...at, tags: { amenity: "hospital", name: "PG Outdoor" } }), null);
+  assert.equal(parseElement({ type: "node", id: 4, ...at, tags: { amenity: "hospital", name: "Popular Diagnostic Centre" } }), null);
+  const both = parseElement({ type: "node", id: 5, ...at, tags: { amenity: "hospital", name: "Comfort Hospital;Comfort Diagnostic Center" } });
+  assert.equal(both?.name, "Comfort Hospital");
+  assert.ok(parseElement({ type: "node", id: 6, ...at, tags: { amenity: "hospital", emergency: "yes", name: "Dhaka Medical College Hospital" } }));
+  assert.equal(notEmergencyCare("সোনার বাংলা ফার্মেসি"), true);
+  assert.equal(notEmergencyCare("Ibn Sina Hospital & Diagnostic"), false);
+});

@@ -77,12 +77,48 @@ export const RED_FLAGS: readonly RedFlag[] = [
 
 export const redFlagById = (id: string): RedFlag | undefined => RED_FLAGS.find((r) => r.id === id);
 
-/** Every warning sign mentioned in the text (keyword match) plus any the person ticked. */
+/*
+ * People describe emergencies in their own words ("my father's chest hurts and his left arm feels heavy",
+ * "বুকে খুব ব্যথা", "buk e betha", "he collapsed"), not in our keyword list. These patterns allow a few words in
+ * between and cover Banglish spellings. They lean towards caution: a false alarm costs a phone call, a miss can cost
+ * a life. Tested with real paraphrases in tests/health-assist.test.ts.
+ */
+const GAP = "[\\s\\S]{0,30}?";
+const P = (...parts: string[]) => new RegExp(parts.join(GAP), "i");
+const RED_FLAG_PATTERNS: Partial<Record<RedFlagId, readonly RegExp[]>> = {
+  chest_pain: [
+    P("(chest|বুক|\\bbuk)", "(pain|hurt|ache|tight|pressure|heavy|squeez|crush|burn|betha|batha|bytha|byatha|ব্যথা|ব্যাথা|চাপ|ভারী|জ্বালা|চিনচিন)"),
+    P("(pain|hurt|ache|pressure|ব্যথা|ব্যাথা)", "(in (my|his|her|the) chest|chest|বুকে)"),
+    P("(left arm|বাম হাত|bam hat|jaw|চোয়াল)", "(heavy|pain|numb|hurt|ভারী|ব্যথা|অবশ)"),
+  ],
+  breathing: [
+    P("(can'?t|cannot|can not|unable to|hard to|trouble|struggling to|difficult)", "breath"),
+    P("breath", "(very |really )?(fast|hard|difficult|short|stopp|noisy)"),
+    P("(শ্বাস|দম|\\bshash|nishash|nisshash)", "(কষ্ট|পারছে না|পারছি না|নিতে পারছে|আটকে|বন্ধ|দ্রুত|ঘন ঘন|kosto|parche na|parchi na|atke)"),
+    /\b(gasp|wheez|turning blue|lips (are |look )?blue|ঠোঁট নীল)/i,
+  ],
+  unconscious: [/(collaps|passed out|blacked out|unresponsive|not waking|won'?t wake|can'?t wake|অজ্ঞান|জ্ঞান হার|জ্ঞান নেই|অচেতন|বেহুঁশ|ogyan|behush|giye porese|পড়ে গেছে[\s\S]{0,20}উঠছে না)/i],
+  bleeding: [
+    P("(bleed|blood|রক্ত|\\brokto)", "(a lot|lots|heavy|heavily|won'?t stop|not stop|keeps|থামছে না|থামে না|অনেক|প্রচুর|বেশি|beshi|thamche na)"),
+    P("(a lot of|lots of|heavy|so much|অনেক|প্রচুর)", "(blood|bleed|রক্ত)"),
+  ],
+  self_harm: [/(want to die|wanna die|wish i (was|were) dead|kill (myself|himself|herself)|end (it all|my life)|suicid|no reason to live|hurt myself|মরে যেতে চাই|মরে যাব|মরতে চাই|বাঁচতে ইচ্ছা করে না|বাঁচতে চাই না|আত্মহত্যা|nijeke shesh|more jete chai|morte chai|bachte chai na)/i],
+  stroke: [P("(face|মুখ|\\bmukh)", "(droop|bank|bent|বেঁকে|বাঁকা|ঝুলে)"), P("(speech|talk|কথা|\\bkotha)", "(slur|jumbl|জড়িয়ে|jorie|জড়ানো)"), /(sudden(ly)? (weak|numb)|one side[\s\S]{0,15}(weak|numb|paraly)|এক পাশ[\s\S]{0,15}(অবশ|দুর্বল))/i],
+  poisoning: [P("(drank|swallow|ate|খেয়ে ফেলেছে|খেয়েছে|kheye(che|feleche)?)", "(poison|বিষ|\\bbish|pesticide|কীটনাশক|kerosene|কেরোসিন|bleach|ব্লিচ|rat poison|ইঁদুরের বিষ)"), P("(poison|বিষ|\\bbish|pesticide|কীটনাশক|kerosene|কেরোসিন|bleach|ব্লিচ)", "(drank|swallow|kheye|খেয়ে|খেয়েছে|gile|গিলে)"), /(overdose|too many (pills|tablets)|অনেকগুলো (ট্যাবলেট|ওষুধ) খেয়ে)/i],
+  seizure: [/(\bfit(s|ting)?\b[\s\S]{0,15}(won'?t stop|again)|shaking[\s\S]{0,20}(can'?t stop|won'?t stop|uncontroll)|convuls|জ্ঞান হারিয়ে কাঁপছে)/i],
+  child_fever_danger: [P("(baby|infant|child|newborn|বাচ্চা|শিশু|\\bbaccha)", "(breath|শ্বাস)", "(fast|very fast|quick|দ্রুত|ঘন ঘন)"), P("(baby|infant|newborn|বাচ্চা|শিশু)", "(not feeding|won'?t feed|খাচ্ছে না|limp|নিস্তেজ|blue|নীল)")],
+  pregnancy_bleeding: [P("(pregnan|গর্ভ|পোয়াতি|\\bpet e baccha)", "(bleed|blood|রক্ত)")],
+  severe_injury: [/(hit by (a )?(car|bus|truck|bike)|fell from|পড়ে গিয়ে মাথা|মাথা ফেটে|accident[\s\S]{0,25}(blood|unconscious|head)|দুর্ঘটনা[\s\S]{0,25}(রক্ত|অজ্ঞান|মাথা))/i],
+};
+
+/** Every warning sign mentioned in the text (keywords or phrase patterns) plus any the person ticked. */
 export function findRedFlags(text: string, ticked: readonly string[] = []): RedFlag[] {
   const t = norm(text);
   const out = new Map<RedFlagId, RedFlag>();
   for (const id of ticked) { const r = redFlagById(id); if (r) out.set(r.id, r); }
-  for (const r of RED_FLAGS) if (has(t, r.keywords).length) out.set(r.id, r);
+  for (const r of RED_FLAGS) {
+    if (has(t, r.keywords).length || (RED_FLAG_PATTERNS[r.id] ?? []).some((re) => re.test(t))) out.set(r.id, r);
+  }
   return [...out.values()];
 }
 
