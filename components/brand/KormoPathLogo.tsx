@@ -43,13 +43,13 @@ export function KormoPathMark({ className = "h-9 w-9", title }: { className?: st
         {/* horizon field band */}
         <path d="M0 40 C 16 36, 44 36, 64 40 L64 64 L0 64 Z" fill="#0a5640" opacity=".55" />
         {/* sun: the flag's red disc, set toward the hoist like the flag */}
-        <circle cx="27" cy="29" r="12.5" fill={`url(#s${id})`} />
-        <circle cx="27" cy="29" r="12.5" fill="none" stroke="#ffd2b8" strokeOpacity=".35" strokeWidth="1" />
+        <circle className="kp-mark-sun" cx="27" cy="29" r="12.5" fill={`url(#s${id})`} />
+        <circle className="kp-mark-sun-rim" cx="27" cy="29" r="12.5" fill="none" stroke="#ffd2b8" strokeOpacity=".35" strokeWidth="1" />
         {/* the path: wide near the viewer, narrowing as it climbs to the sun */}
         <path d="M9 64 C 15 55, 31 52, 27.5 45 C 26 42, 26.2 40.4, 26.6 39.6 L 28.2 39.6 C 29.4 41.2, 31.8 43.6, 35 46.5 C 41.5 52.4, 43 58, 42 64 Z" fill={`url(#r${id})`} />
-        <path d="M24.5 64 C 25.5 58, 33 54, 30.6 48.2 C 29.6 45.6, 28.2 43, 27.5 41" fill="none" stroke="#c99041" strokeWidth="1.3" strokeDasharray="2.6 2.4" strokeLinecap="round" opacity=".9" />
+        <path className="kp-mark-route" d="M24.5 64 C 25.5 58, 33 54, 30.6 48.2 C 29.6 45.6, 28.2 43, 27.5 41" fill="none" stroke="#c99041" strokeWidth="1.3" strokeDasharray="2.6 2.4" strokeLinecap="round" opacity=".9" />
         {/* gold spark */}
-        <path d="M49 10 C49 14.2 50.8 16 55 16 C50.8 16 49 17.8 49 22 C49 17.8 47.2 16 43 16 C47.2 16 49 14.2 49 10 Z" fill="#f4cf87" />
+        <path className="kp-mark-spark" d="M49 10 C49 14.2 50.8 16 55 16 C50.8 16 49 17.8 49 22 C49 17.8 47.2 16 43 16 C47.2 16 49 14.2 49 10 Z" fill="#f4cf87" />
         {/* top gloss */}
         <rect width="64" height="30" fill="#fff" opacity=".06" />
       </g>

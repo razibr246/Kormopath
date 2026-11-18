@@ -133,7 +133,7 @@ export function HeroOrbit({ tools, caption }: { tools: OrbitTool[]; caption: { k
         <div className="kp-orbit-sun" ref={sunRef}>
           <div className="kp-orbit-sheen" />
           <div className="kp-orbit-sun-inner">
-            <KormoPathMark className="h-[62%] w-[62%] drop-shadow-[0_18px_30px_rgba(10,74,55,0.45)]" />
+            <KormoPathMark className="kp-orbit-mark h-[62%] w-[62%] drop-shadow-[0_18px_30px_rgba(10,74,55,0.45)]" />
           </div>
         </div>
         <div className="kp-orbit-shadow" />

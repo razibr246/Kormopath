@@ -747,6 +747,10 @@ button.kp-chip:hover, a.kp-chip:hover { border-color: #c99041; background: #fff;
 .kp-orbit-sun { position: absolute; inset: 0; overflow: hidden; border-radius: 50%; padding: 6.7%; background: conic-gradient(from 210deg, #f4cf87, #c99041 30%, #8a5a2b 50%, #c99041 70%, #f4cf87); box-shadow: 0 30px 60px -20px rgba(110, 60, 20, .55), 0 0 0 10px rgba(255, 253, 249, .55); will-change: transform; }
 .kp-orbit-sheen { position: absolute; inset: 0; border-radius: 50%; pointer-events: none; background: conic-gradient(from 0deg, transparent 0deg, rgba(255, 248, 225, .95) 18deg, transparent 46deg, transparent 180deg, rgba(255, 240, 200, .45) 200deg, transparent 230deg); -webkit-mask: radial-gradient(closest-side, transparent 84%, #000 86%, #000 100%); mask: radial-gradient(closest-side, transparent 84%, #000 86%, #000 100%); mix-blend-mode: soft-light; animation: kp-spin 11s linear infinite; }
 .kp-orbit-sun-inner { position: relative; display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; background: radial-gradient(circle at 50% 30%, #fff6e8 0%, #fde4c8 45%, #f6c9a0 100%); box-shadow: inset 0 -12px 30px rgba(217, 84, 58, .25), inset 0 8px 20px rgba(255, 255, 255, .8); }
+.kp-orbit[data-live] .kp-mark-sun { transform-box: fill-box; transform-origin: center; animation: kp-mark-sun-breathe 5.8s ease-in-out infinite; }
+.kp-orbit[data-live] .kp-mark-sun-rim { transform-box: fill-box; transform-origin: center; animation: kp-mark-sun-ripple 5.8s ease-out infinite; }
+.kp-orbit[data-live] .kp-mark-route { animation: kp-mark-route-flow 3.2s linear infinite; }
+.kp-orbit[data-live] .kp-mark-spark { transform-box: fill-box; transform-origin: center; animation: kp-mark-spark-twinkle 4.4s ease-in-out infinite; }
 .kp-orbit-shadow { position: absolute; left: 14%; right: 14%; bottom: -16%; height: 10%; border-radius: 50%; background: radial-gradient(closest-side, rgba(60, 36, 18, .28), transparent); filter: blur(4px); animation: kp-shadow 7s ease-in-out infinite; }
 .kp-orbit-track { position: absolute; inset: 0; margin: 0; padding: 0; list-style: none; animation: kp-spin 90s linear infinite; }
 .kp-orbit-node { position: absolute; z-index: 6; transform: translate(-50%, -50%); }
@@ -767,6 +771,10 @@ button.kp-chip:hover, a.kp-chip:hover { border-color: #c99041; background: #fff;
 @keyframes kp-breathe { 0%, 100% { transform: scale(1); opacity: .85; } 50% { transform: scale(1.07); opacity: 1; } }
 @keyframes kp-shadow { 0%, 100% { transform: scaleX(1); opacity: 1; } 50% { transform: scaleX(.9); opacity: .7; } }
 @keyframes kp-mote { 0% { transform: translate(0, 0); opacity: 0; } 15% { opacity: .85; } 50% { transform: translate(8px, -38px); } 85% { opacity: .6; } 100% { transform: translate(-4px, -78px); opacity: 0; } }
+@keyframes kp-mark-sun-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.035); } }
+@keyframes kp-mark-sun-ripple { 0%, 100% { transform: scale(1); stroke-opacity: .35; } 65% { transform: scale(1.18); stroke-opacity: 0; } }
+@keyframes kp-mark-route-flow { to { stroke-dashoffset: -5; } }
+@keyframes kp-mark-spark-twinkle { 0%, 100% { transform: scale(.92) rotate(-6deg); opacity: .72; } 50% { transform: scale(1.12) rotate(6deg); opacity: 1; } }
 @media (max-width: 480px) { .kp-orbit-card { font-size: 12px; } .kp-orbit-card-top { right: 0; } .kp-orbit-card-bottom { left: 0; } }
 
 /* tool cards */
@@ -794,6 +802,7 @@ button.kp-chip:hover, a.kp-chip:hover { border-color: #c99041; background: #fff;
 
 @media (prefers-reduced-motion: reduce) {
   .kp-rise, .kp-orbit-track, .kp-orbit-chip, .kp-orbit-card, .kp-orbit-glow, .kp-orbit-rays, .kp-orbit-sheen, .kp-orbit-sun-float, .kp-orbit-shadow { animation: none !important; }
+  .kp-orbit .kp-mark-sun, .kp-orbit .kp-mark-sun-rim, .kp-orbit .kp-mark-route, .kp-orbit .kp-mark-spark { animation: none !important; }
   .kp-orbit-motes { display: none; }
   .kp-tool:hover { transform: none; }
 }

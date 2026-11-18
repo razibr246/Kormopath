@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { AppSwitcherDropdown } from "@/components/layout/AppSwitcherDropdown";
 import { KormoPathLogo } from "@/components/brand/KormoPathLogo";
 import { FX_FALLBACK } from "@/lib/data";
-import { ArrowUpRight, FlaskConical, LayoutGrid, Languages, Menu, Search, ShieldCheck, X } from "lucide-react";
+import { ArrowUpRight, FlaskConical, LayoutGrid, Languages, Linkedin, Menu, Search, ShieldCheck, X } from "lucide-react";
 
 const NAV = [
   { href: "/workspace", bn: "ওয়ার্কস্পেস", en: "Workspace" },
@@ -186,7 +186,19 @@ export function Footer() {
           ))}
         </div>
         <div className="flex flex-col gap-2 pt-6 text-[13px] text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} KormoPath · কর্মপথ. ঢাকা ও খুলনা, বাংলাদেশে তৈরি।</p>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <p>© {new Date().getFullYear()} KormoPath · কর্মপথ. ঢাকা ও খুলনা, বাংলাদেশে তৈরি।</p>
+            <a
+              href="https://www.linkedin.com/in/razibr246"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Connect with Razib on LinkedIn (opens in a new tab)"
+              className="inline-flex items-center gap-1 text-slate-600 transition-all hover:text-emerald-800 hover:[text-shadow:0_0_7px_rgba(14,107,79,0.55),0_0_12px_rgba(217,84,58,0.3)] focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700"
+            >
+              <Linkedin size={13} aria-hidden="true" />
+              <span>LinkedIn</span>
+            </a>
+          </div>
           <p>শুধু তথ্যের জন্য; আইনি, কর বা চিকিৎসা পরামর্শ নয়।</p>
         </div>
       </div>

@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { KormoPathLogo } from "@/components/brand/KormoPathLogo";
-import { ShieldCheck, Sparkles, ExternalLink, ArrowUpRight } from "lucide-react";
+import { ShieldCheck, Sparkles, ExternalLink, ArrowUpRight, Linkedin } from "lucide-react";
 
 export interface AppFooterProps {
   lang?: "en" | "bn";
@@ -162,6 +162,16 @@ export function AppFooter({
                 ? "ঢাকা ও খুলনায় তৈরি। সমস্ত হিসাব বিশুদ্ধ গাণিতিক সূত্রে যাচাইকৃত।"
                 : "Built in Dhaka & Khulna. All financial calculations deterministic and unit-tested."}
             </p>
+            <a
+              href="https://www.linkedin.com/in/razibr246"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Connect with Razib on LinkedIn (opens in a new tab)"
+              className="mt-1 inline-flex items-center gap-1 text-slate-600 transition-all hover:text-emerald-800 hover:[text-shadow:0_0_7px_rgba(14,107,79,0.55),0_0_12px_rgba(217,84,58,0.3)] focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700"
+            >
+              <Linkedin size={13} aria-hidden="true" />
+              <span>LinkedIn</span>
+            </a>
           </div>
           <div className="sm:text-right text-[11px] text-slate-500">
             <p>{lang === "bn" ? "শুধুমাত্র তথ্যের উদ্দেশ্যে; কোনো আইনি বা ট্যাক্স পরামর্শ নয়।" : "For informational purposes; not formal legal or tax counsel."}</p>
