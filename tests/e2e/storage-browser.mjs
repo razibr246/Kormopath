@@ -48,4 +48,9 @@ try {
   assert.deepEqual(calendar.bytes, [66, 69, 71]);
   assert.match(calendar.text, /20270102/);
   console.log("PASS: My Path calendar export is valid UTF-8 without BOM.");
-} finally { await browser.close(); }
+} finally {
+  // Chrome can hang on shutdown after the calendar download; never let that stall the suite (results are already printed).
+  const guard = setTimeout(() => process.exit(process.exitCode ?? 0), 5000);
+  await browser.close();
+  clearTimeout(guard);
+}
