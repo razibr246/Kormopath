@@ -5,14 +5,17 @@ import Link from "next/link";
 import {
   Sprout, Phone, CloudRain, Wind, Thermometer, Truck, NotebookPen, Trash2, AlertTriangle, CheckCircle2, CalendarDays, Bug,
   Camera, ExternalLink, Stethoscope, PhoneCall, ArrowDown, Store, MapPin, SprayCan, TrendingUp, Users, Sun,
+  Download, Sparkles, Route, FileDown, Check, Layers, Search, Navigation,
 } from "lucide-react";
 import { AppHeader, SourceTag } from "@/components/layout/AppHeader";
 import { AppFooter } from "@/components/layout/AppFooter";
 import { AgriculturalLifecycle } from "@/components/apps/AgriculturalLifecycle";
 import { HaatMarket } from "@/components/apps/HaatMarket";
+import { HaatLiveMap } from "@/components/apps/HaatLiveMap";
 import {
   tripMargin, shareTruck, priceAgeDays, seasonForMonth, SEASONS, RICE_SEASONS, DISTRICTS, CROP_DISEASES, CROPS, KG_PER_MAUND,
   calculateSensitivityCurve, diagnoseCropSymptom,
+  CROP_PRESETS, TRANSIT_CORRIDORS, MANDI_HUBS, type CropPreset, type MandiHub,
   type PriceNote, type WeatherHour, type SprayWindow,
 } from "@/lib/haatbazar";
 import { usePersistentState, storageKey, todayLocal, downloadText } from "@/lib/clientStore";
@@ -74,10 +77,17 @@ export default function HaatBazarPage() {
   const [trip, setTrip] = useState<Trip>(EXAMPLE_TRIP);
   const [touched, setTouched] = useState(false);
   const [spray, setSpray] = useState<SprayWindow | null>(null);
+  const [activeCrop, setActiveCrop] = useState<CropPreset | null>(CROP_PRESETS[0]);
   useEffect(() => setToday(todayLocal()), []);
   const month = today ? Number(today.slice(5, 7)) : 0;
   const season = month ? seasonForMonth(month) : null;
   const result = useMemo(() => tripMargin(trip), [trip]);
+
+  const handleSelectHub = (hub: MandiHub) => {
+    if (DISTRICTS.some((d) => d.id === hub.districtId)) {
+      setDistrict(hub.districtId);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#f8f7f1] text-stone-900 antialiased">
@@ -96,9 +106,28 @@ export default function HaatBazarPage() {
         <TripHero trip={trip} result={result} touched={touched} season={season} spray={spray} />
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
-          <TripCalculator v={trip} setV={(n) => { setTouched(true); setTrip(n); }} touched={touched} notes={notes} />
+          <TripCalculator
+            v={trip}
+            setV={(n) => { setTouched(true); setTrip(n); }}
+            touched={touched}
+            notes={notes}
+            activeCrop={activeCrop}
+            setActiveCrop={setActiveCrop}
+          />
           <WeatherPanel district={district} setDistrict={setDistrict} onSpray={setSpray} />
         </div>
+
+        {/* Live Agri-Transit Corridor & Mandi Tracking Map */}
+        <HaatLiveMap
+          currentTrip={{
+            quantityKg: trip.quantityKg,
+            localPricePerKg: trip.localPricePerKg,
+            distantPricePerKg: trip.distantPricePerKg,
+            cropNameBn: activeCrop?.nameBn,
+          }}
+          selectedDistrictId={district}
+          onSelectHub={handleSelectHub}
+        />
 
         <HaatMarket />
 
@@ -298,7 +327,21 @@ function TripHero({ trip, result: r, touched, season, spray }: {
 }
 
 /* ------------------------------------------------------------------------------------------ */
-function TripCalculator({ v, setV, touched, notes }: { v: Trip; setV: (n: Trip) => void; touched: boolean; notes: StoredNote[] }) {
+function TripCalculator({
+  v,
+  setV,
+  touched,
+  notes,
+  activeCrop,
+  setActiveCrop,
+}: {
+  v: Trip;
+  setV: (n: Trip) => void;
+  touched: boolean;
+  notes: StoredNote[];
+  activeCrop: CropPreset | null;
+  setActiveCrop: (c: CropPreset | null) => void;
+}) {
   const [sensitivityDelta, setSensitivityDelta] = useState(0);
   const sensitivityCurve = useMemo(() => calculateSensitivityCurve(v), [v]);
   const activePoint = useMemo(
@@ -314,6 +357,10 @@ function TripCalculator({ v, setV, touched, notes }: { v: Trip; setV: (n: Trip) 
   const wholesaleNotes = notes.filter((n) => n.kind === "wholesale").slice(0, 5);
   const localNotes = notes.filter((n) => n.kind === "farmgate").slice(0, 5);
 
+  const localMaunds = v.quantityKg / KG_PER_MAUND;
+  const localNetTaka = v.quantityKg * v.localPricePerKg;
+  const distantResult = tripMargin(v);
+
   const field = (k: keyof Trip, label: string, suffix: string, step = 1, hint?: string) => (
     <label className="text-[12.5px] font-bold text-stone-700">
       {label}
@@ -328,6 +375,74 @@ function TripCalculator({ v, setV, touched, notes }: { v: Trip; setV: (n: Trip) 
   return (
     <section aria-labelledby="trip-h" className="hb-card scroll-mt-24 space-y-5 p-5 sm:p-6">
       <SectionTitle id="trip-h" icon={<Truck size={20} aria-hidden />} title="দূরের মোকামে নেওয়ার হিসাব" aside={!touched ? <SourceTag confidence="example" label="নিজের সংখ্যা বসান" /> : undefined} />
+
+      {/* 1-Click Benchmark Crop Presets */}
+      <div className="rounded-2xl border border-line bg-stone-50/70 p-3 sm:p-4">
+        <div className="flex flex-wrap items-center justify-between gap-1.5">
+          <span className="flex items-center gap-1.5 text-[12.5px] font-bold text-stone-900">
+            <Sparkles size={14} className="text-amber-600" aria-hidden />
+            ১ ক্লিকে ফসলের নমুনা মান বসান:
+          </span>
+          <span className="text-[11px] text-stone-500">পরিবর্তনযোগ্য সাধারণ বেঞ্চমার্ক</span>
+        </div>
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {CROP_PRESETS.map((cp) => {
+            const on = activeCrop?.id === cp.id;
+            return (
+              <button
+                key={cp.id}
+                type="button"
+                onClick={() => {
+                  setActiveCrop(cp);
+                  setV({
+                    quantityKg: cp.defaultQuantityKg,
+                    localPricePerKg: cp.benchmarkLocalPrice,
+                    distantPricePerKg: cp.benchmarkDistantPrice,
+                    transportPerMaund: cp.benchmarkTransportPerMaund,
+                    commissionPct: cp.benchmarkCommissionPct,
+                    labourPerMaund: cp.benchmarkLabourPerMaund,
+                    lossPct: cp.benchmarkLossPct,
+                    otherCosts: cp.benchmarkOtherCosts,
+                  });
+                }}
+                className={`rounded-xl border px-3 py-1.5 text-[12px] font-semibold transition-all ${
+                  on
+                    ? "border-green-700 bg-green-50 font-bold text-green-950 shadow-2xs ring-1 ring-green-600/30"
+                    : "border-line bg-white text-stone-700 hover:bg-stone-50"
+                }`}
+              >
+                {cp.nameBn}
+              </button>
+            );
+          })}
+        </div>
+        {activeCrop?.perishableAlertBn && (
+          <p className="mt-2 text-[12px] text-stone-700">
+            <span className="font-bold text-emerald-900">পরামর্শ ({activeCrop.nameBn}):</span> {activeCrop.perishableAlertBn} (সংরক্ষণ স্থায়িত্ব: ~{activeCrop.shelfLifeDays} দিন)
+          </p>
+        )}
+      </div>
+
+      {/* Quick Corridor Selection */}
+      <div className="flex flex-wrap items-center gap-1.5 text-[11.5px]">
+        <span className="font-bold text-stone-600">মহাসড়ক রুট প্রিসেট:</span>
+        {TRANSIT_CORRIDORS.map((c) => (
+          <button
+            key={c.id}
+            type="button"
+            onClick={() => {
+              setV({
+                ...v,
+                transportPerMaund: c.highwayCode === "N5" ? 55 : c.highwayCode === "N8" ? 65 : 75,
+                otherCosts: c.tollBridgesBn.length > 0 ? 500 : 300,
+              });
+            }}
+            className="rounded-lg border border-line bg-white px-2 py-0.5 text-stone-700 hover:border-emerald-600 hover:bg-emerald-50/60"
+          >
+            {c.nameBn.split(" ")[0]} ({c.distanceKm} কিমি)
+          </button>
+        ))}
+      </div>
 
       <fieldset className="space-y-2">
         <legend className="flex items-center gap-1.5 text-[12px] font-bold text-green-900"><Store size={14} aria-hidden /> মাল ও দাম</legend>
@@ -347,6 +462,28 @@ function TripCalculator({ v, setV, touched, notes }: { v: Trip; setV: (n: Trip) 
           {field("otherCosts", "টোল, খাজনা, অন্যান্য", "৳")}
         </div>
       </fieldset>
+
+      {/* Side-by-side Decision Comparison Box */}
+      <div className="grid gap-3 rounded-2xl border border-stone-200 bg-stone-50/70 p-3.5 sm:grid-cols-2">
+        <div className="rounded-xl border border-line bg-white p-3 text-[12.5px]">
+          <strong className="block text-[13px] text-stone-800">১. স্থানীয় হাটে বিক্রি করলে</strong>
+          <p className="mt-1 font-mono text-[16px] font-bold text-stone-900">৳{r0(localNetTaka)}</p>
+          <span className="text-[11px] text-stone-500">৳{v.localPricePerKg}/কেজি · ৳{r0(v.localPricePerKg * KG_PER_MAUND)}/মণ</span>
+          <p className="mt-1.5 text-[11px] text-emerald-800">✓ শূন্য পরিবহন ঝুঁকি, নগদে তাৎক্ষণিক খালাস</p>
+        </div>
+        <div className={`rounded-xl border p-3 text-[12.5px] ${distantResult.worthIt ? "border-green-300 bg-green-50/70" : "border-amber-300 bg-amber-50/70"}`}>
+          <strong className="block text-[13px] text-stone-800">২. মোকামে ট্রাকে পাঠালে</strong>
+          <p className={`mt-1 font-mono text-[16px] font-extrabold ${distantResult.worthIt ? "text-green-800" : "text-amber-800"}`}>
+            ৳{r0(distantResult.distantNet)}
+          </p>
+          <span className="text-[11px] text-stone-600">সব খরচ বাদে নিট দর: ৳{(distantResult.distantNet / v.quantityKg).toFixed(1)}/কেজি</span>
+          <p className="mt-1.5 text-[11px] font-bold">
+            {distantResult.worthIt
+              ? `✓ হাটের চেয়ে প্রায় ৳${r0(distantResult.extraVsLocal)} বেশি থাকে`
+              : `⚠ হাটের চেয়ে ৳${r0(-distantResult.extraVsLocal)} কম থাকে (লোকসান)`}
+          </p>
+        </div>
+      </div>
 
       {(wholesaleNotes.length > 0 || localNotes.length > 0) && (
         <div className="flex flex-wrap gap-2 text-[12px]">
@@ -558,8 +695,23 @@ function PriceNotebook({ notes, setNotes, today }: { notes: StoredNote[]; setNot
   const [kind, setKind] = useState<PriceNote["kind"]>("farmgate");
   const [heardFrom, setHeardFrom] = useState("নিজে হাটে");
   const [date, setDate] = useState("");
+  const [filterCrop, setFilterCrop] = useState<string>("all");
   useEffect(() => { if (today && !date) setDate(today); }, [today, date]);
   const valid = Number(price) > 0 && market.trim() && /^\d{4}-\d{2}-\d{2}$/.test(date);
+
+  const filteredNotes = filterCrop === "all" ? notes : notes.filter((n) => n.cropId === filterCrop);
+
+  const exportCsv = () => {
+    if (notes.length === 0) return;
+    const header = "ফসল,হাট_বা_মোকাম,ধরন,দাম_টাকা_কেজি,দাম_টাকা_মণ,উৎস,তারিখ\n";
+    const rows = notes
+      .map(
+        (n) =>
+          `"${CROPS.find((c) => c.id === n.cropId)?.nameBn ?? n.cropId}","${n.market}","${KIND_BN[n.kind]}",${n.pricePerKg},${n.pricePerKg * KG_PER_MAUND},"${n.heardFrom}","${n.date}"`
+      )
+      .join("\n");
+    downloadText(`haatbazar-price-notebook-${today || "export"}.csv`, "\uFEFF" + header + rows, "text/csv;charset=utf-8");
+  };
 
   return (
     <section aria-labelledby="pn-h" className="hb-card p-5 sm:p-6">
@@ -568,9 +720,20 @@ function PriceNotebook({ notes, setNotes, today }: { notes: StoredNote[]; setNot
         icon={<NotebookPen size={20} aria-hidden />}
         title="দামের খাতা"
         aside={
-          <a href="http://www.dam.gov.bd/" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[40px] items-center gap-1 rounded-full border border-green-200 bg-green-50 px-3 text-[12px] font-semibold text-green-900 hover:bg-green-100">
-            সরকারি দৈনিক বাজারদর: কৃষি বিপণন অধিদপ্তর (DAM) <ExternalLink size={12} aria-hidden />
-          </a>
+          <div className="flex flex-wrap items-center gap-2">
+            {notes.length > 0 && (
+              <button
+                type="button"
+                onClick={exportCsv}
+                className="inline-flex min-h-[38px] items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 text-[12px] font-bold text-stone-800 shadow-2xs hover:bg-stone-50"
+              >
+                <FileDown size={14} aria-hidden /> CSV ডাউনলোড ({notes.length})
+              </button>
+            )}
+            <a href="http://www.dam.gov.bd/" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[38px] items-center gap-1 rounded-full border border-green-200 bg-green-50 px-3 text-[12px] font-semibold text-green-900 hover:bg-green-100">
+              সরকারি দৈনিক বাজারদর: DAM <ExternalLink size={12} aria-hidden />
+            </a>
+          </div>
         }
       />
       <p className="mt-2 text-[13px] text-stone-600">যে দাম শুনেছেন তা কোথা থেকে, কবে — সহ লিখে রাখুন। ৩ দিনের পুরনো দাম আলাদা করে চিহ্নিত হবে। শুধু এই ডিভাইসে থাকে।</p>
@@ -591,11 +754,48 @@ function PriceNotebook({ notes, setNotes, today }: { notes: StoredNote[]; setNot
         <label className="text-[12px] font-bold text-stone-700">তারিখ<input type="date" value={date} max={today || undefined} onChange={(e) => setDate(e.target.value)} className="hb-input mt-1" /></label>
         <button type="submit" disabled={!valid} className="col-span-2 min-h-[44px] self-end rounded-xl bg-green-800 px-4 text-[14px] font-bold text-white hover:bg-green-900 disabled:opacity-40 sm:col-span-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2">যোগ করুন</button>
       </form>
-      {notes.length === 0 ? (
-        <p className="mt-4 rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-5 text-center text-[13px] text-stone-600">এখনো কোনো দাম লেখা নেই। আজ হাটে বা আড়তদারের কাছে যা শুনলেন, এখানে লিখুন — পরে তুলনা করতে কাজে লাগবে।</p>
+
+      {/* Filter by Crop */}
+      {notes.length > 0 && (
+        <div className="mt-4 flex flex-wrap items-center gap-1.5 text-[12px]">
+          <span className="font-bold text-stone-600">ফিল্টার:</span>
+          <button
+            type="button"
+            onClick={() => setFilterCrop("all")}
+            className={`rounded-full px-3 py-1 font-semibold transition-colors ${
+              filterCrop === "all" ? "bg-stone-900 text-white" : "border border-line bg-white text-stone-700 hover:bg-stone-50"
+            }`}
+          >
+            সব ফসল ({notes.length})
+          </button>
+          {Array.from(new Set(notes.map((n) => n.cropId))).map((cid) => {
+            const count = notes.filter((n) => n.cropId === cid).length;
+            const cName = CROPS.find((c) => c.id === cid)?.nameBn ?? cid;
+            return (
+              <button
+                key={cid}
+                type="button"
+                onClick={() => setFilterCrop(cid)}
+                className={`rounded-full px-3 py-1 font-semibold transition-colors ${
+                  filterCrop === cid ? "bg-green-800 text-white" : "border border-line bg-white text-stone-700 hover:bg-stone-50"
+                }`}
+              >
+                {cName} ({count})
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {filteredNotes.length === 0 ? (
+        <p className="mt-4 rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-5 text-center text-[13px] text-stone-600">
+          {notes.length === 0
+            ? "এখনো কোনো দাম লেখা নেই। আজ হাটে বা আড়তদারের কাছে যা শুনলেন, এখানে লিখুন — পরে তুলনা করতে কাজে লাগবে।"
+            : "এই ফসলের কোনো দাম লেখা নেই।"}
+        </p>
       ) : (
         <ul className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {notes.map((n) => {
+          {filteredNotes.map((n) => {
             const age = today ? priceAgeDays(n.date, today) : 0;
             const stale = age > 3;
             return (
@@ -629,6 +829,7 @@ function DiseaseReference() {
   const [selectedCrop, setSelectedCrop] = useState("rice");
   const [activeSymptoms, setActiveSymptoms] = useState<string[]>([]);
   const [customSymptom, setCustomSymptom] = useState("");
+  const [symptomSearch, setSymptomSearch] = useState("");
   const [catalogId, setCatalogId] = useState(CROP_DISEASES[0].id);
 
   const cropDiseases = useMemo(() => {
@@ -636,6 +837,11 @@ function DiseaseReference() {
     return CROP_DISEASES.filter((d) => d.cropNameBn === targetBn);
   }, [selectedCrop]);
   const availableTags = useMemo(() => Array.from(new Set(cropDiseases.flatMap((d) => d.symptomTags))), [cropDiseases]);
+  const filteredTags = useMemo(() => {
+    if (!symptomSearch.trim()) return availableTags;
+    return availableTags.filter((tag) => tag.toLowerCase().includes(symptomSearch.trim().toLowerCase()));
+  }, [availableTags, symptomSearch]);
+
   const diagnostic = useMemo(() => diagnoseCropSymptom(selectedCrop, activeSymptoms), [selectedCrop, activeSymptoms]);
   const toggleSymptom = (tag: string) => setActiveSymptoms((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]));
   const handleAddCustom = (e: React.FormEvent) => {
@@ -689,14 +895,26 @@ function DiseaseReference() {
           </div>
 
           <div>
-            <div className="mb-1.5 flex items-center justify-between">
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
               <span className="text-[12px] font-bold text-stone-600">মাঠে যে লক্ষণ দেখছেন (ছুঁয়ে বেছে নিন):</span>
-              {activeSymptoms.length > 0 && (
-                <button type="button" onClick={() => setActiveSymptoms([])} className="min-h-[40px] px-2 text-[12px] text-red-700 underline">সব মুছুন</button>
-              )}
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="relative">
+                  <Search size={12} className="absolute left-2.5 top-2.5 text-stone-400" aria-hidden />
+                  <input
+                    type="text"
+                    value={symptomSearch}
+                    onChange={(e) => setSymptomSearch(e.target.value)}
+                    placeholder="লক্ষণ ফিল্টার..."
+                    className="rounded-lg border border-stone-200 bg-white py-1 pl-7 pr-2 text-[11.5px] text-stone-800 placeholder-stone-400 focus:border-green-600 focus:outline-none"
+                  />
+                </div>
+                {activeSymptoms.length > 0 && (
+                  <button type="button" onClick={() => setActiveSymptoms([])} className="min-h-[32px] px-1 text-[11.5px] font-semibold text-red-700 hover:underline">সব মুছুন</button>
+                )}
+              </div>
             </div>
             <div className="flex flex-wrap gap-2">
-              {availableTags.map((tag) => {
+              {filteredTags.map((tag) => {
                 const on = activeSymptoms.includes(tag);
                 return (
                   <button

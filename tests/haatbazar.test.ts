@@ -11,6 +11,12 @@ import {
   DISTRICTS,
   CROP_DISEASES,
   KG_PER_MAUND,
+  MANDI_HUBS,
+  TRANSIT_CORRIDORS,
+  CROP_PRESETS,
+  geoToSvg,
+  interpolateRoutePosition,
+  estimateRouteRisk,
   type WeatherHour,
 } from "../lib/haatbazar.ts";
 
@@ -248,3 +254,100 @@ test("diagnoseCropSymptom handles empty symptoms by returning candidates without
   assert.ok(res.alternatives.length >= 2, "Should return brinjal candidates");
   assert.equal(res.helpline.number, "16123");
 });
+
+test("MANDI_HUBS catalog covers 10+ key haats and terminal mokams with valid coordinates and crops", () => {
+  assert.ok(MANDI_HUBS.length >= 10, `Expected at least 10 mandis, got ${MANDI_HUBS.length}`);
+  const ids = new Set(MANDI_HUBS.map((m) => m.id));
+  assert.equal(ids.size, MANDI_HUBS.length, "All mandi IDs must be unique");
+
+  for (const m of MANDI_HUBS) {
+    assert.ok(m.nameBn && m.districtBn && m.divisionBn);
+    assert.ok(m.lat >= 20.5 && m.lat <= 26.6, `Latitude ${m.lat} out of bounds for ${m.id}`);
+    assert.ok(m.lon >= 88.0 && m.lon <= 92.7, `Longitude ${m.lon} out of bounds for ${m.id}`);
+    assert.ok(Array.isArray(m.primaryCropsBn) && m.primaryCropsBn.length > 0);
+  }
+
+  // Key national mandis must be present
+  assert.ok(ids.has("mahasthan"), "Mahasthan Haat must be present");
+  assert.ok(ids.has("karwanbazar"), "Karwan Bazar must be present");
+  assert.ok(ids.has("shyambazar"), "Shyambazar must be present");
+  assert.ok(ids.has("barobazar"), "Barobazar must be present");
+  assert.ok(ids.has("pahartali"), "Pahartali must be present");
+});
+
+test("TRANSIT_CORRIDORS define valid multi-waypoint routes connecting hubs", () => {
+  assert.ok(TRANSIT_CORRIDORS.length >= 4, "Must define at least 4 major corridors");
+  for (const c of TRANSIT_CORRIDORS) {
+    assert.ok(c.distanceKm > 50, `Corridor ${c.id} should have realistic distance`);
+    assert.ok(c.typicalDurationHours > 1, `Corridor ${c.id} should have realistic duration`);
+    assert.ok(c.waypoints.length >= 3, `Corridor ${c.id} must have at least 3 waypoints`);
+    for (const wp of c.waypoints) {
+      assert.ok(wp.nameBn);
+      assert.ok(wp.lat >= 20.5 && wp.lat <= 26.6);
+      assert.ok(wp.lon >= 88.0 && wp.lon <= 92.7);
+    }
+  }
+});
+
+test("CROP_PRESETS provides realistic benchmark figures without missing required fields", () => {
+  assert.ok(CROP_PRESETS.length >= 6);
+  for (const cp of CROP_PRESETS) {
+    assert.ok(cp.id && cp.nameBn);
+    assert.ok(cp.defaultQuantityKg > 0);
+    assert.ok(cp.benchmarkLocalPrice > 0);
+    assert.ok(cp.benchmarkDistantPrice > cp.benchmarkLocalPrice);
+    assert.ok(cp.shelfLifeDays > 0);
+  }
+});
+
+test("geoToSvg maps Bangladesh coordinates accurately within canvas boundaries", () => {
+  const dhaka = geoToSvg(23.81, 90.41, 500, 650);
+  assert.ok(dhaka.x >= 25 && dhaka.x <= 475, `Dhaka x (${dhaka.x}) out of bounds`);
+  assert.ok(dhaka.y >= 25 && dhaka.y <= 625, `Dhaka y (${dhaka.y}) out of bounds`);
+
+  // Tetulia (north) must have smaller y than Cox's Bazar (south)
+  const north = geoToSvg(26.6, 88.5, 500, 650);
+  const south = geoToSvg(21.4, 91.9, 500, 650);
+  assert.ok(north.y < south.y, "Northern point must have lower y in SVG coordinate space");
+  assert.ok(north.x < south.x, "Western point must have lower x in SVG coordinate space");
+});
+
+test("interpolateRoutePosition smoothly transitions across waypoints", () => {
+  const waypoints = [
+    { nameBn: "শুরু", lat: 24.0, lon: 89.0 },
+    { nameBn: "মাঝপথ", lat: 24.5, lon: 89.5 },
+    { nameBn: "শেষ", lat: 25.0, lon: 90.0 },
+  ];
+
+  const at0 = interpolateRoutePosition(waypoints, 0);
+  assert.equal(at0.lat, 24.0);
+  assert.equal(at0.currentWaypointBn, "শুরু");
+
+  const at50 = interpolateRoutePosition(waypoints, 50);
+  assert.equal(at50.lat, 24.5);
+  assert.equal(at50.currentWaypointBn, "মাঝপথ");
+
+  const at100 = interpolateRoutePosition(waypoints, 100);
+  assert.equal(at100.lat, 25.0);
+  assert.equal(at100.currentWaypointBn, "শেষ");
+});
+
+test("estimateRouteRisk gives sensible risk warnings for high heat and perishables", () => {
+  const coolGrain = estimateRouteRisk({
+    temperatureC: 22,
+    rainProbability: 10,
+    durationHours: 3,
+    isPerishable: false,
+  });
+  assert.equal(coolGrain.riskLevel, "low");
+
+  const hotTomato = estimateRouteRisk({
+    temperatureC: 36,
+    rainProbability: 60,
+    durationHours: 8,
+    isPerishable: true,
+  });
+  assert.equal(hotTomato.riskLevel, "high");
+  assert.ok(hotTomato.spoilageRiskScore >= 60);
+});
+

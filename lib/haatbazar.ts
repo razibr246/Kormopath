@@ -563,3 +563,555 @@ export function calculateSensitivityCurve(
     };
   });
 }
+
+/* ------------------------------------------------------------------------------------------ */
+/* LIVE MANDI HUBS, AGRICULTURAL TRANSIT CORRIDORS & CROP PRESETS                             */
+/* ------------------------------------------------------------------------------------------ */
+
+export interface MandiHub {
+  id: string;
+  nameBn: string;
+  nameEn: string;
+  districtId: string;
+  districtBn: string;
+  divisionBn: string;
+  type: "haat" | "mokam" | "hub";
+  lat: number;
+  lon: number;
+  primaryCropsBn: string[];
+  descriptionBn: string;
+}
+
+export const MANDI_HUBS: MandiHub[] = [
+  {
+    id: "mahasthan",
+    nameBn: "মহাস্থান হাট (বগুড়া)",
+    nameEn: "Mahasthan Haat",
+    districtId: "bogura",
+    districtBn: "বগুড়া",
+    divisionBn: "রাজশাহী",
+    type: "haat",
+    lat: 24.95,
+    lon: 89.35,
+    primaryCropsBn: ["আলু", "কাঁচা মরিচ", "বেগুন", "ফুলকপি"],
+    descriptionBn: "উত্তরবঙ্গের বৃহত্তম আলু ও শীতকালীন সবজির প্রাথমিক সমাবেশ কেন্দ্র। প্রতিদিন ভোরে কয়েকশ ট্রাকে পণ্য লোড হয়।",
+  },
+  {
+    id: "karwanbazar",
+    nameBn: "কাওরান বাজার পাইকারি মোকাম (ঢাকা)",
+    nameEn: "Karwan Bazar Wholesale Mokam",
+    districtId: "dhaka",
+    districtBn: "ঢাকা",
+    divisionBn: "ঢাকা",
+    type: "mokam",
+    lat: 23.75,
+    lon: 90.39,
+    primaryCropsBn: ["সকল সবজি", "আলু", "পেঁয়াজ", "ফলমূল"],
+    descriptionBn: "বাংলাদেশের বৃহত্তম পাইকারি মোকাম। মধ্যরাত থেকে ভোর পর্যন্ত শত শত আড়তে সরাসরি পাইকারি নিলাম চলে।",
+  },
+  {
+    id: "shyambazar",
+    nameBn: "শ্যামবাজার আড়ত (ঢাকা)",
+    nameEn: "Shyambazar Wholesale Market",
+    districtId: "dhaka",
+    districtBn: "ঢাকা",
+    divisionBn: "ঢাকা",
+    type: "mokam",
+    lat: 23.71,
+    lon: 90.41,
+    primaryCropsBn: ["পেঁয়াজ", "রসুন", "আলু", "আদা"],
+    descriptionBn: "বুড়িগঙ্গা নদীর তীরে দেশের সর্ববৃহৎ কন্দাল ফসল (পেঁয়াজ-রসুন-আলু) ও মসলার পাইকারি বাণিজ্য কেন্দ্র।",
+  },
+  {
+    id: "barobazar",
+    nameBn: "বারোবাজার সবজি হাট (ঝিনাইদহ/যশোর)",
+    nameEn: "Barobazar Vegetable Haat",
+    districtId: "jashore",
+    districtBn: "যশোর",
+    divisionBn: "খুলনা",
+    type: "haat",
+    lat: 23.32,
+    lon: 89.15,
+    primaryCropsBn: ["বেগুন", "টমেটো", "পটল", "কাঁচামরিচ"],
+    descriptionBn: "দক্ষিণ-পশ্চিমাঞ্চলের সবচেয়ে ব্যস্ত সবজির হাট। পদ্মা সেতু চালুর পর এখান থেকে ঢাকায় দ্রুত সরবরাহ পৌঁছায়।",
+  },
+  {
+    id: "baneshwar",
+    nameBn: "বানেশ্বর হাট (রাজশাহী)",
+    nameEn: "Baneswar Haat",
+    districtId: "rajshahi",
+    districtBn: "রাজশাহী",
+    divisionBn: "রাজশাহী",
+    type: "haat",
+    lat: 24.39,
+    lon: 88.78,
+    primaryCropsBn: ["আম", "পাট", "গুড়", "কলা"],
+    descriptionBn: "উত্তরবঙ্গের ঐতিহ্যবাহী হাট; আম ও গুড়ের মৌসুমে এটি দেশের অন্যতম প্রধান সরবরাহ হাব।",
+  },
+  {
+    id: "pahartali",
+    nameBn: "পাহাড়তলী আড়ত (চট্টগ্রাম)",
+    nameEn: "Pahartali Wholesale Market",
+    districtId: "chattogram",
+    districtBn: "চট্টগ্রাম",
+    divisionBn: "চট্টগ্রাম",
+    type: "mokam",
+    lat: 22.36,
+    lon: 91.80,
+    primaryCropsBn: ["চাল", "সবজি", "আলু", "পেঁয়াজ"],
+    descriptionBn: "বন্দরনগরী চট্টগ্রামের বৃহত্তম খাদ্যশস্য ও কৃষিপণ্য পাইকারি আড়ত।",
+  },
+  {
+    id: "cityhaat-rangpur",
+    nameBn: "রংপুর সিটি হাট (রংপুর)",
+    nameEn: "Rangpur City Haat",
+    districtId: "rangpur",
+    districtBn: "রংপুর",
+    divisionBn: "রংপুর",
+    type: "haat",
+    lat: 25.76,
+    lon: 89.23,
+    primaryCropsBn: ["ধান", "আলু", "ভুট্টা", "তামাক"],
+    descriptionBn: "তিস্তা অববাহিকার প্রধান কৃষি বিনিময় কেন্দ্র ও উত্তরাঞ্চলের শস্য সমাবেশ বাজার।",
+  },
+  {
+    id: "sreemangal",
+    nameBn: "শ্রীমঙ্গল চশমা মার্কেট (মৌলভীবাজার)",
+    nameEn: "Sreemangal Agro Market",
+    districtId: "sylhet",
+    districtBn: "সিলেট",
+    divisionBn: "সিলেট",
+    type: "haat",
+    lat: 24.31,
+    lon: 91.73,
+    primaryCropsBn: ["আনারস", "লেবু", "নাগা মরিচ", "চা"],
+    descriptionBn: "লেবুজাতীয় ফল ও আনারসের জন্য বিখ্যাত পাইকারি মোকাম; প্রতিদিন দেশের বিভিন্ন প্রান্তে পিকআপ ও ট্রাকে যায়।",
+  },
+  {
+    id: "mechua",
+    nameBn: "মেছুয়া বাজার (ময়মনসিংহ)",
+    nameEn: "Mechua Bazar Mymensingh",
+    districtId: "mymensingh",
+    districtBn: "ময়মনসিংহ",
+    divisionBn: "ময়মনসিংহ",
+    type: "hub",
+    lat: 24.76,
+    lon: 90.40,
+    primaryCropsBn: ["ধান", "সবজি", "মাছ", "সরিষা"],
+    descriptionBn: "ব্রহ্মপুত্র নদের অববাহিকার কেন্দ্রীয় কৃষি ও মৎস্য সরবরাহ কেন্দ্র।",
+  },
+  {
+    id: "chuadanga-krishi",
+    nameBn: "চুয়াডাঙ্গা কৃষি পাইকারি বাজার",
+    nameEn: "Chuadanga Krishi Bazar",
+    districtId: "chuadanga",
+    districtBn: "চুয়াডাঙ্গা",
+    divisionBn: "খুলনা",
+    type: "haat",
+    lat: 23.64,
+    lon: 88.85,
+    primaryCropsBn: ["ভুট্টা", "পান", "সবজি", "পেঁয়াজ"],
+    descriptionBn: "ভুট্টা ও শীতকালীন শাকসবজির প্রধান মোকাম; সীমান্ত অঞ্চলের সবচেয়ে সক্রিয় কৃষি কেন্দ্র।",
+  },
+];
+
+export interface RouteWaypoint {
+  nameBn: string;
+  lat: number;
+  lon: number;
+  isToll?: boolean;
+}
+
+export interface TransitCorridor {
+  id: string;
+  nameBn: string;
+  highwayCode: string;
+  originHubId: string;
+  destinationHubId: string;
+  distanceKm: number;
+  typicalDurationHours: number;
+  tollBridgesBn: string[];
+  waypoints: RouteWaypoint[];
+  temperatureSensitivity: "high" | "medium" | "low";
+}
+
+export const TRANSIT_CORRIDORS: TransitCorridor[] = [
+  {
+    id: "n5-bogura-dhaka",
+    nameBn: "উত্তরবঙ্গ-ঢাকা মহাসড়ক (N5)",
+    highwayCode: "N5",
+    originHubId: "mahasthan",
+    destinationHubId: "karwanbazar",
+    distanceKm: 195,
+    typicalDurationHours: 5.5,
+    tollBridgesBn: ["বঙ্গবন্ধু যমুনা সেতু (টোল ৳৮০০-১২০০)"],
+    temperatureSensitivity: "medium",
+    waypoints: [
+      { nameBn: "মহাস্থান হাট (বগুড়া)", lat: 24.95, lon: 89.35 },
+      { nameBn: "শেরপুর (বগুড়া)", lat: 24.68, lon: 89.43 },
+      { nameBn: "সিরাজগঞ্জ গোলচত্বর", lat: 24.45, lon: 89.68 },
+      { nameBn: "বঙ্গবন্ধু সেতু টোলপ্লাজা", lat: 24.40, lon: 89.78, isToll: true },
+      { nameBn: "এলেঙ্গা / টাঙ্গাইল বাইপাস", lat: 24.33, lon: 89.92 },
+      { nameBn: "চন্দ্রা মোড় (গাজীপুর)", lat: 24.04, lon: 90.24 },
+      { nameBn: "গাবতলী / কাওরান বাজার (ঢাকা)", lat: 23.75, lon: 90.39 },
+    ],
+  },
+  {
+    id: "n8-jashore-dhaka",
+    nameBn: "দক্ষিণ-পশ্চিমাঞ্চল এক্সপ্রেসওয়ে (N8/N7)",
+    highwayCode: "N8",
+    originHubId: "barobazar",
+    destinationHubId: "shyambazar",
+    distanceKm: 210,
+    typicalDurationHours: 4.5,
+    tollBridgesBn: ["পদ্মা সেতু (টোল ৳১২০০-১৬০০)"],
+    temperatureSensitivity: "high",
+    waypoints: [
+      { nameBn: "বারোবাজার / যশোর আড়ত", lat: 23.32, lon: 89.15 },
+      { nameBn: "মাগুরা বাইপাস", lat: 23.49, lon: 89.42 },
+      { nameBn: "ফরিদপুর মোড়", lat: 23.60, lon: 89.83 },
+      { nameBn: "ভাঙ্গা এক্সপ্রেসওয়ে জংশন", lat: 23.38, lon: 89.98 },
+      { nameBn: "পদ্মা সেতু টোলপ্লাজা (জাজিরা)", lat: 23.44, lon: 90.26, isToll: true },
+      { nameBn: "পোস্তগোলা / শ্যামবাজার (ঢাকা)", lat: 23.71, lon: 90.41 },
+    ],
+  },
+  {
+    id: "n1-dhaka-ctg",
+    nameBn: "ঢাকা-চট্টগ্রাম করিডোর (N1)",
+    highwayCode: "N1",
+    originHubId: "karwanbazar",
+    destinationHubId: "pahartali",
+    distanceKm: 245,
+    typicalDurationHours: 6.0,
+    tollBridgesBn: ["মেঘনা সেতু", "গোমতী সেতু"],
+    temperatureSensitivity: "medium",
+    waypoints: [
+      { nameBn: "কাওরান বাজার (ঢাকা)", lat: 23.75, lon: 90.39 },
+      { nameBn: "কাঁচপুর / মেঘনা সেতু", lat: 23.68, lon: 90.58, isToll: true },
+      { nameBn: "দাউদকান্দি গোমতী সেতু", lat: 23.53, lon: 90.72, isToll: true },
+      { nameBn: "কুমিল্লা পদুয়ার বাজার", lat: 23.43, lon: 91.19 },
+      { nameBn: "ফেনী বাইপাস", lat: 23.01, lon: 91.40 },
+      { nameBn: "পাহাড়তলী আড়ত (চট্টগ্রাম)", lat: 22.36, lon: 91.80 },
+    ],
+  },
+  {
+    id: "n2-sylhet-dhaka",
+    nameBn: "সিলেট-ঢাকা মহাসড়ক (N2)",
+    highwayCode: "N2",
+    originHubId: "sreemangal",
+    destinationHubId: "karwanbazar",
+    distanceKm: 180,
+    typicalDurationHours: 5.0,
+    tollBridgesBn: ["ভৈরব মেঘনা সেতু"],
+    temperatureSensitivity: "high",
+    waypoints: [
+      { nameBn: "শ্রীমঙ্গল (মৌলভীবাজার)", lat: 24.31, lon: 91.73 },
+      { nameBn: "শায়েস্তাগঞ্জ (হবিগঞ্জ)", lat: 24.27, lon: 91.48 },
+      { nameBn: "ভৈরব মেঘনা সেতু", lat: 24.05, lon: 90.98, isToll: true },
+      { nameBn: "নরসিংদী পাঁচদোনা", lat: 23.90, lon: 90.65 },
+      { nameBn: "কাওরান বাজার (ঢাকা)", lat: 23.75, lon: 90.39 },
+    ],
+  },
+];
+
+export interface CropPreset {
+  id: string;
+  nameBn: string;
+  nameEn: string;
+  category: "grain" | "tuber" | "vegetable" | "cash_crop" | "fruit";
+  defaultQuantityKg: number;
+  benchmarkLocalPrice: number;
+  benchmarkDistantPrice: number;
+  benchmarkTransportPerMaund: number;
+  benchmarkCommissionPct: number;
+  benchmarkLabourPerMaund: number;
+  benchmarkLossPct: number;
+  benchmarkOtherCosts: number;
+  shelfLifeDays: number;
+  perishableAlertBn?: string;
+}
+
+export const CROP_PRESETS: CropPreset[] = [
+  {
+    id: "potato",
+    nameBn: "আলু (কার্ডিনাল/গ্র্যানোলা)",
+    nameEn: "Potato",
+    category: "tuber",
+    defaultQuantityKg: 2000,
+    benchmarkLocalPrice: 30,
+    benchmarkDistantPrice: 38,
+    benchmarkTransportPerMaund: 55,
+    benchmarkCommissionPct: 4,
+    benchmarkLabourPerMaund: 8,
+    benchmarkLossPct: 1.5,
+    benchmarkOtherCosts: 400,
+    shelfLifeDays: 30,
+    perishableAlertBn: "আলুর বস্তা আর্দ্র বা ভেজা অবস্থায় ট্রাকে পাঠালে পচন বাড়তে পারে; শুকনা বস্তায় পরিবহন করুন।",
+  },
+  {
+    id: "rice",
+    nameBn: "বোরো ধান (ব্রি-২৮ / ২৯)",
+    nameEn: "Boro Rice",
+    category: "grain",
+    defaultQuantityKg: 4000,
+    benchmarkLocalPrice: 31,
+    benchmarkDistantPrice: 37,
+    benchmarkTransportPerMaund: 45,
+    benchmarkCommissionPct: 3,
+    benchmarkLabourPerMaund: 7,
+    benchmarkLossPct: 0.5,
+    benchmarkOtherCosts: 500,
+    shelfLifeDays: 180,
+    perishableAlertBn: "ধান আর্দ্রতামুক্ত (১৪% বা কম আর্দ্রতা) হলে পথে ঘাটতি ও ওজনের হেরফের ন্যূনতম হয়।",
+  },
+  {
+    id: "onion",
+    nameBn: "পেঁয়াজ (তাহেরপুরী / বারি-১)",
+    nameEn: "Onion",
+    category: "vegetable",
+    defaultQuantityKg: 1200,
+    benchmarkLocalPrice: 65,
+    benchmarkDistantPrice: 78,
+    benchmarkTransportPerMaund: 65,
+    benchmarkCommissionPct: 5,
+    benchmarkLabourPerMaund: 10,
+    benchmarkLossPct: 3.5,
+    benchmarkOtherCosts: 350,
+    shelfLifeDays: 14,
+    perishableAlertBn: "বৃষ্টি বা গরমের দিনে পেঁয়াজের ট্রাকে ত্রিপল পুরোপুরি ঢেকে দিলে গরমে পেঁয়াজ নষ্ট হয়; বাতাস চলাচলের জাল ব্যবহার করুন।",
+  },
+  {
+    id: "tomato",
+    nameBn: "টমেটো (উফশী / হাইব্রিড)",
+    nameEn: "Tomato",
+    category: "vegetable",
+    defaultQuantityKg: 800,
+    benchmarkLocalPrice: 24,
+    benchmarkDistantPrice: 36,
+    benchmarkTransportPerMaund: 80,
+    benchmarkCommissionPct: 6,
+    benchmarkLabourPerMaund: 12,
+    benchmarkLossPct: 6.0,
+    benchmarkOtherCosts: 300,
+    shelfLifeDays: 4,
+    perishableAlertBn: "অতি-পচনশীল পণ্য: প্লাস্টিক ক্রেটে সাজিয়ে পরিবহন করলে চাপজনিত ক্ষতি ৫০% কমে।",
+  },
+  {
+    id: "brinjal",
+    nameBn: "বেগুন (ইসলামপুরী / শিংনাথ)",
+    nameEn: "Brinjal",
+    category: "vegetable",
+    defaultQuantityKg: 600,
+    benchmarkLocalPrice: 34,
+    benchmarkDistantPrice: 50,
+    benchmarkTransportPerMaund: 75,
+    benchmarkCommissionPct: 6,
+    benchmarkLabourPerMaund: 12,
+    benchmarkLossPct: 5.0,
+    benchmarkOtherCosts: 250,
+    shelfLifeDays: 3,
+    perishableAlertBn: "রোদের গরমে বেগুনের গায়ের চকচকে ভাব কমে শুকিয়ে যায়; রাতে বা ভোরে পরিবহন করুন।",
+  },
+  {
+    id: "jute",
+    nameBn: "তোষা পাট",
+    nameEn: "Tosha Jute",
+    category: "cash_crop",
+    defaultQuantityKg: 2000,
+    benchmarkLocalPrice: 75,
+    benchmarkDistantPrice: 86,
+    benchmarkTransportPerMaund: 40,
+    benchmarkCommissionPct: 3,
+    benchmarkLabourPerMaund: 8,
+    benchmarkLossPct: 0.2,
+    benchmarkOtherCosts: 400,
+    shelfLifeDays: 365,
+    perishableAlertBn: "শুকনা পাট বেল বাঁধার পর বৃষ্টি থেকে সুরক্ষিত রাখতে ওয়াটারপ্রুফ ত্রিপল নিশ্চিত করুন।",
+  },
+];
+
+export interface LiveTruckTrip {
+  id: string;
+  truckNo: string;
+  corridorId: string;
+  cropBn: string;
+  loadMaunds: number;
+  originBn: string;
+  destinationBn: string;
+  status: "loading" | "in_transit" | "toll_crossing" | "arrived";
+  progressPct: number;
+  currentWaypointBn: string;
+  speedKmh: number;
+  estimatedHoursLeft: number;
+  conditionNoteBn: string;
+}
+
+export const INITIAL_LIVE_TRIPS: LiveTruckTrip[] = [
+  {
+    id: "trip-1",
+    truckNo: "ঢাকা মেট্রো-ট ১১-৪২২১",
+    corridorId: "n5-bogura-dhaka",
+    cropBn: "আলু (৫০ মণ)",
+    loadMaunds: 50,
+    originBn: "মহাস্থান হাট (বগুড়া)",
+    destinationBn: "কাওরান বাজার (ঢাকা)",
+    status: "in_transit",
+    progressPct: 62,
+    currentWaypointBn: "বঙ্গবন্ধু যমুনা সেতু অতিক্রম করেছে",
+    speedKmh: 48,
+    estimatedHoursLeft: 2.1,
+    conditionNoteBn: "আবহাওয়া শুষ্ক, রাস্তায় যান চলাচল স্বাভাবিক।",
+  },
+  {
+    id: "trip-2",
+    truckNo: "ঢাকা মেট্রো-ড ১৪-৮০১৯",
+    corridorId: "n8-jashore-dhaka",
+    cropBn: "বেগুন ও টমেটো (৩০ মণ)",
+    loadMaunds: 30,
+    originBn: "বারোবাজার (ঝিনাইদহ/যশোর)",
+    destinationBn: "শ্যামবাজার (ঢাকা)",
+    status: "in_transit",
+    progressPct: 78,
+    currentWaypointBn: "পদ্মা সেতু এক্সপ্রেসওয়ে (মাওয়া অতিক্রম)",
+    speedKmh: 62,
+    estimatedHoursLeft: 1.0,
+    conditionNoteBn: "দ্রুতগতি লেন; রাতে তাপমাত্রা সহনশীল।",
+  },
+  {
+    id: "trip-3",
+    truckNo: "চট্ট মেট্রো-ট ১২-৩১০৫",
+    corridorId: "n1-dhaka-ctg",
+    cropBn: "পেঁয়াজ ও আদা (৪০ মণ)",
+    loadMaunds: 40,
+    originBn: "কাওরান বাজার (ঢাকা)",
+    destinationBn: "পাহাড়তলী (চট্টগ্রাম)",
+    status: "in_transit",
+    progressPct: 45,
+    currentWaypointBn: "কুমিল্লা পদুয়ার বাজার মোড়",
+    speedKmh: 52,
+    estimatedHoursLeft: 3.3,
+    conditionNoteBn: "মেঘনা ও গোমতী সেতু পার হয়েছে।",
+  },
+  {
+    id: "trip-4",
+    truckNo: "সিলেট মেট্রো-উ ১১-০৮৭২",
+    corridorId: "n2-sylhet-dhaka",
+    cropBn: "লেবু ও আনারস (২৫ মণ)",
+    loadMaunds: 25,
+    originBn: "শ্রীমঙ্গল (মৌলভীবাজার)",
+    destinationBn: "কাওরান বাজার (ঢাকা)",
+    status: "in_transit",
+    progressPct: 85,
+    currentWaypointBn: "নরসিংদী পাঁচদোনা অতিক্রম",
+    speedKmh: 50,
+    estimatedHoursLeft: 0.8,
+    conditionNoteBn: "ভোরের পাইকারি বাজারের জন্য সময়মতো পৌঁছাবে।",
+  },
+];
+
+/**
+ * Projects latitude and longitude coordinates into Bangladesh 2D SVG canvas.
+ * Geographic bounding box for Bangladesh:
+ * Latitude: 20.5 (St. Martin's) to 26.6 (Tetulia)
+ * Longitude: 88.0 (Meherpur/Shibganj) to 92.7 (Bandarban)
+ */
+export function geoToSvg(
+  lat: number,
+  lon: number,
+  width = 500,
+  height = 650
+): { x: number; y: number } {
+  const padX = 25;
+  const padY = 25;
+  const usableW = width - padX * 2;
+  const usableH = height - padY * 2;
+
+  const minLat = 20.5;
+  const maxLat = 26.6;
+  const minLon = 88.0;
+  const maxLon = 92.7;
+
+  const clampedLat = Math.max(minLat, Math.min(maxLat, lat));
+  const clampedLon = Math.max(minLon, Math.min(maxLon, lon));
+
+  const x = padX + ((clampedLon - minLon) / (maxLon - minLon)) * usableW;
+  // Latitude is inverted in SVG coordinate space (top is high latitude)
+  const y = padY + ((maxLat - clampedLat) / (maxLat - minLat)) * usableH;
+
+  return { x: r2(x), y: r2(y) };
+}
+
+/**
+ * Interpolates geographical position along route waypoints given a progress percentage.
+ */
+export function interpolateRoutePosition(
+  waypoints: RouteWaypoint[],
+  progressPct: number
+): { lat: number; lon: number; currentWaypointBn: string } {
+  if (waypoints.length === 0) return { lat: 23.81, lon: 90.41, currentWaypointBn: "অজ্ঞাত" };
+  if (waypoints.length === 1 || progressPct <= 0) {
+    return { lat: waypoints[0].lat, lon: waypoints[0].lon, currentWaypointBn: waypoints[0].nameBn };
+  }
+  if (progressPct >= 100) {
+    const last = waypoints[waypoints.length - 1];
+    return { lat: last.lat, lon: last.lon, currentWaypointBn: last.nameBn };
+  }
+
+  const totalSegments = waypoints.length - 1;
+  const globalT = (Math.max(0, Math.min(100, progressPct)) / 100) * totalSegments;
+  const segIndex = Math.min(totalSegments - 1, Math.floor(globalT));
+  const segT = globalT - segIndex;
+
+  const p1 = waypoints[segIndex];
+  const p2 = waypoints[segIndex + 1];
+
+  const lat = p1.lat + (p2.lat - p1.lat) * segT;
+  const lon = p1.lon + (p2.lon - p1.lon) * segT;
+
+  return {
+    lat: r2(lat),
+    lon: r2(lon),
+    currentWaypointBn: segT < 0.5 ? p1.nameBn : p2.nameBn,
+  };
+}
+
+/**
+ * Evaluates transit spoilage and logistics risk based on temperature, duration and product type.
+ * Deterministic and transparent: calculates risk index with actionable guidance.
+ */
+export function estimateRouteRisk(params: {
+  temperatureC: number;
+  rainProbability: number;
+  durationHours: number;
+  isPerishable: boolean;
+}): {
+  riskLevel: "low" | "medium" | "high";
+  spoilageRiskScore: number; // 0 to 100
+  adviceBn: string;
+} {
+  let score = 10;
+  if (params.isPerishable) score += 25;
+  if (params.temperatureC > 32) score += 25;
+  else if (params.temperatureC > 27) score += 15;
+
+  if (params.rainProbability > 50) score += 20;
+  else if (params.rainProbability > 30) score += 10;
+
+  if (params.durationHours > 6) score += 20;
+  else if (params.durationHours > 4) score += 10;
+
+  const spoilageRiskScore = Math.min(100, Math.max(0, score));
+  let riskLevel: "low" | "medium" | "high" = "low";
+  let adviceBn = "রাস্তায় ঝুঁকি কম; স্বাভাবিক সতর্কতায় পরিবহন করুন।";
+
+  if (spoilageRiskScore >= 60) {
+    riskLevel = "high";
+    adviceBn = "উচ্চ ঝুঁকি: অতিরিক্ত গরম বা বৃষ্টিতে শাকসবজি দ্রুত নেতিয়ে যেতে পারে; ভেন্টিলেশন ও ত্রিপল তদারকি করুন।";
+  } else if (spoilageRiskScore >= 35) {
+    riskLevel = "medium";
+    adviceBn = "মাঝারি ঝুঁকি: দীর্ঘ যাত্রায় মাঝে মাঝে মালের অবস্থা পরীক্ষা করুন এবং জ্যাম এড়াতে রাতের বেলা পরিবহন শ্রেয়।";
+  }
+
+  return { riskLevel, spoilageRiskScore, adviceBn };
+}
+
