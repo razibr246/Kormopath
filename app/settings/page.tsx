@@ -13,6 +13,7 @@ const APPS: { ns: AppNamespace; name: string; href: string; what: string; sensit
   { ns: "probaho", name: "Probaho Coach", href: "/probaho", what: "অনুশীলনের স্কোর (ট্রান্সক্রিপ্ট শুধু আপনি চাইলে), মাইক সম্মতি" },
   { ns: "haatbazar", name: "HaatBazar AI", href: "/haatbazar", what: "দামের খাতা, কৃষি বাজার/পরিবহনের quote, জেলা" },
   { ns: "krishi", name: "MaathSathi", href: "/krishi", what: "জমির খাতা, কাজের তালিকা, খরচের হিসাব, পশুপাখি-মাছের খাতা, জেলা" },
+  { ns: "legal", name: "আইনি সহায়তা", href: "/legal", what: "আবেদনের খসড়া, নিজের কেসের সময়রেখা, মীমাংসার খসড়া ও ডেমো ডেস্কের নমুনা তথ্য" },
   { ns: "rokkha", name: "Rokkha", href: "/rokkha", what: "দুর্যোগ প্রস্তুতির টিক চিহ্ন, জেলা, টাকা পাঠানোর আগে বিরতির সময় (বার্তা ও রিপোর্ট সংরক্ষণ হয় না)" },
   { ns: "feeguard", name: "FeeGuard BD", href: "/feeguard", what: "পেমেন্ট রেকর্ড" },
   { ns: "chuktiguard", name: "ChuktiGuard", href: "/chuktiguard", what: "Service Pack ও চুক্তির খসড়া" },

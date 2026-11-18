@@ -77,6 +77,10 @@ const TOOLS: Record<"earn" | "life" | "farm", Tool[]> = {
       name: { bn: "রক্ষা", en: "Rokkha" },
       line: { bn: "সন্দেহজনক এসএমএসের লক্ষণ, টাকা পাঠানোর আগে বিরতি, টাকা হারালে কী করবেন আর দুর্যোগের প্রস্তুতি।", en: "Scam signs in an SMS, a pause before you send money, what to do if money is lost, and disaster readiness." },
       chips: { bn: ["প্রতারণা যাচাই", "বিরতির টাইমার"], en: ["Scam check", "Pause timer"] } },
+    { id: "legal", href: "/legal", icon: Scale, tone: "bg-indigo-50 text-indigo-800 ring-indigo-200", stripe: "from-indigo-500 to-amber-500",
+      name: { bn: "আইনি সহায়তা", en: "Legal Aid" },
+      line: { bn: "বিনামূল্যে আইনি সাহায্য পাবেন কি না, আবেদনের খসড়া, মীমাংসার প্রস্তুতি আর কথা বলে আইনি তথ্য — উৎসসহ, পরামর্শ নয়।", en: "Whether you may get free legal aid, an application draft, mediation prep and spoken legal information — sourced, not advice." },
+      chips: { bn: ["আবেদনের খসড়া", "মীমাংসা"], en: ["Application draft", "Mediation"] } },
   ],
   farm: [
     { id: "haatbazar", href: "/haatbazar", icon: Sprout, tone: "bg-emerald-50 text-emerald-800 ring-emerald-200", stripe: "from-emerald-500 to-lime-500",
@@ -113,6 +117,7 @@ const TASKS: Array<{ href: string; bn: string; en: string; keys: string }> = [
   { href: "/haatbazar", bn: "হাটে বেচব না আড়তে, হিসাব করব", en: "Market or wholesale: which pays more", keys: "crop ফসল farm কৃষি haat হাট weather আবহাওয়া spray স্প্রে truck ট্রাক দাম price" },
   { href: "/krishi/field#/farmer", bn: "স্যাটেলাইটে জমি, সেচ আর রোপণের সময় দেখব", en: "See my field by satellite: water, planting time and Ropon Radar", keys: "satellite স্যাটেলাইট nasa নাসা sentinel radar রাডার রোপণ ropon aman আমন সেচ water irrigation soil মাটি field future ভবিষ্যৎ fieldshift" },
   { href: "/krishi", bn: "খামারের খাতা: কাজ, পশুপাখি ও খরচ লিখব", en: "Plan field work, livestock and government support", keys: "farm কৃষি krishi মাঠ জমি land task কাজ cow গরু poultry মুরগি fish মাছ support সহায়তা card কার্ড voice ভয়েস sms" },
+  { href: "/legal", bn: "বিনামূল্যে আইনি সাহায্য পাব কি না দেখব", en: "See if I can get free legal aid", keys: "legal আইন আইনি lawyer উকিল আইনজীবী case মামলা court আদালত divorce তালাক land জমি dowry যৌতুক mediation মীমাংসা legal aid" },
   { href: "/rokkha", bn: "এই এসএমএস কি প্রতারণা, যাচাই করব", en: "Check if a message is a scam", keys: "scam প্রতারণা fraud otp ওটিপি pin পিন bkash বিকাশ nagad নগদ lottery লটারি sms এসএমএস banglish link লিংক call কল guardian পাহারা cyclone ঘূর্ণিঝড় flood বন্যা disaster দুর্যোগ helpline হেল্পলাইন gd জিডি" },
   { href: "/settings", bn: "আমার ডেটা দেখব বা মুছব", en: "See or delete my data", keys: "data ডেটা privacy প্রাইভেসি delete মুছুন export backup ব্যাকআপ" },
 ];
@@ -155,7 +160,7 @@ const LIFECYCLE: Array<{ icon: LucideIcon; tone: string; bn: string; en: string;
     links: [{ href: "/krishi/field#/farmer", bn: "মাঠসাথী", en: "MaathSathi" }, { href: "/haatbazar", bn: "হাটবাজার", en: "HaatBazar" }] },
   { icon: ShieldCheck, tone: "bg-amber-50 text-amber-800 ring-amber-200", bn: "সুরক্ষা", en: "Protect",
     when: { bn: "প্রতারণা চেনা, ভোক্তা অভিযোগ, তথ্যের ব্যাকআপ", en: "Spot scams, consumer complaints, back up data" },
-    links: [{ href: "/rokkha#call", bn: "কলে আছেন? থামুন", en: "On a call? Pause" }, { href: "/rokkha#check", bn: "এসএমএস যাচাই", en: "Check an SMS" }, { href: "/probaho#scam", bn: "প্রতারণা চিনুন", en: "Scam practice" }, { href: "/chuktiguard#dncrp", bn: "ভোক্তা অভিযোগ", en: "Consumer complaint" }, { href: "/settings", bn: "লক করা ব্যাকআপ", en: "Locked backup" }] },
+    links: [{ href: "/rokkha#call", bn: "কলে আছেন? থামুন", en: "On a call? Pause" }, { href: "/rokkha#check", bn: "এসএমএস যাচাই", en: "Check an SMS" }, { href: "/probaho#scam", bn: "প্রতারণা চিনুন", en: "Scam practice" }, { href: "/legal", bn: "বিনামূল্যে আইনি সহায়তা", en: "Free legal aid" }, { href: "/chuktiguard#dncrp", bn: "ভোক্তা অভিযোগ", en: "Consumer complaint" }, { href: "/settings", bn: "লক করা ব্যাকআপ", en: "Locked backup" }] },
 ];
 
 const PIPELINE = [

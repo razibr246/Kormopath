@@ -177,6 +177,22 @@ const dAfter = await p.evaluate(() => JSON.parse(localStorage.getItem("kormopath
 check(dBefore === 0 && dAfter === 1, "Shohoj: dhar entry saved only after confirm", `${dBefore} -> ${dAfter}`);
 await p.close();
 
+// Legal Aid (DLAS port): every page has the help strip, the demo is labelled, the assistant puts 999/109 first in a crisis
+p = await page(375, 812);
+const legalSeen = [];
+for (const [route, id] of [["/legal", "legal-hero"], ["/legal/assistant", "legal-assistant"], ["/legal/apply", "apply-wizard"], ["/legal/track", "track-empty"], ["/legal/mediation", "legal-mediation"], ["/legal/demo", "demo-banner"]]) {
+  await p.goto(`${BASE}${route}`, { waitUntil: "networkidle2" });
+  await wait(300);
+  const s = await p.evaluate((id) => ({ el: !!document.querySelector(`[data-testid="${id}"]`), strip: !!document.querySelector('[data-testid="legal-help-strip"] a[href="tel:16699"]'), sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }), id);
+  if (s.el && s.strip && s.sw <= s.cw + 1) legalSeen.push(route);
+}
+check(legalSeen.length === 6, "Legal: all six pages render with the 16699/999/109 strip and no sideways scroll at 375px", legalSeen.join(","));
+const lr = await fetch(`${BASE}/api/legal/assist`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ message: "আমার স্বামী আমাকে মারধর করে", lang: "bn" }) });
+const lj = await lr.json();
+const la = String(lj.answer ?? "");
+check(lr.status === 200 && /৯৯৯|999|১০৯|109/.test(la.slice(0, 120)) && Array.isArray(lj.trace), "Legal assistant: a violence question opens with 999/109, with a trace", `${lj.engine} ${la.slice(0, 80)}`);
+await p.close();
+
 // MaathSathi field app (FieldShift360 port): linked from MaathSathi, radar renders, storage stays in the krishi namespace
 p = await page(390, 844);
 await p.goto(`${BASE}/krishi`, { waitUntil: "networkidle2" });

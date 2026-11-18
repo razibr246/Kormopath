@@ -109,6 +109,14 @@ export function CommandPalette() {
       onSelect: () => router.push("/krishi"),
     },
     {
+      id: "legal",
+      title: "Legal Aid — free legal help, application draft, mediation",
+      titleBn: "আইনি সহায়তা — বিনামূল্যে আইনি সাহায্য, আবেদনের খসড়া, মীমাংসা",
+      category: "Navigation",
+      icon: <Sprout size={16} className="text-indigo-700" />,
+      onSelect: () => router.push("/legal"),
+    },
+    {
       id: "rokkha",
       title: "Rokkha — scam check, cooling-off pause, disaster readiness",
       titleBn: "রক্ষা — প্রতারণা যাচাই, টাকা পাঠানোর আগে বিরতি, দুর্যোগ প্রস্তুতি",

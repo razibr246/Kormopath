@@ -408,7 +408,7 @@ export default function ShohojBudgetPage() {
         accent="from-emerald-500 to-teal-700"
       />
 
-      <nav aria-label="সংসারের অংশ" className="sticky top-0 z-30 border-b border-slate-200 bg-[#f7faf8]/95 backdrop-blur" data-testid="shongshar-nav">
+      <nav aria-label="সংসারের অংশ" className="border-b border-slate-200 bg-[#f7faf8]/95" data-testid="shongshar-nav">
         <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-4 py-2 sm:px-6 [scrollbar-width:none]">
           {VIEWS.map((v) => (
             <button key={v.id} type="button" onClick={() => openView(v.id)} aria-current={view === v.id ? "page" : undefined} data-view={v.id}

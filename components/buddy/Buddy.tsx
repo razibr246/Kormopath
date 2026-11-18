@@ -648,8 +648,8 @@ export function Buddy() {
     { id: "security", icon: ShieldCheck, bn: "গোপনীয়তা", en: "Privacy" },
   ];
 
-  // The MaathSathi field app (FieldShift360) has its own agent, Chakra, in the same corner.
-  if (pathname?.startsWith("/krishi/field")) return null;
+  // MaathSathi field (Chakra) and the legal assistant have their own agent in the same corner.
+  if (pathname?.startsWith("/krishi/field") || pathname?.startsWith("/legal/assistant")) return null; // both have their own agent in that corner
   return (
     <aside
       aria-label={bn ? "বাডি সহকারী" : "Buddy assistant"}

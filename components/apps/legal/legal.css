@@ -1,0 +1,33 @@
+/* Legal Aid section: shared pieces on top of KormoPath's kp-* classes (docs/apps/legal/DESIGN_BRIEF.md). */
+.lg-nav { border-bottom: 1px solid var(--color-line, #eadfce); background: color-mix(in oklab, var(--color-paper, #fcf9f3) 92%, transparent); backdrop-filter: blur(10px); }
+.lg-tab { display: inline-flex; flex-shrink: 0; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid #e3d5bf; background: rgba(255, 253, 249, .92); font-size: 14px; font-weight: 600; line-height: 1.4; color: #4a3b2e; transition: border-color .2s, background-color .2s, color .2s; }
+.lg-tab:hover { border-color: #8e98d6; }
+.lg-tab-on { border-color: var(--color-indigo-800, #33357a); background: var(--color-indigo-800, #33357a); color: #fff; }
+
+.lg-strip { display: flex; flex-wrap: wrap; gap: 8px; }
+.lg-strip-call { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border-radius: 14px; border: 1px solid #e3d5bf; background: #fffdf9; color: var(--color-slate-800, #3a2c20); line-height: 1.4; transition: transform .2s var(--kp-ease, ease), box-shadow .2s; }
+.lg-strip-call:hover { transform: translateY(-2px); box-shadow: 0 10px 22px -16px rgba(60, 36, 18, .45); }
+.lg-strip-urgent { border-color: var(--color-red-300, #f0a49a); background: var(--color-red-50, #fdf1ef); color: var(--color-red-900, #7a1f17); }
+
+.lg-card { border-radius: 1rem; border: 1px solid var(--color-slate-200, #ece3d6); background: #fff; padding: 1.25rem; transition: transform .25s var(--kp-ease, ease), box-shadow .25s; }
+@media (min-width: 640px) { .lg-card { padding: 1.5rem; } }
+.lg-card-hover:hover { transform: translateY(-2px); box-shadow: 0 18px 36px -24px rgba(60, 36, 18, .45); }
+
+/* Bangla eyebrows: KormoPath's mono, letter-spaced eyebrow splits Bangla conjuncts, so here it is set plainly. */
+.lg-root .kp-eyebrow { font-family: var(--font-sans); font-size: 13px; line-height: 1.4; letter-spacing: 0; text-transform: none; }
+
+/* Signature: a balance scale that tips and settles when a step completes (one per screen). */
+.lg-scale { display: inline-block; transform-origin: 50% 20%; }
+.lg-scale-settle { animation: lg-settle 1.4s cubic-bezier(.34, 1.4, .64, 1) both; }
+@keyframes lg-settle { 0% { transform: rotate(-9deg); } 35% { transform: rotate(6deg); } 60% { transform: rotate(-3deg); } 80% { transform: rotate(1.2deg); } 100% { transform: rotate(0); } }
+/* A stamped "draft" seal on printable drafts. */
+.lg-seal { display: inline-grid; place-items: center; padding: 6px 14px; border: 2px solid var(--color-red-700, #b3261e); border-radius: 10px; color: var(--color-red-700, #b3261e); font-weight: 800; line-height: 1.4; transform: rotate(-6deg); }
+.lg-seal-in { animation: lg-stamp .5s cubic-bezier(.2, 1.6, .4, 1) both; }
+@keyframes lg-stamp { 0% { transform: rotate(-6deg) scale(1.8); opacity: 0; } 100% { transform: rotate(-6deg) scale(1); opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .lg-scale-settle, .lg-seal-in { animation: none; }
+  .lg-strip-call, .lg-card { transition: none; }
+  .lg-strip-call:hover, .lg-card-hover:hover { transform: none; }
+}
+@media print { .lg-nav, .lg-strip, header, footer { display: none !important; } }
