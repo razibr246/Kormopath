@@ -1223,3 +1223,413 @@ export function sanitizeStudyInput(raw: unknown): Omit<StudyPlanInput, "start"> 
   const blockedDates = Array.isArray(o.blockedDates) ? o.blockedDates.filter((d): d is string => typeof d === "string" && isoOk(d)).slice(0, 400) : [];
   return { examDate, hoursPerDay, chapters, blockedDates };
 }
+
+// ---------------------------------------------------------------------------------------------
+// University Comparison Tool
+// ---------------------------------------------------------------------------------------------
+export interface UniversityComparison {
+  universities: University[];
+  metrics: {
+    labelBn: string;
+    key: string;
+    values: Record<string, string | number>;
+  }[];
+}
+
+export function compareUniversities(universityIds: string[]): UniversityComparison {
+  const selected = UNIVERSITIES.filter((u) => universityIds.includes(u.id)).slice(0, 3);
+  if (!selected.length) {
+    return { universities: [], metrics: [] };
+  }
+
+  const valuesFor = (fn: (u: University) => string | number) => {
+    const map: Record<string, string | number> = {};
+    for (const u of selected) {
+      map[u.id] = fn(u);
+    }
+    return map;
+  };
+
+  const metrics = [
+    { labelBn: "ধরন (Type)", key: "type", values: valuesFor((u) => (u.type === "public" ? "সরকারি (Public)" : u.type === "private" ? "বেসরকারি (Private)" : "আন্তর্জাতিক (International)")) },
+    { labelBn: "অবস্থান (Location)", key: "location", values: valuesFor((u) => u.location) },
+    { labelBn: "ন্যূনতম SSC GPA", key: "minGpaSsc", values: valuesFor((u) => u.minGpaSsc.toFixed(2)) },
+    { labelBn: "ন্যূনতম HSC GPA", key: "minGpaHsc", values: valuesFor((u) => u.minGpaHsc.toFixed(2)) },
+    { labelBn: "সর্বমোট ন্যূনতম GPA", key: "minGpaTotal", values: valuesFor((u) => u.minGpaTotal.toFixed(2)) },
+    { labelBn: "সেমিস্টার খরচ পরিসর", key: "budgetRange", values: valuesFor((u) => `৳${u.minBudgetPerSemester.toLocaleString("en-IN")} – ৳${u.maxBudgetPerSemester.toLocaleString("en-IN")}`) },
+    { labelBn: "প্রধান প্রোগ্রামসমূহ", key: "programs", values: valuesFor((u) => u.programs.slice(0, 4).join(", ") + (u.programs.length > 4 ? "..." : "")) },
+    { labelBn: "ওয়েভার ও সুবিধা", key: "waiverInfo", values: valuesFor((u) => u.waiverInfo) },
+  ];
+
+  return { universities: selected, metrics };
+}
+
+// ---------------------------------------------------------------------------------------------
+// Central Unit Eligibility Matrix (সকল বিশ্ববিদ্যালয় ইউনিটের যোগ্যতা)
+// ---------------------------------------------------------------------------------------------
+export interface UnitRequirement {
+  id: string;
+  clusterNameBn: string;
+  clusterNameEn: string;
+  unitNameBn: string;
+  applicableGroup: "Science" | "Commerce" | "Humanities" | "All";
+  minSscGpa: number;
+  minHscGpa: number;
+  minTotalGpa: number;
+  subjectPrerequisitesBn: string[];
+  testPatternBn: string;
+  negativeMark: number;
+  examType: "Written + MCQ" | "MCQ Only" | "Written Only";
+  secondTimeAllowed: boolean;
+  notesBn: string;
+}
+
+export interface UnitEligibilityResult {
+  unit: UnitRequirement;
+  isEligible: boolean;
+  gpaGap: number; // 0 if meets, positive number if deficient
+  reasonsBn: string[];
+}
+
+export const UNIT_ELIGIBILITY_MATRIX: UnitRequirement[] = [
+  {
+    id: "du-a",
+    clusterNameBn: "ঢাকা বিশ্ববিদ্যালয়",
+    clusterNameEn: "University of Dhaka",
+    unitNameBn: "'ক' ইউনিট (বিজ্ঞান অনুষদ)",
+    applicableGroup: "Science",
+    minSscGpa: 3.5,
+    minHscGpa: 3.5,
+    minTotalGpa: 8.5,
+    subjectPrerequisitesBn: ["উচ্চতর গণিত ও জীববিজ্ঞান অবশ্যই থাকতে হবে"],
+    testPatternBn: "৬০ নম্বরের MCQ + ৪০ নম্বরের লিখিত পরীক্ষা। সময় ৯০ মিনিট।",
+    negativeMark: 0.25,
+    examType: "Written + MCQ",
+    secondTimeAllowed: false,
+    notesBn: "প্রথমবার পরীক্ষার্থীদের জন্য। ইঞ্জিনিয়ারিং ও বিজ্ঞানের শীর্ষ পছন্দ।",
+  },
+  {
+    id: "du-b",
+    clusterNameBn: "ঢাকা বিশ্ববিদ্যালয়",
+    clusterNameEn: "University of Dhaka",
+    unitNameBn: "'খ' ইউনিট (কলা, আইন ও সামাজিক বিজ্ঞান)",
+    applicableGroup: "All",
+    minSscGpa: 3.0,
+    minHscGpa: 3.0,
+    minTotalGpa: 7.5,
+    subjectPrerequisitesBn: ["বাংলা ও ইংরেজি উভয় ক্ষেত্রে ন্যূনত্বম জিপিএ থাকতে হবে"],
+    testPatternBn: "MCQ ৬০ নম্বর + লিখিত ৪০ নম্বর (বাংলা ও ইংরেজি অনুবাদ/রচনা)।",
+    negativeMark: 0.25,
+    examType: "Written + MCQ",
+    secondTimeAllowed: false,
+    notesBn: "বিজ্ঞান, মানবিক ও ব্যবসায় শিক্ষা সব বিভাগের শিক্ষার্থীরা আবেদন করতে পারেন।",
+  },
+  {
+    id: "du-c",
+    clusterNameBn: "ঢাকা বিশ্ববিদ্যালয়",
+    clusterNameEn: "University of Dhaka",
+    unitNameBn: "'গ' ইউনিট (ব্যবসায় শিক্ষা অনুষদ)",
+    applicableGroup: "Commerce",
+    minSscGpa: 3.0,
+    minHscGpa: 3.0,
+    minTotalGpa: 7.5,
+    subjectPrerequisitesBn: ["হিসাববিজ্ঞান ও ব্যবসায় শিক্ষা ব্যাকগ্রাউন্ড"],
+    testPatternBn: "MCQ ৬০ নম্বর (হিসাববিজ্ঞান, ব্যবস্থাপনা, ইংরেজি) + লিখিত ৪০ নম্বর।",
+    negativeMark: 0.25,
+    examType: "Written + MCQ",
+    secondTimeAllowed: false,
+    notesBn: "আইবিএ ও বাণিজ্য অনুষদের শীর্ষ কেন্দ্র।",
+  },
+  {
+    id: "buet",
+    clusterNameBn: "বুয়েট (BUET)",
+    clusterNameEn: "BUET",
+    unitNameBn: "প্রকৌশল ও স্থাপত্য বিভাগ",
+    applicableGroup: "Science",
+    minSscGpa: 4.0,
+    minHscGpa: 5.0,
+    minTotalGpa: 9.0,
+    subjectPrerequisitesBn: ["HSC তে গণিত, পদার্থ ও রসায়ন মিলিয়ে গ্রেড পয়েন্ট ১৫ (বা প্রতিটিতে A+)"],
+    testPatternBn: "১ম ধাপে ১০০ নম্বরের প্রিলিমিনারি MCQ; উত্তীর্ণদের ৪০০ নম্বরের চূড়ান্ত লিখিত পরীক্ষা।",
+    negativeMark: 0.25,
+    examType: "Written + MCQ",
+    secondTimeAllowed: false,
+    notesBn: "এইচএসসি ফিজিক্স, কেমিস্ট্রি ও ম্যাথ নম্বরের ভিত্তিতে প্রাথমিক প্রিলিমিনারি বাছাই করা হয়।",
+  },
+  {
+    id: "medical",
+    clusterNameBn: "মেডিকেল ও ডেন্টাল (DGME)",
+    clusterNameEn: "DGME Medical Cluster",
+    unitNameBn: "MBBS / BDS কেন্দ্রীয় ভর্তি পরীক্ষা",
+    applicableGroup: "Science",
+    minSscGpa: 3.5,
+    minHscGpa: 3.5,
+    minTotalGpa: 9.0,
+    subjectPrerequisitesBn: ["HSC তে বায়োলজিতে ন্যূনতম জিপিএ ৪.০ (বা সমমান)"],
+    testPatternBn: "১০০ নম্বরের ১০০টি MCQ (বায়ো ৩০, কেমি ২৫, ফিজিক্স ২০, ইংলিশ ১৫, জিকে ১০)। সময় ১ ঘণ্টা।",
+    negativeMark: 0.25,
+    examType: "MCQ Only",
+    secondTimeAllowed: true,
+    notesBn: "দ্বিতীয়বার পরীক্ষার্থীদের মোট নম্বর থেকে ৫ নম্বর কর্তন (কাটা) করা হয়।",
+  },
+  {
+    id: "eng-cluster",
+    clusterNameBn: "প্রকৌশল গুচ্ছ (RUET + KUET + CUET)",
+    clusterNameEn: "Engineering Cluster",
+    unitNameBn: "'ক' গ্রুপ (ইঞ্জিনিয়ারিং) ও 'খ' গ্রুপ (স্থাপত্য)",
+    applicableGroup: "Science",
+    minSscGpa: 4.0,
+    minHscGpa: 4.5,
+    minTotalGpa: 9.2,
+    subjectPrerequisitesBn: ["এইচএসসি গণিত, পদার্থ, রসায়ন ও ইংরেজিতে ন্যূনতম জিপিএ ১৮.৫"],
+    testPatternBn: "সরাসরি ৫০০ নম্বরের এমসিকিউ পরীক্ষা (ম্যাথ ১৫০, ফিজিক্স ১৫০, কেমি ১৫০, ইংলিশ ৫০)।",
+    negativeMark: 0.25,
+    examType: "MCQ Only",
+    secondTimeAllowed: false,
+    notesBn: "তিনটি শীর্ষ প্রকৌশল বিশ্ববিদ্যালয়ের প্রায় ৩,২০০টি আসনের জন্য কেন্দ্রীয় পরীক্ষা।",
+  },
+  {
+    id: "gst-cluster",
+    clusterNameBn: "জিএসটি গুচ্ছ (GST 24 Universities)",
+    clusterNameEn: "GST General & Science Cluster",
+    unitNameBn: "'A' ইউনিট (বিজ্ঞান), 'B' (মানবিক), 'C' (বাণিজ্য)",
+    applicableGroup: "All",
+    minSscGpa: 3.5,
+    minHscGpa: 3.5,
+    minTotalGpa: 7.5,
+    subjectPrerequisitesBn: ["ইউনিট অনুযায়ী সংশ্লিষ্ট বিভাগীয় বিষয়াবলি"],
+    testPatternBn: "১০০ নম্বরের কেন্দ্রীয় MCQ পরীক্ষা (সময় ১ ঘণ্টা)।",
+    negativeMark: 0.25,
+    examType: "MCQ Only",
+    secondTimeAllowed: true,
+    notesBn: "২৪টি পাবলিক বিশ্ববিদ্যালয়ের সম্মিলিত একক পরীক্ষা। দ্বিতীয়বার সুযোগ বিদ্যমান।",
+  },
+  {
+    id: "agri-cluster",
+    clusterNameBn: "কৃষি গুচ্ছ (Agricultural Cluster)",
+    clusterNameEn: "Agri University Cluster (8 Unis)",
+    unitNameBn: "কৃষি ও মাৎস্যবিজ্ঞান সমন্বিত অনুষদ",
+    applicableGroup: "Science",
+    minSscGpa: 3.5,
+    minHscGpa: 3.5,
+    minTotalGpa: 8.0,
+    subjectPrerequisitesBn: ["জীববিজ্ঞান, পদার্থবিজ্ঞান, রসায়ন ও উচ্চতর গণিত আবশ্যক"],
+    testPatternBn: "১০০ নম্বরের এমসিকিউ (বায়ো ৩০, কেমি ২০, ফিজিক্স ২০, ম্যাথ ২০, ইংলিশ ১০)।",
+    negativeMark: 0.25,
+    examType: "MCQ Only",
+    secondTimeAllowed: true,
+    notesBn: "বাকৃবি, শেকৃবি, বশেমুরকৃবি সহ ৮টি কৃষি বিশ্ববিদ্যালয়ের সম্মিলিত আসন।",
+  },
+  {
+    id: "ju-a",
+    clusterNameBn: "জাহাঙ্গীরনগর বিশ্ববিদ্যালয়",
+    clusterNameEn: "Jahangirnagar University",
+    unitNameBn: "'A' ইউনিট (গাণিতিক ও পদার্থবিজ্ঞান বিষয়ক অনুষদ)",
+    applicableGroup: "Science",
+    minSscGpa: 4.0,
+    minHscGpa: 4.0,
+    minTotalGpa: 8.5,
+    subjectPrerequisitesBn: ["গণিত ও পদার্থবিজ্ঞানে ন্যূনতম A গ্রেড"],
+    testPatternBn: "৮০ নম্বরের MCQ + ২০ নম্বর এসএসসি/এইচএসসি জিপিএ থেকে।",
+    negativeMark: 0.2,
+    examType: "MCQ Only",
+    secondTimeAllowed: true,
+    notesBn: "জাহাঙ্গীরনগরে নেগেটিভ মার্কিং সাধারণত প্রতি ভুলেও ০.২০ কাটা যায়। সম্পূর্ণ আবাসিক ক্যাম্পাস।",
+  },
+  {
+    id: "butex",
+    clusterNameBn: "বাংলাদেশ টেক্সটাইল বিশ্ববিদ্যালয়",
+    clusterNameEn: "BUTEX",
+    unitNameBn: "বি.এস-সি. ইন টেক্সটাইল ইঞ্জিনিয়ারিং",
+    applicableGroup: "Science",
+    minSscGpa: 4.5,
+    minHscGpa: 4.5,
+    minTotalGpa: 9.0,
+    subjectPrerequisitesBn: ["ফিজিক্স, কেমিস্ট্রি, ম্যাথ ও ইংলিশে ন্যূনতম মোট জিপিএ ১৯.০"],
+    testPatternBn: "২০০ নম্বরের সরাসরি লিখিত পরীক্ষা (ফিজিক্স ৬০, কেমি ৬০, ম্যাথ ৬০, ইংলিশ ২০)।",
+    negativeMark: 0.0,
+    examType: "Written Only",
+    secondTimeAllowed: false,
+    notesBn: "টেক্সটাইল খাতে দেশের একমাত্র বিশেষায়িত সরকারি পাবলিক প্রকৌশল প্রতিষ্ঠান।",
+  },
+];
+
+export function checkUnitEligibility(profile: StudentProfile): UnitEligibilityResult[] {
+  const userTotalGpa = profile.sscGpa + profile.hscGpa;
+
+  return UNIT_ELIGIBILITY_MATRIX.map((unit) => {
+    const reasonsBn: string[] = [];
+    let isEligible = true;
+
+    // 1. Group match
+    if (unit.applicableGroup !== "All" && unit.applicableGroup !== profile.group) {
+      isEligible = false;
+      reasonsBn.push(`আপনার বিভাগ (${profile.group}) এই ইউনিটের প্রযোজ্য বিভাগ (${unit.applicableGroup}) এর সাথে মেলে না।`);
+    }
+
+    // 2. SSC GPA check
+    if (profile.sscGpa < unit.minSscGpa) {
+      isEligible = false;
+      reasonsBn.push(`SSC GPA ${profile.sscGpa.toFixed(2)} শর্তের (${unit.minSscGpa.toFixed(2)}) নিচে।`);
+    }
+
+    // 3. HSC GPA check
+    if (profile.hscGpa < unit.minHscGpa) {
+      isEligible = false;
+      reasonsBn.push(`HSC GPA ${profile.hscGpa.toFixed(2)} শর্তের (${unit.minHscGpa.toFixed(2)}) নিচে।`);
+    }
+
+    // 4. Total GPA check
+    if (userTotalGpa < unit.minTotalGpa) {
+      isEligible = false;
+      reasonsBn.push(`মোট GPA ${userTotalGpa.toFixed(2)} শর্তের (${unit.minTotalGpa.toFixed(2)}) নিচে।`);
+    }
+
+    const gpaGap = Math.max(0, Math.round((unit.minTotalGpa - userTotalGpa) * 100) / 100);
+
+    return {
+      unit,
+      isEligible,
+      gpaGap,
+      reasonsBn,
+    };
+  });
+}
+
+// ---------------------------------------------------------------------------------------------
+// Scholarships & Financial Aid Directory
+// ---------------------------------------------------------------------------------------------
+export interface ScholarshipItem {
+  id: string;
+  nameBn: string;
+  nameEn: string;
+  providerBn: string;
+  category: "domestic" | "international";
+  targetLevelBn: string;
+  coverageBn: string;
+  eligibilityBn: string;
+  applicationPeriodBn: string;
+  officialUrl: string;
+  status: "verified";
+}
+
+export const SCHOLARSHIPS_DIRECTORY: ScholarshipItem[] = [
+  {
+    id: "pmeat",
+    nameBn: "প্রধানমন্ত্রীর শিক্ষা সহায়তা ট্রাস্ট স্নাতক উপবৃত্তি",
+    nameEn: "Prime Minister's Education Assistance Trust (PMEAT)",
+    providerBn: "বাংলাদেশ সরকার (শিক্ষা মন্ত্রণালয়)",
+    category: "domestic",
+    targetLevelBn: "স্নাতক (পাস ও অনার্স) ১ম বর্ষ",
+    coverageBn: "এককালীন আর্থিক সহায়তা ও বাৎসরিক উপবৃত্তি",
+    eligibilityBn: "সরকারি ও এমপিওভুক্ত কলেজের অসচ্ছল ও মেধাবী শিক্ষার্থী; অভিভাবকের বার্ষিক আয় নির্ধারিত সীমার নিচে",
+    applicationPeriodBn: "প্রতি বছর সার্কুলার অনুযায়ী অনলাইনে (estipend.pmeat.gov.bd)",
+    officialUrl: "https://estipend.pmeat.gov.bd",
+    status: "verified",
+  },
+  {
+    id: "dbbl",
+    nameBn: "ডাচ-বাংলা ব্যাংক শিক্ষা বৃত্তি",
+    nameEn: "Dutch-Bangla Bank Scholarship (DBBL)",
+    providerBn: "ডাচ-বাংলা ব্যাংক ফাউন্ডেশন",
+    category: "domestic",
+    targetLevelBn: "এইচএসসি ও স্নাতক পর্যায়",
+    coverageBn: "মাসিক ২,৫০০–৩,০০০ টাকা ভাতা + পাঠ্যপুস্তক ও পোশাক কেনার বার্ষিক অনুদান",
+    eligibilityBn: "এইচএসসিতে জিপিএ ৫.০ (সিটি কর্পোরেশন এলাকার বাইরে ৪.৮৩) এবং অসচ্ছল পারিবারিক পটভূমি",
+    applicationPeriodBn: "এইচএসসি পরীক্ষার ফল প্রকাশের পরপরই",
+    officialUrl: "https://app.dutchbanglabank.com/DBBLScholarship",
+    status: "verified",
+  },
+  {
+    id: "board-merit",
+    nameBn: "মাধ্যমিক ও উচ্চমাধ্যমিক শিক্ষা বোর্ড মেধা ও সাধারণ বৃত্তি",
+    nameEn: "Education Board Merit & Talentpool Scholarship",
+    providerBn: "মাধ্যমিক ও উচ্চ শিক্ষা অধিদপ্তর (DSHE)",
+    category: "domestic",
+    targetLevelBn: "স্নাতক ৪ বছর মেয়াদী",
+    coverageBn: "মেধাবৃত্তি: মাসিক নির্ধারিত নগদ অর্থ + বছরে এককালীন অনুদান + সম্পূর্ণ টিউশন ফ্রি",
+    eligibilityBn: "এইচএসসি পরীক্ষায় বোর্ডের মেধা তালিকায় শীর্ষ স্থান অধিকার",
+    applicationPeriodBn: "ফল প্রকাশের পর কলেজ/বিশ্ববিদ্যালয়ে ভর্তির মাধ্যমে স্বয়ংক্রিয়ভাবে কার্যকর",
+    officialUrl: "https://dshe.gov.bd",
+    status: "verified",
+  },
+  {
+    id: "erasmus",
+    nameBn: "ইরাসমাস মুন্ডুস জয়েন্ট মাস্টার্স (Erasmus Mundus)",
+    nameEn: "Erasmus Mundus Joint Master Degrees (EMJM)",
+    providerBn: "ইউরোপীয় ইউনিয়ন (European Commission)",
+    category: "international",
+    targetLevelBn: "মাস্টার্স (ইউরোপের ২–৩টি দেশে পড়ার সুযোগ)",
+    coverageBn: "১০০% সম্পূর্ণ টিউশন ফি, প্রতি মাসে €১,৪০০ ইউরো হাতখরচ, বিমান টিকিট ও স্বাস্থ্যবীমা",
+    eligibilityBn: "স্নাতক ডিগ্রিতে ভালো সিজিপিএ, শক্তিশালী এসওপি ও ২টি রেফারেন্স লেটার",
+    applicationPeriodBn: "প্রতি বছর অক্টোবর থেকে জানুয়ারি পর্যন্ত",
+    officialUrl: "https://erasmus-plus.ec.europa.eu",
+    status: "verified",
+  },
+  {
+    id: "daad-epos",
+    nameBn: "জার্মান ডিএএডি বৃত্তি (DAAD EPOS / Helmut-Schmidt)",
+    nameEn: "DAAD Development-Related Postgraduate Courses",
+    providerBn: "জার্মান সরকার (DAAD Germany)",
+    category: "international",
+    targetLevelBn: "মাস্টার্স ও পিএইচডি",
+    coverageBn: "সম্পূর্ণ টিউশন ফ্রি, মাসিক €৯৩৪ ইউরো স্টাইপেন্ড, বিমান টিকিট ও জার্মান ভাষা কোর্স",
+    eligibilityBn: "ন্যূনতম ২ বছরের প্রাসঙ্গিক কাজের অভিজ্ঞতা ও সংশ্লিষ্ট বিষয়ে স্নাতক ডিগ্রি",
+    applicationPeriodBn: "আগস্ট থেকে অক্টোবর",
+    officialUrl: "https://www.daad.de",
+    status: "verified",
+  },
+  {
+    id: "fulbright",
+    nameBn: "ফুলব্রাইট ফরেন স্টুডেন্ট প্রোগ্রাম (যুক্তরাষ্ট্র)",
+    nameEn: "Fulbright Foreign Student Program (USA)",
+    providerBn: "যুক্তরাষ্ট্র পররাষ্ট্র দপ্তর ও এডুকেশনইউএসএ",
+    category: "international",
+    targetLevelBn: "মাস্টার্স ডিগ্রি",
+    coverageBn: "যুক্তরাষ্ট্রের শীর্ষ বিশ্ববিদ্যালয়ে সম্পূর্ণ অর্থায়ন, লিভিং কস্ট, টিকিট ও ভিসা স্পনসর",
+    eligibilityBn: "উচ্চ সিজিপিএ, নেতৃত্বের গুণাবলী এবং দেশে ফিরে অবদান রাখার প্রতিশ্রুতি",
+    applicationPeriodBn: "প্রতি বছর ফেব্রুয়ারি থেকে মে",
+    officialUrl: "https://bd.usembassy.gov",
+    status: "verified",
+  },
+  {
+    id: "mext",
+    nameBn: "জাপান মেক্সট বৃত্তি (Monbukagakusho MEXT)",
+    nameEn: "Japanese Government (MEXT) Scholarship",
+    providerBn: "জাপান শিক্ষা মন্ত্রণালয় ও জাপান দূতাবাস ঢাকা",
+    category: "international",
+    targetLevelBn: "আন্ডারগ্র্যাজুয়েট, মাস্টার্স ও পিএইচডি",
+    coverageBn: "১০০% টিউশন ফি ফ্রি, প্রতি মাসে ১,৪৩,০০০–১,৪৫,০০০ ইয়েন স্টাইপেন্ড ও ফ্রি এয়ার টিকিট",
+    eligibilityBn: "লিখিত পরীক্ষায় গণিত, বিজ্ঞান/ইংরেজি দক্ষতা এবং ভাইভা পারফরম্যান্স",
+    applicationPeriodBn: "মে থেকে জুন (দূতাবাস ট্র্যাক)",
+    officialUrl: "https://www.bd.emb-japan.go.jp",
+    status: "verified",
+  },
+  {
+    id: "chevening",
+    nameBn: "যুক্তরাজ্য চিভেনিং বৃত্তি (Chevening UK)",
+    nameEn: "Chevening Scholarship",
+    providerBn: "যুক্তরাজ্য সরকার (FCDO)",
+    category: "international",
+    targetLevelBn: "১ বছরের মাস্টার্স ডিগ্রি",
+    coverageBn: "যুক্তরাজ্যের যেকোনো বিশ্ববিদ্যালয়ে সম্পূর্ণ টিউশন, মাসিক লিভিং ভাতা ও ফ্লাইট",
+    eligibilityBn: "স্নাতক ডিগ্রি এবং ন্যূনতম ২ বছরের কাজের অভিজ্ঞতা (২,৮০০ ঘণ্টা)",
+    applicationPeriodBn: "আগস্ট থেকে নভেম্বর",
+    officialUrl: "https://www.chevening.org",
+    status: "verified",
+  },
+  {
+    id: "turkiye-burslari",
+    nameBn: "তুরস্ক সরকারি বৃত্তি (Türkiye Bursları)",
+    nameEn: "Turkiye Scholarships",
+    providerBn: "তুর্কি সরকার (YTB)",
+    category: "international",
+    targetLevelBn: "স্নাতক, মাস্টার্স ও পিএইচডি",
+    coverageBn: "সম্পূর্ণ টিউশন, বিশ্ববিদ্যালয় ডরমিটরিতে ফ্রি থাকা-খাওয়া, মাসিক ভাতা ও বিমান টিকিট",
+    eligibilityBn: "স্নাতকে ৭৫% নম্বর, মাস্টার্স/পিএইচডিতে ৭৫%-৮০% নম্বর",
+    applicationPeriodBn: "১০ জানুয়ারি থেকে ২০ ফেব্রুয়ারি",
+    officialUrl: "https://www.turkiyeburslari.gov.tr",
+    status: "verified",
+  },
+];
+

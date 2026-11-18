@@ -144,7 +144,7 @@ function matchTasks(query: string) {
 const LIFECYCLE: Array<{ icon: LucideIcon; tone: string; bn: string; en: string; when: { bn: string; en: string }; links: Array<{ href: string; bn: string; en: string }> }> = [
   { icon: GraduationCap, tone: "bg-blue-50 text-blue-700 ring-blue-200", bn: "পড়া", en: "Study",
     when: { bn: "এসএসসি-এইচএসসির পর ভর্তি আর প্রস্তুতি", en: "After SSC/HSC: admission and preparation" },
-    links: [{ href: "/admitbuddy", bn: "ভর্তির পরিকল্পনা", en: "Admission plan" }, { href: "/probaho", bn: "ভাইভা অনুশীলন", en: "Viva practice" }] },
+    links: [{ href: "/admitbuddy", bn: "ভর্তির পরিকল্পনা", en: "Admission plan" }, { href: "/admitbuddy#exam_practice", bn: "মডেল টেস্ট ও অনুশীলন", en: "Exam practice" }, { href: "/admitbuddy#foreign", bn: "বিদেশে উচ্চশিক্ষা", en: "Study abroad" }, { href: "/probaho", bn: "ভাইভা অনুশীলন", en: "Viva practice" }] },
   { icon: Briefcase, tone: "bg-emerald-50 text-emerald-800 ring-emerald-200", bn: "দক্ষতা ও কাজ", en: "Skills & work",
     when: { bn: "দক্ষতার প্রমাণ, চাকরি বা ফ্রিল্যান্স", en: "Prove skills, find a job or clients" },
     links: [{ href: "/workspace", bn: "স্কিল পাসপোর্ট", en: "Skill passport" }, { href: "/opportunities", bn: "সুযোগ খুঁজুন", en: "Find opportunities" }] },

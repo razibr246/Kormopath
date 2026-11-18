@@ -291,7 +291,7 @@ export function EcosystemHub({
                         </span>
                       </div>
                       <p className="text-[12px] text-muted">
-                        BD University Matching Engine, Reach/Match/Safety &amp; Scholarship Studio
+                        BD &amp; Global University Matching, OMR Exam Practice, IELTS Lab &amp; Admission FinOps
                       </p>
                     </div>
                   </div>
@@ -312,8 +312,7 @@ export function EcosystemHub({
                   </div>
                 </div>
                 <p className="mt-2 text-[12px] text-muted">
-                  Matches Bangladeshi students with BUET, DU, SUST vs Private universities based on GPA cutoffs,
-                  scholarship eligibility and auto-drafts polished SOP essays.
+                  Matches Bangladeshi students with BUET, DU, Medical, GST and top global universities. Features authentic timed model tests with negative marking, IELTS Speaking Part 2 simulator, admission travel/form fee budget planner and SOP studio.
                 </p>
               </div>
 

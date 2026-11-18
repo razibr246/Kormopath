@@ -3,7 +3,8 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   GraduationCap, Bookmark, BookmarkCheck, CalendarPlus, Download, ExternalLink, CheckCircle2, Circle, Trash2, Send, Copy,
-  FileText, Bot, Info, AlertTriangle, ListChecks, Compass, Search, BookOpen,
+  FileText, Bot, Info, AlertTriangle, ListChecks, Compass, Search, BookOpen, Globe2,
+  Scale, Award, X, Sparkles, Check, Receipt, ShieldAlert,
 } from "lucide-react";
 import { AppHeader, SourceTag } from "@/components/layout/AppHeader";
 import { AppFooter } from "@/components/layout/AppFooter";
@@ -12,12 +13,19 @@ import {
   UNIVERSITIES, OFFICIAL_RESOURCES, DOCUMENT_CHECKLIST, calculateMatches, generateDeadlines, validateUserDeadline,
   generateSopDraft, answerCounselorQuery, analyzeListBalance, analyzeSopText, toIcs, toRoadmapMarkdown,
   APPLICATION_STAGES, applicationPipeline, sanitizeStatuses,
+  compareUniversities, checkUnitEligibility, SCHOLARSHIPS_DIRECTORY, UNIT_ELIGIBILITY_MATRIX,
   type StudentProfile, type UserDeadline, type ApplicationStatus, type ApplicationStage,
+  type UnitRequirement, type ScholarshipItem, type UniversityComparison,
 } from "@/lib/admitbuddy";
 import { usePersistentState, storageKey, downloadText, todayLocal } from "@/lib/clientStore";
 import { StudyPlanner } from "@/components/apps/admitbuddy/StudyPlanner";
+import { ExamPracticeView } from "@/components/apps/admitbuddy/ExamPracticeView";
+import { ForeignAdmissionView } from "@/components/apps/admitbuddy/ForeignAdmissionView";
+import { AdmissionCostEstimator } from "@/components/apps/admitbuddy/AdmissionCostEstimator";
+import { ExamDayStrategyView } from "@/components/apps/admitbuddy/ExamDayStrategyView";
+import { bnDigits } from "@/lib/contract";
 
-type Tab = "discover" | "applications" | "study" | "sop" | "counselor" | "resources";
+type Tab = "discover" | "matrix" | "exam_practice" | "foreign" | "scholarships" | "budget" | "hall_strategy" | "applications" | "study" | "sop" | "counselor" | "resources";
 
 const DEFAULT_PROFILE: StudentProfile = { name: "", sscGpa: 5, hscGpa: 5, group: "Science", maxBudgetPerSemester: 80000, preferredLocations: [], interests: [] };
 const LOCATIONS = [...new Set(UNIVERSITIES.map((u) => u.location))].sort();
@@ -58,7 +66,30 @@ export default function AdmitBuddyPage() {
   const [filter, setFilter] = useState<"all" | "eligible" | "public" | "private" | "shortlist">("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [editingProfile, setEditingProfile] = useState(false);
+
+  // Comparison & modal states
+  const [comparedUnis, setComparedUnis] = useState<string[]>([]);
+  const [showCompareModal, setShowCompareModal] = useState(false);
+  const [scholarshipCategory, setScholarshipCategory] = useState<"all" | "domestic" | "international">("all");
+
   useEffect(() => setToday(todayLocal()), []);
+
+  useEffect(() => {
+    const syncHash = () => {
+      const h = window.location.hash.replace(/^#/, "");
+      if (["discover", "matrix", "exam_practice", "foreign", "scholarships", "budget", "hall_strategy", "applications", "study", "sop", "counselor", "resources"].includes(h)) {
+        setTab(h as Tab);
+      }
+    };
+    syncHash();
+    window.addEventListener("hashchange", syncHash);
+    return () => window.removeEventListener("hashchange", syncHash);
+  }, []);
+
+  const switchTab = (t: Tab) => {
+    window.history.replaceState(null, "", t === "discover" ? window.location.pathname : `#${t}`);
+    setTab(t);
+  };
 
   const matches = useMemo(() => calculateMatches(profile, userDeadlines, today), [profile, userDeadlines, today]);
   const shortlisted = UNIVERSITIES.filter((u) => shortlist.includes(u.id));
@@ -71,6 +102,20 @@ export default function AdmitBuddyPage() {
       saveUserProfile({ shortlistedUniversities: next });
       return next;
     });
+
+  const toggleCompare = (id: string) => {
+    setComparedUnis((prev) => {
+      if (prev.includes(id)) return prev.filter((x) => x !== id);
+      if (prev.length >= 3) {
+        alert("একসাথে সর্বোচ্চ ৩টি বিশ্ববিদ্যালয় তুলনা করা যাবে।");
+        return prev;
+      }
+      return [...prev, id];
+    });
+  };
+
+  const comparisonData = useMemo(() => compareUniversities(comparedUnis), [comparedUnis]);
+  const unitEligibility = useMemo(() => checkUnitEligibility(profile), [profile]);
 
   const filtered = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -98,6 +143,12 @@ export default function AdmitBuddyPage() {
 
   const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
     { id: "discover", label: "বিশ্ববিদ্যালয় খুঁজুন", icon: <Compass size={15} aria-hidden /> },
+    { id: "matrix", label: "ভর্তি ইউনিট ও যোগ্যতা", icon: <Scale size={15} aria-hidden /> },
+    { id: "exam_practice", label: "মডেল টেস্ট ও অনুশীলন", icon: <GraduationCap size={15} aria-hidden /> },
+    { id: "foreign", label: "বিদেশে উচ্চশিক্ষা", icon: <Globe2 size={15} aria-hidden /> },
+    { id: "scholarships", label: "বৃত্তি ও স্কলারশিপ", icon: <Award size={15} aria-hidden /> },
+    { id: "budget", label: "খরচ প্ল্যানার", icon: <Receipt size={15} aria-hidden /> },
+    { id: "hall_strategy", label: "হল স্ট্র্যাটেজি", icon: <ShieldAlert size={15} aria-hidden /> },
     { id: "applications", label: `আবেদন ট্র্যাকার${shortlist.length ? ` (${shortlist.length})` : ""}`, icon: <ListChecks size={15} aria-hidden /> },
     { id: "study", label: "পড়ার পরিকল্পনা", icon: <BookOpen size={15} aria-hidden /> },
     { id: "sop", label: "SOP সহায়ক", icon: <FileText size={15} aria-hidden /> },
@@ -136,7 +187,7 @@ export default function AdmitBuddyPage() {
 
         <nav className="flex gap-1.5 overflow-x-auto scrollbar-none rounded-xl border border-slate-200/80 bg-white/80 backdrop-blur-md p-1.5 shadow-xs" role="tablist" aria-label="AdmitBuddy">
           {TABS.map((t) => (
-            <button key={t.id} role="tab" aria-selected={tab === t.id} onClick={() => setTab(t.id)} className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3.5 py-2 text-[13px] font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] focus-visible:ring-offset-2 transition-all ${tab === t.id ? "bg-indigo-600 text-white shadow-xs" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"}`}>
+            <button key={t.id} role="tab" aria-selected={tab === t.id} onClick={() => switchTab(t.id)} className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3.5 py-2 text-[13px] font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] focus-visible:ring-offset-2 transition-all ${tab === t.id ? "bg-indigo-600 text-white shadow-xs" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"}`}>
               {t.icon} {t.label}
             </button>
           ))}
@@ -195,16 +246,32 @@ export default function AdmitBuddyPage() {
               {filtered.map((m) => {
                 const u = m.university;
                 const saved = shortlist.includes(u.id);
+                const isCompared = comparedUnis.includes(u.id);
                 return (
-                  <article key={u.id} className={`flex flex-col rounded-2xl border bg-white p-4 ${saved ? "border-indigo-400 ring-1 ring-indigo-200" : "border-slate-200"}`}>
+                  <article key={u.id} className={`flex flex-col rounded-2xl border bg-white p-4 ${saved ? "border-indigo-400 ring-1 ring-indigo-200" : isCompared ? "border-blue-400 ring-1 ring-blue-200" : "border-slate-200"}`}>
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <span className="text-[11px] font-bold uppercase text-slate-500">{u.type === "public" ? "সরকারি" : u.type === "private" ? "বেসরকারি" : "আন্তর্জাতিক"} · {u.location}</span>
                         <h3 className="text-[16px] font-bold leading-snug">{u.shortName} — {u.name}</h3>
                       </div>
-                      <button onClick={() => toggleShortlist(u.id)} aria-pressed={saved} aria-label={saved ? `${u.shortName} শর্টলিস্ট থেকে সরান` : `${u.shortName} শর্টলিস্টে রাখুন`} className={`rounded-lg p-1.5 ${saved ? "text-indigo-700" : "text-slate-400 hover:text-indigo-700"}`}>
-                        {saved ? <BookmarkCheck size={20} /> : <Bookmark size={20} />}
-                      </button>
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => toggleCompare(u.id)}
+                          aria-label={`${u.shortName} তুলনা করুন`}
+                          className={`rounded-lg px-2 py-1 text-[11px] font-bold border transition-all ${
+                            isCompared
+                              ? "border-blue-600 bg-blue-50 text-blue-800"
+                              : "border-slate-200 text-slate-500 hover:border-slate-300"
+                          }`}
+                        >
+                          <Scale size={12} className="inline mr-1" />
+                          {isCompared ? "তুলনায়" : "তুলনা"}
+                        </button>
+                        <button onClick={() => toggleShortlist(u.id)} aria-pressed={saved} aria-label={saved ? `${u.shortName} শর্টলিস্ট থেকে সরান` : `${u.shortName} শর্টলিস্টে রাখুন`} className={`rounded-lg p-1.5 ${saved ? "text-indigo-700" : "text-slate-400 hover:text-indigo-700"}`}>
+                          {saved ? <BookmarkCheck size={20} /> : <Bookmark size={20} />}
+                        </button>
+                      </div>
                     </div>
                     <div className="mt-2 flex flex-wrap gap-1.5 text-[11px] font-bold">
                       <span className="rounded bg-indigo-100 px-1.5 py-0.5 text-indigo-800">ফিট {m.matchScore}</span>
@@ -227,6 +294,47 @@ export default function AdmitBuddyPage() {
             </div>
           </section>
         )}
+
+        {comparedUnis.length > 0 && (
+          <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 rounded-2xl border border-blue-300 bg-white/95 px-5 py-3 shadow-lg backdrop-blur-md">
+            <span className="text-[13px] font-bold text-slate-900">
+              নির্বাচিত ({bnDigits(comparedUnis.length)}/৩টি): {comparedUnis.map((id) => UNIVERSITIES.find((x) => x.id === id)?.shortName).join(", ")}
+            </span>
+            <button
+              type="button"
+              disabled={comparedUnis.length < 2}
+              onClick={() => setShowCompareModal(true)}
+              className="rounded-xl bg-blue-700 px-4 py-1.5 text-[13px] font-bold text-white hover:bg-blue-800 disabled:opacity-40"
+            >
+              তুলনা দেখুন
+            </button>
+            <button
+              type="button"
+              onClick={() => setComparedUnis([])}
+              className="text-[12px] text-slate-400 hover:text-slate-600"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
+        {showCompareModal && (
+          <UniversityComparisonModal
+            comparison={comparisonData}
+            onClose={() => setShowCompareModal(false)}
+          />
+        )}
+
+        {tab === "matrix" && (
+          <UnitEligibilityMatrixView profile={profile} unitResults={unitEligibility} />
+        )}
+        {tab === "exam_practice" && <ExamPracticeView />}
+        {tab === "foreign" && <ForeignAdmissionView />}
+        {tab === "scholarships" && (
+          <ScholarshipHubView category={scholarshipCategory} setCategory={setScholarshipCategory} />
+        )}
+        {tab === "budget" && <AdmissionCostEstimator />}
+        {tab === "hall_strategy" && <ExamDayStrategyView />}
 
         {tab === "applications" && shortlist.length > 0 && <StatusBoard shortlist={shortlist} statuses={statuses} setStatuses={setStatuses} today={today} />}
         {tab === "applications" && (
@@ -619,3 +727,289 @@ function StatusBoard({ shortlist, statuses, setStatuses, today }: {
     </section>
   );
 }
+
+function UniversityComparisonModal({
+  comparison,
+  onClose,
+}: {
+  comparison: ReturnType<typeof compareUniversities>;
+  onClose: () => void;
+}) {
+  if (!comparison.universities.length) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs animate-fade-in" role="dialog" aria-modal="true" aria-labelledby="comp-title">
+      <div className="relative w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-3xl bg-white shadow-2xl flex flex-col">
+        <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 bg-slate-50">
+          <div className="flex items-center gap-2">
+            <Scale size={20} className="text-indigo-700" />
+            <h3 id="comp-title" className="text-[18px] font-extrabold text-slate-900">
+              বিশ্ববিদ্যালয় তুলনামূলক টেবিল ({bnDigits(comparison.universities.length)}টি)
+            </h3>
+          </div>
+          <button
+            onClick={onClose}
+            aria-label="বন্ধ করুন"
+            className="rounded-full p-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="overflow-x-auto p-6">
+          <table className="w-full border-collapse text-left text-[13.5px]">
+            <thead>
+              <tr className="border-b border-slate-200">
+                <th className="p-3 font-bold text-slate-500 w-1/4">মানদণ্ড (Metric)</th>
+                {comparison.universities.map((u) => (
+                  <th key={u.id} className="p-3 font-extrabold text-indigo-900 text-[15px]">
+                    {u.shortName}
+                    <span className="block text-[11px] font-normal text-slate-500">{u.name}</span>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {comparison.metrics.map((m) => (
+                <tr key={m.key} className="hover:bg-slate-50/50">
+                  <td className="p-3 font-semibold text-slate-700 bg-slate-50/50">{m.labelBn}</td>
+                  {comparison.universities.map((u) => (
+                    <td key={u.id} className="p-3 text-slate-800 leading-relaxed">
+                      {String(m.values[u.id] ?? "—")}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="border-t border-slate-200 px-6 py-3 bg-slate-50 text-right">
+          <button
+            onClick={onClose}
+            className="rounded-xl bg-slate-900 px-5 py-2 text-[13px] font-bold text-white hover:bg-slate-800"
+          >
+            বন্ধ করুন
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function UnitEligibilityMatrixView({
+  profile,
+  unitResults,
+}: {
+  profile: StudentProfile;
+  unitResults: ReturnType<typeof checkUnitEligibility>;
+}) {
+  const [filterGroup, setFilterGroup] = useState<"all" | "eligible" | "Science" | "Commerce" | "Humanities">("all");
+
+  const filtered = useMemo(() => {
+    return unitResults.filter((r) => {
+      if (filterGroup === "eligible") return r.isEligible;
+      if (filterGroup === "all") return true;
+      return r.unit.applicableGroup === "All" || r.unit.applicableGroup === filterGroup;
+    });
+  }, [unitResults, filterGroup]);
+
+  const totalEligible = unitResults.filter((r) => r.isEligible).length;
+
+  return (
+    <section className="space-y-4" aria-labelledby="matrix-title">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50/80 via-white to-indigo-50/60 p-5 shadow-xs">
+        <div className="space-y-1">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-3 py-0.5 text-[12px] font-bold text-blue-900">
+            <Scale size={14} className="text-blue-700" />
+            <span>ভর্তি ইউনিট ও যোগ্যতা যাচাই ম্যাট্রিক্স</span>
+          </div>
+          <h2 id="matrix-title" className="text-[20px] font-extrabold text-slate-900">
+            আপনার বর্তমান GPA অনুযায়ী কোন কোন ইউনিটে আবেদন করতে পারবেন
+          </h2>
+          <p className="text-[13.5px] leading-relaxed text-slate-600">
+            আপনার SSC ({profile.sscGpa.toFixed(2)}) ও HSC ({profile.hscGpa.toFixed(2)}) জিপিএ অনুযায়ী মোট {unitResults.length}টি ইউনিটের মধ্যে <strong>{totalEligible}টি ইউনিটে</strong> প্রাথমিক শর্ত পূরণ হয়েছে।
+          </p>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-1.5" role="group" aria-label="ম্যাট্রিক্স ফিল্টার">
+        {(
+          [
+            ["all", "সব ইউনিট"],
+            ["eligible", `যোগ্যতা পূরণ (${bnDigits(totalEligible)})`],
+            ["Science", "বিজ্ঞান"],
+            ["Commerce", "ব্যবসায়"],
+            ["Humanities", "মানবিক"],
+          ] as const
+        ).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setFilterGroup(id)}
+            className={`rounded-lg border px-3 py-1.5 text-[12.5px] font-semibold transition-colors ${
+              filterGroup === id
+                ? "border-blue-600 bg-blue-50 text-blue-800"
+                : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+        {filtered.map(({ unit, isEligible, gpaGap, reasonsBn }) => (
+          <article
+            key={unit.id}
+            className={`rounded-2xl border p-4 flex flex-col justify-between transition-all ${
+              isEligible ? "border-emerald-300 bg-white shadow-2xs" : "border-slate-200 bg-slate-50/70 opacity-90"
+            }`}
+          >
+            <div className="space-y-2">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <span className="text-[11px] font-bold uppercase text-slate-500">{unit.clusterNameBn}</span>
+                  <h3 className="text-[16px] font-bold leading-snug text-slate-900">{unit.unitNameBn}</h3>
+                </div>
+                <span
+                  className={`rounded-md px-2 py-0.5 text-[11px] font-extrabold ${
+                    isEligible ? "bg-emerald-100 text-emerald-800" : "bg-rose-100 text-rose-800"
+                  }`}
+                >
+                  {isEligible ? "শর্ত পূরণ" : "GPA ঘাটতি"}
+                </span>
+              </div>
+
+              <div className="text-[12px] text-slate-600 space-y-1">
+                <p>
+                  ন্যূনতম শর্ত: SSC <strong>{unit.minSscGpa.toFixed(2)}</strong> · HSC <strong>{unit.minHscGpa.toFixed(2)}</strong> · মোট <strong>{unit.minTotalGpa.toFixed(2)}</strong>
+                </p>
+                <p>পরীক্ষার ধরন: <strong>{unit.examType}</strong> ({unit.testPatternBn})</p>
+                <p>নেগেটিভ মার্কিং: <strong>{unit.negativeMark > 0 ? `-${unit.negativeMark}` : "নেই"}</strong></p>
+                <p>দ্বিতীয়বার পরীক্ষা (Second Time): <strong>{unit.secondTimeAllowed ? "অনুমোদিত" : "সুযোগ নেই"}</strong></p>
+              </div>
+
+              {unit.subjectPrerequisitesBn.length > 0 && (
+                <div className="rounded-lg bg-amber-50/80 p-2 text-[11.5px] text-amber-950 border border-amber-200/50">
+                  ⚠️ <strong>শর্ত:</strong> {unit.subjectPrerequisitesBn.join("; ")}
+                </div>
+              )}
+
+              {!isEligible && reasonsBn.length > 0 && (
+                <div className="rounded-lg bg-rose-50 p-2 text-[11.5px] text-rose-900 border border-rose-200">
+                  {reasonsBn.join(" ")}
+                </div>
+              )}
+            </div>
+
+            <div className="mt-3 pt-2.5 border-t border-slate-100 text-[11px] text-slate-500">
+              {unit.notesBn}
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ScholarshipHubView({
+  category,
+  setCategory,
+}: {
+  category: "all" | "domestic" | "international";
+  setCategory: (c: "all" | "domestic" | "international") => void;
+}) {
+  const list = useMemo(() => {
+    if (category === "all") return SCHOLARSHIPS_DIRECTORY;
+    return SCHOLARSHIPS_DIRECTORY.filter((s) => s.category === category);
+  }, [category]);
+
+  return (
+    <section className="space-y-4" aria-labelledby="sch-title">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border border-indigo-200 bg-gradient-to-br from-indigo-50/80 via-white to-blue-50/60 p-5 shadow-xs">
+        <div className="space-y-1">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-indigo-100 px-3 py-0.5 text-[12px] font-bold text-indigo-900">
+            <Award size={14} className="text-indigo-700" />
+            <span>দেশি ও আন্তর্জাতিক বৃত্তি ডিরেক্টরি</span>
+          </div>
+          <h2 id="sch-title" className="text-[20px] font-extrabold text-slate-900">
+            স্নাতক ও স্নাতকোত্তর পর্যায়ের শীর্ষ সরকারি ও আন্তর্জাতিক বৃত্তিসমূহ
+          </h2>
+          <p className="text-[13.5px] leading-relaxed text-slate-600">
+            প্রধানমন্ত্রীর শিক্ষা সহায়তা ট্রাস্ট, ডাচ-বাংলা ব্যাংক, শিক্ষা বোর্ড বৃত্তি এবং ইরাসমাস মুন্ডুস, ডিএএডি, ফুলব্রাইট ও মেক্সটের মতো ১০০% অর্থায়িত স্কলারশিপ।
+          </p>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-1.5" role="group" aria-label="বৃত্তি ফিল্টার">
+        {(
+          [
+            ["all", "সকল বৃত্তি"],
+            ["domestic", "বাংলাদেশি দেশি উপবৃত্তি ও বৃত্তি"],
+            ["international", "আন্তর্জাতিক সম্পূর্ণ অর্থায়িত বৃত্তি"],
+          ] as const
+        ).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setCategory(id)}
+            className={`rounded-lg border px-3 py-1.5 text-[12.5px] font-semibold transition-colors ${
+              category === id
+                ? "border-indigo-600 bg-indigo-50 text-indigo-800"
+                : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        {list.map((s) => (
+          <article
+            key={s.id}
+            className="rounded-2xl border border-slate-200 bg-white p-5 space-y-3 shadow-xs flex flex-col justify-between"
+          >
+            <div className="space-y-2">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-700 block">
+                    {s.category === "domestic" ? "বাংলাদেশ সরকার / বেসরকারি" : "আন্তর্জাতিক ফুল স্কলারশিপ"}
+                  </span>
+                  <h3 className="text-[16.5px] font-bold text-slate-900 leading-snug">{s.nameBn}</h3>
+                  <span className="text-[12px] text-slate-500">{s.nameEn}</span>
+                </div>
+                <span className="rounded-lg bg-indigo-50 px-2 py-0.5 text-[11px] font-bold text-indigo-900 shrink-0">
+                  {s.targetLevelBn}
+                </span>
+              </div>
+
+              <div className="rounded-xl bg-emerald-50/70 p-3 text-[12.5px] text-emerald-950 border border-emerald-200/60 leading-relaxed">
+                💰 <strong>সুবিধাদি:</strong> {s.coverageBn}
+              </div>
+
+              <div className="text-[12.5px] text-slate-600 space-y-1">
+                <p>প্রদানকারী: <strong>{s.providerBn}</strong></p>
+                <p>যোগ্যতা: {s.eligibilityBn}</p>
+                <p>আবেদনের সময়: <strong>{s.applicationPeriodBn}</strong></p>
+              </div>
+            </div>
+
+            <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-[11px] text-slate-400">অফিসিয়াল সার্কুলার প্রযোজ্য</span>
+              <a
+                href={s.officialUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 font-bold text-indigo-700 underline text-[12.5px]"
+              >
+                অফিসিয়াল পোর্টাল <ExternalLink size={13} aria-hidden />
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+

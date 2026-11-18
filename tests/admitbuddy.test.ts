@@ -213,3 +213,71 @@ test("Application pipeline and status sanitization preserves stage integrity", (
   assert.equal(pipe.active, 2);
   assert.equal(pipe.finished, 0);
 });
+
+test("compareUniversities correctly compares selected institutions across key dimensions", async () => {
+  const { compareUniversities } = await import("../lib/admitbuddy.ts");
+  const comp = compareUniversities(["buet", "du", "brac"]);
+  assert.equal(comp.universities.length, 3);
+  assert.ok(comp.metrics.length >= 6);
+
+  const typeMetric = comp.metrics.find((m) => m.key === "type");
+  assert.ok(typeMetric);
+  assert.ok(String(typeMetric.values["buet"]).includes("সরকারি"));
+  assert.ok(String(typeMetric.values["brac"]).includes("বেসরকারি"));
+
+  // Empty selection handling
+  const emptyComp = compareUniversities([]);
+  assert.equal(emptyComp.universities.length, 0);
+  assert.equal(emptyComp.metrics.length, 0);
+});
+
+test("UNIT_ELIGIBILITY_MATRIX and checkUnitEligibility evaluate cluster eligibility deterministically", async () => {
+  const { UNIT_ELIGIBILITY_MATRIX, checkUnitEligibility } = await import("../lib/admitbuddy.ts");
+  assert.ok(UNIT_ELIGIBILITY_MATRIX.length >= 8);
+
+  // High-achieving Science student
+  const scienceStudent = {
+    sscGpa: 5.0,
+    hscGpa: 5.0,
+    group: "Science" as const,
+    maxBudgetPerSemester: 80000,
+    preferredLocations: [],
+    interests: [],
+  };
+  const results = checkUnitEligibility(scienceStudent);
+  const buet = results.find((r) => r.unit.id === "buet");
+  assert.ok(buet);
+  assert.equal(buet.isEligible, true);
+  assert.equal(buet.gpaGap, 0);
+
+  // Low GPA Commerce student trying for Science BUET
+  const commerceStudent = {
+    sscGpa: 3.2,
+    hscGpa: 3.4,
+    group: "Commerce" as const,
+    maxBudgetPerSemester: 50000,
+    preferredLocations: [],
+    interests: [],
+  };
+  const commResults = checkUnitEligibility(commerceStudent);
+  const commBuet = commResults.find((r) => r.unit.id === "buet");
+  assert.ok(commBuet);
+  assert.equal(commBuet.isEligible, false);
+  assert.ok(commBuet.reasonsBn.length >= 2, "Should cite group mismatch and GPA gap");
+});
+
+test("SCHOLARSHIPS_DIRECTORY contains verified domestic and international scholarships", async () => {
+  const { SCHOLARSHIPS_DIRECTORY } = await import("../lib/admitbuddy.ts");
+  assert.ok(SCHOLARSHIPS_DIRECTORY.length >= 6);
+
+  const pmeat = SCHOLARSHIPS_DIRECTORY.find((s) => s.id === "pmeat");
+  assert.ok(pmeat);
+  assert.equal(pmeat.category, "domestic");
+  assert.ok(pmeat.officialUrl.startsWith("https://"));
+
+  const erasmus = SCHOLARSHIPS_DIRECTORY.find((s) => s.id === "erasmus");
+  assert.ok(erasmus);
+  assert.equal(erasmus.category, "international");
+  assert.ok(erasmus.coverageBn.includes("১০০%"));
+});
+
