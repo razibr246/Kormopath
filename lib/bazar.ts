@@ -9,6 +9,10 @@
 export type BazarUnit = "kg" | "g" | "litre" | "piece" | "dozen" | "hali";
 export type BaseUnit = "kg" | "litre" | "piece";
 
+export type StorePlatform = "daraz" | "rokomari" | "chaldal" | "shwapno" | "tcb";
+
+export type BazarCategory = "grocery" | "produce" | "fish_meat" | "books_stationery" | "gadgets_home";
+
 export const BAZAR_UNITS: Array<{ id: BazarUnit; bn: string; en: string }> = [
   { id: "kg", bn: "কেজি", en: "kg" },
   { id: "g", bn: "গ্রাম", en: "g" },
@@ -18,6 +22,77 @@ export const BAZAR_UNITS: Array<{ id: BazarUnit; bn: string; en: string }> = [
   { id: "hali", bn: "হালি", en: "hali (4)" },
 ];
 const UNIT_IDS = new Set<string>(BAZAR_UNITS.map((u) => u.id));
+
+export const STORE_PLATFORMS: Record<StorePlatform, { name: string; labelBn: string; color: string; noteBn: string }> = {
+  daraz: { name: "Daraz", labelBn: "দারাজ", color: "sky", noteBn: "ইলেকট্রনিক্স ও গ্যাজেট" },
+  rokomari: { name: "Rokomari", labelBn: "রকমারি", color: "emerald", noteBn: "বই ও শিক্ষা উপকরণ" },
+  chaldal: { name: "Chaldal", labelBn: "চালডাল", color: "rose", noteBn: "গ্রোসারি ও তাজা খাবার" },
+  shwapno: { name: "Shwapno", labelBn: "স্বপ্ন", color: "amber", noteBn: "সুপারশপ সামগ্রী" },
+  tcb: { name: "TCB", labelBn: "টিসিবি দর", color: "indigo", noteBn: "সরকারি ন্যায্যমূল্য" },
+};
+
+export interface CatalogItem {
+  id: string;
+  nameBn: string;
+  nameEn: string;
+  category: BazarCategory;
+  defaultQty: number;
+  unit: BazarUnit;
+  primaryStore: StorePlatform;
+  secondaryStore?: StorePlatform;
+}
+
+export const POPULAR_STORE_ITEMS: CatalogItem[] = [
+  // Groceries & Staples
+  { id: "c-miniket", nameBn: "মিনিকেট চাল", nameEn: "Miniket Rice", category: "grocery", defaultQty: 5, unit: "kg", primaryStore: "chaldal", secondaryStore: "shwapno" },
+  { id: "c-nazirshail", nameBn: "নাজিরশাইল চাল", nameEn: "Nazirshail Rice", category: "grocery", defaultQty: 5, unit: "kg", primaryStore: "chaldal", secondaryStore: "shwapno" },
+  { id: "c-lentils", nameBn: "মসুর ডাল", nameEn: "Red Lentils", category: "grocery", defaultQty: 1, unit: "kg", primaryStore: "chaldal", secondaryStore: "shwapno" },
+  { id: "c-oil", nameBn: "সয়াবিন তেল", nameEn: "Soybean Oil", category: "grocery", defaultQty: 2, unit: "litre", primaryStore: "chaldal", secondaryStore: "shwapno" },
+  { id: "c-sugar", nameBn: "চিনি", nameEn: "Sugar", category: "grocery", defaultQty: 1, unit: "kg", primaryStore: "chaldal", secondaryStore: "shwapno" },
+  { id: "c-salt", nameBn: "আয়োডিনযুক্ত লবণ", nameEn: "Iodized Salt", category: "grocery", defaultQty: 1, unit: "kg", primaryStore: "chaldal", secondaryStore: "shwapno" },
+  { id: "c-flour", nameBn: "প্যাকেট আটা", nameEn: "Atta / Flour", category: "grocery", defaultQty: 2, unit: "kg", primaryStore: "chaldal", secondaryStore: "shwapno" },
+  { id: "c-ghee", nameBn: "গাওয়া ঘি", nameEn: "Pure Ghee", category: "grocery", defaultQty: 250, unit: "g", primaryStore: "chaldal", secondaryStore: "daraz" },
+
+  // Fresh Produce & Fish/Meat
+  { id: "p-potato", nameBn: "গোল আলু", nameEn: "Potato", category: "produce", defaultQty: 2, unit: "kg", primaryStore: "chaldal", secondaryStore: "shwapno" },
+  { id: "p-onion", nameBn: "দেশি পেঁয়াজ", nameEn: "Local Onion", category: "produce", defaultQty: 1, unit: "kg", primaryStore: "chaldal", secondaryStore: "shwapno" },
+  { id: "p-garlic", nameBn: "রসুন", nameEn: "Garlic", category: "produce", defaultQty: 500, unit: "g", primaryStore: "chaldal", secondaryStore: "shwapno" },
+  { id: "p-ginger", nameBn: "আদা", nameEn: "Ginger", category: "produce", defaultQty: 250, unit: "g", primaryStore: "chaldal", secondaryStore: "shwapno" },
+  { id: "p-egg", nameBn: "লাল ডিম", nameEn: "Farm Eggs", category: "produce", defaultQty: 2, unit: "hali", primaryStore: "chaldal", secondaryStore: "shwapno" },
+  { id: "p-fish", nameBn: "রুই মাছ", nameEn: "Rui Fish", category: "fish_meat", defaultQty: 1, unit: "kg", primaryStore: "chaldal", secondaryStore: "shwapno" },
+  { id: "p-chicken", nameBn: "ব্রয়লার মুরগি", nameEn: "Broiler Chicken", category: "fish_meat", defaultQty: 1, unit: "kg", primaryStore: "chaldal", secondaryStore: "shwapno" },
+  { id: "p-beef", nameBn: "গরুর মাংস", nameEn: "Beef (Bone-in)", category: "fish_meat", defaultQty: 1, unit: "kg", primaryStore: "chaldal", secondaryStore: "shwapno" },
+
+  // Books & Stationery (Rokomari Benchmark)
+  { id: "b-notebook", nameBn: "A4 প্র্যাকটিস খাতা", nameEn: "A4 Exercise Book", category: "books_stationery", defaultQty: 3, unit: "piece", primaryStore: "rokomari", secondaryStore: "daraz" },
+  { id: "b-pens", nameBn: "কালো কালির বলপেন বক্স", nameEn: "Black Ballpen Box", category: "books_stationery", defaultQty: 1, unit: "piece", primaryStore: "rokomari", secondaryStore: "daraz" },
+  { id: "b-calc", nameBn: "Casio fx-991EX ক্যালকুলেটর", nameEn: "Casio Scientific Calculator", category: "books_stationery", defaultQty: 1, unit: "piece", primaryStore: "rokomari", secondaryStore: "daraz" },
+  { id: "b-guide", nameBn: "ভর্তি প্রশ্নব্যাংক ও গাইড", nameEn: "Admission Question Bank", category: "books_stationery", defaultQty: 1, unit: "piece", primaryStore: "rokomari", secondaryStore: "daraz" },
+  { id: "b-ielts", nameBn: "Cambridge IELTS টেস্ট বুক", nameEn: "Cambridge IELTS Prep Book", category: "books_stationery", defaultQty: 1, unit: "piece", primaryStore: "rokomari", secondaryStore: "daraz" },
+
+  // Gadgets & Household (Daraz Benchmark)
+  { id: "g-led", nameBn: "LED লাইট বাল্ব", nameEn: "LED Light Bulb", category: "gadgets_home", defaultQty: 2, unit: "piece", primaryStore: "daraz", secondaryStore: "chaldal" },
+  { id: "g-multi", nameBn: "মাল্টিপ্লাগ এক্সটেনশন সকেট", nameEn: "Power Extension Multiplug", category: "gadgets_home", defaultQty: 1, unit: "piece", primaryStore: "daraz", secondaryStore: "rokomari" },
+  { id: "g-cable", nameBn: "টাইপ-সি ফাস্ট চার্জিং কেবল", nameEn: "Type-C Fast Charging Cable", category: "gadgets_home", defaultQty: 1, unit: "piece", primaryStore: "daraz", secondaryStore: "rokomari" },
+  { id: "g-bat", nameBn: "রিচার্জেবল মসকুইটো ব্যাট", nameEn: "Rechargeable Mosquito Bat", category: "gadgets_home", defaultQty: 1, unit: "piece", primaryStore: "daraz", secondaryStore: "chaldal" },
+  { id: "g-soap", nameBn: "অ্যান্টিব্যাকটেরিয়াল হ্যান্ডওয়াশ", nameEn: "Antibacterial Handwash", category: "gadgets_home", defaultQty: 1, unit: "piece", primaryStore: "chaldal", secondaryStore: "daraz" },
+];
+
+export function storeSearchUrl(store: StorePlatform, query: string): string {
+  const enc = encodeURIComponent(query.trim());
+  switch (store) {
+    case "daraz":
+      return `https://www.daraz.com.bd/catalog/?q=${enc}`;
+    case "rokomari":
+      return `https://www.rokomari.com/search?term=${enc}`;
+    case "chaldal":
+      return `https://chaldal.com/search/${enc}`;
+    case "shwapno":
+      return `https://www.shwapno.com/search?q=${enc}`;
+    case "tcb":
+      return "https://tcb.gov.bd/pages/static-pages/6922dcfb933eb65569e13083";
+  }
+}
 
 /** Quick-add chips: names and a usual unit only, never a price. */
 export const QUICK_ITEMS: Array<{ bn: string; en: string; unit: BazarUnit }> = [
@@ -61,6 +136,7 @@ export interface BazarItem {
   unit: BazarUnit;
   checked: boolean;
   pricePoisha: number | null; // what was paid for this line, entered when it is ticked
+  category?: BazarCategory;
 }
 
 export interface PriceEntry {
@@ -157,6 +233,7 @@ const ISO = /^\d{4}-\d{2}-\d{2}$/;
 const str = (v: unknown, max: number) => (typeof v === "string" ? v.normalize("NFC").trim().slice(0, max) : "");
 const posNum = (v: unknown, max: number) => (typeof v === "number" && Number.isFinite(v) && v > 0 && v <= max ? v : null);
 const poisha = (v: unknown) => (typeof v === "number" && Number.isInteger(v) && v >= 0 && v <= 100_000_000 ? v : null);
+const VALID_CATS = new Set<string>(["grocery", "produce", "fish_meat", "books_stationery", "gadgets_home"]);
 
 export function sanitizeBazar(raw: unknown): BazarState | null {
   if (!raw || typeof raw !== "object") return null;
@@ -167,7 +244,16 @@ export function sanitizeBazar(raw: unknown): BazarState | null {
     const i = x as Record<string, unknown>;
     const name = str(i.name, 60), qty = posNum(i.qty, 10_000), id = str(i.id, 40);
     if (!name || !qty || !id || !UNIT_IDS.has(i.unit as string)) continue;
-    items.push({ id, name, qty, unit: i.unit as BazarUnit, checked: i.checked === true, pricePoisha: poisha(i.pricePoisha) });
+    const cat = typeof i.category === "string" && VALID_CATS.has(i.category) ? (i.category as BazarCategory) : undefined;
+    items.push({
+      id,
+      name,
+      qty,
+      unit: i.unit as BazarUnit,
+      checked: i.checked === true,
+      pricePoisha: poisha(i.pricePoisha),
+      ...(cat ? { category: cat } : {}),
+    });
     if (items.length >= MAX_ITEMS) break;
   }
   const history: PriceEntry[] = [];
@@ -179,4 +265,172 @@ export function sanitizeBazar(raw: unknown): BazarState | null {
     history.push({ key: itemKey(name), name, date: e.date, qty, unit: e.unit as BazarUnit, pricePoisha: p });
   }
   return { items, history: history.slice(-MAX_HISTORY) };
+}
+
+/* ------------------------------------------------------------------ */
+/* Voice / Multi-line Parser & Share Formatting                        */
+/* ------------------------------------------------------------------ */
+
+const BN_DIGIT_MAP: Record<string, string> = {
+  "০": "0", "১": "1", "২": "2", "৩": "3", "৪": "4",
+  "৫": "5", "৬": "6", "৭": "7", "৮": "8", "৯": "9",
+};
+
+export function parseBanglaQty(raw: string): number | null {
+  const t = raw.trim();
+  if (t === "আধা" || t === "অর্ধেক") return 0.5;
+  if (t === "দেড়" || t === "দের") return 1.5;
+  if (t === "আড়াই" || t === "আড়াই") return 2.5;
+  if (t === "পোয়া" || t === "এক পোয়া") return 0.25;
+  const numStr = t.replace(/[০-৯]/g, (d) => BN_DIGIT_MAP[d] || d);
+  const val = parseFloat(numStr);
+  return Number.isFinite(val) && val > 0 ? val : null;
+}
+
+export function detectBazarCategory(name: string): BazarCategory {
+  const norm = itemKey(name);
+  // Match popular store items first
+  const match = POPULAR_STORE_ITEMS.find((p) => norm.includes(itemKey(p.nameBn)) || norm.includes(itemKey(p.nameEn)));
+  if (match) return match.category;
+
+  if (/(বই|খাতা|কলম|পেন্সিল|ক্যালকুলেটর|calculator|book|notebook|pen|admission|ielts|গাইড|প্রশ্নব্যাংক|স্টেশনারি|রকমারি)/i.test(norm)) {
+    return "books_stationery";
+  }
+  if (/(বাল্ব|লাইট|কেবল|তার|মাল্টিপ্লাগ|চার্জার|ব্যাট|ব্যাটারি|হেডফোন|মাউস|হ্যান্ডওয়াশ|সাবান|শ্যাম্পু|soap|bulb|led|daraz|দারাজ|সকেট)/i.test(norm)) {
+    return "gadgets_home";
+  }
+  if (/(মাছ|মাংস|মুরগি|চিকেন|গরু|খাসি|রুই|কাতলা|ইলিশ|চিংড়ি|beef|chicken|fish|meat|broiler|লেয়ার)/i.test(norm)) {
+    return "fish_meat";
+  }
+  if (/(আলু|পেঁয়াজ|রসুন|আদা|মরিচ|টমেটো|ডিম|বেগুন|পটল|শাক|সবজি|ঝিঙা|লাউ|কুমড়া|গাজর|শসা|potato|onion|egg|vegetable)/i.test(norm)) {
+    return "produce";
+  }
+  return "grocery";
+}
+
+export interface ParsedVoiceItem {
+  name: string;
+  qty: number;
+  unit: BazarUnit;
+  category: BazarCategory;
+}
+
+/**
+ * Parses freeform Bengali / English speech or comma-separated lists into structured items.
+ * Handles "২ কেজি আলু, ১ লিটার তেল, ১ ডজন ডিম", "casio calculator", "৫ কেজি মিনিকেট চাল".
+ */
+export function parseBazarVoiceText(input: string): ParsedVoiceItem[] {
+  if (!input || typeof input !== "string") return [];
+  // Split on commas, semicolons, plus signs, newlines, or conjunctions "এবং", "আর", "ও"
+  const tokens = input
+    .split(/[,;\n\+]|\s+(?:এবং|আর|ও)\s+/gi)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const results: ParsedVoiceItem[] = [];
+
+  for (const token of tokens) {
+    if (!token) continue;
+    let qty: number = 1;
+    let unit: BazarUnit = "piece";
+    let name = token;
+
+    // Pattern 1: Starts with quantity + unit (e.g. "২ কেজি আলু", "500 gm chicken", "আধা লিটার তেল")
+    const leadingMatch = token.match(/^([০-৯\d\.]+|আধা|অর্ধেক|দেড়|দের|আড়াই|আড়াই|পোয়া)\s*(কেজি|কিলো|কিলোগ্রাম|গ্রাম|gm|g|লিটার|লি|ltr|litres?|liters?|l|ডজন|dozen|হালি|পিস|টি|টা|খানা|pieces?|pcs?|pc)?\s*(.+)$/i);
+
+    if (leadingMatch) {
+      const q = parseBanglaQty(leadingMatch[1]);
+      if (q !== null) {
+        qty = q;
+        const uStr = (leadingMatch[2] || "").toLowerCase();
+        if (uStr) {
+          if (/^(কেজি|কিলো|কিলোগ্রাম|kg|kgs?|kilo)$/i.test(uStr)) unit = "kg";
+          else if (/^(গ্রাম|gm|g)$/i.test(uStr)) unit = "g";
+          else if (/^(লিটার|লি|ltr|litres?|liters?|l)$/i.test(uStr)) unit = "litre";
+          else if (/^(ডজন|dozen)$/i.test(uStr)) unit = "dozen";
+          else if (/^(হালি)$/i.test(uStr)) unit = "hali";
+          else unit = "piece";
+        } else {
+          // If no unit was explicitly mentioned, default based on item
+          unit = /চাল|ডাল|আটা|চিনি|লবণ|আলু|পেঁয়াজ|মাংস|মাছ/i.test(leadingMatch[3]) ? "kg" : "piece";
+        }
+        name = leadingMatch[3].trim();
+      }
+    } else {
+      // Pattern 2: Ends with quantity + unit (e.g. "আলু ২ কেজি", "সয়াবিন তেল ১ লিটার")
+      const trailingMatch = token.match(/^(.+?)\s+([০-৯\d\.]+|আধা|অর্ধেক|দেড়|দের|আড়াই|আড়াই|পোয়া)\s*(কেজি|কিলো|কিলোগ্রাম|গ্রাম|gm|g|লিটার|লি|ltr|litres?|liters?|l|ডজন|dozen|হালি|পিস|টি|টা|খানা|pieces?|pcs?|pc)?$/i);
+      if (trailingMatch) {
+        const q = parseBanglaQty(trailingMatch[2]);
+        if (q !== null) {
+          qty = q;
+          const uStr = (trailingMatch[3] || "").toLowerCase();
+          if (uStr) {
+            if (/^(কেজি|কিলো|কিলোগ্রাম|kg|kgs?|kilo)$/i.test(uStr)) unit = "kg";
+            else if (/^(গ্রাম|gm|g)$/i.test(uStr)) unit = "g";
+            else if (/^(লিটার|লি|ltr|litres?|liters?|l)$/i.test(uStr)) unit = "litre";
+            else if (/^(ডজন|dozen)$/i.test(uStr)) unit = "dozen";
+            else if (/^(হালি)$/i.test(uStr)) unit = "hali";
+            else unit = "piece";
+          } else {
+            unit = /চাল|ডাল|আটা|চিনি|লবণ|আলু|পেঁয়াজ|মাংস|মাছ/i.test(trailingMatch[1]) ? "kg" : "piece";
+          }
+          name = trailingMatch[1].trim();
+        }
+      }
+    }
+
+    const cleanName = name.normalize("NFC").replace(/^[,\.\-\s]+|[,\.\-\s]+$/g, "").slice(0, 60);
+    if (!cleanName) continue;
+
+    results.push({
+      name: cleanName,
+      qty,
+      unit,
+      category: detectBazarCategory(cleanName),
+    });
+  }
+
+  return results;
+}
+
+const BN_NUMS = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
+const toBnDigits = (n: number | string) => String(n).replace(/\d/g, (d) => BN_NUMS[Number(d)]);
+
+/** Formats a shopping list for WhatsApp or SMS sharing. */
+export function formatBazarShareText(items: BazarItem[], date?: string, bn = true): string {
+  const header = bn ? "🛒 সহজ বাজেট — বাজারের ফর্দ" : "🛒 Shohoj Budget — Bazar List";
+  const dateLine = date ? (bn ? `তারিখ: ${toBnDigits(date)}` : `Date: ${date}`) : "";
+  const unitMap: Record<BazarUnit, { bn: string; en: string }> = {
+    kg: { bn: "কেজি", en: "kg" },
+    g: { bn: "গ্রাম", en: "g" },
+    litre: { bn: "লিটার", en: "litre" },
+    piece: { bn: "পিস", en: "piece" },
+    dozen: { bn: "ডজন", en: "dozen" },
+    hali: { bn: "হালি", en: "hali" },
+  };
+
+  const lines = items.map((i) => {
+    const qStr = bn ? toBnDigits(i.qty) : String(i.qty);
+    const uStr = bn ? unitMap[i.unit].bn : unitMap[i.unit].en;
+    const mark = i.checked ? "[✓]" : "[ ]";
+    const price = i.checked && i.pricePoisha !== null
+      ? ` (৳${bn ? toBnDigits((i.pricePoisha / 100).toLocaleString("en-IN")) : (i.pricePoisha / 100).toLocaleString("en-IN")})`
+      : "";
+    return `${mark} ${qStr} ${uStr} ${i.name}${price}`;
+  });
+
+  const total = tripTotal(items);
+  const footer = bn
+    ? `মোট আইটেম: ${toBnDigits(items.length)}টি${total > 0 ? ` | কেনা হয়েছে: ৳${toBnDigits((total / 100).toLocaleString("en-IN"))}` : ""}`
+    : `Total items: ${items.length}${total > 0 ? ` | Bought: ৳${(total / 100).toLocaleString("en-IN")}` : ""}`;
+
+  return [header, dateLine, "-------------------------", ...lines, "-------------------------", footer].filter(Boolean).join("\n");
+}
+
+export function whatsappBazarHref(text: string): string {
+  return `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+}
+
+export function smsBazarHref(text: string): string {
+  return `sms:?body=${encodeURIComponent(text)}`;
 }

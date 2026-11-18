@@ -2,7 +2,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   addSettlement, dharTotals, formatTaka, isOverdue, normalizeBdMobile, perPerson, remainingPoisha, sanitizeDhar,
-  settlementSlip, takaToPoisha, todayDhaka, validateEntry, whatsappHref, smsHref, type DharEntry,
+  settlementSlip, takaToPoisha, todayDhaka, validateEntry, whatsappHref, smsHref,
+  generateReminderMessage, parseDharVoiceText, exportDharToIcs, KARZ_HASANA_ETHICS,
+  type DharEntry,
 } from "../lib/dhar.ts";
 
 const entry = (over: Partial<DharEntry> = {}): DharEntry => ({
@@ -102,3 +104,77 @@ test("dhar: sanitize drops malformed rows and over-paid history", () => {
   assert.equal(out![2].phone, "");
   assert.equal(sanitizeDhar("x"), null);
 });
+
+test("dhar: categories, payment methods, and reminder generator", () => {
+  const e = entry({
+    counterparty: "হাসান",
+    principalPoisha: 250000,
+    date: "2026-11-01",
+    due: "2026-11-20",
+    category: "personal",
+    note: "জরুরি ধার",
+  });
+
+  const friendly = generateReminderMessage(e, "friendly", "bn", "2026-11-18");
+  assert.match(friendly, /হাসান/);
+  assert.match(friendly, /২,৫০০/);
+  assert.match(friendly, /সুবিধাজনক সময়ে পাঠিয়ে দিলে কৃতজ্ঞ থাকব/);
+
+  const formal = generateReminderMessage(e, "formal", "bn", "2026-11-18");
+  assert.match(formal, /দেনা-পাওনার হালনাগাদ হিসাব বিবরণী/);
+
+  const urgent = generateReminderMessage(e, "urgent", "bn", "2026-11-18");
+  assert.match(urgent, /পারিবারিক জরুরি প্রয়োজনে/);
+
+  // Payable direction
+  const p = entry({
+    direction: "payable",
+    counterparty: "করিম স্টোর",
+    principalPoisha: 120000,
+    category: "shop_baki",
+  });
+  const payableMsg = generateReminderMessage(p, "friendly", "bn", "2026-11-18");
+  assert.match(payableMsg, /করিম স্টোর/);
+  assert.match(payableMsg, /মনে আছে/);
+});
+
+test("dhar: voice parsing extracts direction, amount, counterparty and category", () => {
+  const v1 = parseDharVoiceText("রাকিবকে ৫০০ টাকা ধার দিলাম", "2026-11-18");
+  assert.ok(v1.ok);
+  if (v1.ok) {
+    assert.equal(v1.entry.direction, "receivable");
+    assert.equal(v1.entry.amount, "500");
+    assert.match(v1.entry.counterparty, /রাকিব/);
+  }
+
+  const v2 = parseDharVoiceText("মুদি দোকানে ১২৫০ টাকা বাকি দিতে হবে", "2026-11-18");
+  assert.ok(v2.ok);
+  if (v2.ok) {
+    assert.equal(v2.entry.direction, "payable");
+    assert.equal(v2.entry.amount, "1250");
+    assert.equal(v2.entry.category, "shop_baki");
+  }
+
+  const v3 = parseDharVoiceText("সমিতির কিস্তি ৩০০০ টাকা", "2026-11-18");
+  assert.ok(v3.ok);
+  if (v3.ok) {
+    assert.equal(v3.entry.category, "samity_emi");
+    assert.equal(v3.entry.amount, "3000");
+  }
+});
+
+test("dhar: ICS calendar export generates valid VEVENTs with alarm", () => {
+  const list = [
+    entry({ counterparty: "সায়েম", principalPoisha: 50000, due: "2026-11-25" }),
+    entry({ id: "e2", counterparty: "করিম স্টোর", direction: "payable", principalPoisha: 120000, due: "2026-11-30" }),
+    entry({ id: "e3", counterparty: "হাসান", principalPoisha: 50000, due: "" }), // No due date
+  ];
+
+  const ics = exportDharToIcs(list);
+  assert.match(ics, /BEGIN:VCALENDAR/);
+  assert.match(ics, /SUMMARY:পাওনা আদায়: সায়েম/);
+  assert.match(ics, /SUMMARY:দেনা পরিশোধ: করিম স্টোর/);
+  assert.match(ics, /TRIGGER:-P1D/);
+  assert.match(ics, /END:VCALENDAR/);
+});
+
