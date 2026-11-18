@@ -35,6 +35,8 @@ export const CREW_APPS = [
   { id: "mediscan", bnName: "মেডিস্ক্যান", name: "MediScan BD", tag: "প্রেসক্রিপশন ও সতর্কতা", route: "/mediscan", icon: "💊" },
   { id: "shohoj", bnName: "সহজ বাজেট", name: "Shohoj Budget", tag: "পয়সা বাজেট ও হিসাব", route: "/shohoj-budget", icon: "📊" },
   { id: "probaho", bnName: "প্রবাহ কোচ", name: "Probaho Coach", tag: "ভাইভা অনুশীলন", route: "/probaho", icon: "🎙️" },
+  { id: "legal", bnName: "আইনি সহায়তা", name: "Legal Aid", tag: "বিনামূল্যে আইনি সহায়তা", route: "/legal", icon: "⚖️" },
+  { id: "path", bnName: "আমার পথ", name: "My Path", tag: "সুযোগ ও অ্যাকশন বোর্ড", route: "/opportunities", icon: "🧭" },
 ] as const;
 
 export type AppId = (typeof CREW_APPS)[number]["id"];
@@ -51,6 +53,8 @@ const APP_MENTIONS: Array<[AppId, RegExp]> = [
   ["mediscan", /মেডিস্ক্যান|medi\s*scan/i],
   ["shohoj", /সহজ\s*বাজেট|shohoj/i],
   ["probaho", /প্রবাহ|probaho/i],
+  ["legal", /আইনি\s*সহায়তা|লিগ্যাল|legal\s*aid|আইন/i],
+  ["path", /আমার\s*পথ|সুযোগ|opportunities|my\s*path/i],
 ];
 /** Put numbered steps (১. ২. or 1. 2.) on their own lines when a reply runs them together. */
 function formatReply(text: string) {
@@ -82,6 +86,8 @@ function appForPath(path: string | null): AppId {
   if (path?.startsWith("/mediscan")) return "mediscan";
   if (path?.startsWith("/shohoj-budget")) return "shohoj";
   if (path?.startsWith("/probaho")) return "probaho";
+  if (path?.startsWith("/legal")) return "legal";
+  if (path?.startsWith("/opportunities")) return "path";
   return "kormopath";
 }
 
@@ -140,6 +146,18 @@ const CHIP_SUGGESTIONS_EN: Record<AppId, string[]> = {
     "Check speaking pace & fillers",
     "Write custom interview question",
   ],
+  legal: [
+    "Check legal aid eligibility (16699)",
+    "Generate application draft",
+    "Mediation vs court process",
+    "Legal helplines in Bangladesh",
+  ],
+  path: [
+    "Find verified scholarships",
+    "Check government circulars",
+    "Start application checklist",
+    "Export follow-up calendar",
+  ],
 };
 
 const CHIP_SUGGESTIONS_BN: Record<AppId, string[]> = {
@@ -196,6 +214,18 @@ const CHIP_SUGGESTIONS_BN: Record<AppId, string[]> = {
     "কথার গতি ও অতিরিক্ত শব্দ",
     "স্টার পদ্ধতিতে উত্তর সাজান",
   ],
+  legal: [
+    "বিনামূল্যে আইনি সহায়তা পাব কি না?",
+    "আবেদনের খসড়া তৈরি করুন",
+    "পারিবারিক বিরোধ মীমাংসার নিয়ম",
+    "আইনি কল সেন্টার ১৬৬৯৯",
+  ],
+  path: [
+    "স্কলারশিপের তালিকা দেখুন",
+    "সরকারি চাকরির সার্কুলার",
+    "আবেদনের চেকলিস্ট পূরণ",
+    "ক্যালেন্ডারে ডেডলাইন সেভ",
+  ],
 };
 
 const APP_TASKS: Record<AppId, Array<{ title: string; desc: string; query: string }>> = {
@@ -243,12 +273,21 @@ const APP_TASKS: Record<AppId, Array<{ title: string; desc: string; query: strin
     { title: "এক মিনিটের ভাইভা স্পারিং", desc: "ইংরেজি বা বাংলায় দ্রুত গুছিয়ে উত্তর দেওয়ার অনুশীলন।", query: "Start tech viva practice" },
     { title: "স্টার কাঠামোর ফিডব্যাক", desc: "পরিস্থিতি, কাজ, পদক্ষেপ ও ফলাফলের উপস্থিতি যাচাই করুন।", query: "Evaluate STAR answer structure" },
   ],
+  legal: [
+    { title: "আইনি সহায়তার যোগ্যতা যাচাই", desc: "জাতীয় আইনগত সহায়তা সংস্থার নীতি অনুযায়ী আবেদন যাচাই।", query: "Check legal aid eligibility (16699)" },
+    { title: "আইনি আবেদনের খসড়া", desc: "নাম, জেলা ও বিরোধের সারাংশ দিয়ে তাৎক্ষণিক খসড়া পত্র।", query: "Generate application draft" },
+    { title: "আপস-মীমাংসা ও আইনি পরামর্শ", desc: "আদালতের বিকল্প বিরোধ নিষ্পত্তি ও ১৬৬৯৯ হেল্পলাইন তথ্য।", query: "Mediation vs court process" },
+  ],
+  path: [
+    { title: "যাচাইকৃত বৃত্তির তালিকা", desc: "কমনওয়েলথ, শেভেনিং, মেক্সট, ফুলব্রাইট সহ বৈশ্বিক সুযোগ।", query: "Find verified scholarships" },
+    { title: "আবেদন চেকলিস্ট পূরণ", desc: "সিভি, সার্টিফিকেট, এনআইডি ও এসওপি প্রস্তুত রাখুন।", query: "Start application checklist" },
+    { title: "সরকারি সার্কুলার ও অনুদান", desc: "বিপিএসসি বিসিএস ও আইসিটি ডিভিশন আইডিয়া অনুদান দেখুন।", query: "Check government circulars" },
+  ],
 };
 
 /**
- * Glowing pearl orb: a warm KormoPath halo, a frosted glass ring and a slowly turning
- * pastel core (orange, haldi gold, brand blue). `active` makes it breathe while Buddy
- * listens or speaks.
+ * Padma-green pearl orb with a warm KormoPath halo and frosted glass ring. `active` makes
+ * it breathe while Buddy listens or speaks.
  */
 export function SiriOrb({
   size = "md",
@@ -762,7 +801,7 @@ export function Buddy() {
                             <ul className="mt-2.5 space-y-1 border-t border-white/10 pt-2">
                               {message.sources.map((source) => (
                                 <li key={source.url}>
-                                  <a href={source.url} target="_blank" rel="noreferrer" className="inline-flex items-start gap-1 text-[12.5px] text-sky-300 underline decoration-sky-700 underline-offset-2 hover:text-sky-100">
+                                  <a href={source.url} target="_blank" rel="noreferrer" className="inline-flex items-start gap-1 text-[12.5px] text-[#f4cf87] underline decoration-[#9a6512] underline-offset-2 hover:text-[#fff1cb]">
                                     <ExternalLink size={12} className="mt-1 shrink-0" /> <span>{source.title}</span>
                                   </a>
                                 </li>

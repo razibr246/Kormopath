@@ -434,3 +434,124 @@ export function whatsappBazarHref(text: string): string {
 export function smsBazarHref(text: string): string {
   return `sms:?body=${encodeURIComponent(text)}`;
 }
+
+export interface PresetBasket {
+  id: string;
+  nameBn: string;
+  nameEn: string;
+  tagBn: string;
+  tagEn: string;
+  platformFocus: StorePlatform;
+  items: Array<{ nameBn: string; nameEn: string; qty: number; unit: BazarUnit; category: BazarCategory }>;
+}
+
+export const PRESET_BASKETS: PresetBasket[] = [
+  {
+    id: "monthly_grocery",
+    nameBn: "মাসিক মুদি ফর্দ (চালডাল ও স্বপ্ন)",
+    nameEn: "Monthly Grocery (Chaldal & Shwapno)",
+    tagBn: "নিত্যপ্রয়োজনীয়",
+    tagEn: "Essentials",
+    platformFocus: "chaldal",
+    items: [
+      { nameBn: "মিনিকেট চাল", nameEn: "Miniket Rice", qty: 5, unit: "kg", category: "grocery" },
+      { nameBn: "মসুর ডাল", nameEn: "Red Lentils", qty: 1, unit: "kg", category: "grocery" },
+      { nameBn: "সয়াবিন তেল", nameEn: "Soybean Oil", qty: 2, unit: "litre", category: "grocery" },
+      { nameBn: "আয়োডিনযুক্ত লবণ", nameEn: "Iodized Salt", qty: 1, unit: "kg", category: "grocery" },
+      { nameBn: "চিনি", nameEn: "Sugar", qty: 1, unit: "kg", category: "grocery" },
+      { nameBn: "প্যাকেট আটা", nameEn: "Atta / Flour", qty: 2, unit: "kg", category: "grocery" },
+    ],
+  },
+  {
+    id: "fresh_market",
+    nameBn: "কাঁচাবাজার ও প্রোটিন (লোকাল বাজার)",
+    nameEn: "Fresh Market & Protein",
+    tagBn: "তাজা খাবার",
+    tagEn: "Fresh",
+    platformFocus: "chaldal",
+    items: [
+      { nameBn: "গোল আলু", nameEn: "Potato", qty: 2, unit: "kg", category: "produce" },
+      { nameBn: "দেশি পেঁয়াজ", nameEn: "Local Onion", qty: 1, unit: "kg", category: "produce" },
+      { nameBn: "রসুন", nameEn: "Garlic", qty: 250, unit: "g", category: "produce" },
+      { nameBn: "আদা", nameEn: "Ginger", qty: 250, unit: "g", category: "produce" },
+      { nameBn: "লাল ডিম", nameEn: "Farm Eggs", qty: 2, unit: "hali", category: "produce" },
+      { nameBn: "রুই মাছ", nameEn: "Rui Fish", qty: 1, unit: "kg", category: "fish_meat" },
+      { nameBn: "ব্রয়লার মুরগি", nameEn: "Broiler Chicken", qty: 1, unit: "kg", category: "fish_meat" },
+    ],
+  },
+  {
+    id: "rokomari_study",
+    nameBn: "রকমারি স্টাডি কিট (বই ও স্টেশনারি)",
+    nameEn: "Rokomari Study Kit (Books & Stationery)",
+    tagBn: "পড়াশোনা ও চাকরি",
+    tagEn: "Study & Career",
+    platformFocus: "rokomari",
+    items: [
+      { nameBn: "A4 প্র্যাকটিস খাতা", nameEn: "A4 Exercise Book", qty: 3, unit: "piece", category: "books_stationery" },
+      { nameBn: "কালো কালির বলপেন বক্স", nameEn: "Black Ballpen Box", qty: 1, unit: "piece", category: "books_stationery" },
+      { nameBn: "Casio fx-991EX ক্যালকুলেটর", nameEn: "Casio Scientific Calculator", qty: 1, unit: "piece", category: "books_stationery" },
+      { nameBn: "ভর্তি প্রশ্নব্যাংক ও গাইড", nameEn: "Admission Question Bank", qty: 1, unit: "piece", category: "books_stationery" },
+    ],
+  },
+  {
+    id: "daraz_home_gadgets",
+    nameBn: "দারাজ হোম ও গ্যাজেট (Daraz Live)",
+    nameEn: "Daraz Home & Tech Accessories",
+    tagBn: "ইলেকট্রনিক্স",
+    tagEn: "Electronics",
+    platformFocus: "daraz",
+    items: [
+      { nameBn: "LED লাইট বাল্ব", nameEn: "LED Light Bulb", qty: 2, unit: "piece", category: "gadgets_home" },
+      { nameBn: "মাল্টিপ্লাগ এক্সটেনশন সকেট", nameEn: "Power Extension Multiplug", qty: 1, unit: "piece", category: "gadgets_home" },
+      { nameBn: "টাইপ-সি ফাস্ট চার্জিং কেবল", nameEn: "Type-C Fast Charging Cable", qty: 1, unit: "piece", category: "gadgets_home" },
+      { nameBn: "রিচার্জেবল মসকুইটো ব্যাট", nameEn: "Rechargeable Mosquito Bat", qty: 1, unit: "piece", category: "gadgets_home" },
+    ],
+  },
+];
+
+/** Formats a clean printable memo / shopping slip representation. */
+export function formatBazarMemo(items: BazarItem[], date: string, budgetPoisha = 0, bn = true): string {
+  const title = bn ? "মেমো · বাজারের খরচের হিসাব" : "MEMO · BAZAR EXPENSE SUMMARY";
+  const dateStr = bn ? `তারিখ: ${toBnDigits(date)}` : `Date: ${date}`;
+  const total = tripTotal(items);
+  const totalStr = bn
+    ? `মোট কেনা: ৳${toBnDigits((total / 100).toLocaleString("en-IN"))}`
+    : `Total bought: ৳${(total / 100).toLocaleString("en-IN")}`;
+  const budgetStr = budgetPoisha > 0
+    ? (bn ? `লক্ষ্য বাজেট: ৳${toBnDigits((budgetPoisha / 100).toLocaleString("en-IN"))}` : `Target budget: ৳${(budgetPoisha / 100).toLocaleString("en-IN")}`)
+    : "";
+
+  const unitMap: Record<BazarUnit, string> = {
+    kg: bn ? "কেজি" : "kg",
+    g: bn ? "গ্রাম" : "g",
+    litre: bn ? "লিটার" : "litre",
+    piece: bn ? "পিস" : "piece",
+    dozen: bn ? "ডজন" : "dozen",
+    hali: bn ? "হালি" : "hali",
+  };
+
+  const rows = items.map((i, idx) => {
+    const num = bn ? `${toBnDigits(idx + 1)}.` : `${idx + 1}.`;
+    const check = i.checked ? "[✓]" : "[ ]";
+    const qty = bn ? toBnDigits(i.qty) : String(i.qty);
+    const unit = unitMap[i.unit];
+    const price = i.pricePoisha !== null
+      ? (bn ? `৳${toBnDigits((i.pricePoisha / 100).toLocaleString("en-IN"))}` : `৳${(i.pricePoisha / 100).toLocaleString("en-IN")}`)
+      : (bn ? "বাকি" : "pending");
+    return `${num} ${check} ${i.name.padEnd(20, " ")} | ${qty} ${unit} | ${price}`;
+  });
+
+  return [
+    "=====================================",
+    `          ${title}          `,
+    "=====================================",
+    dateStr,
+    budgetStr,
+    "-------------------------------------",
+    ...rows,
+    "-------------------------------------",
+    totalStr,
+    "=====================================",
+    bn ? "সহজ বাজেট · kormopath.com" : "Shohoj Budget · kormopath.com",
+  ].filter(Boolean).join("\n");
+}

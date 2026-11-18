@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { Navbar, Footer } from "@/components/layout/Chrome";
 import { EcosystemHub } from "@/components/home/EcosystemHub";
 import { HeroOrbit } from "@/components/home/HeroOrbit";
-import { FX_FALLBACK } from "@/lib/data";
+import { FX_FALLBACK, type Source } from "@/lib/data";
+import { storageKey, usePersistentState } from "@/lib/clientStore";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -29,6 +30,15 @@ import {
   type LucideIcon, Tractor } from "lucide-react";
 
 type Lang = "en" | "bn";
+const sanitizeLanguage = (value: unknown): Lang | null => value === "en" || value === "bn" ? value : null;
+const isSource = (value: unknown): value is Source => {
+  if (!value || typeof value !== "object") return false;
+  const source = value as Record<string, unknown>;
+  return typeof source.label === "string" &&
+    typeof source.checked === "string" &&
+    (source.url === undefined || typeof source.url === "string") &&
+    ["official", "reported", "indicative", "estimate"].includes(String(source.confidence));
+};
 type Tool = {
   id: string;
   href: string;
@@ -175,8 +185,8 @@ const PIPELINE = [
 export default function HomePage() {
   const router = useRouter();
   const [isEcosystemOpen, setIsEcosystemOpen] = useState(false);
-  const [lang, setLang] = useState<Lang>("bn");
-  const [fx, setFx] = useState({ usdBdt: FX_FALLBACK.usdBdt, live: false });
+  const [lang, setLang] = usePersistentState<Lang>(storageKey("platform", "language"), "bn", sanitizeLanguage);
+  const [fx, setFx] = useState({ usdBdt: FX_FALLBACK.usdBdt, live: false, source: FX_FALLBACK.source });
   const [query, setQuery] = useState("");
   const bn = lang === "bn";
   const results = useMemo(() => matchTasks(query), [query]);
@@ -185,9 +195,13 @@ export default function HomePage() {
     const controller = new AbortController();
     fetch("/api/fx", { signal: controller.signal })
       .then((response) => response.json())
-      .then((data: { usdBdt?: unknown; live?: unknown }) => {
+      .then((data: { usdBdt?: unknown; live?: unknown; source?: unknown }) => {
         if (typeof data.usdBdt === "number" && Number.isFinite(data.usdBdt) && data.usdBdt > 80 && data.usdBdt < 250) {
-          setFx({ usdBdt: data.usdBdt, live: data.live === true });
+          setFx({
+            usdBdt: data.usdBdt,
+            live: data.live === true,
+            source: isSource(data.source) ? data.source : FX_FALLBACK.source,
+          });
         }
       })
       .catch(() => { /* keep the labelled local reference rate when live FX is unavailable */ });
@@ -213,7 +227,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen text-ink">
-      <Navbar lang={lang} setLang={setLang} usdBdt={fx.usdBdt} fxLive={fx.live} onOpenEcosystem={() => setIsEcosystemOpen(true)} isEcosystemOpen={isEcosystemOpen} />
+      <Navbar lang={lang} setLang={setLang} usdBdt={fx.usdBdt} fxLive={fx.live} fxSource={fx.source} onOpenEcosystem={() => setIsEcosystemOpen(true)} isEcosystemOpen={isEcosystemOpen} />
 
       <main id="main" className="mx-auto max-w-[1320px] px-4 sm:px-6">
         {/* ============ HERO ============ */}
@@ -234,8 +248,8 @@ export default function HomePage() {
 
             <p className="mt-5 max-w-[34rem] text-[17px] leading-relaxed text-slate-600 sm:text-[19px]">
               {bn
-                ? "বাংলাদেশের দৈনন্দিন কাজের জন্য ৯টি ব্যবহারিক টুল আর একজন বাংলা সহকারী। টাকার হিসাব নির্ধারিত নিয়মে, প্রতিটি সংখ্যার পাশে উৎস, আর কোনো তথ্য বানিয়ে বলা হয় না।"
-                : "Nine practical tools and a Bangla assistant for everyday work in Bangladesh. Money maths follows fixed rules, every number shows its source, and nothing is made up."}
+                ? "বাংলাদেশের দৈনন্দিন কাজের জন্য ১১টি ব্যবহারিক টুল আর একজন বাংলা সহকারী। টাকার হিসাব নির্ধারিত নিয়মে, প্রতিটি সংখ্যার পাশে উৎস, আর কোনো তথ্য বানিয়ে বলা হয় না।"
+                : "Eleven practical tools and a Bangla assistant for everyday work in Bangladesh. Money maths follows fixed rules, every number shows its source, and nothing is made up."}
             </p>
 
             {/* Task-first search */}
@@ -319,14 +333,28 @@ export default function HomePage() {
             {LIFECYCLE.map((stage, i) => {
               const Icon = stage.icon;
               return (
-                <li key={stage.en} className="kp-life-stop">
-                  <span className={`kp-life-node ring-1 ${stage.tone}`}><Icon size={20} /></span>
-                  <span className="font-mono text-[12px] font-bold text-slate-500">{bn ? `০${"১২৩৪৫৬৭"[i]}` : `0${i + 1}`}</span>
-                  <strong className="mt-1 block font-display text-[21px] font-semibold text-slate-900">{bn ? stage.bn : stage.en}</strong>
-                  <span className="mt-1 block text-[14px] leading-snug text-slate-600">{bn ? stage.when.bn : stage.when.en}</span>
+                <li key={stage.en} className="kp-life-stop group">
+                  <span className={`kp-life-node ring-1 ${stage.tone} transition-all duration-300 group-hover:scale-108 group-hover:shadow-md`}>
+                    <Icon size={20} />
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-mono text-[12px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/70">
+                      {bn ? `০${"১২৩৪৫৬৭"[i]}` : `0${i + 1}`}
+                    </span>
+                  </div>
+                  <strong className="mt-1.5 block font-display text-[21px] font-semibold text-slate-900 group-hover:text-emerald-950 transition-colors">
+                    {bn ? stage.bn : stage.en}
+                  </strong>
+                  <span className="mt-1 block text-[13.5px] leading-snug text-slate-600">
+                    {bn ? stage.when.bn : stage.when.en}
+                  </span>
                   <span className="mt-3 flex flex-wrap gap-1.5">
                     {stage.links.map((link) => (
-                      <Link key={link.href} href={link.href} className="kp-task !py-1 !text-[13px]">
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        className="kp-task !py-1 !text-[12.5px] transition-all hover:border-emerald-500 hover:bg-emerald-50/70"
+                      >
                         {bn ? link.bn : link.en} <ArrowUpRight size={12} aria-hidden="true" />
                       </Link>
                     ))}
@@ -341,7 +369,7 @@ export default function HomePage() {
         <section id="apps-showcase" aria-labelledby="tools-title" className="scroll-mt-28 pt-24">
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div>
-              <p className="kp-eyebrow">{bn ? "৯টি টুল · তিনটি পথ" : "Nine tools · three paths"}</p>
+              <p className="kp-eyebrow">{bn ? "১১টি টুল · তিনটি পথ" : "Eleven tools · three paths"}</p>
               <h2 id="tools-title" className="mt-3 text-[clamp(30px,4vw,48px)] font-semibold leading-tight tracking-tight text-slate-900">
                 {bn ? <>যা দরকার, <em className="kp-em">সেটাই খুলুন</em></> : <>Open <em className="kp-em">just what you need</em></>}
               </h2>

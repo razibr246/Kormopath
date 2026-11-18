@@ -23,9 +23,13 @@ import {
   CheckCircle2,
   Smartphone,
   Layers,
+  Printer,
+  Download,
+  X,
+  ShoppingBag,
 } from "lucide-react";
 import { SourceTag } from "@/components/layout/AppHeader";
-import { usePersistentState, storageKey, todayLocal } from "@/lib/clientStore";
+import { usePersistentState, storageKey, todayLocal, downloadText } from "@/lib/clientStore";
 import {
   BAZAR_UNITS,
   EMPTY_BAZAR,
@@ -33,6 +37,8 @@ import {
   QUICK_ITEMS,
   STORE_PLATFORMS,
   POPULAR_STORE_ITEMS,
+  PRESET_BASKETS,
+  formatBazarMemo,
   storeSearchUrl,
   finishTrip,
   priceStats,
@@ -50,6 +56,7 @@ import {
   type BazarCategory,
   type CatalogItem,
   type ParsedVoiceItem,
+  type PresetBasket,
 } from "@/lib/bazar";
 
 const BN = "০১২৩৪৫৬৭৮৯";
@@ -131,6 +138,23 @@ export function BazarList({
 
   // Share Dialog State
   const [showShareModal, setShowShareModal] = useState(false);
+
+  // Live Store Search Modal
+  const [liveSearchQuery, setLiveSearchQuery] = useState("");
+  const [liveSearching, setLiveSearching] = useState(false);
+  const [liveSearchResult, setLiveSearchResult] = useState<{
+    query: string;
+    answer: string;
+    sources: Array<{ title: string; url: string }>;
+  } | null>(null);
+  const [liveSearchError, setLiveSearchError] = useState("");
+  const [showLiveSearchModal, setShowLiveSearchModal] = useState(false);
+
+  // Preset Baskets Drawer
+  const [showPresetDrawer, setShowPresetDrawer] = useState(false);
+
+  // Printable Memo Modal
+  const [showMemoModal, setShowMemoModal] = useState(false);
 
   const flash = (m: string) => {
     setMsg(m);
@@ -300,6 +324,64 @@ export function BazarList({
     }
   };
 
+  const executeLiveSearch = async (query: string) => {
+    const q = query.trim();
+    if (q.length < 2) return;
+    setLiveSearchQuery(q);
+    setShowLiveSearchModal(true);
+    setLiveSearching(true);
+    setLiveSearchError("");
+    setLiveSearchResult(null);
+
+    try {
+      const res = await fetch("/api/product-search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: q }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setLiveSearchError(data.error || T("পণ্যের লাইভ দাম পাওয়া যায়নি। নিচের স্টোর লিংকে সরাসরি দেখুন।", "Could not fetch live price. Check direct store links below."));
+      } else {
+        setLiveSearchResult({
+          query: q,
+          answer: data.answer || "",
+          sources: Array.isArray(data.sources) ? data.sources : [],
+        });
+      }
+    } catch {
+      setLiveSearchError(T("ইন্টারনেট সংযোগ যাচাই করুন।", "Network error. Please check connection."));
+    } finally {
+      setLiveSearching(false);
+    }
+  };
+
+  const addPresetBasket = (basket: PresetBasket) => {
+    let added = 0;
+    basket.items.forEach((item) => {
+      add(bn ? item.nameBn : item.nameEn, item.qty, item.unit, item.category);
+      added++;
+    });
+    setShowPresetDrawer(false);
+    flash(
+      T(
+        `'${bn ? basket.nameBn : basket.nameEn}'-এর ${bnNum(added)}টি পণ্য ফর্দে যোগ হয়েছে!`,
+        `Added ${added} items from '${basket.nameEn}' to your list!`
+      )
+    );
+  };
+
+  const memoText = useMemo(() => {
+    return formatBazarMemo(state.items, today, targetBudgetPoisha, bn);
+  }, [state.items, today, targetBudgetPoisha, bn]);
+
+  const copyMemoText = () => {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(memoText);
+      flash(T("মেমো কপি হয়েছে!", "Memo copied!"));
+    }
+  };
+
   return (
     <section
       aria-labelledby="bazar-h"
@@ -341,6 +423,16 @@ export function BazarList({
           >
             <Smartphone size={14} aria-hidden />
             {T(marketMode ? "স্বাভাবিক ভিউ" : "বাজার মোড", marketMode ? "Normal View" : "Market Mode")}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setShowMemoModal(true)}
+            className="inline-flex min-h-[34px] items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 text-[12px] font-bold text-slate-700 hover:bg-slate-100"
+            title={T("বাজারের মেমো স্লিপ দেখুন ও প্রিন্ট করুন", "View and print bazar memo slip")}
+          >
+            <Printer size={13} aria-hidden />
+            {T("মেমো", "Memo")}
           </button>
 
           <button
@@ -417,13 +509,14 @@ export function BazarList({
         </div>
       </div>
 
-      {/* Feature Action Bar (Voice Input / Popular Catalog Buttons) */}
+      {/* Feature Action Bar (Voice / Presets / Catalog / Live Store Search) */}
       <div className="flex flex-wrap items-center gap-2">
         <button
           type="button"
           onClick={() => {
             setShowVoiceAssistant(!showVoiceAssistant);
             setShowCatalog(false);
+            setShowPresetDrawer(false);
           }}
           className={`inline-flex min-h-[38px] items-center gap-1.5 rounded-xl px-3.5 text-[13px] font-bold transition-colors ${
             showVoiceAssistant
@@ -438,8 +531,26 @@ export function BazarList({
         <button
           type="button"
           onClick={() => {
+            setShowPresetDrawer(!showPresetDrawer);
+            setShowVoiceAssistant(false);
+            setShowCatalog(false);
+          }}
+          className={`inline-flex min-h-[38px] items-center gap-1.5 rounded-xl px-3.5 text-[13px] font-bold transition-colors ${
+            showPresetDrawer
+              ? "bg-slate-900 text-white"
+              : "border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100"
+          }`}
+        >
+          <ShoppingBag size={15} aria-hidden />
+          {T("🧺 রেডিমেড ফর্দ", "Ready Baskets")}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
             setShowCatalog(!showCatalog);
             setShowVoiceAssistant(false);
+            setShowPresetDrawer(false);
           }}
           className={`inline-flex min-h-[38px] items-center gap-1.5 rounded-xl px-3.5 text-[13px] font-bold transition-colors ${
             showCatalog
@@ -448,7 +559,21 @@ export function BazarList({
           }`}
         >
           <Store size={15} aria-hidden />
-          {T("জনপ্রিয় স্টোর ক্যাটালগ (দারাজ/রকমারি/চালডাল)", "Store Catalog Browser")}
+          {T("জনপ্রিয় স্টোর ক্যাটালগ", "Store Catalog Browser")}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setLiveSearchQuery("");
+            setLiveSearchResult(null);
+            setLiveSearchError("");
+            setShowLiveSearchModal(true);
+          }}
+          className="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl border border-purple-300 bg-purple-50 px-3.5 text-[13px] font-bold text-purple-900 hover:bg-purple-100 transition-colors"
+        >
+          <Sparkles size={15} className="text-purple-600" aria-hidden />
+          {T("🔍 লাইভ পণ্যের দর খুঁজুন", "Live Price Finder")}
         </button>
       </div>
 
@@ -649,6 +774,80 @@ export function BazarList({
         </div>
       )}
 
+      {/* Preset Ready Baskets Drawer */}
+      {showPresetDrawer && (
+        <div className="rounded-xl border border-amber-300 bg-amber-50/40 p-4 space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h4 className="flex items-center gap-1.5 text-[14px] font-bold text-amber-950">
+                <ShoppingBag size={16} aria-hidden />
+                {T("বাস্তবধর্মী রেডিমেড ফর্দ (১-ক্লিকে যোগ)", "Preset Ready Baskets (1-Click Add)")}
+              </h4>
+              <p className="text-[12px] text-amber-800">
+                {T(
+                  "পরিবারের মাসিক মুদি, তাজা কাঁচাবাজার, রকমারির বই-খাতা বা দারাজের হোম গ্যাজেটের প্যাকেজ এক ক্লিকে নিজের ফর্দে নিয়ে নিন।",
+                  "One-click add full shopping baskets for monthly groceries, fresh bazar, Rokomari study kits, or Daraz tech accessories."
+                )}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowPresetDrawer(false)}
+              className="text-[12px] font-bold text-amber-900 hover:underline"
+            >
+              {T("বন্ধ করুন ✕", "Close ✕")}
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {PRESET_BASKETS.map((basket) => (
+              <div
+                key={basket.id}
+                className="rounded-xl border border-amber-200 bg-white p-3.5 space-y-2.5 shadow-2xs hover:border-amber-400 transition-all"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h5 className="text-[13.5px] font-bold text-slate-900">
+                      {bn ? basket.nameBn : basket.nameEn}
+                    </h5>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <span className="rounded bg-amber-100 px-1.5 py-0.2 text-[10.5px] font-bold text-amber-800">
+                        {bn ? basket.tagBn : basket.tagEn}
+                      </span>
+                      <span className="text-[11px] text-slate-500 font-medium">
+                        {bn ? `${bnNum(basket.items.length)}টি পণ্য` : `${basket.items.length} items`}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => addPresetBasket(basket)}
+                    className="inline-flex h-8 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[12px] font-bold text-white hover:bg-emerald-800 shrink-0"
+                  >
+                    <Plus size={13} aria-hidden />
+                    {T("সব যোগ", "Add All")}
+                  </button>
+                </div>
+
+                <div className="flex flex-wrap gap-1">
+                  {basket.items.map((item, idx) => (
+                    <span
+                      key={idx}
+                      className="inline-flex items-center gap-1 rounded-md bg-slate-50 border border-slate-200 px-2 py-0.5 text-[11px] text-slate-700"
+                    >
+                      <span className="font-semibold text-slate-800">{bn ? item.nameBn : item.nameEn}</span>
+                      <span className="font-mono text-emerald-800 font-bold">
+                        {bn ? bnNum(item.qty) : item.qty} {item.unit}
+                      </span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Quick Add Chips */}
       <div className="flex flex-wrap gap-1.5" aria-label={T("দ্রুত যোগ", "Quick add")}>
         {QUICK_ITEMS.map((q) => (
@@ -800,6 +999,18 @@ export function BazarList({
 
                 {/* Live Store Check Buttons */}
                 <div className="flex flex-wrap items-center gap-1">
+                  {/* AI Live Price Finder */}
+                  <button
+                    type="button"
+                    onClick={() => executeLiveSearch(i.name)}
+                    aria-label={T(`AI দিয়ে ${i.name}-এর লাইভ দাম খুঁজুন`, `Search live prices for ${i.name}`)}
+                    className="inline-flex min-h-8 items-center gap-1 rounded-lg border border-purple-200 bg-purple-50 px-2 text-[11px] font-bold text-purple-800 transition-colors hover:border-purple-400 hover:bg-purple-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-600"
+                    title={T("দারাজ ও রকমারি সহ ওয়েবে লাইভ দর খুঁজুন", "Find live prices on Daraz/Rokomari via AI")}
+                  >
+                    <Sparkles size={11} className="text-purple-600" aria-hidden />
+                    {T("লাইভ দর", "Live Price")}
+                  </button>
+
                   {/* Daraz */}
                   <a
                     href={storeSearchUrl("daraz", i.name)}
@@ -938,6 +1149,232 @@ export function BazarList({
               >
                 SMS
               </a>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Live Store Search & Price Compare Modal (Daraz, Rokomari, Chaldal, Shwapno, TCB) */}
+      {showLiveSearchModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-lg space-y-4 rounded-2xl bg-white p-5 shadow-xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="grid h-8 w-8 place-items-center rounded-lg bg-purple-100 text-purple-800">
+                  <Sparkles size={18} aria-hidden />
+                </span>
+                <div>
+                  <h3 className="text-[16px] font-bold text-slate-900">
+                    {T("লাইভ পণ্যের দর ও স্টোর তুলনা", "Live Price Finder & Store Compare")}
+                  </h3>
+                  <p className="text-[12px] text-slate-500">
+                    Daraz · Rokomari · Chaldal · Shwapno · TCB
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowLiveSearchModal(false)}
+                className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+              >
+                <X size={18} aria-hidden />
+              </button>
+            </div>
+
+            {/* Search Input Bar */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                executeLiveSearch(liveSearchQuery);
+              }}
+              className="flex gap-2"
+            >
+              <input
+                type="text"
+                value={liveSearchQuery}
+                maxLength={120}
+                onChange={(e) => setLiveSearchQuery(e.target.value)}
+                placeholder={T("যেমন: মিনিকেট চাল, Casio ক্যালকুলেটর, সয়াবিন তেল...", "e.g. Miniket Rice, Casio fx-991EX...")}
+                className="flex-1 rounded-xl border border-slate-300 px-3.5 py-2 text-[14px] text-slate-900 outline-none focus:border-purple-600 focus:ring-1 focus:ring-purple-600"
+              />
+              <button
+                type="submit"
+                disabled={liveSearching || liveSearchQuery.trim().length < 2}
+                className="inline-flex min-h-[42px] items-center gap-1.5 rounded-xl bg-purple-700 px-4 text-[13px] font-bold text-white hover:bg-purple-800 disabled:opacity-50 transition-colors"
+              >
+                <Search size={15} aria-hidden />
+                {liveSearching ? T("খোঁজা হচ্ছে...", "Searching...") : T("খুঁজুন", "Search")}
+              </button>
+            </form>
+
+            {/* Direct Instant Search Links */}
+            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 space-y-2">
+              <span className="text-[11.5px] font-semibold text-slate-600">
+                {T("স্টোরে সরাসরি বর্তমান অফার দেখুন:", "Direct Store Catalogs:")}
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                <a
+                  href={storeSearchUrl("daraz", liveSearchQuery || "gadget")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 rounded-lg border border-sky-300 bg-white px-2.5 py-1 text-[11.5px] font-bold text-sky-800 hover:bg-sky-50"
+                >
+                  দারাজ (Daraz) <ExternalLink size={10} aria-hidden />
+                </a>
+                <a
+                  href={storeSearchUrl("rokomari", liveSearchQuery || "book")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 rounded-lg border border-emerald-300 bg-white px-2.5 py-1 text-[11.5px] font-bold text-emerald-800 hover:bg-emerald-50"
+                >
+                  রকমারি (Rokomari) <ExternalLink size={10} aria-hidden />
+                </a>
+                <a
+                  href={storeSearchUrl("chaldal", liveSearchQuery || "grocery")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 rounded-lg border border-rose-300 bg-white px-2.5 py-1 text-[11.5px] font-bold text-rose-800 hover:bg-rose-50"
+                >
+                  চালডাল (Chaldal) <ExternalLink size={10} aria-hidden />
+                </a>
+                <a
+                  href={storeSearchUrl("shwapno", liveSearchQuery || "shwapno")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 rounded-lg border border-amber-300 bg-white px-2.5 py-1 text-[11.5px] font-bold text-amber-800 hover:bg-amber-50"
+                >
+                  স্বপ্ন (Shwapno) <ExternalLink size={10} aria-hidden />
+                </a>
+                <a
+                  href={TCB_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 rounded-lg border border-indigo-300 bg-white px-2.5 py-1 text-[11.5px] font-bold text-indigo-800 hover:bg-indigo-50"
+                >
+                  টিসিবি দৈনিক দর <ExternalLink size={10} aria-hidden />
+                </a>
+              </div>
+            </div>
+
+            {/* Error Message */}
+            {liveSearchError && (
+              <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-[12.5px] text-red-800">
+                <p className="font-semibold">{liveSearchError}</p>
+                <p className="mt-1 text-[11px] text-red-700">
+                  {T(
+                    "সার্ভারে লাইভ এআই কী না থাকলেও উপরের দারাজ, রকমারি বা চালডাল বাটনে ক্লিক করে সরাসরি অফিসিয়াল পেজে দর দেখতে পারবেন।",
+                    "Even without AI search quota, tap any store button above to inspect live offers directly on their site."
+                  )}
+                </p>
+              </div>
+            )}
+
+            {/* Live Search Result Content */}
+            {liveSearchResult && (
+              <div className="space-y-3 rounded-xl border border-purple-200 bg-purple-50/30 p-3.5">
+                <div className="whitespace-pre-wrap text-[13px] leading-relaxed text-slate-800">
+                  {liveSearchResult.answer}
+                </div>
+
+                {liveSearchResult.sources.length > 0 && (
+                  <div className="border-t border-purple-100 pt-2.5">
+                    <span className="text-[11px] font-bold text-purple-900 block mb-1.5">
+                      {T("যাচাইকৃত অনলাইন সোর্স:", "Verified Online Sources:")}
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {liveSearchResult.sources.map((s, idx) => (
+                        <a
+                          key={idx}
+                          href={s.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-medium text-purple-900 hover:border-purple-300"
+                        >
+                          <span className="max-w-[200px] truncate">{s.title || s.url}</span>
+                          <ExternalLink size={10} aria-hidden />
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="border-t border-purple-100 pt-3 flex justify-between items-center">
+                  <span className="text-[11px] text-slate-500">
+                    {T("দারাজ/রকমারিতে দাম বদলাতে পারে। কেনার আগে মিলিয়ে নিন।", "Prices fluctuate on Daraz/Rokomari. Verify before purchase.")}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      add(liveSearchResult.query, 1, "piece");
+                      setShowLiveSearchModal(false);
+                      flash(T(`'${liveSearchResult.query}' ফর্দে যোগ হয়েছে!`, `Added '${liveSearchResult.query}' to list!`));
+                    }}
+                    className="inline-flex h-8 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[12px] font-bold text-white hover:bg-emerald-800"
+                  >
+                    <Plus size={13} aria-hidden />
+                    {T("ফর্দে যোগ করুন", "Add to Bazar List")}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Printable Memo Modal */}
+      {showMemoModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-lg space-y-4 rounded-2xl bg-white p-5 shadow-xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="flex items-center gap-2 text-[16px] font-bold text-slate-900">
+                <Printer size={18} className="text-emerald-700" aria-hidden />
+                {T("বাজারের মেমো স্লিপ (প্রিন্ট বা কপি)", "Bazar Memo Slip (Print or Copy)")}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowMemoModal(false)}
+                className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+              >
+                <X size={18} aria-hidden />
+              </button>
+            </div>
+
+            <pre className="max-h-72 overflow-y-auto rounded-xl bg-slate-50 p-3 font-mono text-[12px] text-slate-800 whitespace-pre-wrap border border-slate-200">
+              {memoText}
+            </pre>
+
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={copyMemoText}
+                className="inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 text-[12.5px] font-bold text-slate-800 hover:bg-slate-100"
+              >
+                <Copy size={14} aria-hidden />
+                {T("কপি করুন", "Copy")}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  downloadText(`bazar-memo-${today}.txt`, memoText);
+                  flash(T("মেমো টেক্সট ডাউনলোড হয়েছে!", "Memo downloaded!"));
+                }}
+                className="inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 text-[12.5px] font-bold text-slate-800 hover:bg-slate-100"
+              >
+                <Download size={14} aria-hidden />
+                {T("টেক্সট ফাইল", "Download")}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  if (typeof window !== "undefined") window.print();
+                }}
+                className="inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-xl bg-emerald-700 text-[12.5px] font-bold text-white hover:bg-emerald-800"
+              >
+                <Printer size={14} aria-hidden />
+                {T("প্রিন্ট স্লিপ", "Print Slip")}
+              </button>
             </div>
           </div>
         </div>

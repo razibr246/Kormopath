@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { Bookmark, CalendarClock, Download, ExternalLink, Plus, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { Bookmark, CalendarClock, Download, ExternalLink, Plus, Trash2, CheckSquare, Square, ChevronDown, ChevronUp, ArrowUpRight, CheckCircle2 } from "lucide-react";
 import { downloadText, todayLocal } from "@/lib/clientStore";
 import {
+  APPLICATION_CHECKLIST_TEMPLATE,
   isFollowUpDate,
   isFollowUpDue,
   isOpportunityStatus,
@@ -19,14 +21,16 @@ import {
 
 const inputClass = "min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-2 focus-visible:outline-indigo-600";
 const fieldClass = "w-full " + inputClass;
-const primaryClass = "rounded-xl bg-indigo-700 px-3.5 py-2 text-sm font-bold text-white hover:bg-indigo-800";
-const secondaryClass = "inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 px-3.5 py-2 text-sm font-bold text-slate-700 hover:bg-slate-100";
+const primaryClass = "rounded-xl bg-indigo-700 px-3.5 py-2 text-sm font-bold text-white hover:bg-indigo-800 transition-colors";
+const secondaryClass = "inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 px-3.5 py-2 text-sm font-bold text-slate-700 hover:bg-slate-100 transition-colors";
 const statusClass: Record<OpportunityStatus, string> = {
-  saved: "bg-slate-100 text-slate-700",
-  applied: "bg-indigo-100 text-indigo-800",
-  response: "bg-sky-100 text-sky-900",
-  accepted: "bg-emerald-100 text-emerald-900",
-  closed: "bg-slate-100 text-slate-700",
+  saved: "bg-slate-100 text-slate-700 border border-slate-200",
+  drafting: "bg-amber-100 text-amber-900 border border-amber-200",
+  applied: "bg-indigo-100 text-indigo-800 border border-indigo-200",
+  interview: "bg-purple-100 text-purple-900 border border-purple-200",
+  response: "bg-sky-100 text-sky-900 border border-sky-200",
+  accepted: "bg-emerald-100 text-emerald-900 border border-emerald-200",
+  closed: "bg-slate-100 text-slate-600 border border-slate-200",
 };
 
 function StatusOptions() {
@@ -96,18 +100,43 @@ export function OpportunityTracker({ items, onAdd, onUpdate, onRemove }: Tracker
       )}
 
       {items.length > 0 && (
-        <div className="mt-4 flex flex-wrap items-end justify-between gap-2 rounded-xl bg-slate-50 p-3">
-          <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
-            <span className="rounded-full bg-indigo-100 px-2.5 py-1 text-indigo-900">{items.length}টি সুযোগ</span>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-1 text-amber-950"><CalendarClock size={14} aria-hidden /> {due.length}টি ফলো-আপ বাকি</span>
+        <div className="mt-4 space-y-2 rounded-xl bg-slate-50 p-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
+              <span className="rounded-full bg-indigo-100 px-2.5 py-1 text-indigo-900 font-bold">{items.length}টি সুযোগ বোর্ডে</span>
+              {due.length > 0 && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-1 text-amber-950 font-bold">
+                  <CalendarClock size={14} aria-hidden /> {due.length}টি ফলো-আপ বাকি
+                </span>
+              )}
+            </div>
+            <span className="text-[11px] text-slate-500">স্টেজ অনুযায়ী ফিল্টার করুন:</span>
           </div>
-          <label className="flex min-w-0 flex-wrap items-center gap-2 text-xs font-semibold text-slate-700">দেখুন
-            <select className={inputClass} value={filter} onChange={(event) => setFilter(event.target.value)}>
-              <option value="all">সব সুযোগ</option>
-              <option value="due">ফলো-আপ বাকি</option>
-              <StatusOptions />
-            </select>
-          </label>
+
+          <div className="flex flex-wrap gap-1.5 pt-1">
+            {[
+              { id: "all", label: `সব সুযোগ (${items.length})` },
+              { id: "due", label: `ফলো-আপ বাকি (${due.length})` },
+              { id: "saved", label: `সংরক্ষিত (${items.filter((i) => i.status === "saved").length})` },
+              { id: "drafting", label: `প্রস্তুতি (${items.filter((i) => i.status === "drafting").length})` },
+              { id: "applied", label: `আবেদিত (${items.filter((i) => i.status === "applied").length})` },
+              { id: "interview", label: `ইন্টারভিউ (${items.filter((i) => i.status === "interview").length})` },
+              { id: "accepted", label: `নির্বাচিত (${items.filter((i) => i.status === "accepted").length})` },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setFilter(tab.id)}
+                className={`rounded-full px-2.5 py-1 text-xs font-semibold transition-all ${
+                  filter === tab.id
+                    ? "bg-indigo-700 text-white shadow-sm"
+                    : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
@@ -129,9 +158,22 @@ function OpportunityCard({ item, today, onUpdate, onRemove }: Pick<TrackerProps,
   today: string;
 }) {
   const [editing, setEditing] = useState(false);
+  const [showChecklist, setShowChecklist] = useState(false);
   const [dateError, setDateError] = useState(false);
   const due = isFollowUpDue(item, today);
   const savedAt = new Date(item.savedAt);
+  const checklist = item.checklist ?? [];
+  const checkedCount = checklist.length;
+
+  const toggleChecklist = (docId: string) => {
+    const next = checklist.includes(docId) ? checklist.filter((id) => id !== docId) : [...checklist, docId];
+    onUpdate(item.id, {
+      status: item.status,
+      followUp: item.followUp,
+      note: item.note,
+      checklist: next,
+    });
+  };
 
   function saveProgress(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -143,12 +185,17 @@ function OpportunityCard({ item, today, onUpdate, onRemove }: Pick<TrackerProps,
       setDateError(true);
       return;
     }
-    onUpdate(item.id, { status, followUp, note: String(fields.get("note") ?? "").trim().slice(0, OPPORTUNITY_NOTE_LIMIT) });
+    onUpdate(item.id, {
+      status,
+      followUp,
+      note: String(fields.get("note") ?? "").trim().slice(0, OPPORTUNITY_NOTE_LIMIT),
+      checklist: item.checklist,
+    });
     setEditing(false);
   }
 
   return (
-    <li className="min-w-0 space-y-3 rounded-xl border border-slate-200 p-3.5">
+    <li className="min-w-0 space-y-3 rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs hover:border-indigo-300 transition-all">
       <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
         <a href={item.url} target="_blank" rel="noopener noreferrer" className="flex min-w-0 flex-1 items-start gap-1.5 text-sm font-bold text-indigo-800 hover:underline">
           <span className="min-w-0 [overflow-wrap:anywhere]">{item.title}</span><ExternalLink size={13} className="mt-0.5 shrink-0" aria-hidden />
@@ -163,7 +210,61 @@ function OpportunityCard({ item, today, onUpdate, onRemove }: Pick<TrackerProps,
           <time dateTime={item.followUp}>{new Date(item.followUp + "T00:00:00Z").toLocaleDateString("bn-BD", { timeZone: "UTC", dateStyle: "medium" })}</time>
         </p>
       )}
-      {!editing && item.note && <p className="whitespace-pre-wrap break-words text-xs leading-relaxed text-slate-700">{item.note}</p>}
+      {!editing && item.note && <p className="whitespace-pre-wrap break-words text-xs leading-relaxed text-slate-700 bg-slate-50 rounded-lg p-2 border border-slate-100">{item.note}</p>}
+
+      {/* Document Checklist Accordion */}
+      <div className="rounded-xl border border-slate-200/80 bg-slate-50/70 p-2.5">
+        <button
+          type="button"
+          onClick={() => setShowChecklist(!showChecklist)}
+          className="flex w-full items-center justify-between text-left text-xs font-semibold text-slate-700 hover:text-indigo-900"
+        >
+          <span className="flex items-center gap-1.5">
+            <CheckCircle2 size={13} className={checkedCount === APPLICATION_CHECKLIST_TEMPLATE.length ? "text-emerald-600" : "text-indigo-600"} />
+            আবেদনের নথিপত্র চেকলিস্ট
+            <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-bold text-indigo-900">
+              {checkedCount}/{APPLICATION_CHECKLIST_TEMPLATE.length}
+            </span>
+          </span>
+          {showChecklist ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        </button>
+
+        {showChecklist && (
+          <div className="mt-2.5 space-y-1.5 border-t border-slate-200/70 pt-2">
+            {APPLICATION_CHECKLIST_TEMPLATE.map((doc) => {
+              const isChecked = checklist.includes(doc.id);
+              return (
+                <div key={doc.id} className="flex items-start justify-between gap-2 text-xs py-0.5">
+                  <button
+                    type="button"
+                    onClick={() => toggleChecklist(doc.id)}
+                    className="flex flex-1 items-start gap-2 text-left"
+                  >
+                    {isChecked ? (
+                      <CheckSquare size={14} className="mt-0.5 shrink-0 text-emerald-600" />
+                    ) : (
+                      <Square size={14} className="mt-0.5 shrink-0 text-slate-400" />
+                    )}
+                    <span className={isChecked ? "text-slate-500 line-through" : "font-medium text-slate-800"}>
+                      {doc.labelBn}
+                      <span className="block text-[10px] text-slate-400 font-normal">{doc.detailBn}</span>
+                    </span>
+                  </button>
+                  {doc.appHref && (
+                    <Link
+                      href={doc.appHref}
+                      className="inline-flex shrink-0 items-center gap-0.5 text-[10px] font-bold text-indigo-700 hover:underline"
+                    >
+                      {doc.appLabel || "টুল"} <ArrowUpRight size={10} />
+                    </Link>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
       {editing ? (
         <form onSubmit={saveProgress} className="space-y-3 border-t border-slate-200 pt-3">
           <div className="grid gap-3 sm:grid-cols-2">

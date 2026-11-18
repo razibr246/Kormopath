@@ -1,129 +1,214 @@
 "use client";
+
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { Check, ChevronDown, Sparkles } from "lucide-react";
+import {
+  Check,
+  ChevronDown,
+  GraduationCap,
+  Briefcase,
+  ScrollText,
+  Percent,
+  Wallet,
+  Pill,
+  Tractor,
+  Sprout,
+  ShieldCheck,
+  Scale,
+  Mic,
+  Compass,
+  Terminal,
+  Search,
+} from "lucide-react";
+import { storageKey, usePersistentState } from "@/lib/clientStore";
 
 export interface AppItem {
   id: "kormopath" | "path" | "feeguard" | "chuktiguard" | "admitbuddy" | "mediscan" | "shohoj" | "haatbazar" | "krishi" | "rokkha" | "legal" | "probaho";
+  stageNum: "০১" | "০২" | "০৩" | "০৪" | "০৫" | "০৬" | "০৭";
+  stageNameBn: string;
+  stageNameEn: string;
   nameEn: string;
   nameBn: string;
   categoryEn: string;
   categoryBn: string;
   href: string;
   badge?: string;
+  icon: typeof GraduationCap;
 }
 
 export const APPS_LIST: AppItem[] = [
+  // 01 Study
+  {
+    id: "admitbuddy",
+    stageNum: "০১",
+    stageNameBn: "পড়া ও ভর্তি",
+    stageNameEn: "Study & Admission",
+    nameEn: "AdmitBuddy",
+    nameBn: "অ্যাডমিট বাডি",
+    categoryEn: "Education Track",
+    categoryBn: "ভর্তি ও প্রস্তুতি",
+    href: "/admitbuddy",
+    badge: "০১ পড়া",
+    icon: GraduationCap,
+  },
+  // 02 Skills & Work
+  {
+    id: "kormopath",
+    stageNum: "০২",
+    stageNameBn: "দক্ষতা ও কাজ",
+    stageNameEn: "Skills & Work",
+    nameEn: "KormoPath Core OS",
+    nameBn: "কর্মপথ কোর ওএস (ওয়ার্কস্পেস)",
+    categoryEn: "Career & FinOps",
+    categoryBn: "স্কিল পাসপোর্ট ও ভাইভা",
+    href: "/workspace",
+    badge: "০২ দক্ষতা",
+    icon: Terminal,
+  },
   {
     id: "path",
+    stageNum: "০২",
+    stageNameBn: "দক্ষতা ও কাজ",
+    stageNameEn: "Skills & Work",
     nameEn: "My Path Board",
     nameBn: "আমার পথ · সুযোগ বোর্ড",
     categoryEn: "Opportunities & Action Plan",
-    categoryBn: "সুযোগ ও পরবর্তী পদক্ষেপ",
+    categoryBn: "চাকরি ও স্কলারশিপ",
     href: "/opportunities",
-    badge: "New",
+    badge: "সুযোগ",
+    icon: Compass,
   },
-  {
-    id: "kormopath",
-    nameEn: "KormoPath Core OS",
-    nameBn: "কর্মপথ কোর ওএস (ফ্ল্যাগশিপ)",
-    categoryEn: "Career & FinOps",
-    categoryBn: "ক্যারিয়ার ও ফিনঅপস",
-    href: "/",
-    badge: "Core OS",
-  },
+  // 03 Earn
   {
     id: "chuktiguard",
+    stageNum: "০৩",
+    stageNameBn: "আয় ও চুক্তি",
+    stageNameEn: "Earn & Contracts",
     nameEn: "ChuktiGuard",
-    nameBn: "চুক্তিগার্ড (বি২বি ইনভয়েস ও চুক্তি)",
+    nameBn: "চুক্তিগার্ড",
     categoryEn: "B2B Contracts & Invoicing",
-    categoryBn: "বি২বি ইনভয়েস ও ব্ল্যাকআউট শিল্ড",
+    categoryBn: "বি২বি চুক্তি ও ইনভয়েস",
     href: "/chuktiguard",
-    badge: "Track 6",
+    badge: "০৩ আয়",
+    icon: ScrollText,
   },
   {
     id: "feeguard",
+    stageNum: "০৩",
+    stageNameBn: "আয় ও চুক্তি",
+    stageNameEn: "Earn & Contracts",
     nameEn: "FeeGuard BD",
-    nameBn: "ফি-গার্ড বিডি (মার্কেটপ্লেস ফি)",
+    nameBn: "ফি-গার্ড বিডি",
     categoryEn: "FinOps & Freedom",
-    categoryBn: "মার্কেটপ্লেস ও ২০% ফি সেভার",
+    categoryBn: "পেআউট ফি ও প্রণোদনা",
     href: "/feeguard",
-    badge: "20% Saver",
+    badge: "ফি সেভার",
+    icon: Percent,
   },
-  {
-    id: "admitbuddy",
-    nameEn: "AdmitBuddy",
-    nameBn: "এডমিট-বাডি (বিশ্ববিদ্যালয়)",
-    categoryEn: "Education Track",
-    categoryBn: "শিক্ষা ট্র্যাক",
-    href: "/admitbuddy",
-    badge: "Track 1",
-  },
-  {
-    id: "mediscan",
-    nameEn: "MediScan BD",
-    nameBn: "মেডিস্ক্যান বিডি (প্রেসক্রিপশন)",
-    categoryEn: "Health & Services",
-    categoryBn: "স্বাস্থ্য ও প্রেসক্রিপশন",
-    href: "/mediscan",
-    badge: "Track 2",
-  },
+  // 04 Home & Money
   {
     id: "shohoj",
+    stageNum: "০৪",
+    stageNameBn: "সংসার ও টাকা",
+    stageNameEn: "Home & Money",
     nameEn: "Shohoj Budget",
-    nameBn: "সহজ বাজেট (ভয়েস ট্র্যাকার)",
+    nameBn: "সহজ বাজেট",
     categoryEn: "Finance & Lifestyle",
-    categoryBn: "ভয়েস ও বিকাশ ফাইন্যান্স",
+    categoryBn: "সংসারের হিসাব ও ফর্দ",
     href: "/shohoj-budget",
-    badge: "Track 3",
+    badge: "০৪ সংসার",
+    icon: Wallet,
+  },
+  // 05 Health
+  {
+    id: "mediscan",
+    stageNum: "০৫",
+    stageNameBn: "স্বাস্থ্য",
+    stageNameEn: "Health",
+    nameEn: "MediScan BD",
+    nameBn: "মেডিস্ক্যান বিডি",
+    categoryEn: "Health & Services",
+    categoryBn: "হাসপাতাল, ডাক্তার ও ওষুধ",
+    href: "/mediscan",
+    badge: "০৫ স্বাস্থ্য",
+    icon: Pill,
+  },
+  // 06 Field
+  {
+    id: "krishi",
+    stageNum: "০৬",
+    stageNameBn: "মাঠ ও কৃষি",
+    stageNameEn: "Field & Crops",
+    nameEn: "MaathSathi",
+    nameBn: "মাঠসাথী",
+    categoryEn: "Agriculture & Field",
+    categoryBn: "স্যাটেলাইট জমি ও খামার",
+    href: "/krishi/field#/farmer",
+    badge: "০৬ মাঠ",
+    icon: Tractor,
   },
   {
     id: "haatbazar",
+    stageNum: "০৬",
+    stageNameBn: "মাঠ ও কৃষি",
+    stageNameEn: "Field & Crops",
     nameEn: "HaatBazar AI",
-    nameBn: "হাটবাজার এআই (৬৪ জেলা দর)",
+    nameBn: "হাটবাজার এআই",
     categoryEn: "Agriculture & Mandi",
-    categoryBn: "কৃষি ও পাইকারি দর",
+    categoryBn: "৬৪ জেলা আড়ত ও হাটদর",
     href: "/haatbazar",
-    badge: "Track 4",
+    badge: "আড়ত দর",
+    icon: Sprout,
   },
-  {
-    id: "krishi",
-    nameEn: "MaathSathi",
-    nameBn: "মাঠসাথী (জমি, কাজ ও পশুপাখি)",
-    categoryEn: "Agriculture & Field",
-    categoryBn: "মাঠের কাজ ও খামার",
-    href: "/krishi/field#/farmer",
-    badge: "Track 4",
-  },
+  // 07 Protect
   {
     id: "rokkha",
+    stageNum: "০৭",
+    stageNameBn: "সুরক্ষা",
+    stageNameEn: "Protect",
     nameEn: "Rokkha",
-    nameBn: "রক্ষা (প্রতারণা ও দুর্যোগে সুরক্ষা)",
-    categoryEn: "Scam & disaster safety",
-    categoryBn: "প্রতারণা ও দুর্যোগে সুরক্ষা",
+    nameBn: "রক্ষা",
+    categoryEn: "Scam & Disaster Safety",
+    categoryBn: "প্রতারণা ও দুর্যোগ প্রস্তুতি",
     href: "/rokkha",
-    badge: "New",
+    badge: "০৭ সুরক্ষা",
+    icon: ShieldCheck,
   },
   {
     id: "legal",
+    stageNum: "০৭",
+    stageNameBn: "সুরক্ষা",
+    stageNameEn: "Protect",
     nameEn: "Legal Aid",
-    nameBn: "আইনি সহায়তা (বিনামূল্যে আইনি সাহায্য)",
-    categoryEn: "Free legal aid",
-    categoryBn: "বিনামূল্যে আইনি সহায়তা",
+    nameBn: "আইনি সহায়তা",
+    categoryEn: "Free Legal Aid",
+    categoryBn: "বিনামূল্যে আইনি পরামর্শ",
     href: "/legal",
-    badge: "New",
+    badge: "আইন",
+    icon: Scale,
   },
   {
     id: "probaho",
+    stageNum: "০৭",
+    stageNameBn: "সুরক্ষা",
+    stageNameEn: "Protect",
     nameEn: "Probaho Coach",
-    nameBn: "প্রবাহ স্পিকিং কোচ (ভাইভা)",
+    nameBn: "প্রবাহ কোচ",
     categoryEn: "Productivity & Viva",
-    categoryBn: "ভাইভা স্পিকিং কোচ",
+    categoryBn: "ভাইভা ও কথা বলার অনুশীলন",
     href: "/probaho",
-    badge: "Track 5",
+    badge: "ভাইভা",
+    icon: Mic,
   },
 ];
+
+function sanitizeRecentApps(value: unknown): AppItem["id"][] | null {
+  if (!Array.isArray(value)) return null;
+  return value
+    .filter((id): id is AppItem["id"] => APPS_LIST.some((app) => app.id === id))
+    .slice(0, 4);
+}
 
 export function AppSwitcherDropdown({
   currentAppId,
@@ -137,11 +222,17 @@ export function AppSwitcherDropdown({
   onSelectApp?: (appId: string) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [query, setQuery] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const [recentApps, setRecentApps] = usePersistentState<AppItem["id"][]>(
+    storageKey("platform", "recentApps"),
+    [],
+    sanitizeRecentApps,
+  );
   const router = useRouter();
   const pathname = usePathname();
 
-  // Determine active app based on pathname if not explicitly passed
   const detectedId: AppItem["id"] =
     pathname?.startsWith("/opportunities")
       ? "path"
@@ -168,10 +259,21 @@ export function AppSwitcherDropdown({
       : "kormopath";
 
   const activeId = currentAppId || detectedId;
-
   const currentApp = APPS_LIST.find((a) => a.id === activeId) || APPS_LIST[0];
+  const normalizedQuery = query.trim().toLocaleLowerCase();
+  const filteredApps = APPS_LIST.filter((app) =>
+    [app.nameEn, app.nameBn, app.categoryEn, app.categoryBn, app.stageNameEn, app.stageNameBn]
+      .some((value) => value.toLocaleLowerCase().includes(normalizedQuery))
+  );
+  const recentItems = recentApps
+    .map((id) => APPS_LIST.find((app) => app.id === id))
+    .filter((app): app is AppItem => Boolean(app));
 
-  // Close on outside click or Escape key
+  useEffect(() => {
+    if (isOpen) searchRef.current?.focus();
+    else setQuery("");
+  }, [isOpen]);
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -193,6 +295,7 @@ export function AppSwitcherDropdown({
 
   const handleSelect = (app: AppItem) => {
     setIsOpen(false);
+    setRecentApps((previous) => [app.id, ...previous.filter((id) => id !== app.id)].slice(0, 4));
     if (onSelectApp) {
       onSelectApp(app.id);
     }
@@ -201,107 +304,183 @@ export function AppSwitcherDropdown({
     }
   };
 
+  const isLight = variant === "light";
+
   return (
     <div className="relative inline-block text-left" ref={dropdownRef}>
-      {/* Trigger Button with chevron matching user reference */}
+      {/* Trigger Button with badge and chevron */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`group flex items-center gap-2 rounded-xl border px-3 py-1.5 text-left shadow-xs transition-all ${
-          variant === "light"
-            ? "border-slate-200 bg-white hover:bg-slate-50 text-slate-900"
-            : "border-white/15 bg-white/5 hover:bg-white/10 text-white"
+          isLight
+            ? "border-white/80 bg-white/45 backdrop-blur-xl hover:border-emerald-500/50 hover:bg-white/75 text-slate-900"
+            : "border-white/15 bg-white/5 hover:border-amber-400 hover:bg-white/10 text-white"
         }`}
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
-        <span className="flex h-2 w-2 rounded-full bg-orange-400 animate-pulse" aria-hidden="true" />
+        <span className="hidden h-2 w-2 rounded-full bg-emerald-600 sm:flex" aria-hidden="true" />
         <div className="text-left">
-          <span className={`block text-[12px] font-bold leading-tight ${variant === "light" ? "text-slate-900" : "text-white"}`}>
+          <span className={`block text-[12px] font-bold leading-tight ${isLight ? "text-slate-900" : "text-white"}`}>
             {lang === "bn" ? currentApp.nameBn.split(" ")[0] : currentApp.nameEn.split(" ")[0]}
           </span>
-          <span className={`block text-[10px] leading-none ${variant === "light" ? "text-slate-500" : "text-amber-300/80"}`}>
-            {lang === "bn" ? `${APPS_LIST.length}টি অ্যাপ` : `${APPS_LIST.length} apps`}
+          <span className={`hidden text-[10px] leading-none sm:block ${isLight ? "text-slate-500" : "text-amber-300/80"}`}>
+            {lang === "bn" ? `${currentApp.stageNum} ${currentApp.stageNameBn}` : `${currentApp.stageNum} ${currentApp.stageNameEn}`}
           </span>
           <span className="sr-only">{lang === "bn" ? " · অ্যাপ বদলান" : " · switch app"}</span>
         </div>
         <ChevronDown
           size={16}
-          className={`text-slate-400 transition-transform duration-200 ${
-            isOpen ? "rotate-180" : ""
-          }`}
+          className={`text-slate-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
         />
       </button>
 
-      {/* Dropdown Menu matching the exact user image aesthetic */}
+      {/* Dropdown Menu */}
       {isOpen && (
         <div
-          className="absolute right-0 mt-2 w-80 origin-top-right rounded-2xl border border-white/15 bg-[#070d1e] p-2.5 shadow-2xl backdrop-blur-xl z-50 animate-in fade-in-50 zoom-in-95 duration-150"
-          role="menu"
-          aria-orientation="vertical"
+          className={`absolute right-0 mt-2 w-84 max-w-[calc(100vw-1.5rem)] max-h-[85vh] overflow-y-auto origin-top-right rounded-2xl border p-2.5 shadow-2xl z-50 animate-in fade-in-50 zoom-in-95 duration-150 ${
+            isLight
+              ? "border-white/80 bg-paper/95 text-slate-900 backdrop-blur-2xl"
+              : "border-white/15 bg-[#0b1329] text-white backdrop-blur-xl"
+          }`}
+          role="dialog"
+          aria-label={lang === "bn" ? "অ্যাপ লঞ্চার" : "App launcher"}
         >
           {/* Header Label */}
-          <div className="px-3 pt-1.5 pb-2 text-[13px] font-semibold text-slate-400 tracking-wide">
-            {lang === "bn" ? `অ্যাপ নির্বাচন (${APPS_LIST.length}টি)` : `Select application (${APPS_LIST.length})`}
+          <div className="flex items-center justify-between px-2.5 pt-1.5 pb-2 border-b border-line">
+            <span className={`text-[12px] font-bold tracking-wide uppercase ${isLight ? "text-slate-500" : "text-slate-400"}`}>
+              {lang === "bn" ? "৭ ধাপের জীবনচক্র ও অ্যাপ" : "7-Stage Life Cycle Apps"}
+            </span>
+            <span className="text-[10px] font-mono font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+              {lang === "bn" ? `${APPS_LIST.length}টি টুল` : `${APPS_LIST.length} tools`}
+            </span>
           </div>
 
-          {/* App list */}
-          <div className="space-y-1">
-            {APPS_LIST.map((app) => {
-              const isSelected = app.id === activeId;
-              const displayName = lang === "bn" ? app.nameBn : app.nameEn;
+          <label className={`relative mt-2 block ${isLight ? "text-slate-500" : "text-slate-400"}`}>
+            <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2" aria-hidden="true" />
+            <input
+              ref={searchRef}
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder={lang === "bn" ? "অ্যাপ খুঁজুন" : "Search apps"}
+              aria-label={lang === "bn" ? "অ্যাপ খুঁজুন" : "Search apps"}
+              className={`h-10 w-full rounded-xl border pl-9 pr-3 text-[13px] outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 ${
+                isLight ? "border-line bg-white/75 text-slate-900 placeholder:text-slate-400" : "border-white/10 bg-white/5 text-white placeholder:text-slate-500"
+              }`}
+            />
+          </label>
 
-              return (
-                <button
-                  key={app.id}
-                  onClick={() => handleSelect(app)}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-[14px] font-medium transition-all ${
-                    isSelected
-                      ? "bg-[#007aff] text-white font-bold shadow-md"
-                      : "text-white hover:bg-white/10 hover:text-white"
-                  }`}
-                  role="menuitem"
-                >
-                  {/* Left Checkmark matching user screenshot */}
-                  <span className="w-5 flex items-center justify-center shrink-0">
-                    {isSelected ? (
-                      <Check size={18} className="stroke-[3] text-white" />
-                    ) : (
-                      <span className="w-5" />
-                    )}
-                  </span>
-
-                  {/* App Name */}
-                  <span className="flex-1 truncate leading-tight">
-                    {displayName}
-                  </span>
-
-                  {/* Badge if available */}
-                  {app.badge && (
-                    <span
-                      className={`text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0 ${
-                        isSelected
-                          ? "bg-white/20 text-white"
-                          : "bg-white/10 text-emerald-300"
+          {!normalizedQuery && recentItems.length > 0 && (
+            <div className="mt-3" aria-label={lang === "bn" ? "সাম্প্রতিক অ্যাপ" : "Recently opened apps"}>
+              <p className={`mb-1.5 px-1 text-[10px] font-bold uppercase tracking-wide ${isLight ? "text-slate-500" : "text-slate-400"}`}>
+                {lang === "bn" ? "সম্প্রতি খোলা" : "Recently opened"}
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {recentItems.map((app) => {
+                  const Icon = app.icon;
+                  return (
+                    <button
+                      key={app.id}
+                      type="button"
+                      onClick={() => handleSelect(app)}
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1.5 text-[11px] font-semibold transition-colors ${
+                        isLight ? "border-line bg-white/75 text-slate-700 hover:border-emerald-500/50 hover:bg-emerald-50" : "border-white/10 bg-white/5 text-slate-200 hover:bg-white/10"
                       }`}
                     >
-                      {app.badge}
-                    </span>
+                      <Icon size={13} aria-hidden="true" />
+                      {lang === "bn" ? app.nameBn : app.nameEn}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* App list */}
+          <div className="mt-2 space-y-1" role="menu" aria-label={lang === "bn" ? "সব অ্যাপ" : "All apps"}>
+            {filteredApps.length === 0 && (
+              <p className={`px-3 py-6 text-center text-[13px] ${isLight ? "text-slate-500" : "text-slate-400"}`}>
+                {lang === "bn" ? "কোনো অ্যাপ মেলেনি" : "No apps found"}
+              </p>
+            )}
+            {filteredApps.map((app, index) => {
+              const isSelected = app.id === activeId;
+              const displayName = lang === "bn" ? app.nameBn : app.nameEn;
+              const displayCategory = lang === "bn" ? app.categoryBn : app.categoryEn;
+              const Icon = app.icon;
+              const startsCategory = index === 0 || filteredApps[index - 1].stageNum !== app.stageNum;
+
+              return (
+                <div key={app.id}>
+                  {startsCategory && (
+                    <p className={`px-3 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wide ${isLight ? "text-slate-500" : "text-slate-400"}`} role="presentation">
+                      {lang === "bn" ? app.stageNameBn : app.stageNameEn}
+                    </p>
                   )}
-                </button>
+                  <button
+                    onClick={() => handleSelect(app)}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-[13.5px] transition-all ${
+                      isSelected
+                        ? "bg-emerald-700 text-white font-bold shadow-xs"
+                        : isLight
+                        ? "text-slate-800 hover:bg-slate-100 hover:text-slate-950"
+                        : "text-slate-200 hover:bg-white/10 hover:text-white"
+                    }`}
+                    role="menuitem"
+                  >
+                    <span
+                      className={`grid h-7 w-7 place-items-center rounded-lg text-[11px] font-bold shrink-0 ${
+                        isSelected
+                          ? "bg-white/20 text-white"
+                          : isLight
+                          ? "bg-slate-100 text-slate-700"
+                          : "bg-white/10 text-emerald-400"
+                      }`}
+                    >
+                      <Icon size={15} />
+                    </span>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-mono font-semibold opacity-70">{app.stageNum}</span>
+                        <span className="truncate leading-tight font-semibold">{displayName}</span>
+                      </div>
+                      <span className={`block text-[11px] leading-none truncate mt-0.5 ${isSelected ? "text-white/80" : "text-slate-500"}`}>
+                        {displayCategory}
+                      </span>
+                    </div>
+
+                    {isSelected && (
+                      <span className="flex items-center justify-center shrink-0">
+                        <Check size={16} className="stroke-[2.5] text-white" />
+                      </span>
+                    )}
+                  </button>
+                </div>
               );
             })}
           </div>
 
           {/* Bottom helper footnote */}
-          <div className="mt-2 pt-2 border-t border-white/10 px-3 py-1 text-[11px] text-[#8fa89b] flex items-center justify-between">
-            <Link href="/settings" onClick={() => setIsOpen(false)} className="text-emerald-300 hover:underline font-semibold">
-              {lang === "bn" ? "ডেটা ও প্রাইভেসি সেটিংস" : "Data & privacy settings"}
+          <div className={`mt-2.5 pt-2 border-t px-2.5 py-1 text-[11px] flex items-center justify-between ${isLight ? "border-slate-100 text-slate-500" : "border-white/10 text-slate-400"}`}>
+            <Link
+              href="/settings"
+              onClick={() => setIsOpen(false)}
+              className="text-emerald-700 hover:underline font-semibold"
+            >
+              {lang === "bn" ? "প্রাইভেসি ও ব্যাকআপ" : "Privacy & Backup"}
             </Link>
-            <span>{lang === "bn" ? "প্রতিটি অ্যাপ আলাদাভাবে চলে" : "Each app runs independently"}</span>
+            <Link
+              href="/"
+              onClick={() => setIsOpen(false)}
+              className="hover:underline font-medium"
+            >
+              {lang === "bn" ? "হোম পেজ" : "Home"}
+            </Link>
           </div>
         </div>
       )}
     </div>
   );
 }
-

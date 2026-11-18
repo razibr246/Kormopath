@@ -18,6 +18,8 @@ import {
   smsBazarHref,
   STORE_PLATFORMS,
   POPULAR_STORE_ITEMS,
+  PRESET_BASKETS,
+  formatBazarMemo,
   type BazarState,
 } from "../lib/bazar.ts";
 
@@ -178,4 +180,22 @@ test("bazar: popular store items catalog integrity", () => {
     assert.ok(item.defaultQty > 0);
     assert.ok(["daraz", "rokomari", "chaldal", "shwapno", "tcb"].includes(item.primaryStore));
   }
+});
+
+test("bazar: preset baskets and printable memo formatting", () => {
+  assert.ok(PRESET_BASKETS.length >= 4);
+  for (const basket of PRESET_BASKETS) {
+    assert.ok(basket.id && basket.nameBn && basket.items.length > 0);
+    assert.ok(["chaldal", "rokomari", "daraz", "shwapno"].includes(basket.platformFocus));
+  }
+
+  const items = [
+    { id: "1", name: "মিনিকেট চাল", qty: 5, unit: "kg" as const, checked: true, pricePoisha: 37500 },
+    { id: "2", name: "সয়াবিন তেল", qty: 2, unit: "litre" as const, checked: false, pricePoisha: null },
+  ];
+  const memo = formatBazarMemo(items, "2026-11-18", 150000, true);
+  assert.ok(memo.includes("মেমো · বাজারের খরচের হিসাব"));
+  assert.ok(memo.includes("মিনিকেট চাল"));
+  assert.ok(memo.includes("লক্ষ্য বাজেট: ৳১,৫০০"));
+  assert.ok(memo.includes("মোট কেনা: ৳৩৭৫"));
 });

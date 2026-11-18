@@ -171,7 +171,7 @@ export default function AdmitBuddyPage() {
           <div className="min-w-[250px] rounded-2xl border border-slate-200/80 bg-slate-50/90 backdrop-blur-md p-4 text-[13px] shadow-xs">
             <div className="flex items-center justify-between">
               <strong className="text-slate-900">{profile.name || "আপনার প্রোফাইল"}</strong>
-              <button onClick={() => setEditingProfile(!editingProfile)} className="text-[12px] font-bold text-indigo-700 hover:text-indigo-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] rounded">{editingProfile ? "বন্ধ" : "এডিট"}</button>
+              <button onClick={() => setEditingProfile(!editingProfile)} className="text-[12px] font-bold text-indigo-700 hover:text-indigo-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 rounded">{editingProfile ? "বন্ধ" : "এডিট"}</button>
             </div>
             <p className="text-slate-600">SSC {profile.sscGpa.toFixed(2)} · HSC {profile.hscGpa.toFixed(2)} · {profile.group}</p>
             <p className="text-slate-600">বাজেট: ৳{profile.maxBudgetPerSemester.toLocaleString("en-IN")}/সেমিস্টার</p>
@@ -187,7 +187,7 @@ export default function AdmitBuddyPage() {
 
         <nav className="flex gap-1.5 overflow-x-auto scrollbar-none rounded-xl border border-slate-200/80 bg-white/80 backdrop-blur-md p-1.5 shadow-xs" role="tablist" aria-label="AdmitBuddy">
           {TABS.map((t) => (
-            <button key={t.id} role="tab" aria-selected={tab === t.id} onClick={() => switchTab(t.id)} className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3.5 py-2 text-[13px] font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] focus-visible:ring-offset-2 transition-all ${tab === t.id ? "bg-indigo-600 text-white shadow-xs" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"}`}>
+            <button key={t.id} role="tab" aria-selected={tab === t.id} onClick={() => switchTab(t.id)} className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3.5 py-2 text-[13px] font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 transition-all ${tab === t.id ? "bg-indigo-600 text-white shadow-xs" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"}`}>
               {t.icon} {t.label}
             </button>
           ))}
@@ -375,7 +375,7 @@ export default function AdmitBuddyPage() {
         )}
 
         <p className="text-[12px] text-slate-600">
-          সব তথ্য এই ডিভাইসে থাকে। ভর্তির সিদ্ধান্তের আগে প্রতিটি তথ্য অফিসিয়াল উৎসে মিলিয়ে নিন। <Link href="/settings" className="font-semibold text-indigo-700 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] rounded">ডেটা এক্সপোর্ট/মুছুন</Link> · ভাইভা অনুশীলন: <Link href="/probaho" className="font-semibold text-indigo-700 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] rounded">Probaho Coach</Link>
+          সব তথ্য এই ডিভাইসে থাকে। ভর্তির সিদ্ধান্তের আগে প্রতিটি তথ্য অফিসিয়াল উৎসে মিলিয়ে নিন। <Link href="/settings" className="font-semibold text-indigo-700 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 rounded">ডেটা এক্সপোর্ট/মুছুন</Link> · ভাইভা অনুশীলন: <Link href="/probaho" className="font-semibold text-indigo-700 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 rounded">Probaho Coach</Link>
         </p>
       </main>
       <AppFooter lang="bn" />

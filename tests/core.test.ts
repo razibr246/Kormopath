@@ -234,3 +234,83 @@ test("effectiveRate is net taka per invoiced dollar and never beats the mid-mark
   }
   assert.equal(effectiveRate(channels[0], 0), null);
 });
+
+test("calculateFreelancerAIT implements Bangladesh Income Tax Act 2023 rules and Section 124 penalties", async () => {
+  const { calculateFreelancerAIT } = await import("../lib/finops.ts");
+
+  // 1. Foreign Export (ITES) — 100% tax exempt with 2.5% cash incentive
+  const exportRes = calculateFreelancerAIT({
+    amountBdt: 100000,
+    contractType: "foreign_export",
+    hasPsr: true,
+    hasTin: true,
+  });
+  assert.equal(exportRes.isTaxExempt, true);
+  assert.equal(exportRes.aitAmountBdt, 0);
+  assert.equal(exportRes.effectiveRatePct, 0);
+  assert.equal(exportRes.incentiveEligible, true);
+  assert.equal(exportRes.incentiveAmountBdt, 2500); // 2.5% of 100k
+  assert.equal(exportRes.netReceivableBdt, 102500);
+  assert.ok(exportRes.lawReference.includes("৭৬ ধারা"));
+
+  // 2. Local Corporate IT Contract with PSR — 5% TDS
+  const localItWithPsr = calculateFreelancerAIT({
+    amountBdt: 100000,
+    contractType: "local_corporate_it",
+    hasPsr: true,
+    hasTin: true,
+  });
+  assert.equal(localItWithPsr.baseRatePct, 5);
+  assert.equal(localItWithPsr.effectiveRatePct, 5);
+  assert.equal(localItWithPsr.psrPenaltyApplied, false);
+  assert.equal(localItWithPsr.aitAmountBdt, 5000);
+  assert.equal(localItWithPsr.netReceivableBdt, 95000);
+  assert.equal(localItWithPsr.grossBdt - localItWithPsr.aitAmountBdt, localItWithPsr.netReceivableBdt);
+
+  // 3. Local Corporate IT Contract WITHOUT PSR — 50% penalty (7.5% TDS under Sec 124)
+  const localItNoPsr = calculateFreelancerAIT({
+    amountBdt: 100000,
+    contractType: "local_corporate_it",
+    hasPsr: false,
+    hasTin: true,
+  });
+  assert.equal(localItNoPsr.baseRatePct, 5);
+  assert.equal(localItNoPsr.effectiveRatePct, 7.5);
+  assert.equal(localItNoPsr.psrPenaltyApplied, true);
+  assert.equal(localItNoPsr.aitAmountBdt, 7500);
+  assert.equal(localItNoPsr.netReceivableBdt, 92500);
+  assert.equal(localItNoPsr.grossBdt - localItNoPsr.aitAmountBdt, localItNoPsr.netReceivableBdt);
+  assert.ok(localItNoPsr.lawReference.includes("১২৪"));
+
+  // 4. Local Corporate Consulting Contract with & without PSR (10% vs 15%)
+  const consultWithPsr = calculateFreelancerAIT({
+    amountBdt: 80000,
+    contractType: "local_corporate_consulting",
+    hasPsr: true,
+    hasTin: true,
+  });
+  assert.equal(consultWithPsr.baseRatePct, 10);
+  assert.equal(consultWithPsr.effectiveRatePct, 10);
+  assert.equal(consultWithPsr.aitAmountBdt, 8000);
+  assert.equal(consultWithPsr.netReceivableBdt, 72000);
+
+  const consultNoPsr = calculateFreelancerAIT({
+    amountBdt: 80000,
+    contractType: "local_corporate_consulting",
+    hasPsr: false,
+    hasTin: false,
+  });
+  assert.equal(consultNoPsr.effectiveRatePct, 15);
+  assert.equal(consultNoPsr.aitAmountBdt, 12000);
+  assert.equal(consultNoPsr.netReceivableBdt, 68000);
+
+  // 5. Local Individual Client — 0 at source
+  const individualRes = calculateFreelancerAIT({
+    amountBdt: 50000,
+    contractType: "local_individual",
+    hasPsr: false,
+    hasTin: false,
+  });
+  assert.equal(individualRes.aitAmountBdt, 0);
+  assert.equal(individualRes.netReceivableBdt, 50000);
+});

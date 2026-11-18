@@ -24,6 +24,8 @@ import {
   AlertTriangle,
   Zap,
   Percent,
+  Scale,
+  Compass,
 } from "lucide-react";
 
 export interface EcosystemHubProps {
@@ -502,6 +504,108 @@ export function EcosystemHub({
                 <p className="mt-2 text-[12px] text-muted">
                   Analyzes spoken answers for technical job interviews and university vivas: flags filler words
                   (&quot;umm&quot;, &quot;like&quot;), evaluates words-per-minute pace, and grades confidence radar.
+                </p>
+              </div>
+
+              {/* Opportunities / My Path */}
+              <div className="rounded-xl border border-line bg-white p-4 hover:border-sky-500 transition-all">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-sky-100 text-sky-800 font-bold">
+                      <Compass size={20} />
+                    </span>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-bold text-[15px] text-ink">আমার পথ · My Path</h3>
+                        <span className="rounded bg-sky-50 px-1.5 py-0.5 text-[10px] font-bold text-sky-800 uppercase">
+                          Career &amp; Grants
+                        </span>
+                      </div>
+                      <p className="text-[12px] text-muted">
+                        Verified Jobs, Scholarships &amp; Agricultural Support Opportunities
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Link
+                      href="/opportunities"
+                      onClick={onClose}
+                      className="flex items-center gap-1 rounded-lg bg-sky-700 px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-sky-800 transition-colors"
+                    >
+                      Open Full App →
+                    </Link>
+                  </div>
+                </div>
+                <p className="mt-2 text-[12px] text-muted">
+                  Curates verified domestic and international opportunities: government circulars, tech internships, fully-funded foreign scholarships, and agri-loans with deadlines and direct links.
+                </p>
+              </div>
+
+              {/* Rokkha */}
+              <div className="rounded-xl border border-line bg-white p-4 hover:border-amber-500 transition-all">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 text-amber-800 font-bold">
+                      <ShieldCheck size={20} />
+                    </span>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-bold text-[15px] text-ink">রক্ষা · Rokkha</h3>
+                        <span className="rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-800 uppercase">
+                          Safety &amp; Anti-Scam
+                        </span>
+                      </div>
+                      <p className="text-[12px] text-muted">
+                        MFS Scam Inspection, Cooling-Off Transfer Guard &amp; Emergency Helplines
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Link
+                      href="/rokkha"
+                      onClick={onClose}
+                      className="flex items-center gap-1 rounded-lg bg-amber-700 px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-amber-800 transition-colors"
+                    >
+                      Open Full App →
+                    </Link>
+                  </div>
+                </div>
+                <p className="mt-2 text-[12px] text-muted">
+                  Instant offline scam detection for bKash/Nagad fake lottery and OTP messages, emergency cooling-off pause, family guardian alerts, and official disaster readiness guides.
+                </p>
+              </div>
+
+              {/* Legal Aid */}
+              <div className="rounded-xl border border-line bg-white p-4 hover:border-indigo-600 transition-all">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-100 text-indigo-800 font-bold">
+                      <Scale size={20} />
+                    </span>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-bold text-[15px] text-ink">আইনি সহায়তা · Legal Aid</h3>
+                        <span className="rounded bg-indigo-50 px-1.5 py-0.5 text-[10px] font-bold text-indigo-800 uppercase">
+                          Rights &amp; Justice
+                        </span>
+                      </div>
+                      <p className="text-[12px] text-muted">
+                        Government NLASO Legal Aid Eligibility, Case Timeline &amp; Mediation Prep
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Link
+                      href="/legal"
+                      onClick={onClose}
+                      className="flex items-center gap-1 rounded-lg bg-indigo-700 px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-indigo-800 transition-colors"
+                    >
+                      Open Full App →
+                    </Link>
+                  </div>
+                </div>
+                <p className="mt-2 text-[12px] text-muted">
+                  Official 16699 legal aid eligibility assessment, application draft generator, dispute mediation prep, and indigenous language bridges (Chakma, Marma) — 100% on-device privacy.
                 </p>
               </div>
             </div>

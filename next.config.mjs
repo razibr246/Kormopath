@@ -1,3 +1,5 @@
+import { PHASE_DEVELOPMENT_SERVER } from "next/constants.js";
+
 // Security headers for every route. A full script CSP is not set because Next.js injects
 // inline bootstrap scripts; these directives restrict framing, plugins, base URLs and form
 // targets without touching scripts.
@@ -12,10 +14,10 @@ const securityHeaders = [
 ];
 
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+const nextConfig = (phase) => ({
   reactStrictMode: true,
-  // Lets a test build go to another folder (NEXT_DIST_DIR=.next-test) without clobbering a running `next dev`.
-  distDir: process.env.NEXT_DIST_DIR || ".next",
+  // Keep the dev server's generated chunks separate from production builds and starts.
+  distDir: process.env.NEXT_DIST_DIR || (phase === PHASE_DEVELOPMENT_SERVER ? ".next-dev" : ".next"),
   devIndicators: false,
   poweredByHeader: false,
   // FieldShift360 (field360/src, mounted at /krishi/field) was written for Vite, where importing an image gives its
@@ -45,5 +47,5 @@ const nextConfig = {
       { source: "/sw.js", headers: [{ key: "Cache-Control", value: "no-cache, no-store, must-revalidate" }, { key: "Content-Type", value: "application/javascript; charset=utf-8" }] },
     ];
   },
-};
+});
 export default nextConfig;

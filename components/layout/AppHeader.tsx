@@ -1,13 +1,19 @@
 "use client";
 import Link from "next/link";
-import type { ReactNode } from "react";
-import { ShieldCheck } from "lucide-react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { ShieldCheck, Monitor, Lock, Trash2, X, AlertTriangle, RotateCcw } from "lucide-react";
 import { AppSwitcherDropdown, type AppItem } from "@/components/layout/AppSwitcherDropdown";
 import { KormoPathLogo } from "@/components/brand/KormoPathLogo";
 
+function formatMmSs(sec: number): string {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${m}:${s < 10 ? "0" : ""}${s}`;
+}
+
 /**
  * Shared header for the ecosystem apps. Each app keeps its own colour and icon; the
- * KormoPath link, app switcher and privacy note are the same everywhere.
+ * KormoPath link, app switcher, privacy note and UDC Shared Terminal Mode are the same everywhere.
  */
 export function AppHeader({
   appId,
@@ -31,60 +37,270 @@ export function AppHeader({
   privacyNote?: string | null;
   right?: ReactNode;
 }) {
+  // ---- Union Digital Centre (UDC) / Shared PC Privacy Mode ----
+  const [udcActive, setUdcActive] = useState(false);
+  const [secondsLeft, setSecondsLeft] = useState(900); // 15 minutes
+  const [showUdcMenu, setShowUdcMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    try {
+      const active = sessionStorage.getItem("kormopath:udc_mode") === "1";
+      if (active) setUdcActive(true);
+    } catch {}
+  }, []);
+
+  const wipeAndExit = useCallback(() => {
+    try {
+      const keysToRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && (k.startsWith("kormopath:") || k.startsWith("kp-"))) {
+          keysToRemove.push(k);
+        }
+      }
+      keysToRemove.forEach((k) => localStorage.removeItem(k));
+      sessionStorage.clear();
+    } catch {}
+    window.location.href = "/?udc_wiped=1";
+  }, []);
+
+  const toggleUdc = useCallback(() => {
+    if (udcActive) {
+      setUdcActive(false);
+      setShowUdcMenu(false);
+      try {
+        sessionStorage.removeItem("kormopath:udc_mode");
+      } catch {}
+    } else {
+      setUdcActive(true);
+      setSecondsLeft(900);
+      setShowUdcMenu(false);
+      try {
+        sessionStorage.setItem("kormopath:udc_mode", "1");
+      } catch {}
+    }
+  }, [udcActive]);
+
+  const resetTimer = useCallback(() => {
+    setSecondsLeft(900);
+  }, []);
+
+  // Activity listeners to reset countdown on mouse/touch/key events
+  useEffect(() => {
+    if (!udcActive) return;
+
+    let throttleTimer = 0;
+    const handleActivity = () => {
+      const now = Date.now();
+      if (now - throttleTimer > 2000) {
+        throttleTimer = now;
+        setSecondsLeft(900);
+      }
+    };
+
+    window.addEventListener("mousemove", handleActivity, { passive: true });
+    window.addEventListener("keydown", handleActivity, { passive: true });
+    window.addEventListener("touchstart", handleActivity, { passive: true });
+    window.addEventListener("scroll", handleActivity, { passive: true });
+
+    const interval = setInterval(() => {
+      setSecondsLeft((s) => {
+        if (s <= 1) {
+          clearInterval(interval);
+          wipeAndExit();
+          return 0;
+        }
+        return s - 1;
+      });
+    }, 1000);
+
+    return () => {
+      window.removeEventListener("mousemove", handleActivity);
+      window.removeEventListener("keydown", handleActivity);
+      window.removeEventListener("touchstart", handleActivity);
+      window.removeEventListener("scroll", handleActivity);
+      clearInterval(interval);
+    };
+  }, [udcActive, wipeAndExit]);
+
+  // Close UDC menu when clicking outside
+  useEffect(() => {
+    if (!showUdcMenu) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setShowUdcMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showUdcMenu]);
+
   return (
-    <header className="kp-nav-wrap print:hidden">
-      <a
-        href="#main"
-        className="skip-link sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-lg focus:bg-slate-900 focus:text-white focus:px-3 focus:py-2 focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-      >
-        মূল অংশে যান
-      </a>
-      <div className="kp-nav mx-auto flex max-w-7xl items-center justify-between gap-3 px-2.5 py-2 sm:px-3">
-        <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
-          <Link href={href} className="flex min-w-0 items-center gap-2.5">
-            <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-gradient-to-br ${accent} text-white shadow-[inset_0_1px_0_rgba(255,255,255,.3),0_6px_14px_-6px_rgba(60,36,18,.55)]`} aria-hidden>
-              {icon}
-            </span>
-            <span className="min-w-0">
-              <span className="block truncate font-display text-[18px] font-semibold leading-tight tracking-tight text-slate-900 sm:text-[20px]">{name}</span>
-              <span className="mt-0.5 block truncate text-[11px] font-medium leading-none text-slate-600">{taglineEn ? `${taglineEn} · ${taglineBn}` : taglineBn}</span>
-            </span>
-          </Link>
-          {/* Desktop Logo Link */}
-          <Link
-            href="/"
-            className="hidden shrink-0 items-center gap-1.5 rounded-xl border border-line bg-white/70 px-2.5 py-1 text-[12px] font-medium text-slate-700 transition-colors hover:border-amber-500 lg:flex"
-            title="KormoPath Home"
-          >
-            <span className="text-slate-500 font-bold">←</span>
-            <KormoPathLogo theme="light" variant="compact" size="sm" />
-          </Link>
-          {/* Mobile Logo Link */}
-          <Link
-            href="/"
-            className="flex shrink-0 items-center gap-1 rounded-xl border border-line bg-white/70 px-2 py-1 text-[12px] font-medium text-slate-700 transition-colors hover:border-amber-500 lg:hidden"
-            title="KormoPath Home"
-            aria-label="KormoPath Home"
-          >
-            <span className="text-slate-500 font-bold">←</span>
-            <KormoPathLogo theme="light" variant="mark" size="sm" />
-          </Link>
+    <>
+      {/* Imminent Inactivity Warning Toast (< 60s) */}
+      {udcActive && secondsLeft <= 60 && (
+        <div
+          role="alert"
+          aria-live="assertive"
+          className="fixed top-2 left-1/2 z-50 -translate-x-1/2 w-11/12 max-w-md rounded-xl border-2 border-red-500 bg-red-50 px-4 py-3 shadow-xl text-red-900"
+        >
+          <div className="flex items-start gap-2.5">
+            <AlertTriangle className="h-5 w-5 shrink-0 text-red-600 mt-0.5 animate-bounce" />
+            <div className="flex-1 text-xs">
+              <p className="font-bold text-red-950">
+                অসক্রিয়তার সতর্কতা: {secondsLeft} সেকেন্ডে ডেটা মুছে যাবে!
+              </p>
+              <p className="mt-0.5 text-red-800">
+                শেয়ার্ড পিসির নিরাপত্তা রক্ষায় এই সেশনটি স্বয়ংক্রিয়ভাবে বন্ধ করা হবে।
+              </p>
+              <div className="mt-2.5 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={resetTimer}
+                  className="rounded-lg bg-red-700 px-3 py-1 font-semibold text-white shadow-xs hover:bg-red-800"
+                >
+                  আমি কাজ করছি (১৫ মিনিট)
+                </button>
+                <button
+                  type="button"
+                  onClick={wipeAndExit}
+                  className="rounded-lg border border-red-300 bg-white px-2.5 py-1 font-medium text-red-700 hover:bg-red-100"
+                >
+                  এখনই মুছুন
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          {privacyNote && (
-            <Link
-              href="/settings"
-              className="kp-chip hidden !h-8 !rounded-full !text-[12px] font-semibold text-emerald-800 md:inline-flex"
-              title="আপনার ডেটা কোথায় থাকে দেখুন"
-            >
-              <ShieldCheck size={13} aria-hidden /> {privacyNote}
+      )}
+
+      <header className="kp-nav-wrap print:hidden">
+        <a
+          href="#main"
+          className="skip-link sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-lg focus:bg-slate-900 focus:text-white focus:px-3 focus:py-2 focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+        >
+          মূল অংশে যান
+        </a>
+        <div className="kp-nav mx-auto flex max-w-7xl items-center justify-between gap-3 px-2.5 py-2 sm:px-3">
+          <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+            <Link href={href} className="flex min-w-0 items-center gap-2.5">
+              <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-gradient-to-br ${accent} text-white shadow-[inset_0_1px_0_rgba(255,255,255,.3),0_6px_14px_-6px_rgba(60,36,18,.55)]`} aria-hidden>
+                {icon}
+              </span>
+              <span className="min-w-0">
+                <span className="block truncate font-display text-[18px] font-semibold leading-tight tracking-tight text-slate-900 sm:text-[20px]">{name}</span>
+                <span className="mt-0.5 block truncate text-[11px] font-medium leading-none text-slate-600">{taglineEn ? `${taglineEn} · ${taglineBn}` : taglineBn}</span>
+              </span>
             </Link>
-          )}
-          {right}
-          <AppSwitcherDropdown currentAppId={appId} lang="bn" variant="light" />
+            {/* Desktop Logo Link */}
+            <Link
+              href="/"
+              className="hidden shrink-0 items-center gap-1.5 rounded-xl border border-line bg-white/70 px-2.5 py-1 text-[12px] font-medium text-slate-700 transition-colors hover:border-amber-500 lg:flex"
+              title="KormoPath Home"
+            >
+              <span className="text-slate-500 font-bold">←</span>
+              <KormoPathLogo theme="light" variant="compact" size="sm" />
+            </Link>
+            {/* Mobile Logo Link */}
+            <Link
+              href="/"
+              className="flex shrink-0 items-center gap-1 rounded-xl border border-line bg-white/70 px-2 py-1 text-[12px] font-medium text-slate-700 transition-colors hover:border-amber-500 lg:hidden"
+              title="KormoPath Home"
+              aria-label="KormoPath Home"
+            >
+              <span className="text-slate-500 font-bold">←</span>
+              <KormoPathLogo theme="light" variant="mark" size="sm" />
+            </Link>
+          </div>
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            {/* UDC / Shared Terminal Privacy Mode Toggle */}
+            <div className="relative" ref={menuRef}>
+              {udcActive ? (
+                <button
+                  type="button"
+                  onClick={() => setShowUdcMenu(!showUdcMenu)}
+                  className="inline-flex h-8 items-center gap-1.5 rounded-full border border-amber-300 bg-amber-50/90 px-2.5 text-[11.5px] font-semibold text-amber-900 shadow-xs hover:bg-amber-100 transition-colors"
+                  title="শেয়ার্ড পিসি মোড সক্রিয় (১৫ মিনিট অসক্রিয়তায় ডেটা মুছবে)"
+                >
+                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="font-mono">{formatMmSs(secondsLeft)}</span>
+                  <span className="hidden sm:inline">ইউডিসি মোড</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={toggleUdc}
+                  className="hidden md:inline-flex h-8 items-center gap-1.5 rounded-full border border-slate-200 bg-white/70 px-2.5 text-[11.5px] font-medium text-slate-700 hover:border-amber-400 hover:bg-amber-50/50 transition-colors"
+                  title="ইউনিয়ন ডিজিটাল সেন্টার বা শেয়ার্ড পিসি মোড চালু করুন"
+                >
+                  <Monitor size={12} className="text-slate-500" />
+                  <span>শেয়ার্ড পিসি</span>
+                </button>
+              )}
+
+              {/* UDC Controls Dropdown */}
+              {showUdcMenu && (
+                <div className="absolute right-0 mt-1.5 w-64 rounded-xl border border-amber-200 bg-white p-3 shadow-xl z-50 text-left">
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                    <span className="text-[12px] font-bold text-slate-900 flex items-center gap-1.5">
+                      <Lock size={13} className="text-amber-600" /> UDC শেয়ার্ড পিসি মোড
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setShowUdcMenu(false)}
+                      className="text-slate-400 hover:text-slate-600"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                  <p className="mt-2 text-[11px] text-slate-600 leading-relaxed">
+                    ১৫ মিনিট কোনো কিবোর্ড বা মাউস নড়াচড়া না হলে আপনার ডেটা ও সেশন স্বয়ংক্রিয়ভাবে মুছে যাবে।
+                  </p>
+                  <div className="mt-3 flex flex-col gap-1.5 text-[11px]">
+                    <button
+                      type="button"
+                      onClick={resetTimer}
+                      className="flex items-center gap-2 rounded-lg border border-slate-200 px-2.5 py-1.5 font-medium text-slate-700 hover:bg-slate-50"
+                    >
+                      <RotateCcw size={12} className="text-slate-500" />
+                      সময় ১৫ মিনিটে রিসেট করুন
+                    </button>
+                    <button
+                      type="button"
+                      onClick={wipeAndExit}
+                      className="flex items-center gap-2 rounded-lg bg-red-600 px-2.5 py-1.5 font-semibold text-white hover:bg-red-700"
+                    >
+                      <Trash2 size={12} />
+                      এখনই সব মুছুন ও প্রস্থান
+                    </button>
+                    <button
+                      type="button"
+                      onClick={toggleUdc}
+                      className="mt-1 text-center text-[10.5px] text-slate-500 hover:underline"
+                    >
+                      শেয়ার্ড মোড বন্ধ করুন
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {privacyNote && (
+              <Link
+                href="/settings"
+                className="kp-chip hidden !h-8 !rounded-full !text-[12px] font-semibold text-emerald-800 md:inline-flex"
+                title="আপনার ডেটা কোথায় থাকে দেখুন"
+              >
+                <ShieldCheck size={13} aria-hidden /> {privacyNote}
+              </Link>
+            )}
+            {right}
+            <AppSwitcherDropdown currentAppId={appId} lang="bn" variant="light" />
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+    </>
   );
 }
 

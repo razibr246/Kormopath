@@ -61,14 +61,14 @@ export default function JudgesPage() {
           <div className="flex flex-wrap items-center gap-3 pt-1">
             <Link
               href="/workspace"
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-orange-600 px-5 py-2.5 text-[15px] font-bold text-white shadow-sm hover:bg-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] focus-visible:ring-offset-2 transition-all active:scale-[0.98]"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-orange-600 px-5 py-2.5 text-[15px] font-bold text-white shadow-sm hover:bg-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 transition-all active:scale-[0.98]"
             >
               <span>Start with the flagship → Workspace</span>
               <ArrowRight size={16} />
             </Link>
             <Link
               href="/demo"
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-orange-300 bg-white/90 px-5 py-2.5 text-[15px] font-bold text-orange-800 hover:bg-orange-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] focus-visible:ring-offset-2 transition-all active:scale-[0.98]"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-orange-300 bg-white/90 px-5 py-2.5 text-[15px] font-bold text-orange-800 hover:bg-orange-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 transition-all active:scale-[0.98]"
             >
               <Play size={14} className="fill-orange-800" />
               <span>Watch the 2-minute demo</span>
@@ -135,7 +135,7 @@ export default function JudgesPage() {
                 <div className="mt-auto pt-2">
                   <Link
                     href={a.href}
-                    className="inline-flex min-h-[38px] items-center gap-1 rounded-xl border border-slate-300/80 bg-white px-3.5 py-1.5 text-[13px] font-bold text-slate-800 hover:border-slate-500 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] focus-visible:ring-offset-2 transition-all"
+                    className="inline-flex min-h-[38px] items-center gap-1 rounded-xl border border-slate-300/80 bg-white px-3.5 py-1.5 text-[13px] font-bold text-slate-800 hover:border-slate-500 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 transition-all"
                   >
                     <span>Open {a.name}</span>
                     <ArrowRight size={13} />
@@ -151,9 +151,9 @@ export default function JudgesPage() {
           <h2 className="mb-2 text-[16px] font-bold text-slate-900">Good to know</h2>
           <ul className="list-disc space-y-1.5 pl-5 text-slate-600">
             <li>AI runs on Google Gemini (Flash models). If the model is overloaded, KormoPath retries, switches to a lighter model, and finally falls back to rule-based agents — always labelled.</li>
-            <li>App data stays in your browser; see <Link href="/settings" className="font-semibold text-orange-700 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] rounded">Data &amp; privacy</Link> for exactly what is sent to which service.</li>
+            <li>App data stays in your browser; see <Link href="/settings" className="font-semibold text-orange-700 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 rounded">Data &amp; privacy</Link> for exactly what is sent to which service.</li>
             <li>Information only — not medical, legal, tax or financial advice.</li>
-            <li>Source code: <a href="https://github.com/razibr246/Kormopath" className="font-semibold text-orange-700 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] rounded" target="_blank" rel="noopener noreferrer">github.com/razibr246/Kormopath</a></li>
+            <li>Source code: <a href="https://github.com/razibr246/Kormopath" className="font-semibold text-orange-700 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 rounded" target="_blank" rel="noopener noreferrer">github.com/razibr246/Kormopath</a></li>
           </ul>
         </section>
       </main>

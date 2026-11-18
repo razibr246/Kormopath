@@ -799,7 +799,7 @@ export default function ProbahoPage() {
 
         <p className="text-[12px] text-slate-600">
           <Info size={12} className="mr-1 inline text-slate-500" aria-hidden />
-          স্কোর একটি স্বয়ংক্রিয় অনুশীলন-নির্দেশক, পরীক্ষার ফল নয়। স্পিচ-টু-টেক্সট ভুল শুনলে ফলাফলও ভুল হতে পারে; বাংলা স্বীকৃতি ইংরেজির চেয়ে কম নির্ভুল হতে পারে। দক্ষতা যাচাইসহ স্কিল পাসপোর্ট চাইলে <Link href="/workspace" className="font-semibold text-violet-700 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] rounded">KormoPath Workspace</Link>।
+          স্কোর একটি স্বয়ংক্রিয় অনুশীলন-নির্দেশক, পরীক্ষার ফল নয়। স্পিচ-টু-টেক্সট ভুল শুনলে ফলাফলও ভুল হতে পারে; বাংলা স্বীকৃতি ইংরেজির চেয়ে কম নির্ভুল হতে পারে। দক্ষতা যাচাইসহ স্কিল পাসপোর্ট চাইলে <Link href="/workspace" className="font-semibold text-violet-700 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-600 rounded">KormoPath Workspace</Link>।
         </p>
       </main>
       <AppFooter lang="bn" />

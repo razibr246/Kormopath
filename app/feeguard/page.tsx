@@ -7,7 +7,7 @@ import { AppFooter } from "@/components/layout/AppFooter";
 import { FEES, FX_FALLBACK, TAX_RULES, MACRO, type Source } from "@/lib/data";
 import {
   compareChannels, best, checkInvariants, batchingSaving, effectiveCost, effectiveRate, channelsToCsv, fmtBdt,
-  type Channel, type FeeValues,
+  calculateFreelancerAIT, type Channel, type FeeValues, type FreelanceContractType,
 } from "@/lib/finops";
 import { usePersistentState, storageKey, downloadText, todayLocal } from "@/lib/clientStore";
 
@@ -109,15 +109,15 @@ export default function FeeGuardPage() {
           <div className="space-y-2">
             <label htmlFor="inv" className="flex items-center justify-between text-[14px] font-bold text-slate-900">
               মাসিক ইনভয়েস (USD)
-              <input id="inv" type="number" min={1} max={100000} value={invoiceUsd} onChange={(e) => setInvoiceUsd(Math.min(100000, Math.max(0, Number(e.target.value) || 0)))} className="w-28 rounded-lg border border-slate-200 px-2 py-1 text-right font-mono text-[16px] font-bold text-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff]" />
+              <input id="inv" type="number" min={1} max={100000} value={invoiceUsd} onChange={(e) => setInvoiceUsd(Math.min(100000, Math.max(0, Number(e.target.value) || 0)))} className="w-28 rounded-lg border border-slate-200 px-2 py-1 text-right font-mono text-[16px] font-bold text-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600" />
             </label>
-            <input type="range" min={50} max={5000} step={50} value={Math.min(5000, invoiceUsd)} onChange={(e) => setInvoiceUsd(Number(e.target.value))} className="w-full accent-emerald-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff]" aria-label="ইনভয়েস স্লাইডার" />
+            <input type="range" min={50} max={5000} step={50} value={Math.min(5000, invoiceUsd)} onChange={(e) => setInvoiceUsd(Number(e.target.value))} className="w-full accent-emerald-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600" aria-label="ইনভয়েস স্লাইডার" />
           </div>
           <div className="space-y-2">
             <span className="block text-[14px] font-bold text-slate-900">মাসে কতবার টাকা তোলেন</span>
             <div className="grid grid-cols-3 gap-2" role="group" aria-label="উইথড্রয়াল সংখ্যা">
               {[1, 2, 4].map((w) => (
-                <button key={w} aria-pressed={withdrawals === w} onClick={() => setWithdrawals(w)} className={`min-h-[44px] rounded-xl border py-2 text-[13px] font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] focus-visible:ring-offset-2 transition-all ${withdrawals === w ? "border-emerald-600 bg-emerald-600 text-white shadow-xs" : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"}`}>
+                <button key={w} aria-pressed={withdrawals === w} onClick={() => setWithdrawals(w)} className={`min-h-[44px] rounded-xl border py-2 text-[13px] font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 transition-all ${withdrawals === w ? "border-emerald-600 bg-emerald-600 text-white shadow-xs" : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"}`}>
                   {w === 1 ? "মাসে ১" : w === 2 ? "মাসে ২" : "সাপ্তাহিক"}
                 </button>
               ))}
@@ -131,13 +131,13 @@ export default function FeeGuardPage() {
               ডলার রেট (৳/USD)
               <span className="flex items-center gap-1">
                 <input id="fx" type="number" step={0.01} min={80} max={250} value={fx} onChange={(e) => { setFx(Number(e.target.value) || 0); setFxSource((s) => (s ? { ...s, live: false, source: { label: "আপনার দেওয়া রেট", checked: todayLocal(), confidence: "estimate" } } : s)); }} className="w-24 rounded-lg border border-slate-200 px-2 py-1 text-right font-mono text-[15px] font-bold" />
-                <button onClick={loadFx} aria-label="লাইভ রেট আবার আনুন" className="rounded p-1 text-slate-500 hover:bg-slate-100"><RefreshCw size={14} className={fxLoading ? "animate-spin" : ""} /></button>
+                <button onClick={loadFx} aria-label="দৈনিক রেট আবার আনুন" className="rounded p-1 text-slate-500 hover:bg-slate-100"><RefreshCw size={14} className={fxLoading ? "animate-spin" : ""} /></button>
               </span>
             </label>
             {fxSource && (
               <SourceTag
                 confidence={fxSource.live ? "reported" : fxSource.source.confidence === "official" ? "estimate" : fxSource.source.confidence}
-                label={fxSource.live ? "লাইভ মিড-মার্কেট রেট (open.er-api.com)" : fxSource.source.label.includes("আপনার") ? fxSource.source.label : "লাইভ রেট পাওয়া যায়নি — ফলব্যাক রেট, নিজে ঠিক করে নিন"}
+                label={fxSource.live ? "সর্বশেষ দৈনিক মিড-মার্কেট রেট (open.er-api.com)" : fxSource.source.label.includes("আপনার") ? fxSource.source.label : "দৈনিক রেট পাওয়া যায়নি — রেফারেন্স রেট, নিজে ঠিক করে নিন"}
                 url={fxSource.live ? fxSource.source.url : undefined}
                 checked={fxSource.source.checked?.slice(0, 16)}
               />
@@ -273,6 +273,8 @@ export default function FeeGuardPage() {
           </section>
         )}
 
+        <FreelancerAitCalculator defaultBdt={invoiceUsd * fx} />
+
         <div className="grid gap-4 lg:grid-cols-2">
           <PitchTemplate invoiceUsd={invoiceUsd} />
           <section className="rounded-2xl border border-slate-200 bg-white p-5">
@@ -291,7 +293,7 @@ export default function FeeGuardPage() {
         </div>
 
         <p className="text-[12px] text-slate-600">
-          চুক্তি ও মাইলস্টোন ইনভয়েস দরকার? <Link href="/chuktiguard" className="font-semibold text-emerald-700 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] rounded">ChuktiGuard</Link> · পুরো স্কিল-থেকে-আয় পাইপলাইন: <Link href="/workspace" className="font-semibold text-emerald-700 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] rounded">KormoPath Workspace</Link>
+          চুক্তি ও মাইলস্টোন ইনভয়েস দরকার? <Link href="/chuktiguard" className="font-semibold text-emerald-700 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 rounded">ChuktiGuard</Link> · পুরো স্কিল-থেকে-আয় পাইপলাইন: <Link href="/workspace" className="font-semibold text-emerald-700 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 rounded">KormoPath Workspace</Link>
         </p>
       </main>
       <AppFooter lang="bn" />
@@ -383,6 +385,128 @@ Best regards,`;
         </label>
       </div>
       <pre className="mt-3 whitespace-pre-wrap rounded-xl border border-slate-200 bg-slate-50 p-3 font-mono text-[12px] leading-relaxed">{text}</pre>
+    </section>
+  );
+}
+
+function FreelancerAitCalculator({ defaultBdt }: { defaultBdt: number }) {
+  const [bdt, setBdt] = useState(String(Math.round(defaultBdt) || 100000));
+  const [contractType, setContractType] = useState<FreelanceContractType>("foreign_export");
+  const [hasPsr, setHasPsr] = useState(true);
+
+  // Sync when defaultBdt changes (e.g. user slides invoice or currency updates)
+  useEffect(() => {
+    if (defaultBdt > 0) {
+      setBdt(String(Math.round(defaultBdt)));
+    }
+  }, [defaultBdt]);
+
+  const amount = Number(bdt.replace(/,/g, "")) || 0;
+  const result = useMemo(
+    () =>
+      calculateFreelancerAIT({
+        amountBdt: amount,
+        contractType,
+        hasPsr,
+        hasTin: true,
+      }),
+    [amount, contractType, hasPsr]
+  );
+
+  return (
+    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="flex items-center gap-2 text-[16px] font-bold text-slate-900">
+          <Scale size={18} className="text-emerald-700" />
+          আয়কর আইন ২০২৩: ফ্রিল্যান্স উৎসে কর (AIT) ক্যালকুলেটর
+        </h2>
+        <span className="rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-800">
+          ধারা ৫২ ও ৭৬
+        </span>
+      </div>
+      <p className="mt-1 text-[12px] text-slate-600">
+        বিদেশি ও দেশীয় ক্লায়েন্টের সাথে চুক্তিতে আপনার কত উৎসে কর কাটা যাবে এবং নিট কত হাতে আসবে তা যাচাই করুন।
+      </p>
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <label className="text-[12px] font-bold text-slate-700">
+          কন্ট্রাক্টের মূল্য (টাকা)
+          <input
+            inputMode="numeric"
+            value={bdt}
+            onChange={(e) => setBdt(e.target.value.replace(/[^0-9]/g, ""))}
+            className="mt-1 block w-full rounded-lg border border-slate-200 px-3 py-1.5 font-mono text-[13px]"
+            placeholder="100000"
+          />
+        </label>
+
+        <label className="text-[12px] font-bold text-slate-700">
+          ক্লায়েন্ট ও কাজের ধরন
+          <select
+            value={contractType}
+            onChange={(e) => setContractType(e.target.value as FreelanceContractType)}
+            className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-[13px]"
+          >
+            <option value="foreign_export">বিদেশি ক্লায়েন্ট (ITES রেমিট্যান্স - করমুক্ত)</option>
+            <option value="local_corporate_it">দেশীয় কোম্পানি (IT / সফটওয়্যার সেবা - ৫%)</option>
+            <option value="local_corporate_consulting">দেশীয় কোম্পানি (পরামর্শ / কনসাল্টিং - ১০%)</option>
+            <option value="local_individual">দেশীয় ব্যক্তিগত ক্লায়েন্ট (উৎসে কর্তন নেই)</option>
+          </select>
+        </label>
+      </div>
+
+      {contractType.startsWith("local_corporate") && (
+        <div className="mt-3 flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50/70 p-2.5 text-[12px] text-amber-950">
+          <input
+            type="checkbox"
+            id="psrCheck"
+            checked={hasPsr}
+            onChange={(e) => setHasPsr(e.target.checked)}
+            className="h-4 w-4 rounded border-amber-400 text-emerald-600 focus:ring-emerald-500"
+          />
+          <label htmlFor="psrCheck" className="cursor-pointer font-medium">
+            আমার ট্যাক্স রিটার্ন জমার প্রমাণক (PSR / Acknowledgement Receipt) আছে
+          </label>
+        </div>
+      )}
+
+      {/* Results breakdown */}
+      <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
+        <div className="grid gap-3 sm:grid-cols-3 text-center">
+          <div className="rounded-lg bg-white p-2.5 border border-slate-100 shadow-2xs">
+            <span className="block text-[11px] font-bold text-slate-500 uppercase">মোট ইনভয়েস</span>
+            <span className="mt-0.5 block font-mono text-[16px] font-bold text-slate-900">{fmtBdt(result.grossBdt)}</span>
+          </div>
+
+          <div className="rounded-lg bg-white p-2.5 border border-slate-100 shadow-2xs">
+            <span className="block text-[11px] font-bold text-slate-500 uppercase">
+              উৎসে কর কর্তন {result.effectiveRatePct > 0 ? `(${result.effectiveRatePct}%)` : ""}
+            </span>
+            <span className={`mt-0.5 block font-mono text-[16px] font-bold ${result.aitAmountBdt > 0 ? "text-red-700" : "text-emerald-700"}`}>
+              {result.aitAmountBdt > 0 ? `−${fmtBdt(result.aitAmountBdt)}` : "৳০ (করমুক্ত)"}
+            </span>
+          </div>
+
+          <div className="rounded-lg bg-emerald-50/80 p-2.5 border border-emerald-200 shadow-2xs">
+            <span className="block text-[11px] font-bold text-emerald-800 uppercase">হাতে প্রাপ্য নিট টাকা</span>
+            <span className="mt-0.5 block font-mono text-[16px] font-bold text-emerald-950">{fmtBdt(result.netReceivableBdt)}</span>
+          </div>
+        </div>
+
+        {result.incentiveEligible && (
+          <div className="mt-3 flex items-center justify-between rounded-lg bg-emerald-100/70 px-3 py-2 text-[12px] font-semibold text-emerald-900">
+            <span>বাংলাদেশ ব্যাংক সরকারি নগদ সহায়তা (+২.৫%):</span>
+            <span className="font-mono text-[13px]">+{fmtBdt(result.incentiveAmountBdt)}</span>
+          </div>
+        )}
+
+        <p className="mt-3 text-[11.5px] leading-relaxed text-slate-700">
+          <strong>আইনি ব্যাখ্যা:</strong> {result.adviceBn}
+        </p>
+        <span className="mt-1 block text-[10.5px] text-slate-500 font-mono">
+          সূত্র: {result.lawReference}
+        </span>
+      </div>
     </section>
   );
 }

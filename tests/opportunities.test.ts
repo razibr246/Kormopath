@@ -1,12 +1,14 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
+  APPLICATION_CHECKLIST_TEMPLATE,
   EMPTY_BOARD,
   isFollowUpDate,
   isFollowUpDue,
   normalizeOpportunityUrl,
   opportunitiesToCsv,
   sanitizeOpportunityBoard,
+  VERIFIED_OPPORTUNITIES,
   type SavedOpportunity,
 } from "../lib/opportunities.ts";
 
@@ -84,4 +86,45 @@ test("tracker CSV keeps multiline notes and escapes potential spreadsheet formul
     '"title","url","path","status","follow_up_date","note","saved_at"',
     `"ঢাকা, ""ইন্টার্নশিপ""","https://EXAMPLE.com:443","freelance","response","2026-11-08","'  =SUM(1,2)\r\nবলেছে ""আসুন""","2026-11-07T10:00:00.000Z"`,
   ].join("\r\n"));
+});
+
+test("VERIFIED_OPPORTUNITIES: Catalog contains verified domestic & global opportunities with schema integrity", () => {
+  assert.ok(Array.isArray(VERIFIED_OPPORTUNITIES) && VERIFIED_OPPORTUNITIES.length >= 10);
+  const validCategories = ["job", "internship", "scholarship", "grant", "agri"];
+  const validPaths = ["freelance", "study", "farm", "home"];
+
+  for (const opp of VERIFIED_OPPORTUNITIES) {
+    assert.ok(opp.id.length > 0);
+    assert.ok(opp.titleBn.length > 0);
+    assert.ok(opp.providerBn.length > 0);
+    assert.ok(validCategories.includes(opp.category));
+    assert.ok(validPaths.includes(opp.path));
+    assert.ok(opp.url.startsWith("http://") || opp.url.startsWith("https://"));
+    assert.ok(opp.verifiedSource.length > 0);
+    assert.ok(opp.tags.length > 0);
+  }
+});
+
+test("APPLICATION_CHECKLIST_TEMPLATE: Contains required document milestones for job & scholarship applications", () => {
+  assert.ok(Array.isArray(APPLICATION_CHECKLIST_TEMPLATE) && APPLICATION_CHECKLIST_TEMPLATE.length >= 5);
+  const ids = APPLICATION_CHECKLIST_TEMPLATE.map((item) => item.id);
+  assert.ok(ids.includes("cv"));
+  assert.ok(ids.includes("transcript"));
+  assert.ok(ids.includes("nid"));
+  assert.ok(ids.includes("sop"));
+});
+
+test("stored tracker progress retains valid checklist array and strips invalid types", () => {
+  const board = sanitizeOpportunityBoard({
+    ...EMPTY_BOARD,
+    saved: [
+      {
+        ...legacyBookmark,
+        status: "applied",
+        checklist: ["cv", "nid", "invalid_id_not_string", 12345],
+      },
+    ],
+  });
+  assert.equal(board?.saved.length, 1);
+  assert.deepEqual(board?.saved[0].checklist, ["cv", "nid"]);
 });

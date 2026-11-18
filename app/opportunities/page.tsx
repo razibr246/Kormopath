@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState, type FormEvent } from "react";
-import { AppHeader } from "@/components/layout/AppHeader";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { AppHeader, SourceTag } from "@/components/layout/AppHeader";
 import { OpportunityTracker } from "@/components/apps/OpportunityTracker";
 import { storageKey, usePersistentState } from "@/lib/clientStore";
 import {
@@ -12,20 +12,47 @@ import {
   PATHS,
   normalizeOpportunityUrl,
   sanitizeOpportunityBoard,
+  VERIFIED_OPPORTUNITIES,
+  type OpportunityCategory,
   type OpportunityProgress,
   type PathId,
   type SavedOpportunity,
+  type VerifiedOpportunity,
 } from "@/lib/opportunities";
-import { ArrowUpRight, Bookmark, Check, Compass, ExternalLink, GraduationCap, Sprout, Wallet, BriefcaseBusiness, Search, Pill, Mic, Percent } from "lucide-react";
+import {
+  ArrowUpRight,
+  Bookmark,
+  Check,
+  Compass,
+  ExternalLink,
+  GraduationCap,
+  Sprout,
+  Wallet,
+  BriefcaseBusiness,
+  Search,
+  Pill,
+  Mic,
+  Percent,
+  Scale,
+  ShieldCheck,
+  Sparkles,
+  Coins,
+  Filter,
+  X,
+  Building2,
+  CheckCircle2,
+} from "lucide-react";
 
 type SearchSource = { title: string; url: string };
 
 const APP_LINKS = [
   { name: "KormoPath Workspace", href: "/workspace", icon: Compass, detail: "CV, skill proof, client kit ও payout path" },
   { name: "AdmitBuddy", href: "/admitbuddy", icon: GraduationCap, detail: "ভর্তি পরিকল্পনা ও official circular checklist" },
-  { name: "MediScan BD", href: "/mediscan", icon: Pill, detail: "প্রেসক্রিপশনের লেখা বুঝুন; রোগ নির্ণয় নয়" },
-  { name: "Shohoj Budget", href: "/shohoj-budget", icon: Wallet, detail: "দৈনিক বাজেট ও product price research" },
+  { name: "MediScan BD", href: "/mediscan", icon: Pill, detail: "জরুরি হাসপাতাল, প্রেসক্রিপশন ও ওষুধের হিসাব" },
+  { name: "Shohoj Budget", href: "/shohoj-budget", icon: Wallet, detail: "দৈনিক বাজেট, বাজারের ফর্দ ও মেসের হিসাব" },
   { name: "HaatBazar AI", href: "/haatbazar", icon: Sprout, detail: "নিজের দাম, লাভের হিসাব ও আবহাওয়া" },
+  { name: "Rokkha", href: "/rokkha", icon: ShieldCheck, detail: "প্রতারণা যাচাই, বিরতির টাইমার ও সাইবার নিরাপত্তা" },
+  { name: "Legal Aid", href: "/legal", icon: Scale, detail: "বিনামূল্যে আইনি সহায়তা ও মীমাংসার প্রস্তুতি" },
   { name: "Probaho Coach", href: "/probaho", icon: Mic, detail: "ভাইভা ও speaking practice" },
   { name: "FeeGuard BD", href: "/feeguard", icon: Percent, detail: "পেমেন্ট channel-এর fee তুলনা" },
   { name: "ChuktiGuard", href: "/chuktiguard", icon: BriefcaseBusiness, detail: "Service Pack, invoice ও contract template" },
@@ -43,6 +70,19 @@ export default function OpportunitiesPage() {
   const doneIds = board.completedByPath[activePath.id] ?? [];
   const progress = activePath.actions.length ? Math.round((doneIds.filter((id) => activePath.actions.some((action) => action.id === id)).length / activePath.actions.length) * 100) : 0;
   const visibleSaved = board.saved.filter((item) => item.track === activePath.id);
+  const [catalogFilter, setCatalogFilter] = useState<"all" | OpportunityCategory>("all");
+  const [catalogSearch, setCatalogSearch] = useState("");
+
+  const filteredCatalog = useMemo(() => {
+    return VERIFIED_OPPORTUNITIES.filter((opp) => {
+      const matchesCat = catalogFilter === "all" || opp.category === catalogFilter;
+      const matchesPath = opp.path === activePath.id || catalogFilter !== "all";
+      const q = catalogSearch.toLowerCase().trim();
+      const matchesSearch = !q ||
+        `${opp.titleBn} ${opp.titleEn} ${opp.providerBn} ${opp.providerEn} ${opp.tags.join(" ")}`.toLowerCase().includes(q);
+      return matchesCat && matchesPath && matchesSearch;
+    });
+  }, [catalogFilter, activePath.id, catalogSearch]);
 
   useEffect(() => {
     setQuery(activePath.id === "home" ? "" : activePath.queryPlaceholder);
@@ -132,10 +172,10 @@ export default function OpportunitiesPage() {
     return null;
   }
 
-  function updateOpportunity(id: string, progress: OpportunityProgress) {
+  function updateOpportunity(id: string, progress: OpportunityProgress & { checklist?: string[] }) {
     setBoard((previous) => ({
       ...previous,
-      saved: previous.saved.map((item) => item.id === id ? { ...item, ...progress } : item),
+      saved: previous.saved.map((item) => (item.id === id ? { ...item, ...progress } : item)),
     }));
   }
 
@@ -166,6 +206,163 @@ export default function OpportunitiesPage() {
           <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4" role="group" aria-label="পথ বেছে নিন">
             {PATHS.map((path) => <button key={path.id} type="button" aria-pressed={activePath.id === path.id} disabled={!ready} onClick={() => choosePath(path.id)} className={`rounded-2xl border p-3 text-left transition ${activePath.id === path.id ? "border-indigo-500 bg-indigo-50 shadow-sm" : "border-slate-200 bg-white/70 hover:border-indigo-300"}`}><strong className="block text-[13px]">{path.title}</strong><span className="mt-1 block text-[11px] leading-relaxed text-slate-500">{path.description}</span></button>)}
           </div>
+        </section>
+
+        {/* Curated Verified Opportunities Hub */}
+        <section aria-labelledby="verified-catalog-title" className="rounded-3xl border border-slate-200 bg-white p-5 shadow-xs sm:p-6 space-y-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800">
+                  <CheckCircle2 size={12} className="text-emerald-700" /> সরকারি গেজেট ও অফিশিয়াল পোর্টালে যাচাইকৃত
+                </span>
+                <span className="text-[11px] font-semibold text-slate-500">মোট {VERIFIED_OPPORTUNITIES.length}টি সুযোগ</span>
+              </div>
+              <h2 id="verified-catalog-title" className="mt-1.5 text-[20px] sm:text-[24px] font-extrabold tracking-tight text-slate-950 flex items-center gap-2">
+                <Sparkles size={20} className="text-amber-500" /> জাতীয় ও বৈশ্বিক সুযোগের তালিকা
+              </h2>
+              <p className="mt-1 text-[13px] text-slate-600 max-w-3xl">
+                সরকারি সার্কুলার, স্কলারশিপ, অনুদান ও কৃষি ঋণের নির্ভুল তালিকা। শর্ত ও অফিশিয়াল আবেদন লিংক মিলিয়ে এক ক্লিকে আপনার ট্র্যাকার বোর্ডে যোগ করুন।
+              </p>
+            </div>
+
+            {/* Quick search input */}
+            <div className="relative min-w-[220px] sm:w-64">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={catalogSearch}
+                onChange={(e) => setCatalogSearch(e.target.value)}
+                placeholder="সুযোগ বা প্রতিষ্ঠান খুঁজুন..."
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-8 pr-8 py-2 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600"
+              />
+              {catalogSearch && (
+                <button
+                  type="button"
+                  onClick={() => setCatalogSearch("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  <X size={12} />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Category Tabs */}
+          <div className="flex flex-wrap gap-1.5 pt-1 border-t border-slate-100">
+            {[
+              { id: "all", label: "সব সুযোগ", count: VERIFIED_OPPORTUNITIES.length, icon: Sparkles },
+              { id: "job", label: "চাকরি", count: VERIFIED_OPPORTUNITIES.filter((o) => o.category === "job").length, icon: BriefcaseBusiness },
+              { id: "internship", label: "ইন্টার্নশিপ", count: VERIFIED_OPPORTUNITIES.filter((o) => o.category === "internship").length, icon: Compass },
+              { id: "scholarship", label: "স্কলারশিপ", count: VERIFIED_OPPORTUNITIES.filter((o) => o.category === "scholarship").length, icon: GraduationCap },
+              { id: "grant", label: "স্টার্টআপ ও অনুদান", count: VERIFIED_OPPORTUNITIES.filter((o) => o.category === "grant").length, icon: Coins },
+              { id: "agri", label: "কৃষি ঋণ ও ভর্তুকি", count: VERIFIED_OPPORTUNITIES.filter((o) => o.category === "agri").length, icon: Sprout },
+            ].map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setCatalogFilter(tab.id as "all" | OpportunityCategory)}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all ${
+                    catalogFilter === tab.id
+                      ? "bg-indigo-700 text-white shadow-xs"
+                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                  }`}
+                >
+                  <Icon size={12} /> {tab.label} <span className="opacity-75">({tab.count})</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Cards Grid */}
+          <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3 pt-2">
+            {filteredCatalog.map((opp) => {
+              const isSaved = board.saved.some((item) => item.url === opp.url);
+              return (
+                <div
+                  key={opp.id}
+                  className="flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-4 hover:border-indigo-400 hover:shadow-xs transition-all"
+                >
+                  <div className="space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 truncate">
+                        <Building2 size={12} className="shrink-0 text-slate-400" /> {opp.providerBn}
+                      </span>
+                      <span className="shrink-0 rounded-md bg-indigo-50 px-2 py-0.5 text-[10px] font-bold text-indigo-800 border border-indigo-100">
+                        {opp.badgeBn}
+                      </span>
+                    </div>
+
+                    <div>
+                      <h3 className="text-[14px] font-bold text-slate-900 leading-snug hover:text-indigo-900">
+                        {opp.titleBn}
+                      </h3>
+                      <p className="text-[11px] text-slate-400 mt-0.5">{opp.titleEn}</p>
+                    </div>
+
+                    <p className="text-[12px] text-slate-600 leading-relaxed line-clamp-2">
+                      {opp.descriptionBn}
+                    </p>
+
+                    <div className="rounded-xl bg-slate-50 p-2.5 space-y-1 text-[11px] border border-slate-100">
+                      <div className="flex items-start gap-1">
+                        <strong className="text-slate-700 shrink-0">যোগ্যতা:</strong>
+                        <span className="text-slate-600 line-clamp-2">{opp.eligibilityBn}</span>
+                      </div>
+                      <div className="flex items-start gap-1">
+                        <strong className="text-slate-700 shrink-0">আর্থিক সুবিধা:</strong>
+                        <span className="text-emerald-800 font-semibold">{opp.financialBn}</span>
+                      </div>
+                      <div className="flex items-start gap-1">
+                        <strong className="text-slate-700 shrink-0">বিজ্ঞপ্তি/সময়সূচি:</strong>
+                        <span className="text-slate-600">{opp.deadlineNoteBn}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                    <a
+                      href={opp.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-700 hover:underline"
+                    >
+                      অফিসিয়াল সাইট <ExternalLink size={11} />
+                    </a>
+
+                    <button
+                      type="button"
+                      disabled={isSaved}
+                      onClick={() => saveOpportunity(opp.titleBn, opp.url)}
+                      className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition-colors ${
+                        isSaved
+                          ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                          : "bg-indigo-700 text-white hover:bg-indigo-800"
+                      }`}
+                    >
+                      {isSaved ? (
+                        <>
+                          <Check size={13} /> বোর্ডে আছে
+                        </>
+                      ) : (
+                        <>
+                          <Bookmark size={13} /> বোর্ডে সেভ করুন
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {filteredCatalog.length === 0 && (
+            <div className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">
+              কোনো সুযোগ পাওয়া যায়নি। অন্য কিওয়ার্ড বা ফিল্টার ব্যবহার করুন।
+            </div>
+          )}
         </section>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(300px,5fr)]">

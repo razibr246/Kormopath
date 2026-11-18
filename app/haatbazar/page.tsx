@@ -155,7 +155,7 @@ export default function HaatBazarPage() {
                 );
               })}
             </ol>
-            <div className="overflow-hidden rounded-2xl border border-stone-200">
+            <div className="overflow-x-auto rounded-2xl border border-stone-200">
               <table className="w-full text-left text-[13px]">
                 <thead className="bg-stone-50 text-[11px] text-stone-500"><tr><th className="px-3 py-2">ধান</th><th className="py-2">রোপণ/বপন</th><th className="py-2 pr-3">কাটা</th></tr></thead>
                 <tbody className="divide-y divide-stone-100">

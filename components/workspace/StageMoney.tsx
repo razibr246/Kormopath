@@ -192,7 +192,7 @@ export function StageMoney(props: {
           </div>
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px]">
-          <span className="num font-bold">$1 USD = ৳{fx.usdBdt.toFixed(2)} BDT {fx.live ? "(Live)" : "(2026 Base)"}</span>
+          <span className="num font-bold">$1 USD = ৳{fx.usdBdt.toFixed(2)} BDT {fx.live ? "(Daily provider rate)" : "(Reference)"}</span>
           <SourceTag source={fx.source} compact />
           <label className="inline-flex items-center gap-2 font-medium text-ink cursor-pointer">
             <input type="checkbox" checked={props.claim} onChange={(e) => props.setClaim(e.target.checked)} className="accent-kept" />

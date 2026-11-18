@@ -3,7 +3,9 @@ import assert from "node:assert/strict";
 import {
   toDecimals, fromDecimals, totalDecimals, holdingClass, toPoisha, cropBudget, rotationCheck, addDays, daysBetween,
   taskBuckets, taskWeatherWarnings, parseTaskUtterance, smsInfo, composeFarmSms, herdSummary, doctorVerdict,
-  supportPath, sanitizePlots, sanitizeTasks, sanitizeHerds, sanitizeLogs, bnNum, type FarmTask, type FarmLog,
+  supportPath, sanitizePlots, sanitizeTasks, sanitizeHerds, sanitizeLogs, sanitizeGhers, bnNum,
+  calculateStockingDensity, calculateFcr, checkSalinitySuitability, GHER_SPECIES_DATA,
+  type FarmTask, type FarmLog,
 } from "../lib/krishi.ts";
 import { HELPLINES, SUPPORT, KRISHI_CHECKED } from "../lib/krishiData.ts";
 import { diagnoseCropSymptom } from "../lib/haatbazar.ts";
@@ -210,5 +212,53 @@ describe("MaathSathi: stored records are sanitised", () => {
     assert.equal(sanitizeTasks([{ id: "t", title: "সেচ", date: "2026-13-40", kind: "irrigate" }])?.length, 0);
     assert.equal(sanitizeHerds([{ id: "h", name: "গরু", kind: "cow", count: 2 }, { id: "x", name: "?", kind: "dragon", count: 1 }])?.length, 1);
     assert.equal(sanitizeLogs([{ id: "l", herdId: "h", date: "2026-11-01", kind: "eggs", amount: -3 }])?.length, 0);
+    assert.equal(sanitizeGhers([{ id: "g", name: "দক্ষিণ ঘের", decimals: 50, species: "bagda", salinityPpt: 18, waterDepthFeet: 4, stockingCount: 10000, stockingDate: "2026-03-15" }, { id: "bad" }])?.length, 1);
+  });
+});
+
+describe("MaathSathi: coastal aquaculture & gher tracking", () => {
+  test("stocking density calculates PL per decimal correctly", () => {
+    // 10,000 PL in 50 decimals = 200 PL/decimal
+    assert.equal(calculateStockingDensity(10000, 50), 200);
+    assert.equal(calculateStockingDensity(3300, 33), 100);
+    assert.equal(calculateStockingDensity(0, 50), 0);
+    assert.equal(calculateStockingDensity(10000, 0), 0);
+  });
+
+  test("FCR (Feed Conversion Ratio) computes feed efficiency accurately", () => {
+    // 1500 kg feed given for 1000 kg harvest = 1.5 FCR
+    assert.equal(calculateFcr(1500, 1000), 1.5);
+    // 1800 kg feed for 1200 kg harvest = 1.5 FCR
+    assert.equal(calculateFcr(1800, 1200), 1.5);
+    assert.equal(calculateFcr(0, 1000), null);
+    assert.equal(calculateFcr(1500, 0), null);
+  });
+
+  test("salinity suitability matches Department of Fisheries biological thresholds", () => {
+    // Bagda (Penaeus monodon): optimal 10-25 ppt
+    assert.equal(checkSalinitySuitability("bagda", 18).status, "optimal");
+    assert.equal(checkSalinitySuitability("bagda", 8).status, "tolerable");
+    assert.equal(checkSalinitySuitability("bagda", 28).status, "tolerable");
+    assert.equal(checkSalinitySuitability("bagda", 2).status, "stress");
+    assert.equal(checkSalinitySuitability("bagda", 35).status, "stress");
+
+    // Golda (Macrobrachium rosenbergii): freshwater preferring (0-5 ppt optimal)
+    assert.equal(checkSalinitySuitability("golda", 3).status, "optimal");
+    assert.equal(checkSalinitySuitability("golda", 7).status, "tolerable");
+    assert.equal(checkSalinitySuitability("golda", 15).status, "stress");
+
+    // Crab (Scylla serrata): high salinity brackish (15-28 ppt optimal)
+    assert.equal(checkSalinitySuitability("crab", 20).status, "optimal");
+    assert.equal(checkSalinitySuitability("crab", 12).status, "tolerable");
+    assert.equal(checkSalinitySuitability("crab", 5).status, "stress");
+
+    // Negative / invalid
+    assert.equal(checkSalinitySuitability("bagda", -1).status, "stress");
+  });
+
+  test("GHER_SPECIES_DATA contains complete scientific and management benchmarks", () => {
+    assert.ok(GHER_SPECIES_DATA.bagda.scientificName.includes("Penaeus"));
+    assert.ok(GHER_SPECIES_DATA.golda.nameBn.includes("গলদা"));
+    assert.ok(GHER_SPECIES_DATA.crab.optimalSalinityPpt.min >= 10);
   });
 });

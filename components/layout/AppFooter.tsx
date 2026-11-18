@@ -84,6 +84,14 @@ export function AppFooter({
               </li>
               <li>
                 <Link
+                  href="/legal"
+                  className="hover:text-orange-600 transition-colors inline-flex items-center gap-1"
+                >
+                  <span>{lang === "bn" ? "আইনি সহায়তা: সরকারি ফ্রি লিগ্যাল এইড" : "Legal Aid: free legal aid"}</span>
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/judges"
                   className="hover:text-amber-600 font-medium transition-colors inline-flex items-center gap-1"
                 >

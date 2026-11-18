@@ -128,7 +128,7 @@ export default async function Verify({ searchParams }: { searchParams: Promise<{
         <div className="mt-8 text-center">
           <Link
             href="/workspace"
-            className="inline-flex items-center gap-1.5 text-[14px] font-bold text-[#007aff] hover:text-[#0062cc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] focus-visible:ring-offset-2 rounded-lg px-2 py-1 transition-colors"
+            className="inline-flex items-center gap-1.5 text-[14px] font-bold text-emerald-700 hover:text-emerald-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 rounded-lg px-2 py-1 transition-colors"
           >
             <span>Complete skills evaluation to earn your own Skill Passport</span>
             <ArrowRight size={14} />

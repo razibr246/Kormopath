@@ -349,11 +349,24 @@ export function DharLedger() {
               {e.note ? ` · 📝 ${e.note}` : ""}
             </p>
 
-            {late && (
-              <p className="flex items-center gap-1.5 text-[12.5px] font-bold text-red-700 bg-red-100/70 px-2.5 py-1 rounded-lg w-fit">
-                <AlertTriangle size={14} aria-hidden />
-                {T("নির্ধারিত শেষ তারিখ পেরিয়ে গেছে!", "Past the due date!")}
-              </p>
+            {/* Due date countdown badge */}
+            {e.due && r > 0 && today && (
+              <div className="pt-0.5">
+                {e.due < today ? (
+                  <span className="inline-flex items-center gap-1 rounded-md bg-red-100 px-2 py-0.5 text-[11px] font-bold text-red-800">
+                    <AlertTriangle size={12} aria-hidden />
+                    {T("মেয়াদোত্তীর্ণ!", "Overdue!")}
+                  </span>
+                ) : e.due === today ? (
+                  <span className="inline-flex items-center gap-1 rounded-md bg-amber-100 px-2 py-0.5 text-[11px] font-bold text-amber-900">
+                    ⚠️ {T("আজই পরিশোধের দিন", "Due today")}
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 rounded-md bg-sky-100 px-2 py-0.5 text-[11px] font-bold text-sky-800">
+                    ⏳ {T(`বাকি আর ${bnNum(Math.max(1, Math.round((new Date(e.due).getTime() - new Date(today).getTime()) / 86400000)))} দিন`, `${Math.max(1, Math.round((new Date(e.due).getTime() - new Date(today).getTime()) / 86400000))} days left`)}
+                  </span>
+                )}
+              </div>
             )}
           </div>
 
@@ -368,6 +381,16 @@ export function DharLedger() {
                   `Total: ${money(e.principalPoisha)} | Paid: ${money(settledPoisha(e))}`
                 )}
               </p>
+            )}
+            {e.principalPoisha > 0 && (
+              <div className="w-32 bg-slate-100 rounded-full h-1.5 overflow-hidden mt-1.5 ml-auto">
+                <div
+                  className={`h-full rounded-full transition-all duration-300 ${
+                    r === 0 ? "bg-emerald-600" : recv ? "bg-emerald-500" : "bg-orange-500"
+                  }`}
+                  style={{ width: `${Math.min(100, Math.round((settledPoisha(e) / e.principalPoisha) * 100))}%` }}
+                />
+              </div>
             )}
           </div>
         </div>

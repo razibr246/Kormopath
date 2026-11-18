@@ -384,7 +384,7 @@ export default function MediScanPage() {
             <li>ব্র্যান্ড বদলাতে চাইলে (একই জেনেরিক ও স্ট্রেংথ) ডাক্তার বা ফার্মাসিস্টের সাথে কথা বলুন।</li>
             <li>স্বাস্থ্য বাতায়ন 16263 সেবা অর্থায়ন সংকটে আছে বলে খবর প্রকাশিত হয়েছে; না পেলে নিকটস্থ সরকারি হাসপাতালে যোগাযোগ করুন।</li>
           </ul>
-          <p className="mt-2"><Link href="/settings" className="font-semibold text-sky-700 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007aff] rounded">সংরক্ষিত ডেটা দেখুন বা মুছুন</Link></p>
+          <p className="mt-2"><Link href="/settings" className="font-semibold text-sky-700 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-600 rounded">সংরক্ষিত ডেটা দেখুন বা মুছুন</Link></p>
         </section>
       </main>
     </>

@@ -333,6 +333,159 @@ export function herdSummary(logs: FarmLog[], fromIso: string, toIso: string, tod
   };
 }
 
+// ---------------------------------------------------------------- coastal aquaculture & gher (উপকূলীয় ঘের ও মৎস্য)
+export type GherSpecies = "bagda" | "golda" | "crab" | "tilapia";
+
+export interface GherSpeciesInfo {
+  id: GherSpecies;
+  nameBn: string;
+  scientificName: string;
+  optimalSalinityPpt: { min: number; max: number };
+  typicalDepthFeet: { min: number; max: number };
+  maxStockingPerDecimal: number;
+}
+
+export const GHER_SPECIES_DATA: Record<GherSpecies, GherSpeciesInfo> = {
+  bagda: {
+    id: "bagda",
+    nameBn: "বাগদা চিংড়ি",
+    scientificName: "Penaeus monodon",
+    optimalSalinityPpt: { min: 10, max: 25 },
+    typicalDepthFeet: { min: 3, max: 5 },
+    maxStockingPerDecimal: 300,
+  },
+  golda: {
+    id: "golda",
+    nameBn: "গলদা চিংড়ি",
+    scientificName: "Macrobrachium rosenbergii",
+    optimalSalinityPpt: { min: 0, max: 5 },
+    typicalDepthFeet: { min: 3, max: 4.5 },
+    maxStockingPerDecimal: 150,
+  },
+  crab: {
+    id: "crab",
+    nameBn: "শিলা কাঁকড়া",
+    scientificName: "Scylla serrata",
+    optimalSalinityPpt: { min: 15, max: 28 },
+    typicalDepthFeet: { min: 2.5, max: 4 },
+    maxStockingPerDecimal: 100,
+  },
+  tilapia: {
+    id: "tilapia",
+    nameBn: "লবণসহিষ্ণু তেলাপিয়া",
+    scientificName: "Oreochromis niloticus",
+    optimalSalinityPpt: { min: 5, max: 15 },
+    typicalDepthFeet: { min: 3.5, max: 6 },
+    maxStockingPerDecimal: 200,
+  },
+};
+
+export interface GherPond {
+  id: string;
+  name: string;
+  decimals: number;
+  species: GherSpecies;
+  salinityPpt: number;
+  waterDepthFeet: number;
+  stockingCount: number;
+  stockingDate: string;
+  note?: string;
+}
+
+/** Stocking density in PL / fingerlings per decimal (সংখ্যা প্রতি শতাংশ) */
+export function calculateStockingDensity(stockingCount: number, decimals: number): number {
+  if (!Number.isFinite(stockingCount) || stockingCount < 0 || !Number.isFinite(decimals) || decimals <= 0) {
+    return 0;
+  }
+  return Math.round((stockingCount / decimals) * 10) / 10;
+}
+
+/**
+ * Feed Conversion Ratio (FCR = Total Feed Given (kg) / Total Harvest Weight (kg)).
+ * Lower FCR indicates better feed efficiency (e.g. 1.2 to 1.8 is typical).
+ */
+export function calculateFcr(totalFeedKg: number, harvestedKg: number): number | null {
+  if (!Number.isFinite(totalFeedKg) || totalFeedKg <= 0 || !Number.isFinite(harvestedKg) || harvestedKg <= 0) {
+    return null;
+  }
+  return Math.round((totalFeedKg / harvestedKg) * 100) / 100;
+}
+
+export interface SalinitySuitability {
+  status: "optimal" | "tolerable" | "stress";
+  labelBn: string;
+  adviceBn: string;
+}
+
+/**
+ * Checks salinity suitability for the coastal aquaculture species.
+ * Calibrated against Department of Fisheries (DoF) and BFRI coastal guidelines.
+ */
+export function checkSalinitySuitability(species: GherSpecies, ppt: number): SalinitySuitability {
+  if (!Number.isFinite(ppt) || ppt < 0) {
+    return {
+      status: "stress",
+      labelBn: "অজানা বা ভুল মাত্রা",
+      adviceBn: "লবণাক্ততার সঠিক রিফ্র্যাক্টোমিটার বা স্যালিনিটি মিটার রিডিং দিন।",
+    };
+  }
+
+  const info = GHER_SPECIES_DATA[species];
+  if (!info) {
+    return {
+      status: "tolerable",
+      labelBn: "সাধারণ পর্যায়",
+      adviceBn: "উপজেলা মৎস্য কর্মকর্তার সঙ্গে পরামর্শ করুন।",
+    };
+  }
+
+  if (ppt >= info.optimalSalinityPpt.min && ppt <= info.optimalSalinityPpt.max) {
+    return {
+      status: "optimal",
+      labelBn: "অনুকূল মাত্রা (Optimal)",
+      adviceBn: `লবণাক্ততা ${ppt} ppt এই প্রজাতির জন্য সম্পূর্ণ অনুকূল। নিয়মিত পানির গভীরতা বজায় রাখুন।`,
+    };
+  }
+
+  if (species === "bagda" && ((ppt >= 5 && ppt < 10) || (ppt > 25 && ppt <= 30))) {
+    return {
+      status: "tolerable",
+      labelBn: "সহনশীল মাত্রা (Tolerable)",
+      adviceBn: `লবণাক্ততা ${ppt} ppt সহনশীল সীমায় আছে। অতিরিক্ত বৃষ্টি বা খরায় লবণাক্ততার আকস্মিক পরিবর্তন খেয়াল রাখুন।`,
+    };
+  }
+
+  if (species === "golda" && ppt > 5 && ppt <= 8) {
+    return {
+      status: "tolerable",
+      labelBn: "সহনশীল মাত্রা (Tolerable)",
+      adviceBn: `গলদার জন্য লবণাক্ততা কিছুটা বেশি (${ppt} ppt)। মিষ্টি পানি যোগ করার ব্যবস্থা রাখুন।`,
+    };
+  }
+
+  if (species === "crab" && ((ppt >= 10 && ppt < 15) || (ppt > 28 && ppt <= 32))) {
+    return {
+      status: "tolerable",
+      labelBn: "সহনশীল মাত্রা (Tolerable)",
+      adviceBn: `কাঁকড়ার জন্য লবণাক্ততা (${ppt} ppt) সহনশীল। পানি বিনিময় তদারকি করুন।`,
+    };
+  }
+
+  if (species === "tilapia" && ppt > 15 && ppt <= 25) {
+    return {
+      status: "tolerable",
+      labelBn: "সহনশীল মাত্রা (Tolerable)",
+      adviceBn: `তেলাপিয়া (${ppt} ppt) টিকে থাকতে পারবে, তবে বৃদ্ধির হার কিছুটা কম হতে পারে।`,
+    };
+  }
+
+  return {
+    status: "stress",
+    labelBn: "ঝুঁকিপূর্ণ / প্রতিকূল মাত্রা (Stress)",
+    adviceBn: `লবণাক্ততা ${ppt} ppt এই প্রজাতির বৃদ্ধির জন্য ক্ষতিকর। দ্রুত পানি নিয়ন্ত্রণ করুন অথবা মৎস্য হেল্পলাইন ১৬৩৫৮-এ কল দিন।`,
+  };
+}
+
 // ---------------------------------------------------------------- Crop Doctor: calibrated honesty
 export type DoctorVerdict = "likely" | "possible" | "unsure";
 
@@ -411,6 +564,36 @@ export function sanitizeHerds(raw: unknown): Herd[] | null {
     const count = typeof o.count === "number" && Number.isInteger(o.count) && o.count >= 0 && o.count < 1e6 ? o.count : null;
     if (!id || !name || count === null || !kinds.includes(o.kind as AnimalKind)) return [];
     return [{ id, name, count, kind: o.kind as AnimalKind }];
+  });
+}
+
+export function sanitizeGhers(raw: unknown): GherPond[] | null {
+  if (!Array.isArray(raw)) return null;
+  const validSpecies = new Set<GherSpecies>(["bagda", "golda", "crab", "tilapia"]);
+  return raw.slice(0, 50).flatMap((g) => {
+    if (!g || typeof g !== "object") return [];
+    const o = g as Record<string, unknown>;
+    const id = str(o.id, 40);
+    const name = str(o.name, 60);
+    const decimals = typeof o.decimals === "number" && Number.isFinite(o.decimals) && o.decimals > 0 && o.decimals < 1e5 ? o.decimals : null;
+    const species = typeof o.species === "string" && validSpecies.has(o.species as GherSpecies) ? (o.species as GherSpecies) : null;
+    const salinityPpt = typeof o.salinityPpt === "number" && Number.isFinite(o.salinityPpt) && o.salinityPpt >= 0 && o.salinityPpt <= 60 ? o.salinityPpt : 0;
+    const waterDepthFeet = typeof o.waterDepthFeet === "number" && Number.isFinite(o.waterDepthFeet) && o.waterDepthFeet >= 0 && o.waterDepthFeet <= 30 ? o.waterDepthFeet : 4;
+    const stockingCount = typeof o.stockingCount === "number" && Number.isFinite(o.stockingCount) && o.stockingCount >= 0 && o.stockingCount < 1e8 ? o.stockingCount : 0;
+    const stockingDate = str(o.stockingDate, 10);
+
+    if (!id || !name || decimals === null || !species || !stockingDate || !isIsoDate(stockingDate)) return [];
+    return [{
+      id,
+      name,
+      decimals,
+      species,
+      salinityPpt,
+      waterDepthFeet,
+      stockingCount,
+      stockingDate,
+      note: str(o.note, 160) ?? undefined,
+    }];
   });
 }
 

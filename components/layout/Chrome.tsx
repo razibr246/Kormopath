@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AppSwitcherDropdown } from "@/components/layout/AppSwitcherDropdown";
 import { KormoPathLogo } from "@/components/brand/KormoPathLogo";
-import { FX_FALLBACK } from "@/lib/data";
+import { FX_FALLBACK, type Source } from "@/lib/data";
 import { ArrowUpRight, FlaskConical, LayoutGrid, Languages, Linkedin, Menu, Search, ShieldCheck, X } from "lucide-react";
 
 const NAV = [
@@ -16,7 +16,7 @@ const NAV = [
 ] as const;
 
 function openPalette() {
-  if (typeof window !== "undefined") window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }));
+  if (typeof window !== "undefined") window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true, metaKey: true }));
 }
 
 /** Floating frosted navigation pill used on the home page, Workspace and passport pages. */
@@ -25,44 +25,59 @@ export function Navbar(props?: {
   setLang?: (l: "en" | "bn") => void;
   usdBdt?: number;
   fxLive?: boolean;
+  fxSource?: Source;
   onOpenEcosystem?: () => void;
   isEcosystemOpen?: boolean;
 }) {
-  const { lang = "bn", setLang, usdBdt = FX_FALLBACK.usdBdt, fxLive = false, onOpenEcosystem, isEcosystemOpen = false } = props ?? {};
+  const { lang = "bn", setLang, usdBdt = FX_FALLBACK.usdBdt, fxLive = false, fxSource = FX_FALLBACK.source, onOpenEcosystem, isEcosystemOpen = false } = props ?? {};
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const bn = lang === "bn";
   const isActive = (href: string) => !href.includes("#") && pathname?.startsWith(href);
+  const checkedAt = new Date(fxSource.checked);
+  const checkedLabel = Number.isFinite(checkedAt.getTime())
+    ? new Intl.DateTimeFormat(bn ? "bn-BD" : "en", {
+        dateStyle: "medium",
+        ...(fxSource.checked.includes("T") ? { timeStyle: "short" as const } : {}),
+      }).format(checkedAt)
+    : fxSource.checked;
+  const fxTooltip = `${fxSource.label} · ${bn ? "সর্বশেষ হালনাগাদ" : "Last updated"}: ${checkedLabel}`;
 
   return (
     <header className="kp-nav-wrap">
-      <div className="kp-nav mx-auto flex h-[62px] max-w-7xl items-center justify-between gap-3 px-2.5 sm:pl-3">
-        <div className="flex min-w-0 items-center gap-4">
-          <Link href="/" className="flex shrink-0 items-center rounded-2xl px-1 py-1">
-            <span className="hidden sm:inline-flex"><KormoPathLogo theme="light" variant="full" size="sm" /></span>
-            <span className="sm:hidden"><KormoPathLogo theme="light" variant="mark" size="sm" /></span>
-          </Link>
-          <nav aria-label="Main" className="kp-nav-links hidden lg:flex">
-            {NAV.map((item) => (
-              <Link key={item.href} href={item.href} aria-current={isActive(item.href) ? "page" : undefined} className="kp-nav-link">
-                {bn ? item.bn : item.en}
-              </Link>
-            ))}
-          </nav>
-        </div>
+      <a
+        href="#main"
+        className="skip-link sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-lg focus:bg-slate-900 focus:text-white focus:px-3.5 focus:py-2 focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 font-bold text-[13px]"
+      >
+        {bn ? "মূল অংশে সরাসরি যান" : "Skip to main content"}
+      </a>
+      <div className="kp-nav mx-auto flex items-center gap-1.5">
+        <Link href="/" className="flex shrink-0 items-center rounded-2xl px-1 py-1">
+          <span className="hidden sm:inline-flex"><KormoPathLogo theme="light" variant="full" size="sm" /></span>
+          <span className="sm:hidden"><KormoPathLogo theme="light" variant="mark" size="sm" /></span>
+        </Link>
+        <nav aria-label="Main" className="kp-nav-links hidden lg:flex justify-center">
+          {NAV.map((item) => (
+            <Link key={item.href} href={item.href} aria-current={isActive(item.href) ? "page" : undefined} className="kp-nav-link">
+              {bn ? item.bn : item.en}
+            </Link>
+          ))}
+        </nav>
 
-        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-          <div
-            className="kp-chip hidden md:inline-flex font-mono"
-            title={fxLive ? (bn ? "সর্বশেষ পাওয়া USD/BDT বাজার রেট" : "Latest available USD/BDT market rate") : (bn ? "রেফারেন্স রেট; লাইভ রেট পাওয়া যায়নি" : "Reference rate; live rate unavailable")}
+        <div className="ml-auto flex shrink-0 items-center gap-1.5">
+          <Link
+            href="/feeguard"
+            className="kp-chip kp-fx-widget font-mono"
+            title={fxTooltip}
+            aria-label={`${bn ? "USD থেকে BDT দৈনিক রেট" : "Daily USD to BDT rate"}: ৳${usdBdt.toFixed(2)}. ${fxTooltip}. ${bn ? "রূপান্তর ও ফি দেখতে খুলুন" : "Open to view conversion and fees"}`}
           >
-            <span className={`h-2 w-2 rounded-full ${fxLive ? "bg-emerald-500" : "bg-amber-500"}`} aria-hidden="true" />
+            <span className={`h-2 w-2 rounded-full ${fxLive ? "bg-emerald-600" : "bg-amber-500"}`} aria-hidden="true" />
             <span className="font-sans text-[11px] text-slate-500">$1 =</span>
             <span className="font-bold text-slate-900">৳{usdBdt.toFixed(1)}</span>
-            <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-500">{fxLive ? "Live" : "Ref"}</span>
-          </div>
+            <span className="kp-fx-status text-[9px] font-semibold uppercase tracking-wider text-slate-500">{fxLive ? (bn ? "দৈনিক" : "Daily") : (bn ? "রেফ" : "Ref")}</span>
+          </Link>
 
-          <button type="button" onClick={openPalette} className="kp-icon-btn hidden sm:inline-flex" aria-label={bn ? "খুঁজুন (⌘K)" : "Search (⌘K)"} title={bn ? "খুঁজুন · ⌘K" : "Search · ⌘K"}>
+          <button type="button" onClick={openPalette} className="kp-icon-btn" aria-label={bn ? "খুঁজুন (Ctrl/⌘ K)" : "Search (Ctrl/⌘ K)"} title={bn ? "খুঁজুন · Ctrl/⌘ K" : "Search · Ctrl/⌘ K"}>
             <Search size={16} />
           </button>
 
@@ -84,11 +99,11 @@ export function Navbar(props?: {
               type="button"
               onClick={onOpenEcosystem}
               aria-expanded={isEcosystemOpen}
-              className={`kp-chip hidden font-semibold sm:inline-flex ${isEcosystemOpen ? "kp-chip-on" : ""}`}
+              className={`kp-chip kp-apps-button hidden font-semibold sm:inline-flex ${isEcosystemOpen ? "kp-chip-on" : ""}`}
               aria-label={bn ? "সব অ্যাপ খুলুন" : "Open all apps"}
             >
               <LayoutGrid size={14} className="text-orange-600" />
-              <span>{bn ? "সব অ্যাপ" : "All apps"}</span>
+              <span className="kp-apps-label">{bn ? "সব অ্যাপ" : "All apps"}</span>
             </button>
           ) : null}
           <span className={onOpenEcosystem ? "sm:hidden" : ""}>
@@ -113,7 +128,7 @@ export function Navbar(props?: {
       </div>
 
       {mobileMenuOpen && (
-        <div className="kp-nav-drawer mx-auto mt-2 max-w-7xl p-3 lg:hidden">
+        <div className="kp-nav-drawer mt-2 p-3 lg:hidden">
           <nav className="grid gap-1 text-[15px] font-semibold" aria-label={bn ? "মোবাইল মেনু" : "Mobile menu"}>
             {NAV.map((item) => (
               <Link key={item.href} href={item.href} onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-between rounded-xl px-3 py-2.5 text-slate-800 hover:bg-orange-50">
@@ -145,7 +160,13 @@ const FOOTER_GROUPS = [
   },
   {
     bn: "জীবন", en: "Life",
-    links: [["/admitbuddy", "অ্যাডমিট বাডি: ভর্তি পরিকল্পনা"], ["/shohoj-budget", "সহজ বাজেট: সংসারের হিসাব"], ["/mediscan", "মেডিস্ক্যান: প্রেসক্রিপশন বোঝা"], ["/rokkha", "রক্ষা: প্রতারণা ও দুর্যোগে সুরক্ষা"]],
+    links: [
+      ["/admitbuddy", "অ্যাডমিট বাডি: ভর্তি পরিকল্পনা"],
+      ["/shohoj-budget", "সহজ বাজেট: সংসারের হিসাব"],
+      ["/mediscan", "মেডিস্ক্যান: প্রেসক্রিপশন ও হাসপাতাল"],
+      ["/rokkha", "রক্ষা: প্রতারণা ও দুর্যোগে সুরক্ষা"],
+      ["/legal", "আইনি সহায়তা: বিনামূল্যে আইনি সাহায্য"],
+    ],
   },
   {
     bn: "কৃষি", en: "Farm",

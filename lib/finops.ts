@@ -257,3 +257,118 @@ export function splitMilestoneUsd(totalUsd: number, count: number): number[] {
   const remainder = cents % count;
   return Array.from({ length: count }, (_, index) => (base + (index < remainder ? 1 : 0)) / 100);
 }
+
+// ---------------------------------------------------------------- Freelancer AIT / TDS (উৎসে কর) Under Income Tax Act 2023
+export type FreelanceContractType = "foreign_export" | "local_corporate_it" | "local_corporate_consulting" | "local_individual";
+
+export interface AitCalculationInput {
+  amountBdt: number;
+  contractType: FreelanceContractType;
+  hasPsr: boolean; // Proof of Submission of Return (রিটার্ন জমার প্রমাণক)
+  hasTin: boolean; // 12-digit e-TIN
+}
+
+export interface AitCalculationResult {
+  grossBdt: number;
+  contractType: FreelanceContractType;
+  baseRatePct: number;
+  effectiveRatePct: number;
+  psrPenaltyApplied: boolean;
+  aitAmountBdt: number;
+  netReceivableBdt: number;
+  isTaxExempt: boolean;
+  incentiveEligible: boolean;
+  incentiveAmountBdt: number;
+  lawReference: string;
+  adviceBn: string;
+}
+
+/**
+ * Calculates withholding tax (AIT / TDS) for Bangladeshi freelancers & contractors
+ * under the Bangladesh Income Tax Act 2023 (আয়কর আইন ২০২৩) and Bangladesh Bank Cash Incentive circulars.
+ */
+export function calculateFreelancerAIT(input: AitCalculationInput): AitCalculationResult {
+  const grossBdt = Math.max(0, Math.round(input.amountBdt));
+  if (grossBdt === 0) {
+    return {
+      grossBdt: 0,
+      contractType: input.contractType,
+      baseRatePct: 0,
+      effectiveRatePct: 0,
+      psrPenaltyApplied: false,
+      aitAmountBdt: 0,
+      netReceivableBdt: 0,
+      isTaxExempt: input.contractType === "foreign_export",
+      incentiveEligible: input.contractType === "foreign_export",
+      incentiveAmountBdt: 0,
+      lawReference: "আয়কর আইন ২০২৩",
+      adviceBn: "ইনভয়েসের টাকার পরিমাণ দিন।",
+    };
+  }
+
+  if (input.contractType === "foreign_export") {
+    const incentiveAmountBdt = Math.round(grossBdt * 0.025);
+    return {
+      grossBdt,
+      contractType: "foreign_export",
+      baseRatePct: 0,
+      effectiveRatePct: 0,
+      psrPenaltyApplied: false,
+      aitAmountBdt: 0,
+      netReceivableBdt: grossBdt + incentiveAmountBdt,
+      isTaxExempt: true,
+      incentiveEligible: true,
+      incentiveAmountBdt,
+      lawReference: "আয়কর আইন ২০২৩ এর ৭৬ ধারা ও ৬ষ্ঠ তফসিল (অংশ ক, অনুচ্ছেদ ২১); বাংলাদেশ ব্যাংক এফই সার্কুলার",
+      adviceBn: "বৈধ ব্যাংকিং চ্যানেলে রেমিট্যান্স আনলে এবং পিআরসি (PRC) সংগ্রহ করলে কোনো উৎসে কর নেই এবং ২.৫% সরকারি নগদ প্রণোদনা পাবেন।",
+    };
+  }
+
+  if (input.contractType === "local_individual") {
+    return {
+      grossBdt,
+      contractType: "local_individual",
+      baseRatePct: 0,
+      effectiveRatePct: 0,
+      psrPenaltyApplied: false,
+      aitAmountBdt: 0,
+      netReceivableBdt: grossBdt,
+      isTaxExempt: false,
+      incentiveEligible: false,
+      incentiveAmountBdt: 0,
+      lawReference: "আয়কর আইন ২০২৩ — ব্যক্তি পর্যায়ের প্রত্যক্ষ কর",
+      adviceBn: "ব্যক্তিগত ক্লায়েন্ট উৎসে কর কাটে না। বার্ষিক মোট আয় করমুক্ত সীমা (৳৩,৫০,০০০) অতিক্রম করলে বার্ষিক রিটার্নে স্বনির্ধারিত কর প্রদান করতে হবে।",
+    };
+  }
+
+  const isConsulting = input.contractType === "local_corporate_consulting";
+  const baseRatePct = isConsulting ? 10 : 5;
+  const psrPenaltyApplied = !input.hasPsr;
+  const effectiveRatePct = psrPenaltyApplied ? baseRatePct * 1.5 : baseRatePct;
+
+  const aitAmountBdt = Math.round((grossBdt * effectiveRatePct) / 100);
+  const netReceivableBdt = grossBdt - aitAmountBdt;
+
+  const lawReference = psrPenaltyApplied
+    ? "আয়কর আইন ২০২৩ এর সেকশন ৫২/৫২এএ এবং ১২৪ ধারা (রিটার্ন জমার প্রমাণক না থাকলে ৫০% অতিরিক্ত কর)"
+    : "আয়কর আইন ২০২৩ এর সেকশন ৫২/৫২এএ (স্বাভাবিক উৎসে কর হার)";
+
+  const adviceBn = psrPenaltyApplied
+    ? `ট্যাক্স রিটার্ন জমার প্রমাণক (PSR) জমা না দেওয়ায় ৫০% অতিরিক্ত উৎসে কর (${effectiveRatePct}%) কর্তন হবে। পিএসআর জমা দিলে কর কমবে ${baseRatePct}%-এ।`
+    : `পিএসআর জমা থাকায় প্রযোজ্য স্বাভাবিক ${baseRatePct}% উৎসে কর কর্তন হবে। কর্তনকারী প্রতিষ্ঠান থেকে সেকশন ৫৩ চালান বা প্রত্যয়নপত্র সংগ্রহ করুন।`;
+
+  return {
+    grossBdt,
+    contractType: input.contractType,
+    baseRatePct,
+    effectiveRatePct,
+    psrPenaltyApplied,
+    aitAmountBdt,
+    netReceivableBdt,
+    isTaxExempt: false,
+    incentiveEligible: false,
+    incentiveAmountBdt: 0,
+    lawReference,
+    adviceBn,
+  };
+}
