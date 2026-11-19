@@ -62,7 +62,7 @@ Return ONLY JSON with keys: is_crop_photo, crop_seen, image_quality (good|poor|u
 
 export async function POST(req: Request) {
   const rl = await checkRateLimitShared(req, { limit: 10, windowMs: 60_000, bucket: "field360-doctor" });
-  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
+  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds, rl.store);
   const tracer = new Tracer("CropDoctor");
   const p = Body.safeParse(await req.json().catch(() => ({})));
   if (!p.success) return NextResponse.json({ error: "image missing, too large, or unknown crop" }, { status: 400 });

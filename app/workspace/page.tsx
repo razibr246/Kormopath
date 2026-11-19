@@ -160,11 +160,11 @@ export default function Home() {
                   {c.label}
                 </span>
                 <strong className="block text-[16px] text-ink font-mono font-extrabold tabular-nums mt-0.5">{c.value}</strong>
-                <span className="block text-[11px] text-muted line-clamp-2">{c.note}</span>
+                <span className="block text-[12px] text-muted line-clamp-2">{c.note}</span>
               </div>
             ))}
           </div>
-          <Link href="/trust" className="flex items-center justify-center gap-1.5 border-t border-line px-3 py-2 text-[12px] font-semibold text-kept hover:bg-kept-soft/40">
+          <Link href="/trust" className="flex min-h-[44px] items-center justify-center gap-1.5 border-t border-line px-3 py-2 text-[12px] font-semibold text-kept hover:bg-kept-soft/40">
             {lang === "bn" ? "কীভাবে মাপা হয়েছে দেখুন" : "How these were measured"} ·{" "}
             {new Date(EVAL.generatedAt).toLocaleDateString(lang === "bn" ? "bn-BD" : "en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Dhaka" })} →
           </Link>
@@ -402,14 +402,14 @@ export default function Home() {
                 <button
                   onClick={() => setStage((s) => Math.max(1, s - 1))}
                   disabled={stage === 1}
-                  className="rounded-lg px-4 py-2 text-[14px] font-bold text-muted hover:text-ink disabled:invisible"
+                  className="min-h-[44px] rounded-lg px-4 py-2 text-[14px] font-bold text-muted hover:text-ink disabled:invisible"
                 >
                   ← Back
                 </button>
                 <button
                   onClick={() => setStage((s) => Math.min(4, s + 1))}
                   disabled={stage === 4}
-                  className="rounded-lg bg-ink px-5 py-2 text-[14px] font-bold text-white hover:bg-ink/90 disabled:invisible flex items-center gap-1.5"
+                  className="min-h-[44px] rounded-lg bg-ink px-5 py-2 text-[14px] font-bold text-white hover:bg-ink/90 disabled:invisible flex items-center gap-1.5"
                 >
                   Next: {STAGES[Math.min(3, stage)].title} <ArrowRight size={15} />
                 </button>
@@ -579,7 +579,7 @@ export default function Home() {
               </div>
               <Link
                 href="/admitbuddy"
-                className="mt-5 flex items-center justify-between rounded-xl bg-indigo-600 px-4 py-2.5 text-[13px] font-bold text-white hover:bg-indigo-700 transition-all shadow-xs group-hover:shadow"
+                className="mt-5 flex min-h-[44px] items-center justify-between rounded-xl bg-indigo-600 px-4 py-2.5 text-[13px] font-bold text-white hover:bg-indigo-700 transition-all shadow-xs group-hover:shadow"
               >
                 <span>Launch AdmitBuddy</span>
                 <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
@@ -613,7 +613,7 @@ export default function Home() {
               </div>
               <Link
                 href="/mediscan"
-                className="mt-5 flex items-center justify-between rounded-xl bg-rose-600 px-4 py-2.5 text-[13px] font-bold text-white hover:bg-rose-700 transition-all shadow-xs group-hover:shadow"
+                className="mt-5 flex min-h-[44px] items-center justify-between rounded-xl bg-rose-600 px-4 py-2.5 text-[13px] font-bold text-white hover:bg-rose-700 transition-all shadow-xs group-hover:shadow"
               >
                 <span>Launch MediScan BD</span>
                 <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
@@ -647,7 +647,7 @@ export default function Home() {
               </div>
               <Link
                 href="/shohoj-budget"
-                className="mt-5 flex items-center justify-between rounded-xl bg-amber-600 px-4 py-2.5 text-[13px] font-bold text-white hover:bg-amber-700 transition-all shadow-xs group-hover:shadow"
+                className="mt-5 flex min-h-[44px] items-center justify-between rounded-xl bg-amber-600 px-4 py-2.5 text-[13px] font-bold text-white hover:bg-amber-700 transition-all shadow-xs group-hover:shadow"
               >
                 <span>Launch Shohoj Budget</span>
                 <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
@@ -681,7 +681,7 @@ export default function Home() {
               </div>
               <Link
                 href="/haatbazar"
-                className="mt-5 flex items-center justify-between rounded-xl bg-emerald-700 px-4 py-2.5 text-[13px] font-bold text-white hover:bg-emerald-800 transition-all shadow-xs group-hover:shadow"
+                className="mt-5 flex min-h-[44px] items-center justify-between rounded-xl bg-emerald-700 px-4 py-2.5 text-[13px] font-bold text-white hover:bg-emerald-800 transition-all shadow-xs group-hover:shadow"
               >
                 <span>Launch HaatBazar AI</span>
                 <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
@@ -715,7 +715,7 @@ export default function Home() {
               </div>
               <Link
                 href="/probaho"
-                className="mt-5 flex items-center justify-between rounded-xl bg-blue-600 px-4 py-2.5 text-[13px] font-bold text-white hover:bg-blue-700 transition-all shadow-xs group-hover:shadow"
+                className="mt-5 flex min-h-[44px] items-center justify-between rounded-xl bg-blue-600 px-4 py-2.5 text-[13px] font-bold text-white hover:bg-blue-700 transition-all shadow-xs group-hover:shadow"
               >
                 <span>Launch Probaho Coach</span>
                 <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
@@ -749,7 +749,7 @@ export default function Home() {
               </div>
               <Link
                 href="/feeguard"
-                className="mt-5 flex items-center justify-between rounded-xl bg-emerald-700 px-4 py-2.5 text-[13px] font-bold text-white hover:bg-emerald-800 transition-all shadow-xs group-hover:shadow"
+                className="mt-5 flex min-h-[44px] items-center justify-between rounded-xl bg-emerald-700 px-4 py-2.5 text-[13px] font-bold text-white hover:bg-emerald-800 transition-all shadow-xs group-hover:shadow"
               >
                 <span>Launch FeeGuard BD</span>
                 <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
@@ -782,7 +782,7 @@ export default function Home() {
               </div>
               <button
                 onClick={() => workRef.current?.scrollIntoView({ behavior: "smooth" })}
-                className="mt-5 flex items-center justify-between rounded-xl bg-kept px-4 py-2.5 text-[13px] font-bold text-white hover:bg-kept/90 transition-all shadow-xs"
+                className="mt-5 flex min-h-[44px] items-center justify-between rounded-xl bg-kept px-4 py-2.5 text-[13px] font-bold text-white hover:bg-kept/90 transition-all shadow-xs"
               >
                 <span>Enter Guided Workspace</span>
                 <ArrowUpRight size={14} />

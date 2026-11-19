@@ -37,7 +37,7 @@ Return ONLY JSON: {"reply":"...","proposals":[{"action":"...","text":"...","targ
 
 export async function POST(req: Request) {
   const rl = await checkRateLimitShared(req, { limit: 30, windowMs: 60_000, bucket: "field360-agent" });
-  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
+  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds, rl.store);
   const tracer = new Tracer("ChakraAgent");
   const p = Body.safeParse(await req.json().catch(() => ({})));
   if (!p.success) return NextResponse.json({ error: "bad request" }, { status: 400 });

@@ -121,3 +121,8 @@ test("health guard catches doses in words, hedged diagnoses and unlisted medicin
 test("999 is sourced to the national portal's emergency-number list, not a third-party page", () => {
   assert.equal(HEALTH_SERVICES[0].source.url, "https://bangladesh.gov.bd");
 });
+
+test("guard round 2: guessed conditions and non-drug treatment advice are blocked, routing text passes", () => {
+  for (const bad of ["This is most likely a viral fever.", "Your symptoms point to dengue.", "Take ORS and rest.", "Apply Betnovate on the rash.", "An antihistamine may help.", "It is probably gastritis."]) assert.ok(unsafeIn(bad), bad);
+  for (const ok of ["A medicine specialist looks after fever and weakness in adults, and is likely the right first step.", "Tell the doctor when the pain started and what makes it worse.", "A cardiologist checks the heart; doctors can arrange tests if needed."]) assert.equal(unsafeIn(ok), null, ok);
+});

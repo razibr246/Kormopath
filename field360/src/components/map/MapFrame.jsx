@@ -261,7 +261,7 @@ function TypePicker({ type, setType, labels, setLabels }) {
           {BASEMAPS[type].labels && (
             <label className="mt-3 flex cursor-pointer items-center justify-between gap-2 border-t border-border pt-3 text-[14px]">
               {T('রাস্তা ও জায়গার নাম', 'Roads and place names')}
-              <input type="checkbox" checked={labels} onChange={(e) => setLabels(e.target.checked)} className="h-4 w-4 accent-primary-700" />
+              <input type="checkbox" checked={labels} onChange={(e) => setLabels(e.target.checked)} className="h-6 w-6 accent-primary-700" />
             </label>
           )}
         </div>

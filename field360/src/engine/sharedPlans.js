@@ -4,7 +4,9 @@
 import { PLAN_SEASON } from './climate.js';
 
 const BASE = '/api/field360/plans';
-let unavailableReason = null;
+// KormoPath has no database by design, so /api/field360/plans always answers 503. Skip the request (and its
+// console error) unless a shared board is deployed and NEXT_PUBLIC_FIELD360_SHARED=1 is set.
+let unavailableReason = process.env.NEXT_PUBLIC_FIELD360_SHARED === '1' ? null : 'unconfigured';
 
 async function unavailable(r) {
   if (r.status !== 503 || !(r.headers.get('content-type') || '').includes('json')) return false;

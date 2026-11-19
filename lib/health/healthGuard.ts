@@ -31,13 +31,17 @@ export interface AssistOutput {
 const WORD_DOSE = /\b(?:half|one|two|three|a|1\/2)\s+(?:a\s+)?(?:tea|table)?spoons?\b|\b(?:one|two|three|four|1|2|3|4)\s+(?:times|tablets?|capsules?|drops?|puffs?)\b|\b(?:every|each)\s+\d+\s*(?:hours?|hrs?)\b|\btimes (?:a |per )?(?:day|daily)\b|\b(?:twice|thrice) daily\b|(?:আধা|এক|দুই|তিন)\s*চামচ|দিনে\s*(?:এক|দুই|তিন|চার)\s*বার|ঘণ্টা\s*পর\s*পর/i;
 // A diagnosis offered as a guess is still a diagnosis.
 const HEDGED_DIAGNOSIS = /\b(?:sounds|looks|seems) like (?:a |an )?\w+|\b(?:could|might|may) (?:well )?be (?:a |an )?(?:case of |sign of )?(?:dengue|typhoid|malaria|covid|infection|pneumonia|asthma|diabetes|cancer|tb|tuberculosis|ulcer|heart attack|stroke|appendicitis|jaundice)\b|মনে হচ্ছে\s*(?:আপনার|তার)?\s*\S*\s*(?:ডেঙ্গু|টাইফয়েড|ম্যালেরিয়া|জন্ডিস|নিউমোনিয়া|ডায়াবেটিস|ক্যান্সার|আলসার)|সম্ভবত\s*(?:ডেঙ্গু|টাইফয়েড|ম্যালেরিয়া|জন্ডিস|নিউমোনিয়া|ডায়াবেটিস|ক্যান্সার|আলসার)/i;
+// "Most likely a viral fever", "points to dengue", "it is probably gastritis": a guessed condition, still a diagnosis.
+const LIKELY_DIAGNOSIS = /\b(?:most likely|more likely|very likely|probably|likely|points? (?:to|towards)|suggests?|consistent with|indicat(?:es|ive of)|typical of)\s+(?:a |an |the |some )?(?:\w+itis|\w+osis|viral|bacterial|fungal|flu|influenza|allergy|allergic|migraine|infection|dengue|typhoid|malaria|covid|pneumonia|asthma|diabetes|cancer|ulcer|gastric|acidity|heart attack|stroke|anaemia|anemia|jaundice|fracture|sprain)\b|সম্ভবত\s*(?:ভাইরাল|গ্যাস্ট্রিক|অ্যালার্জি|এলার্জি|ইনফেকশন|সংক্রমণ)/i;
+// Treatment advice that is not a named drug: ORS, creams, antihistamines, painkillers, home applications.
+const TREATMENT = /\b(?:take|drink|use|apply|try|give|put on|rub)\s+(?:some |an? |the |this )?(?:ors|oral rehydration|saline|cream|ointment|gel|lotion|eye ?drops|syrup|antihistamine|painkiller|pain ?killer|balm|ice pack|hot compress)\b|\b(?:antihistamines?|painkillers?|ointments?|betnovate|dermovate|burnol|savlon|dettol|calamine|zinc oxide)\b|\bors\b|মলম|ক্রিম লাগান|অ্যান্টিহিস্টামিন|ব্যথানাশক|স্যালাইন খান/i;
 // Generic drug-name endings, so medicines missing from MEDICINE_WORDS are still caught (montelukast, domperidone…).
 const DRUG_SUFFIX = /\b[a-z]{3,}(?:prazole|mycin|cillin|floxacin|olol|pril|sartan|statin|lukast|peridone|tadine|ifene|azepam|oxetine|triptan|dronate|parin|cycline|conazole|vir)\b/i;
 
 /** Text that reads as a dose, medicine suggestion or diagnosis, or null when clean. */
 export function unsafeIn(text: string): string | null {
   const t = ascii(norm(text));
-  const m = t.match(DOSE) ?? t.match(FREQUENCY) ?? t.match(WORD_DOSE) ?? t.match(MEDICINE_WORDS) ?? t.match(DRUG_SUFFIX) ?? t.match(DIAGNOSIS) ?? t.match(HEDGED_DIAGNOSIS);
+  const m = t.match(DOSE) ?? t.match(FREQUENCY) ?? t.match(WORD_DOSE) ?? t.match(MEDICINE_WORDS) ?? t.match(DRUG_SUFFIX) ?? t.match(DIAGNOSIS) ?? t.match(HEDGED_DIAGNOSIS) ?? t.match(LIKELY_DIAGNOSIS) ?? t.match(TREATMENT);
   return m ? m[0] : null;
 }
 

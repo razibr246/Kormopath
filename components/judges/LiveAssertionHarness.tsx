@@ -247,7 +247,7 @@ export function LiveAssertionHarness() {
         <button
           onClick={runAllTests}
           disabled={isRunningAll}
-          className="inline-flex items-center gap-2 rounded-xl bg-orange-600 px-4 py-2 text-[14px] font-bold text-white shadow hover:bg-orange-700 transition-all disabled:opacity-50"
+          className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-orange-600 px-4 py-2 text-[14px] font-bold text-white shadow hover:bg-orange-700 transition-all disabled:opacity-50"
         >
           <Play size={14} className={isRunningAll ? "animate-spin" : ""} />
           Run All Assertions
@@ -340,7 +340,7 @@ export function LiveAssertionHarness() {
                 <button
                   onClick={() => runTest(test.id)}
                   disabled={isRunning}
-                  className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1 text-[12px] font-semibold text-slate-700 hover:border-slate-400 hover:bg-slate-50 disabled:opacity-50"
+                  className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border border-slate-200 px-3 py-1 text-[12px] font-semibold text-slate-700 hover:border-slate-400 hover:bg-slate-50 disabled:opacity-50"
                 >
                   <RefreshCw size={12} className={isRunning ? "animate-spin" : ""} />
                   {test.status === "idle" ? "Run Test" : "Re-run"}

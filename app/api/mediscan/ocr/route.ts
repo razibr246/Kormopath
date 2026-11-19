@@ -37,7 +37,7 @@ Return only JSON: {"lines":["..."],"legible":true|false}.`;
 
 export async function POST(req: Request) {
   const rl = await checkRateLimitShared(req, { limit: 10, windowMs: 60_000, bucket: "mediscan-ocr" });
-  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
+  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds, rl.store);
 
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {

@@ -17,7 +17,7 @@ export const PassportSchema = z.object({
   issuedAt: z.string().datetime(),
 });
 export type Passport = z.infer<typeof PassportSchema>;
-export const SharedPassportSchema = z.object({ v: z.literal(2), track: z.string().max(60).optional(), challenge: z.string().max(80).optional(), testsPassed: z.number().int().min(0).max(50).optional(), testsTotal: z.number().int().min(1).max(50).optional(), edgePassed: z.boolean().optional(), perfPassed: z.boolean().optional(), vivaScore: z.number().int().min(0).max(20).optional(), vivaTotal: z.number().int().min(1).max(20).optional(), issuedAt: z.string().datetime(), expiresAt: z.string().datetime() });
+export const SharedPassportSchema = z.object({ v: z.literal(2), track: z.string().max(60).optional(), challenge: z.string().max(80).optional(), testsPassed: z.number().int().min(0).max(50).optional(), testsTotal: z.number().int().min(1).max(50).optional(), edgePassed: z.boolean().optional(), perfPassed: z.boolean().optional(), vivaScore: z.number().int().min(0).max(20).optional(), vivaTotal: z.number().int().min(1).max(20).optional(), assisted: z.boolean().optional(), issuedAt: z.string().datetime(), expiresAt: z.string().datetime() });
 export type SharedPassport = z.infer<typeof SharedPassportSchema>;
 
 const DEV_SECRET = "kormopilot-dev-secret-set-PASSPORT_SECRET-in-production";
@@ -62,7 +62,8 @@ export function check(token: string): { valid: boolean; passport?: Passport | Sh
 
 export function issueShare(p: Passport, fields: Array<"track" | "challenge" | "tests" | "viva">, expiresInDays: number) {
   if (![1, 7, 30].includes(expiresInDays)) throw new Error("Unsupported share lifetime.");
-  const payload: SharedPassport = { v: 2, issuedAt: p.issuedAt, expiresAt: new Date(Date.now() + expiresInDays * 86_400_000).toISOString() };
+  // Assistance is always disclosed: a share link can hide the name, never that the reference fix was viewed.
+  const payload: SharedPassport = { v: 2, assisted: p.assisted, issuedAt: p.issuedAt, expiresAt: new Date(Date.now() + expiresInDays * 86_400_000).toISOString() };
   if (fields.includes("track")) payload.track = p.track;
   if (fields.includes("challenge")) payload.challenge = p.challenge;
   if (fields.includes("tests")) Object.assign(payload, { testsPassed: p.testsPassed, testsTotal: p.testsTotal, edgePassed: p.edgePassed, perfPassed: p.perfPassed });

@@ -147,7 +147,7 @@ export function StageAudit({
                   value={gh}
                   onChange={(e) => setGh(e.target.value.replace(/^@/, ""))}
                   placeholder="GitHub username (optional)"
-                  className="w-full text-[15px] outline-none"
+                  className="min-h-[44px] w-full text-[15px] outline-none"
                   aria-label="GitHub username"
                 />
               </label>
@@ -252,8 +252,31 @@ export function StageAudit({
                     );
                   })}
                 </ul>
+                {/* The proof, readable without hovering (projector, phone): each grounded skill with its exact quoted line. */}
+                {(() => {
+                  const quoted = result.skills.filter((s) => s.evidence);
+                  if (!quoted.length) return null;
+                  const row = (s: (typeof quoted)[number]) => (
+                    <li key={"q-" + s.name + s.origin} className="flex flex-col gap-0.5 sm:flex-row sm:gap-2">
+                      <span className="shrink-0 font-semibold text-ink">{s.name}{s.origin === "github" ? " (GitHub)" : ""}</span>
+                      <span className="font-mono text-[12px] italic text-slate-700">“{s.evidence}”</span>
+                    </li>
+                  );
+                  return (
+                    <div className="mt-3 rounded-lg border border-line bg-white/60 p-3" data-testid="skill-quotes">
+                      <p className="text-[12px] font-semibold uppercase tracking-wider text-muted">Quoted from your source</p>
+                      <ul className="mt-1.5 space-y-1.5 text-[13px]">{quoted.slice(0, 5).map(row)}</ul>
+                      {quoted.length > 5 && (
+                        <details className="mt-1.5 text-[13px]">
+                          <summary className="cursor-pointer min-h-[44px] flex items-center font-semibold text-ink">Show all {quoted.length} quotes</summary>
+                          <ul className="mt-1 space-y-1.5">{quoted.slice(5).map(row)}</ul>
+                        </details>
+                      )}
+                    </div>
+                  );
+                })()}
                 <p className="mt-2 text-[12px] text-muted">
-                  Hover or tap any skill tag to view the exact verbatim line quoted from your CV. Skills not found in your document are struck out.
+                  Each quote above is the exact line found in your CV or repository. Hover or tap a skill tag for its score. Skills not found in your document are struck out.
                 </p>
               </Panel>
 
@@ -261,14 +284,14 @@ export function StageAudit({
               <div className="grid gap-4 sm:grid-cols-2">
                 <Panel className="p-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="display text-[16px] font-bold">AI Obsolescence Risk</h3>
+                    <h3 className="display text-[16px] font-bold">AI exposure <span className="text-[12px] font-semibold text-muted">(our estimate)</span></h3>
                     <ShieldAlert size={16} className="text-muted" />
                   </div>
                   <p className="display num text-[34px] font-extrabold mt-1" style={{ color: v!.aiRisk > 50 ? "var(--color-leak)" : v!.aiRisk > 30 ? "var(--color-haldi)" : "var(--color-kept)" }}>
                     {v!.aiRisk}%
                   </p>
                   <p className="text-[12px] text-muted mt-1 leading-snug">
-                    Share of entry-level tasks in {v!.track.name} already automated by AI tools. Adding premium skills (MCP, testing, system design) lowers vulnerability.
+                    A heuristic score, not a measured share of tasks: it starts from our rough exposure estimate for {v!.track.name} and drops 6 points for each premium skill (MCP, testing, system design) found in your CV.
                   </p>
                 </Panel>
 

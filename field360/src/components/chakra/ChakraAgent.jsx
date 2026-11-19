@@ -635,7 +635,7 @@ function BangladeshChakraAgent({ role, headerButton = true }) {
       {/* In a portal: the header's backdrop-filter would otherwise make it the box these fixed layers sit in. */}
       {createPortal(<>
       {!open && (
-        <div className={`fixed right-4 sm:right-6 z-40 ${role === 'farmer' ? 'bottom-[6.6rem] lg:bottom-6' : 'bottom-6'}`}>
+        <div className={`fixed right-4 sm:right-6 z-40 ${role === 'farmer' ? 'bottom-[calc(7.5rem+env(safe-area-inset-bottom))] lg:bottom-6' : 'bottom-6'}`}>
           <ChakraOrb phase={c.phase} size={58} onClick={openPanel} label={`${L(AGENT_NAME)}: ${T('কথা বলুন', 'talk')}`} />
         </div>
       )}

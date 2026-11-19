@@ -178,8 +178,8 @@ export function TrustView({ results: r, primaryModel }: { results: EvalResults; 
                 <span className="text-[15px] font-semibold text-slate-500"> {t(`of ${num(r.pitch.amountsFound, lang)} dollar figures were not in the contract`, `/ ${num(r.pitch.amountsFound, lang)}টি ডলারের অঙ্ক চুক্তিতে ছিল না`)}</span>
               </p>
               <p className="text-[13.5px] leading-relaxed text-slate-600">
-                {t(`${num(r.pitch.fromModel, lang)} of ${num(r.pitch.runs, lang)} pitches were written by the model; the rest used the fixed template. Marketplace mentions: ${num(r.pitch.marketplaceMentions, lang)}.`,
-                   `${num(r.pitch.runs, lang)}টির মধ্যে ${num(r.pitch.fromModel, lang)}টি পিচ মডেল লিখেছে; বাকিগুলো নির্দিষ্ট টেমপ্লেট থেকে। মার্কেটপ্লেসের উল্লেখ: ${num(r.pitch.marketplaceMentions, lang)}।`)}
+                {t(`${num(r.pitch.fromModel, lang)} of ${num(r.pitch.runs, lang)} pitches were written by the model${r.pitch.runs > r.pitch.fromModel ? "; the rest used the fixed template" : ""}. Marketplace mentions: ${num(r.pitch.marketplaceMentions, lang)}.`,
+                   `${num(r.pitch.runs, lang)}টির মধ্যে ${num(r.pitch.fromModel, lang)}টি পিচ মডেল লিখেছে${r.pitch.runs > r.pitch.fromModel ? "; বাকিগুলো নির্দিষ্ট টেমপ্লেট থেকে।" : "।"} মার্কেটপ্লেসের উল্লেখ: ${num(r.pitch.marketplaceMentions, lang)}।`)}
               </p>
               <Failures items={r.pitch.failures} lang={lang} />
             </Card>

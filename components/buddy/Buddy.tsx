@@ -375,7 +375,8 @@ export function Buddy() {
   const [tab, setTab] = useState<AssistantTab>("talk");
   const [deepThinking, setDeepThinking] = useState(true);
   const [browseEnabled, setBrowseEnabled] = useState(false);
-  const [voiceEnabled, setVoiceEnabled] = useState(true);
+  // Starts muted: Buddy speaks only after the person turns the voice on (no surprise audio, no TTS call).
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [isNaturalVoice, setIsNaturalVoice] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -658,6 +659,9 @@ export function Buddy() {
         links?: Array<{ href: string; label: string }>;
       };
 
+      // A server or network failure (5xx, a proxy's HTML error page) is not the person's fault: answer with local
+      // links instead of raw "upstream" text. 4xx errors carry our own Bangla message from the route.
+      if (response.status >= 500 || (!response.ok && !data.error)) throw new TypeError("server");
       if (!response.ok || typeof data.reply !== "string") {
         throw new Error(data.error || "এখন উত্তর পাওয়া গেল না।");
       }
@@ -676,7 +680,23 @@ export function Buddy() {
       ]);
       void speak(reply);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "সংযোগে সমস্যা হয়েছে। আবার চেষ্টা করুন।");
+      if (err instanceof TypeError || !(err instanceof Error)) {
+        // Network down or server error: show an offline answer with links that work without the server.
+        setMessages((current) => [...current, {
+          role: "assistant",
+          content: bn
+            ? "এখন সার্ভারের সঙ্গে সংযোগ হচ্ছে না। জরুরি হলে এখনই ৯৯৯-এ ফোন করুন। নিচের অংশগুলো সার্ভার ছাড়াও খোলে; একটু পরে আবার জিজ্ঞেস করুন।"
+            : "Buddy can't reach the server right now. In an emergency call 999 now. The sections below open without the server; try again in a moment.",
+          offline: true,
+          links: [
+            { href: "/rokkha", label: bn ? "জরুরি নম্বর" : "Emergency numbers" },
+            { href: "/feeguard", label: bn ? "ফি-গার্ড" : "FeeGuard" },
+            { href: "/shohoj-budget", label: bn ? "সহজ বাজেট" : "Shohoj Budget" },
+          ],
+        }]);
+      } else {
+        setError(err.message);
+      }
     } finally {
       setLoading(false);
     }

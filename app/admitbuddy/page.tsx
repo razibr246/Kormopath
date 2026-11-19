@@ -394,7 +394,7 @@ function ProfileForm({ profile, setProfile, onDone }: { profile: StudentProfile;
   return (
     <section aria-labelledby="pf-h" className="space-y-4 rounded-2xl border-2 border-indigo-200 bg-white p-5">
       <button type="button" onClick={() => { setProfile({ ...profile, name: "Nabila (example)", sscGpa: 5, hscGpa: 4.83, group: "Science", maxBudgetPerSemester: 90000, preferredLocations: ["Dhaka"], interests: ["CSE"] }); onDone(); }} className="float-right inline-flex min-h-[44px] flex-col items-center justify-center rounded-lg border border-indigo-300 bg-indigo-50 px-3 py-1 text-[13px] font-bold leading-tight text-indigo-800 hover:bg-indigo-100 min-w-[44px]" data-testid="example-profile">
-        উদাহরণ দেখুন <span lang="en" className="text-[12px] font-semibold">Try an example</span>
+        উদাহরণ দেখুন
       </button>
       <h2 id="pf-h" className="text-[17px] font-bold">আপনার তথ্য</h2>
       <div className="grid gap-3 sm:grid-cols-4">

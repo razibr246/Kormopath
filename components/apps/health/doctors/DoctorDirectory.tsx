@@ -64,7 +64,7 @@ export function DoctorDirectory() {
         <label className="flex min-h-[48px] items-center gap-2 rounded-xl border border-slate-300 bg-white px-3">
           <Search size={18} className="text-slate-500" aria-hidden />
           <span className="sr-only">{T("নাম বা বিশেষত্ব", "Name or specialty")}</span>
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={T("ডাক্তারের নাম বা বিশেষত্ব", "Doctor's name or specialty")} className="min-w-0 flex-1 bg-transparent text-[15px] outline-none" />
+          <input value={q} onChange={(e) => setQ(e.target.value)} aria-label={T("ডাক্তারের নাম বা বিশেষত্ব খুঁজুন", "Search doctor name or specialty")} placeholder={T("ডাক্তারের নাম বা বিশেষত্ব", "Doctor's name or specialty")} className="min-h-[44px] min-w-0 flex-1 bg-transparent text-[15px] outline-none" />
         </label>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
           <select aria-label={T("বিশেষত্ব", "Specialty")} value={specialty} onChange={(e) => setSpecialty(e.target.value)} className={select}>

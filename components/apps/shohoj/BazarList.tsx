@@ -465,6 +465,7 @@ export function BazarList({
             <input
               type="text"
               inputMode="numeric"
+              aria-label={T("বাজারের বাজেট (টাকা)", "Shopping budget (taka)")}
               placeholder={T("বাজেট লিখুন", "e.g. 1500")}
               value={targetBudgetInput}
               onChange={(e) => setTargetBudgetInput(e.target.value)}

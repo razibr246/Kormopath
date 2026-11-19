@@ -365,7 +365,7 @@ export default function FarmerLayout() {
         </div>
       </footer>
       <nav data-tour="nav" className="farmer-mobile-nav fixed inset-x-3 bottom-0 z-50 lg:hidden" style={{ paddingBottom: 'max(.75rem, env(safe-area-inset-bottom))' }} aria-label={T('কৃষকের পাতা', 'Farmer pages')}>
-        <div className="glass mx-auto grid max-w-lg grid-cols-5 rounded-[28px] border border-white/70 px-1.5 py-1.5 shadow-[0_16px_40px_-10px_rgba(13,38,20,0.38)] backdrop-blur-xl">
+        <div className="glass mx-auto grid max-w-lg grid-cols-5 rounded-[28px] border border-white/70 !bg-white px-1.5 py-1.5 shadow-[0_16px_40px_-10px_rgba(13,38,20,0.38)] backdrop-blur-xl">
           {bottom.map((n) => (
             <NavLink key={n.to} to={n.to} end={n.end} className={({ isActive }) => `flex flex-col items-center gap-0.5 rounded-[22px] py-1 text-[12px] font-semibold transition-all duration-200 active:scale-95 ${isActive ? 'text-primary-950 font-bold' : 'text-ink/70 hover:text-ink'}`}>
               {({ isActive }) => (<><span className={`grid h-7 w-12 place-items-center rounded-full transition-all duration-350 ease-[cubic-bezier(.34,1.4,.64,1)] ${isActive ? 'scale-110 bg-primary-600/20 text-primary-800 shadow-[inset_0_1px_0_rgba(255,255,255,.9),0_2px_8px_-2px_rgba(67,134,58,0.35)]' : 'scale-100'}`}><n.icon size={19} /></span><span>{n.short ?? n.label}</span></>)}

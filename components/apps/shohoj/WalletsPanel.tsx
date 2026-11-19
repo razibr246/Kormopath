@@ -172,8 +172,8 @@ export function WalletsPanel({ txs }: { txs: Transaction[] }) {
         </div>
         {canCashout && (
           <div className="flex flex-wrap gap-3 text-[13px]">
-            <label className="inline-flex items-center gap-1.5 min-h-[44px]"><input type="radio" name="wt-kind" checked={kind === "cashout"} onChange={() => setDraft({ ...draft, kind: "cashout" })} /> {T("ক্যাশ আউট (চার্জ লাগে)", "Cash-out (has a charge)")}</label>
-            <label className="inline-flex items-center gap-1.5 min-h-[44px]"><input type="radio" name="wt-kind" checked={kind === "transfer"} onChange={() => setDraft({ ...draft, kind: "transfer" })} /> {T("চার্জ ছাড়া স্থানান্তর", "Transfer without a charge")}</label>
+            <label className="inline-flex items-center gap-1.5 min-h-[44px]"><input type="radio" className="h-5 w-5 shrink-0" name="wt-kind" checked={kind === "cashout"} onChange={() => setDraft({ ...draft, kind: "cashout" })} /> {T("ক্যাশ আউট (চার্জ লাগে)", "Cash-out (has a charge)")}</label>
+            <label className="inline-flex items-center gap-1.5 min-h-[44px]"><input type="radio" className="h-5 w-5 shrink-0" name="wt-kind" checked={kind === "transfer"} onChange={() => setDraft({ ...draft, kind: "transfer" })} /> {T("চার্জ ছাড়া স্থানান্তর", "Transfer without a charge")}</label>
           </div>
         )}
         {kind === "cashout" && provider && (

@@ -34,3 +34,14 @@ test("selective share omits holder identity and limits lifetime", () => {
   assert.equal(Object.hasOwn(shared.passport!, "track"), false);
   assert.throws(() => issueShare(passport, ["tests"], -1));
 });
+
+test("a selective share always discloses whether the exam was assisted, whatever fields are chosen", () => {
+  const base = { v: 1 as const, name: "Test", track: "Frontend", challenge: "debounce", testsPassed: 6, testsTotal: 6, edgePassed: true, perfPassed: true, vivaScore: 10, vivaTotal: 10, codeSha256: "a".repeat(64), issuedAt: new Date().toISOString() };
+  for (const assisted of [true, false]) {
+    const { token } = issueShare({ ...base, assisted }, ["tests"], 7);
+    const r = check(token);
+    assert.equal(r.valid, true);
+    assert.equal((r.passport as { assisted?: boolean }).assisted, assisted);
+    assert.equal((r.passport as { name?: string }).name, undefined);
+  }
+});

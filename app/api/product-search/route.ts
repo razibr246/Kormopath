@@ -11,7 +11,7 @@ const Body = z.object({ query: z.string().trim().min(2).max(160) });
 
 export async function POST(req: Request) {
   const rl = await checkRateLimitShared(req, { limit: 8, windowMs: 60_000, bucket: "product-search" });
-  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
+  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds, rl.store);
 
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "পণ্যের নাম ২–১৬০ অক্ষরের মধ্যে লিখুন।" }, { status: 400 });

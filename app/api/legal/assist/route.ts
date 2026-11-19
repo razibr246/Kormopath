@@ -45,7 +45,7 @@ Return ONLY JSON: {"answer":"...","helplines":[ids from ${HELPLINE_IDS.join("|")
 
 export async function POST(req: Request) {
   const rl = await checkRateLimitShared(req, { limit: 30, windowMs: 60_000, bucket: "legal-assist" });
-  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
+  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds, rl.store);
   const tracer = new Tracer("LegalAssistant");
   const p = Body.safeParse(await req.json().catch(() => ({})));
   if (!p.success) return NextResponse.json({ error: "বার্তাটি খালি বা খুব বড়।" }, { status: 400 });

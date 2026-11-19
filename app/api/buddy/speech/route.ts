@@ -18,7 +18,7 @@ const STYLE = "Warm, calm and friendly; standard Bangladeshi Bangla as spoken by
 
 export async function POST(req: Request) {
   const rl = await checkRateLimitShared(req, { limit: 12, windowMs: 60_000, bucket: "buddy-speech" });
-  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
+  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds, rl.store);
 
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "বাংলা কণ্ঠে পড়ার জন্য লেখা দিন।" }, { status: 400 });

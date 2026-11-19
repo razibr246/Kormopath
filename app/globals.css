@@ -792,7 +792,7 @@ button.kp-chip:hover, a.kp-chip:hover { border-color: rgba(201, 144, 65, 0.72); 
 }
 
 .kp-btn-primary, .kp-btn-sun, .kp-btn-ghost {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; padding: 0 18px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 18px;
   border-radius: 14px; font-weight: 700; font-size: 14px; white-space: nowrap;
   transition: transform .25s var(--kp-ease), box-shadow .25s var(--kp-ease), background-color .2s;
 }
@@ -1168,7 +1168,7 @@ a:focus-visible, button:focus-visible, [role="tab"]:focus-visible, summary:focus
 @media (max-width: 399px) {
   .kp-app-tagline { display: none; }
   .kp-app-name { white-space: normal; overflow: visible; text-overflow: clip; font-size: 17px; line-height: 1.15; }
-  .kp-switcher-label { display: none; }
+  .kp-switcher-label { max-width: 6.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   /* If a page adds header actions, they move to a second row instead of squeezing the name. */
   .kp-nav:has(.kp-app-brand) { flex-wrap: wrap; row-gap: 6px; }
   .kp-app-brand { flex: 1 0 auto; max-width: 100%; }

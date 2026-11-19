@@ -232,12 +232,15 @@ export function Telemetry({
   return (
     <>
       <aside className="hidden lg:block lg:sticky lg:top-[68px] lg:h-[calc(100vh-84px)]">{body}</aside>
-      <button
+      {/* Phone only: appears once an agent has run (more than the boot line), above the safe area on the right, so it
+          never sits on top of the step-1 call to action on first view. */}
+      {steps.length > 1 && <button
         onClick={() => setSheet(true)}
-        className="fixed bottom-4 left-4 z-30 inline-flex items-center gap-2 rounded-full bg-[#170f0a] border border-[#3a2b1f] px-4 py-3 text-[14px] font-semibold text-white shadow-xl hover:border-slate-600 transition-colors lg:hidden"
+        aria-label={`Telemetry: ${steps.length} agent steps`}
+        className="fixed bottom-[calc(env(safe-area-inset-bottom)+16px)] right-4 z-30 inline-flex items-center gap-2 rounded-full bg-[#170f0a] border border-[#3a2b1f] px-4 py-3 text-[14px] font-semibold text-white shadow-xl hover:border-slate-600 transition-colors lg:hidden"
       >
         <Activity size={16} /> Telemetry ({steps.length})
-      </button>
+      </button>}
       {sheet && (
         <div className="fixed inset-0 z-40 flex flex-col bg-[#170f0a] p-4 lg:hidden" role="dialog" aria-label="Agent telemetry">
           <button onClick={() => setSheet(false)} className="mb-2 self-end rounded-lg border border-[#3a2b1f] bg-[#142036] p-2 text-slate-300 hover:text-white" aria-label="Close telemetry">

@@ -118,3 +118,11 @@ test("admin demo: banner says demo/this device only/no payments, page is noindex
   assert.match(page, /robots:\s*\{\s*index:\s*false/);
   assert.equal(PAYMENT_CONFIG.receiver, null);
 });
+
+test("admin desk: hidden in production unless NEXT_PUBLIC_HEALTH_ADMIN_DEMO=on, open in development", async () => {
+  const { adminDeskEnabled } = await import("../lib/health/adminGate.ts");
+  assert.equal(adminDeskEnabled({ NODE_ENV: "production" }), false);
+  assert.equal(adminDeskEnabled({ NODE_ENV: "production", NEXT_PUBLIC_HEALTH_ADMIN_DEMO: "yes" }), false);
+  assert.equal(adminDeskEnabled({ NODE_ENV: "production", NEXT_PUBLIC_HEALTH_ADMIN_DEMO: "on" }), true);
+  assert.equal(adminDeskEnabled({ NODE_ENV: "development" }), true);
+});

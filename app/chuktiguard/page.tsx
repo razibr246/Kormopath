@@ -13,7 +13,6 @@ import {
   type ChuktiInvoice,
   type InvoiceMilestone,
   SAMPLE_CHUKTI_PRESETS,
-  NBR_ITES_DECLARATION,
   generateClause4Text,
   calculateInvoiceFinOps,
 } from "@/lib/chuktiguard";
@@ -286,7 +285,7 @@ export default function ChuktiGuardPage() {
               <div className="flex max-w-full flex-wrap items-center gap-1 rounded-xl border border-slate-200 bg-slate-100 p-1">
                 <button
                   onClick={() => setActiveTab("preview")}
-                  className={`rounded-lg px-3 py-1 text-[13px] font-semibold transition-all ${
+                  className={`inline-flex min-h-[44px] items-center rounded-lg px-3 py-1 text-[13px] font-semibold transition-all ${
                     activeTab === "preview"
                       ? "bg-white text-indigo-700 shadow-xs"
                       : "text-slate-600 hover:text-slate-900"
@@ -296,7 +295,7 @@ export default function ChuktiGuardPage() {
                 </button>
                 <button
                   onClick={() => setActiveTab("editor")}
-                  className={`rounded-lg px-3 py-1 text-[13px] font-semibold transition-all ${
+                  className={`inline-flex min-h-[44px] items-center rounded-lg px-3 py-1 text-[13px] font-semibold transition-all ${
                     activeTab === "editor"
                       ? "bg-white text-indigo-700 shadow-xs"
                       : "text-slate-600 hover:text-slate-900"
@@ -306,7 +305,7 @@ export default function ChuktiGuardPage() {
                 </button>
                 <button
                   onClick={() => setActiveTab("clause4")}
-                  className={`rounded-lg px-3 py-1 text-[13px] font-semibold transition-all ${
+                  className={`inline-flex min-h-[44px] items-center rounded-lg px-3 py-1 text-[13px] font-semibold transition-all ${
                     activeTab === "clause4"
                       ? "bg-white text-indigo-700 shadow-xs"
                       : "text-slate-600 hover:text-slate-900"
@@ -316,7 +315,7 @@ export default function ChuktiGuardPage() {
                 </button>
                 <button
                   onClick={() => setActiveTab("dispute")}
-                  className={`rounded-lg px-3 py-1 text-[13px] font-semibold transition-all ${
+                  className={`inline-flex min-h-[44px] items-center rounded-lg px-3 py-1 text-[13px] font-semibold transition-all ${
                     activeTab === "dispute"
                       ? "bg-white text-rose-700 shadow-xs font-bold"
                       : "text-slate-600 hover:text-slate-900"
@@ -331,13 +330,13 @@ export default function ChuktiGuardPage() {
                 <span className="text-slate-500 font-medium">Presets:</span>
                 <button
                   onClick={() => handleSelectPreset(0)}
-                  className="rounded-lg border border-slate-200 bg-white px-2 py-1 font-semibold text-slate-700 hover:bg-slate-50"
+                  className="inline-flex min-h-[44px] items-center rounded-lg border border-slate-200 bg-white px-2 py-1 font-semibold text-slate-700 hover:bg-slate-50"
                 >
                   Dev Sprint
                 </button>
                 <button
                   onClick={() => handleSelectPreset(1)}
-                  className="rounded-lg border border-slate-200 bg-white px-2 py-1 font-semibold text-slate-700 hover:bg-slate-50"
+                  className="inline-flex min-h-[44px] items-center rounded-lg border border-slate-200 bg-white px-2 py-1 font-semibold text-slate-700 hover:bg-slate-50"
                 >
                   UI/UX Design
                 </button>

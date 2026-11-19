@@ -91,7 +91,7 @@ export function VoiceChat({ v }) {
             </form>
           </div>
         </div>
-        <label className="mt-2 flex items-center gap-2 text-[13px] text-muted"><input type="checkbox" checked={v.handsFree} onChange={(e) => v.setHandsFree(e.target.checked)} />{T('উত্তরের পর নিজে থেকে আবার শুনুক (ফোনে হাত খালি না থাকলে)', 'Keep listening after each reply (hands-free)')}</label>
+        <label className="mt-2 flex min-h-11 items-center gap-2 text-[13px] text-muted"><input type="checkbox" checked={v.handsFree} onChange={(e) => v.setHandsFree(e.target.checked)} className="h-6 w-6 shrink-0 accent-primary-700" />{T('উত্তরের পর নিজে থেকে আবার শুনুক (ফোনে হাত খালি না থাকলে)', 'Keep listening after each reply (hands-free)')}</label>
       </div>
     </Card>
   );

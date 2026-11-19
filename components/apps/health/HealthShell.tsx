@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { adminDeskEnabled } from "@/lib/health/adminGate";
 import { usePathname } from "next/navigation";
 import { useActiveTabIntoView } from "@/components/layout/useActiveTabIntoView";
 import { Ambulance, Bot, CalendarCheck, HeartPulse, Hospital, Pill, ShieldCheck, Stethoscope } from "lucide-react";
@@ -18,7 +19,7 @@ export const HEALTH_NAV = [
   { href: "/mediscan/appointments", bn: "আমার অ্যাপয়েন্টমেন্ট", en: "My appointments", icon: CalendarCheck },
   { href: "/mediscan/assistant", bn: "কোন ডাক্তার দেখাব?", en: "Which doctor?", icon: Bot },
   { href: "/mediscan/services", bn: "অ্যাম্বুলেন্স ও সেবা", en: "Ambulance & services", icon: Ambulance },
-  { href: "/mediscan/admin", bn: "অ্যাডমিন ডেমো", en: "Admin demo", icon: ShieldCheck },
+  ...(adminDeskEnabled() ? [{ href: "/mediscan/admin", bn: "অ্যাডমিন ডেমো", en: "Admin demo", icon: ShieldCheck }] : []),
 ] as const;
 
 export function HealthShell({ children }: { children: React.ReactNode }) {

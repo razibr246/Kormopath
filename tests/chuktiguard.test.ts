@@ -289,25 +289,12 @@ test("generateClause4Text — includes Force Majeure and legal protection provis
 // 4. Statutory NBR ITES Tax Exemption Notice (NBR_ITES_DECLARATION)
 // ============================================================================
 
-test("NBR_ITES_DECLARATION — English notice includes Sixth Schedule Para 33, Section 52, and 0% AIT exemption", () => {
-  assert.ok(NBR_ITES_DECLARATION.en.includes("Sixth Schedule (Part A, Paragraph 33)"));
-  assert.ok(NBR_ITES_DECLARATION.en.includes("Section 52"));
-  assert.ok(NBR_ITES_DECLARATION.en.includes("Income Tax Act 2023"));
-  assert.ok(NBR_ITES_DECLARATION.en.includes("100% EXEMPT from Advance Income Tax (AIT) withholding at source"));
-  assert.ok(NBR_ITES_DECLARATION.en.includes("2.5% Cash Incentive"));
-  assert.ok(NBR_ITES_DECLARATION.en.includes("Bangladesh Bank FE Circular No. 02/2022"));
-  assert.ok(NBR_ITES_DECLARATION.en.includes("Information Technology Enabled Services (ITES)"));
-  assert.ok(NBR_ITES_DECLARATION.en.includes("Software Development"));
-  assert.ok(NBR_ITES_DECLARATION.en.includes("Cloud Engineering"));
-});
-
-test("NBR_ITES_DECLARATION — Bengali notice includes Income Tax Act 2023, 6th Schedule, and 100% tax-free citations", () => {
-  assert.ok(NBR_ITES_DECLARATION.bn.includes("জাতীয় রাজস্ব বোর্ড (এনবিআর)"));
-  assert.ok(NBR_ITES_DECLARATION.bn.includes("আয়কর আইন ২০২৩ (বাংলাদেশ)-এর ষষ্ঠ তফসিল (অংশ ক, অনুচ্ছেদ ৩৩)"));
-  assert.ok(NBR_ITES_DECLARATION.bn.includes("৫২ ধারা অনুযায়ী"));
-  assert.ok(NBR_ITES_DECLARATION.bn.includes("উৎসে কর কর্তন (AIT) থেকে সম্পূর্ণ অব্যাহতিপ্রাপ্ত (১০০% করমুক্ত)"));
-  assert.ok(NBR_ITES_DECLARATION.bn.includes("বাংলাদেশ ব্যাংক সার্কুলার নং ০২/২০২২"));
-  assert.ok(NBR_ITES_DECLARATION.bn.includes("২.৫% নগদ প্রণোদনা"));
+test("NBR_ITES_DECLARATION — a sourced tax note with no unverified section, SRO or circular numbers", () => {
+  for (const text of [NBR_ITES_DECLARATION.en, NBR_ITES_DECLARATION.bn]) {
+    assert.ok(!/Section 52|Paragraph 33|SRO|02\/2022|৫২ ধারা|অনুচ্ছেদ ৩৩|০২\/২০২২|100%|১০০%/.test(text), text.slice(0, 60));
+  }
+  assert.ok(NBR_ITES_DECLARATION.en.includes("not tax advice") && NBR_ITES_DECLARATION.en.includes("confirm with your bank"));
+  assert.ok(NBR_ITES_DECLARATION.bn.includes("কর পরামর্শ নয়") && NBR_ITES_DECLARATION.bn.includes("ব্যাংক"));
 });
 
 // ============================================================================

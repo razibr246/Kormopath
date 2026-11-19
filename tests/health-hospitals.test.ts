@@ -117,3 +117,9 @@ test("shops mis-tagged as hospitals are never offered in an emergency", async ()
   assert.equal(notEmergencyCare("সোনার বাংলা ফার্মেসি"), true);
   assert.equal(notEmergencyCare("Ibn Sina Hospital & Diagnostic"), false);
 });
+
+test("emergency list drops dental, physiotherapy and addiction centres but keeps hospitals with 'Rehabilitation' or 'Niramoy' in the name", async () => {
+  const { notEmergencyCare } = await import("../lib/health/hospitals.ts");
+  for (const n of ["Tooth Fairy", "Uk Physiotherapy and Rehabilitation Center", "সুপ্রভাত মাদকাসক্তি সেন্টার"]) assert.equal(notEmergencyCare(n), true, n);
+  for (const n of ["National Institute of Traumatology & Orthopaedic Rehabilitation (NITOR)", "Mukti General Hospital মুক্তি জেনারেল হাসপাতাল লিঃ", "Niramoy Hospital নিরাময় হাসপাতাল", "Dhaka Medical College Hospital"]) assert.equal(notEmergencyCare(n), false, n);
+});

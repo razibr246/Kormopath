@@ -10,7 +10,7 @@ export const runtime = "nodejs";
 
 export async function GET(req: Request) {
   const rl = await checkRateLimitShared(req, { limit: 60, windowMs: 60_000, bucket: "weather" });
-  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
+  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds, rl.store);
 
   const id = new URL(req.url).searchParams.get("d") ?? "";
   const district = DISTRICTS.find((d) => d.id === id);

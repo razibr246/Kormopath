@@ -102,7 +102,7 @@ export interface FeeParam {
 export const FEES: Record<string, FeeParam> = {
   fiverrFee: {
     id: "fiverrFee", label: "Fiverr seller service fee", value: 20, unit: "%",
-    source: { label: "Fiverr Terms of Service: 20% on each completed transaction", url: "https://conductatlas.com/platform/fiverr/fiverr-terms-of-service/seller-revenue-commission-and-withdrawal-terms/", checked: "2026-10-29", confidence: "official" },
+    source: { label: "Fiverr's Terms of Service, as summarised by conductatlas.com: 20% on each completed transaction", url: "https://conductatlas.com/platform/fiverr/fiverr-terms-of-service/seller-revenue-commission-and-withdrawal-terms/", checked: "2026-10-29", confidence: "reported" },
   },
   fiverrWithdraw: {
     id: "fiverrWithdraw", label: "Fiverr to Payoneer withdrawal fee", value: 3, unit: "USD",
@@ -138,7 +138,7 @@ export const FEES: Record<string, FeeParam> = {
   },
   freelancerIncentive: {
     id: "freelancerIncentive", label: "Bangladesh Bank cash incentive, individual software/ITES freelancers", value: 2.5, unit: "%",
-    source: { label: "Bangladesh Bank FY2026-27 export incentive circular: individual freelancers exporting software/ITES get 2.5%", url: "https://thefinancialexpress.com.bd/trade/bb-announces-export-incentives-for-43-sectors-for-fy26-27", checked: "2026-10-29", confidence: "official" },
+    source: { label: "Bangladesh Bank FY2026-27 export incentive circular, as reported by The Financial Express: individual software/ITES freelancers get 2.5%", url: "https://thefinancialexpress.com.bd/trade/bb-announces-export-incentives-for-43-sectors-for-fy26-27", checked: "2026-10-29", confidence: "reported" },
   },
 };
 

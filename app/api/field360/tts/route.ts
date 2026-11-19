@@ -22,7 +22,7 @@ const STYLE = {
 
 export async function POST(req: Request) {
   const rl = await checkRateLimitShared(req, { limit: 30, windowMs: 60_000, bucket: "field360-tts" });
-  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
+  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds, rl.store);
   const p = Body.safeParse(await req.json().catch(() => null));
   if (!p.success) return NextResponse.json({ error: "text missing or too long" }, { status: 400 });
   if (!geminiAvailable()) return NextResponse.json({ error: "voice not configured" }, { status: 503 });

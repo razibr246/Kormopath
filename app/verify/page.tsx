@@ -82,12 +82,14 @@ export default async function Verify({ searchParams }: { searchParams: Promise<{
                   <dd className="font-mono font-bold text-emerald-700 mt-0.5">{p.vivaScore}/{p.vivaTotal}</dd>
                 </div>
               )}
+              <div>
+                <dt className="text-[12px] font-semibold text-slate-600 uppercase tracking-wider">Assistance Status</dt>
+                <dd className={`font-semibold mt-0.5 ${p.assisted ? "text-amber-800" : "text-slate-800"}`} data-testid="verify-assisted">
+                  {p.assisted === undefined ? "Not recorded in this older share link" : p.assisted ? "Assisted: viewed the reference fix or a model answer" : "Independent solution (no reference fix viewed)"}
+                </dd>
+              </div>
               {p.v === 1 && (
                 <>
-                  <div>
-                    <dt className="text-[12px] font-semibold text-slate-600 uppercase tracking-wider">Assistance Status</dt>
-                    <dd className="font-semibold text-slate-800 mt-0.5">{p.assisted ? "Viewed reference fix" : "Independent solution (zero assistance)"}</dd>
-                  </div>
                   <div className="min-w-0">
                     <dt className="text-[12px] font-semibold text-slate-600 uppercase tracking-wider">Code SHA-256 Fingerprint</dt>
                     <dd className="truncate font-mono text-[11px] font-medium text-slate-700 mt-0.5 bg-slate-50 border border-slate-200/80 rounded px-1.5 py-0.5">{p.codeSha256}</dd>

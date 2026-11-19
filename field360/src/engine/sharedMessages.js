@@ -1,7 +1,9 @@
 // Officer → farmer messages through api/messages.js. When the store cannot be reached the app keeps working with
 // the messages in this browser.
 const BASE = '/api/field360/messages';
-let unavailable = false;
+// KormoPath has no database by design, so /api/field360/messages always answers 503. Skip the request (and its
+// console error) unless a shared board is deployed and NEXT_PUBLIC_FIELD360_SHARED=1 is set.
+let unavailable = process.env.NEXT_PUBLIC_FIELD360_SHARED !== '1';
 
 async function storageDisabled(r) {
   if (r.status !== 503 || !(r.headers.get('content-type') || '').includes('json')) return false;

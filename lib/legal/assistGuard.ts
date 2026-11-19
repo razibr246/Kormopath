@@ -24,7 +24,7 @@ const CRISIS = [
   "domestic violence", "want to die",
   // added after the paraphrase suite (tests/legal-crisis-paraphrase.test.ts)
   "violence", "voilence", "stalk", "molest", "groped", "sexually harass", "sexual harass", "touched me", "not safe", "unsafe at home",
-  "force", "forcing", "child marriage", "জোর করে বিয়ে", "বাল্যবিবাহ", "বাল্য বিবাহ", "jor kore biye", "নিরাপদ না", "নিরাপদ নই", "nirapod na", "nirapod noi",
+  "child marriage", "forced marriage", "জোর করে বিয়ে", "বাল্যবিবাহ", "বাল্য বিবাহ", "jor kore biye", "নিরাপদ না", "নিরাপদ নই", "nirapod na", "nirapod noi",
   "গলা টিপে", "gola tipe", "লাথি", "laathi", "lathi mare", "mardhor", "pachar", "jouno hoyrani", "jouno hoirani", "atke rakh", "মারার কথা", "মারার হুমকি",
 ];
 // Everyday phrasing in English and Banglish ("my husband hits me every night", "amake mare", "marbe bole hymki").
@@ -34,6 +34,15 @@ const CRISIS_PATTERNS: readonly RegExp[] = [
   /\b(amake|amay|amaire|take|oke|bou ke|bachcha ke|baccha ke)\s*(mare|maare|marche|maarche|marse|maarse|pitay|petay|marbe|mere felbe|mere fel)\b/i,
   /\b(mere felbe|mere felar|marbe bole|khun korbe|acid marbe)\b/i,
   /(মেরে ফেলবে|মেরে ফেলার|প্রাণে মারার|খুন করবে|এসিড মারবে|গায়ে হাত তোলে|গায়ে হাত তুলে)/,
+  // "force" only as coercion, never inside "enforced" or "the law in force".
+  /\bforc(e|es|ed|ing)\s+(me|her|him|us|my|them|to|into)\b/i,
+  /\bpush(es|ed|ing)?\s+(me|her|him|my \w+)\b[\s\S]{0,25}\b(down|stairs|wall|floor|out)\b/i,
+  /\block(s|ed|ing)?\s+(me|her|him|us|my \w+)\s+(in|inside|up)\b|\blocked (in|inside) (a|the|my) room\b/i,
+  /(ঘরে আটকে|আটকে রাখে|আটকে রাখছে|তালা দিয়ে রাখে|gaye ha+t (tole|tule|tola)|gaye hath (tole|tule))/i,
+  /\b(send|sending|sent|share|sharing|shared|post|posting|posted|leak\w*|upload\w*|spread\w*)\b[\s\S]{0,25}\b(private|nude|naked|intimate|personal)\s+(photo|pic|picture|image|video)s?\b|(ছবি|ভিডিও)[\s\S]{0,20}(ছড়িয়ে দেবে|ছড়িয়ে দিচ্ছে|ভাইরাল করবে|ফাঁস)/i,
+  /\b(demand\w*|ask\w*|want\w*|pressur\w*)\b[\s\S]{0,15}\b(sex|sexual favou?rs?|to sleep with)\b|\b(boss|manager|teacher|landlord)\b[\s\S]{0,30}\b(sex|sleep with me|touch\w*)\b/i,
+  /\b(scared|afraid|terrified|frightened) (to go|of going) (back )?home\b|বাড়ি (যেতে|ফিরতে) ভয়|বাসায় (যেতে|ফিরতে) ভয়/i,
+  /\bmarry (off|her off)\b[\s\S]{0,30}\b(1[0-7]|[5-9])\b|\b(1[0-7]|[5-9])[ -]?(years?|yrs?)[ -]?old\b[\s\S]{0,30}\b(marr\w*|biye|wedding)\b|\b(marr\w*|biye)\b[\s\S]{0,30}\b(1[0-7]|[5-9])[ -]?(years?|yrs?)[ -]?old\b/i,
 ];
 
 export function isCrisis(text: string): boolean {
@@ -55,7 +64,7 @@ const SECTION = /(ধারা|অনুচ্ছেদ|উপধারা|দ�
 const MONEY = /([0-9][0-9,.]*\s*(টাকা|tk\.?|taka|bdt|৳|লাখ|লক্ষ|হাজার|lakh|crore|কোটি))|((৳|tk\.?|bdt)\s*[0-9])/i;
 const PROMISE = /(মামলা|কেস|আবেদন)\s*(দায়ের|দাখিল|ফাইল|জমা)\s*(হয়ে গেছে|করা হয়েছে|হয়েছে|করে দিয়েছি)|নিশ্চিতভাবে\s*(জিত|পাবেন)|অবশ্যই\s*(জিতবেন|পাবেন)|আপনি\s*জিতবেন|পাবেনই|গ্যারান্টি|guarantee|you will win|your (case|application) (is|has been) (filed|submitted|registered)|i (have )?filed/i;
 // Eligibility and outcomes are decided by the legal aid office or the court, never by us.
-const DECIDES_FOR_THEM = /\byou (are|'re) (definitely |certainly |clearly )?(eligible|qualified|entitled)\b|\byou (will|'ll) (definitely |surely |certainly )?(get|win|receive|be granted)\b|\b(definitely|certainly) (will|get|win)\b|\b(don'?t|do not|won'?t) need (a |any )?lawyer\b|no need (for|of) (a )?lawyer|আপনি\s*(অবশ্যই\s*)?যোগ্য|আইনজীবীর\s*(কোনো\s*)?(দরকার|প্রয়োজন)\s*নেই|নিশ্চিত(ভাবে)?\s*পাবেন/i;
+const DECIDES_FOR_THEM = /\byou (are|'re) (definitely |certainly |clearly )?(eligible|qualified|entitled)\b|\byou (will|'ll) (definitely |surely |certainly )?(get|win|receive|be granted)\b|\b(definitely|certainly) (will|get|win)\b|\b(don'?t|do not|won'?t) need (a |any )?lawyer\b|no need (for|of) (a )?lawyer|আপনি\s*(অবশ্যই\s*)?যোগ্য|আইনজীবীর\s*(কোনো\s*)?(দরকার|প্রয়োজন)\s*নেই|নিশ্চিত(ভাবে)?\s*পাবেন|\byou (do |will )?qualify\b|\b(court|judge|office|they) (will|would) (surely|definitely|certainly|obviously)\b|\b(should|will|would) win (easily|for sure)\b|\bcosts? (you )?nothing( at all)?\b|\bwill cost (you )?nothing\b/i;
 
 /** Every problem in a model answer, or [] when it can be shown. */
 export function checkAnswer(answer: string, ctx: GuardContext): GuardIssue[] {

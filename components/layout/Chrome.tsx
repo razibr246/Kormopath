@@ -111,7 +111,7 @@ export function Navbar(props?: {
               type="button"
               onClick={onOpenEcosystem}
               aria-expanded={isEcosystemOpen}
-              className={`kp-chip kp-apps-button hidden font-semibold sm:inline-flex ${isEcosystemOpen ? "kp-chip-on" : ""}`}
+              className={`kp-chip kp-apps-button hidden min-h-[44px] font-semibold sm:inline-flex ${isEcosystemOpen ? "kp-chip-on" : ""}`}
               aria-label={bn ? "সব অ্যাপ খুলুন" : "Open all apps"}
             >
               <LayoutGrid size={14} className="text-orange-600" />

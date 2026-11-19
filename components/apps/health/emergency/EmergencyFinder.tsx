@@ -221,15 +221,19 @@ export function EmergencyFinder() {
               </div>
             )}
             <ol className="grid gap-3 lg:grid-cols-3">
-              {ranked.slice(0, 12).map((h, i) => {
-                const name = bn ? (h.nameBn ?? h.name) : (h.nameEn ?? h.name);
+              {ranked.slice(0, 12).map((h, i, shown) => {
+                const nameOf = (x: typeof h) => bn ? (x.nameBn ?? x.name) : (x.nameEn ?? x.name);
+                const name = nameOf(h);
+                // Two places with the same name (branches) are told apart by their map address, else by distance.
+                const twin = shown.some((o) => o.id !== h.id && nameOf(o) === name);
+                const where = twin ? (h.address?.split(",")[0]?.trim() || T(`${num(h.km.toFixed(1))} কিমি দূরে`, `${h.km.toFixed(1)} km away`)) : "";
                 const top = i < 3;
                 return (
                   <li key={h.id} data-testid="hospital-card" className={`em-rise rounded-2xl border bg-white p-4 ${top ? "border-sky-400" : "border-slate-200"} ${i >= 3 ? "lg:col-span-1" : ""}`} style={{ animationDelay: `${Math.min(i, 8) * 60}ms` }}>
                     <div className="flex items-start gap-3">
                       <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full font-mono text-[14px] font-bold text-white ${top ? "bg-red-700" : "bg-sky-800"}`}>{num(i + 1)}</span>
                       <div className="min-w-0">
-                        <h3 className="text-[17px] font-bold leading-snug text-slate-900">{name}</h3>
+                        <h3 className="text-[17px] font-bold leading-snug text-slate-900">{name}{where && <span className="font-semibold text-slate-600"> · {where}</span>}</h3>
                         <p className="mt-0.5 text-[13.5px] text-slate-600">
                           <span className="font-mono">{T(`${num(h.km.toFixed(1))} কিমি`, `${h.km.toFixed(1)} km`)}</span> · <Clock size={13} className="inline" aria-hidden /> {T(`গাড়িতে আনুমানিক ${num(h.minutes)} মিনিট`, `approx. ${h.minutes} min by road`)}
                         </p>

@@ -50,7 +50,7 @@ async function githubSkills(user: string, tracer: Tracer): Promise<CheckedSkill[
 
 export async function POST(req: Request) {
   const rl = await checkRateLimitShared(req, { limit: 30, windowMs: 60_000, bucket: "audit" });
-  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
+  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds, rl.store);
 
   const tracer = new Tracer("Auditor");
   const parsed = Body.safeParse(await req.json().catch(() => ({})));

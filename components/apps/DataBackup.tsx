@@ -15,7 +15,7 @@ export function DataBackup({ onRestore }: { onRestore: () => void }) {
   const [lockedText, setLockedText] = useState<string | null>(null);
   const [importPass, setImportPass] = useState("");
   const [busy, setBusy] = useState(false);
-  const button = "rounded-lg border border-slate-300 px-3 py-2 text-sm font-bold disabled:opacity-40";
+  const button = "inline-flex min-h-[44px] items-center rounded-lg border border-slate-300 px-3 py-2 text-sm font-bold disabled:opacity-40";
 
   async function exportAll() {
     setError(""); setMessage("");

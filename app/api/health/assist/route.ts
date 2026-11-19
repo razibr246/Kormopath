@@ -33,11 +33,12 @@ Rules: never name a disease or condition as what the person has, never say "you 
 Children go to paediatrics; pregnancy-related problems to gynaecology; when unsure, medicine.
 whyBn / whyEn: one or two plain sentences on why this kind of doctor looks after the problem the person described, in general words.
 tellDoctor: 2-4 short points (in the person's language) of facts from their own words they should tell the doctor; add nothing they did not say.
-Return ONLY JSON {"specialtyId":"...","whyBn":"...","whyEn":"...","tellDoctor":["..."]}.`;
+urgent: true if ANYTHING the person wrote could be an emergency that needs 999 or an emergency department now (for example chest pain, pressure or crushing with sweating or breathlessness, trouble breathing, collapse, a seizure, heavy bleeding, a large burn, a snake bite, poisoning or many pills taken, thoughts of self-harm, a stiff neck with fever, a sudden worst-ever headache, bleeding in pregnancy). When in doubt, true.
+Return ONLY JSON {"urgent":false,"specialtyId":"...","whyBn":"...","whyEn":"...","tellDoctor":["..."]}.`;
 
 export async function POST(req: Request) {
   const rl = await checkRateLimitShared(req, { limit: 20, windowMs: 60_000, bucket: "health-assist" });
-  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
+  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds, rl.store);
   const tracer = new Tracer("HealthAssistant");
   const p = Body.safeParse(await req.json().catch(() => ({})));
   if (!p.success) return NextResponse.json({ error: "উপসর্গ লিখুন (২ থেকে ১৫০০ অক্ষর)।" }, { status: 400 });
@@ -59,7 +60,8 @@ export async function POST(req: Request) {
 
   // 2. Model answer, checked inside the schema (repair loop on any violation).
   const Answer = z.object({
-    specialtyId: z.string().max(30),
+    urgent: z.boolean(),
+    specialtyId: z.enum(SPECIALTY_IDS as unknown as [SpecialtyId, ...SpecialtyId[]]),
     whyBn: z.string().min(5).max(400),
     whyEn: z.string().min(5).max(400),
     tellDoctor: z.array(z.string().min(2).max(200)).min(1).max(4),
@@ -69,6 +71,11 @@ export async function POST(req: Request) {
   const areas = b.areas.map((a) => BODY_AREAS.find((x) => x.id === a)?.en).filter(Boolean).join(", ");
   const prompt = `LANGUAGE: ${b.lang === "bn" ? "Bangla" : "English"}\nWHO: ${b.ageGroup}\nBODY AREAS TAPPED: ${areas || "none"}\nTHE PERSON WROTE: """${b.text}"""\nRULE-BASED SUGGESTION: ${route.specialty?.id ?? "medicine"}`;
   const llm = await structured(tracer, Answer, SYSTEM, prompt, undefined, { cache: false });
+  // A second safety net: the model is asked whether anything could be an emergency, and "urgent" wins over routing.
+  if (llm?.data.urgent) {
+    tracer.log("model-triage", "The model flagged possible emergency signs the fixed rules missed → 999 now", "warn");
+    return NextResponse.json({ mode: "route", emergency: true, redFlags: [], engine: llm.model, raw: llm.raw, trace: tracer.steps });
+  }
   if (llm && (SPECIALTY_IDS as readonly string[]).includes(llm.data.specialtyId)) {
     tracer.log("health-guard", "No diagnosis, medicine or dose; specialty from the fixed list", "ok");
     const sp = specialtyById(llm.data.specialtyId)!;

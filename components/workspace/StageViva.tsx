@@ -484,7 +484,7 @@ export function StageViva(props: {
                     মেয়াদ <select value={shareDays} onChange={(e) => setShareDays(Number(e.target.value))} className="rounded-md border border-slate-300 bg-white px-2 py-0.5 text-xs"><option value={1}>১ দিন</option><option value={7}>৭ দিন</option><option value={30}>৩০ দিন</option></select>
                   </label>
                 </div>
-                <p className="mt-1.5 text-xs text-slate-500">নাম, সাহায্য নেওয়ার তথ্য ও code fingerprint প্রকাশ হবে না। লিংক মেয়াদ শেষে অকার্যকর।</p>
+                <p className="mt-1.5 text-xs text-slate-500">নাম ও code fingerprint প্রকাশ হবে না। সাহায্য নিয়েছেন কি না (reference fix দেখা) সবসময় দেখানো হবে। লিংক মেয়াদ শেষে অকার্যকর।</p>
                 {shareError && <p role="alert" className="mt-1 text-xs text-red-700 font-semibold">{shareError}</p>}
                 {link && <p className="mt-2 break-all font-mono text-[12px] text-slate-700 bg-white/80 p-2 rounded-lg border border-slate-200/80">{link}</p>}
               </div>

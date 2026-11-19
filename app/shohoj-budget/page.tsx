@@ -7,6 +7,11 @@ import {
   Smartphone, ShoppingBasket, HandCoins, UtensilsCrossed, Gem, NotebookPen,
 } from "lucide-react";
 import { AppHeader } from "@/components/layout/AppHeader";
+import { bnDigits } from "@/lib/contract";
+
+const BN_MONTH_NAMES = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
+/** "2026-11" -> "নভেম্বর ২০২৬" (the value stays ISO; only the label is Bangla). */
+const bnMonth = (m: string) => { const [y, mo] = m.split("-"); const name = BN_MONTH_NAMES[Number(mo) - 1]; return name ? `${name} ${bnDigits(y)}` : bnDigits(m); };
 import { useActiveTabIntoView } from "@/components/layout/useActiveTabIntoView";
 import { AppFooter } from "@/components/layout/AppFooter";
 import { RentPocketsPanel } from "@/components/apps/RentPocketsPanel";
@@ -447,7 +452,7 @@ export default function ShohojBudgetPage() {
             <div className="flex items-center justify-between gap-2">
               <label className="text-[12px] font-bold uppercase tracking-wide text-slate-500" htmlFor="month">মাস</label>
               <select id="month" value={month} onChange={(e) => setMonth(e.target.value)} className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-[13px] font-semibold min-h-[44px]">
-                {months.map((m) => <option key={m} value={m}>{m}</option>)}
+                {months.map((m) => <option key={m} value={m}>{bnMonth(m)}</option>)}
               </select>
             </div>
             <div className="mt-3 flex items-end justify-between gap-3">
@@ -477,7 +482,7 @@ export default function ShohojBudgetPage() {
           <div className="rounded-2xl border border-slate-200 bg-white p-4">
             <span className="block text-[12px] text-slate-500">{isCurrentMonth ? "আজ থেকে প্রতিদিন খরচ করা যাবে" : "মাস শেষে অবশিষ্ট"}</span>
             <strong className="text-[24px] font-extrabold text-emerald-700">{isCurrentMonth ? tk(pace.safePerDayPoisha) : tk(Math.max(0, pace.remainingPoisha))}</strong>
-            {isCurrentMonth && <span className="block text-[12px] text-slate-500">অবশিষ্ট বাজেট ÷ বাকি {pace.daysLeftIncludingToday} দিন (আজসহ)</span>}
+            {isCurrentMonth && <span className="block text-[12px] text-slate-500">অবশিষ্ট বাজেট ÷ বাকি {bnDigits(String(pace.daysLeftIncludingToday))} দিন (আজসহ)</span>}
             {isCurrentMonth && summary.expensePoisha > 0 && (
               <p className="mt-2 text-[12px] text-slate-600">
                 এই গতিতে চললে মাস শেষে মোট খরচ প্রায় <strong>{tk(pace.projectedPoisha)}</strong> হতে পারে। <span className="text-slate-500">(সরল অনুমান, নিশ্চয়তা নয়)</span>
@@ -743,7 +748,7 @@ export default function ShohojBudgetPage() {
             {/* Ledger */}
             <section aria-labelledby="ledger-h" className="rounded-2xl border border-slate-200 bg-white p-5">
               <div className="mb-3 flex items-center justify-between border-b border-slate-100 pb-3">
-                <h2 id="ledger-h" className="text-[17px] font-bold">লেনদেন — {month} ({monthTxs.length}টি)</h2>
+                <h2 id="ledger-h" className="text-[17px] font-bold">লেনদেন — {bnMonth(month)} ({bnDigits(String(monthTxs.length))}টি)</h2>
               </div>
               {lastDeleted && (
                 <div role="status" className="mb-3 flex items-center justify-between rounded-lg bg-slate-900 px-3 py-2 text-[13px] text-white">
@@ -1007,7 +1012,7 @@ function RecurringPanel({
       )}
       {dueCount > 0 && (
         <button onClick={onAddForMonth} className="w-full rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-[12px] font-bold text-emerald-800 hover:bg-emerald-100 min-h-[44px]">
-          {month} মাসের {dueCount}টি নিয়মিত লেনদেন যোগ করুন
+          {bnMonth(month)} মাসের {bnDigits(String(dueCount))}টি নিয়মিত লেনদেন যোগ করুন
         </button>
       )}
     </section>

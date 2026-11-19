@@ -947,6 +947,7 @@ export function DharLedger() {
 
         <div className="flex items-center gap-2 overflow-x-auto [scrollbar-width:none]">
           <select
+            aria-label={T("কোন হিসাব দেখাবে", "Which entries to show")}
             value={directionFilter}
             onChange={(e) => setDirectionFilter(e.target.value as any)}
             className="min-h-[42px] rounded-xl border border-slate-300 bg-white px-3 text-[13px] font-semibold text-slate-800 min-h-[44px]"
@@ -958,6 +959,7 @@ export function DharLedger() {
           </select>
 
           <select
+            aria-label={T("খাত বেছে নিন", "Filter by category")}
             value={activeCategory}
             onChange={(e) => setActiveCategory(e.target.value as any)}
             className="min-h-[42px] rounded-xl border border-slate-300 bg-white px-3 text-[13px] font-semibold text-slate-800 min-h-[44px]"
@@ -971,6 +973,7 @@ export function DharLedger() {
           </select>
 
           <select
+            aria-label={T("সাজানোর ক্রম", "Sort order")}
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as any)}
             className="min-h-[42px] rounded-xl border border-slate-300 bg-white px-3 text-[13px] font-semibold text-slate-800 min-h-[44px]"

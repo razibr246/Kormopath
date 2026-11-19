@@ -103,3 +103,19 @@ test("rateLimitShared: without a remote store it is the in-memory limiter", asyn
     resetRateLimits();
   }
 });
+
+test("the shared store only ever sees a hash of the IP, never the address itself", async () => {
+  const { checkRateLimitShared, setRemoteRateLimitStore } = await import("../lib/rateLimit.ts");
+  const seen: string[] = [];
+  setRemoteRateLimitStore({ hit: async (key: string) => { seen.push(key); return { count: 1, resetMs: 60_000 }; } });
+  try {
+    const req = new Request("https://x.test/api/pitch", { method: "POST", headers: { "x-forwarded-for": "203.0.113.7" } });
+    const r = await checkRateLimitShared(req, { bucket: "pitch" });
+    assert.equal(r.store, "remote");
+    assert.equal(seen.length, 1);
+    assert.ok(!seen[0].includes("203.0.113.7"), seen[0]);
+    assert.match(seen[0], /^pitch:[0-9a-f]{32}$/);
+  } finally {
+    setRemoteRateLimitStore(null);
+  }
+});

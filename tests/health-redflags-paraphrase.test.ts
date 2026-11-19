@@ -89,6 +89,14 @@ const URGENT: Array<[string, string]> = [
   // labour
   ["her water broke", "labour"],
   ["প্রসবের ব্যথা উঠেছে", "labour"],
+  // judge re-score round 2 (live miss: crushing chest + sweating got "cardiology")
+  ["crushing feeling in my father's chest and he is sweating, which doctor next week?", "chest_pain"],
+  ["sudden chest discomfort", "chest_pain"], ["বুক ধড়ফড় করছে আর মাথা ঘুরছে", "chest_pain"],
+  ["high fever and neck is stiff", "child_fever_danger"], ["She took 20 of her mother's pills", "poisoning"],
+  ["I feel like ending everything tonight", "self_harm"], ["lips are going purple", "breathing"],
+  ["worst headache of his life", "stroke"], ["snake bit my son", "severe_injury"],
+  ["spilled boiling water on her arm", "severe_injury"], ["চোখে কেমিক্যাল পড়েছে", "severe_injury"],
+  ["pregnant and spotting heavily", "pregnancy_bleeding"],
 ];
 
 const ROUTINE = [
@@ -99,6 +107,8 @@ const ROUTINE = [
   "পিঠে হালকা ব্যথা", "চোখ লাল হয়ে আছে", "তিন দিন ধরে কাশি", "দাঁতে ব্যথা", "মাথা হালকা ঘুরছে সকালে",
   "পেটে গ্যাস হচ্ছে", "চুল পড়ে যাচ্ছে", "হাঁটুতে ব্যথা", "রক্তের গ্রুপ জানতে চাই", "ডায়াবেটিস ডাক্তার কোথায় পাব",
   "matha betha korche", "pet e gas", "gola betha r jor", "kashi hocche", "chokhe chulkani",
+  // judge re-score round 2: must stay calm
+  "I sweat a lot at night", "my neck is a bit sore", "I take 2 tablets for blood pressure", "I take 10 mg once a day",
 ];
 
 test(`red flags: ${URGENT.length} everyday phrasings all raise the right flag`, () => {

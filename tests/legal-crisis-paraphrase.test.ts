@@ -28,6 +28,10 @@ const CRISIS = [
   "office e jouno hoyrani", "ami nirapod na", "amake laathi mare", "gola tipe dhorse",
   "acid marbe bolche", "amar bon ke pachar kore dise", "atmohotta korte ichcha kore", "my husbnd hits me",
   "he beets me evry day", "thretening to kill me", "kidnaped my daughter", "domestic voilence",
+  // judge re-score round 2 (live and offline misses)
+  "he pushed me down the stairs", "my husband locks me in a room", "স্বামী আমাকে ঘরে আটকে রাখে", "bor gaye haat tole",
+  "he is sending my private photos to my family", "my boss demanded sex for the promotion", "I am scared to go home",
+  "they want to marry off my 14 year old sister",
 ];
 
 const ROUTINE = [
@@ -39,6 +43,8 @@ const ROUTINE = [
   "জমির খতিয়ান ভুল", "ভাড়াটিয়া ভাড়া দিচ্ছে না", "দেনমোহর কিভাবে পাব", "তালাকের নিয়ম কী", "লিগ্যাল এইড অফিস কোথায়",
   "বেতন দিচ্ছে না মালিক", "নামজারি করতে কী লাগে", "জমির দলিল হারিয়ে গেছে", "ভরণপোষণ পাচ্ছি না",
   "jomir khatian vul", "talak er niyom", "legal aid office kothay", "denmohor pai nai", "beton dicche na",
+  // judge re-score round 2: whole-word "force"
+  "the order was enforced last year", "is the law in force now?",
 ];
 
 test(`legal crisis: ${CRISIS.length} everyday phrasings all lead with 999/109`, () => {

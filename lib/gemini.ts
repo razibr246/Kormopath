@@ -1,10 +1,16 @@
 import "server-only";
 import type { Tracer } from "./trace";
 import { createCooldown, RATE_LIMIT_COOLDOWN_MS, TIMEOUT_COOLDOWN_MS } from "./cooldown";
+import { apiVersionFor } from "./geminiVersion";
+export { apiVersionFor };
 
 // Per server instance: a model that was just rate-limited on every key, or timed out, is tried
 // last for a few minutes so each request does not pay the same wait again. See lib/cooldown.ts.
 const cooldown = createCooldown();
+// A key refused with 401/403 is revoked or invalid for every model, so it is tried last for a while instead of
+// costing each request a round trip first. Still tried if every other key fails; never logged by value.
+export const KEY_REJECTED_COOLDOWN_MS = 30 * 60_000;
+const keyCooldown = createCooldown();
 
 /*
  * Gemini Interactions API client (POST /v1/interactions; v1beta for TTS).
@@ -85,17 +91,11 @@ async function post(path: string, key: string, body: unknown, timeoutMs: number)
   }
 }
 
+
 /**
  * Runs one interaction across models and keys. Returns the response and the model that answered,
  * or null when nothing worked; every attempt is in the trace.
  */
-/** v1beta when the request carries a non-text part (image, document, audio), else v1. */
-export function apiVersionFor(request: InteractionRequest): "v1" | "v1beta" {
-  const input = request.input;
-  if (!Array.isArray(input)) return "v1";
-  return input.some((p) => typeof p === "object" && p !== null && "type" in p && (p.type === "image" || p.type === "document" || p.type === "audio")) ? "v1beta" : "v1";
-}
-
 export async function interact(
   tracer: Tracer,
   request: InteractionRequest,
@@ -107,6 +107,9 @@ export async function interact(
     return null;
   }
   const models = cooldown.order(options.models ?? TEXT_MODELS);
+  const keyOrder = keyCooldown.order(keys.map((_, i) => String(i))).map(Number);
+  const deferredKeys = keyOrder.filter((i) => keyCooldown.remainingMs(String(i)) > 0);
+  if (deferredKeys.length) tracer.log("gemini", `${deferredKeys.length} key(s) refused recently; tried last`, "warn");
   for (const model of models) {
     const left = cooldown.remainingMs(model);
     if (left > 0) tracer.log(model, `Failed recently (rate limit or timeout); tried last for ${Math.ceil(left / 1000)} s more`, "warn");
@@ -130,19 +133,21 @@ export async function interact(
       const remaining = deadline - performance.now();
       if (remaining < 2_000) { tracer.log(model, "Out of time before another attempt", "fail"); return null; }
       const t0 = performance.now();
-      const keyLabel = keys.length > 1 ? ` (key ${k + 1}/${keys.length})` : "";
+      const ki = keyOrder[k];
+      const keyLabel = keys.length > 1 ? ` (key ${ki + 1}/${keys.length})` : "";
       try {
         // The last model may use all remaining time; earlier ones are capped.
         const budget = m === models.length - 1 ? remaining : Math.min(attemptMs, remaining);
-        const data = await post(path, keys[k], { model, store: false, ...request }, budget);
+        const data = await post(path, keys[ki], { model, store: false, ...request }, budget);
         tracer.log(model, `${options.label ?? "Interaction"} completed${keyLabel}`, "ok", Math.round(performance.now() - t0));
         cooldown.clear(model);
+        keyCooldown.clear(String(ki));
         return { data, model };
       } catch (e) {
         const err = e as GeminiError;
         const ms = Math.round(performance.now() - t0);
         attempts++;
-        if (err.status === 401 || err.status === 403) { rejected++; tracer.log(model, `Key rejected${keyLabel}; trying the next key`, "warn", ms); continue; }
+        if (err.status === 401 || err.status === 403) { rejected++; keyCooldown.mark(String(ki), KEY_REJECTED_COOLDOWN_MS); tracer.log(model, `Key rejected${keyLabel}; trying the next key`, "warn", ms); continue; }
         if (err.status === 429) {
           tracer.log(model, `Quota or rate limit${keyLabel}; trying the next key`, "warn", ms);
           if (++rateLimited === keys.length) cooldown.mark(model, RATE_LIMIT_COOLDOWN_MS);
@@ -160,7 +165,8 @@ export async function interact(
           continue;
         }
         tracer.log(model, `${err.message}; trying the next model`, "warn", ms);
-        if (err.message === "Gemini timed out") cooldown.mark(model, TIMEOUT_COOLDOWN_MS);
+        // A timeout or "high demand" (503) means the next request would likely wait the same way: try it last for a while.
+        if (err.message === "Gemini timed out" || err.status === 503) cooldown.mark(model, TIMEOUT_COOLDOWN_MS);
         break;
       }
     }

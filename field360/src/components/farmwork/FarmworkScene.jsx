@@ -94,7 +94,7 @@ export default function FarmworkScene({ kind, from, to, lang, T, onDateChange, s
           <p className="mt-0.5 text-[12.5px] text-muted">{T(`আজকের কাজ · ${stage.label.bn} · ${date}`, `Today’s action · ${stage.label.en} · ${date}`)}</p>
         </div>
         <label className="inline-flex min-h-[44px] items-center gap-2 text-[12px] font-medium text-muted">
-          <input type="checkbox" checked={reduced} onChange={(e) => setReduced(e.target.checked)} className="accent-primary-700" />
+          <input type="checkbox" checked={reduced} onChange={(e) => setReduced(e.target.checked)} className="h-6 w-6 shrink-0 accent-primary-700" />
           {T('কম নড়াচড়া', 'Reduced motion')}
         </label>
       </div>

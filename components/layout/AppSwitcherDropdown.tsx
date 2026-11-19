@@ -41,6 +41,14 @@ export interface AppItem {
   icon: typeof GraduationCap;
 }
 
+/** Short names for the header and the switcher pill (Bangla first; the full names stay in APPS_LIST). */
+export const APP_SHORT_NAME: Record<AppItem["id"], { bn: string; en: string }> = {
+  kormopath: { bn: "কর্মপথ", en: "KormoPath" }, path: { bn: "আমার পথ", en: "My Path" }, admitbuddy: { bn: "অ্যাডমিট বাডি", en: "AdmitBuddy" },
+  chuktiguard: { bn: "চুক্তিগার্ড", en: "ChuktiGuard" }, feeguard: { bn: "ফি-গার্ড", en: "FeeGuard" }, shohoj: { bn: "সহজ বাজেট", en: "Shohoj" },
+  mediscan: { bn: "মেডিস্ক্যান", en: "MediScan" }, krishi: { bn: "মাঠসাথী", en: "MaathSathi" }, haatbazar: { bn: "হাটবাজার", en: "HaatBazar" },
+  rokkha: { bn: "রক্ষা", en: "Rokkha" }, legal: { bn: "আইনি সহায়তা", en: "Legal Aid" }, probaho: { bn: "প্রবাহ কোচ", en: "Probaho" },
+};
+
 export const APPS_LIST: AppItem[] = [
   // 01 Study
   {
@@ -330,7 +338,7 @@ export function AppSwitcherDropdown({
         <span className="hidden h-2 w-2 rounded-full bg-emerald-600 sm:flex" aria-hidden="true" />
         <div className="text-left">
           <span className={`kp-switcher-label block text-[12px] font-bold leading-tight ${isLight ? "text-slate-900" : "text-white"}`}>
-            {lang === "bn" ? currentApp.nameBn.split(" ")[0] : currentApp.nameEn.split(" ")[0]}
+            {lang === "bn" ? APP_SHORT_NAME[currentApp.id].bn : APP_SHORT_NAME[currentApp.id].en}
           </span>
           <span className={`hidden text-[10px] leading-none sm:block ${isLight ? "text-slate-500" : "text-amber-300/80"}`}>
             {lang === "bn" ? currentApp.stageNameBn : currentApp.stageNameEn}
@@ -346,7 +354,7 @@ export function AppSwitcherDropdown({
       {/* Dropdown Menu */}
       {isOpen && (
         <div
-          className={`absolute right-0 mt-2 w-84 max-w-[calc(100vw-1.5rem)] max-h-[85vh] overflow-y-auto origin-top-right rounded-2xl border p-2.5 shadow-2xl z-50 animate-in fade-in-50 zoom-in-95 duration-150 ${
+          className={`absolute right-0 mt-2 w-84 max-w-[calc(100vw-32px)] max-h-[85vh] overflow-y-auto origin-top-right rounded-2xl border p-2.5 shadow-2xl z-50 animate-in fade-in-50 zoom-in-95 duration-150 ${
             isLight
               ? "border-white/80 bg-paper/95 text-slate-900 backdrop-blur-2xl"
               : "border-white/15 bg-[#0b1329] text-white backdrop-blur-xl"

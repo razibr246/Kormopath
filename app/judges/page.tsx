@@ -170,7 +170,7 @@ export default function JudgesPage() {
                 <div className="mt-auto pt-2">
                   <Link
                     href={a.href}
-                    className="inline-flex min-h-[38px] items-center gap-1 rounded-xl border border-slate-300/80 bg-white px-3.5 py-1.5 text-[13px] font-bold text-slate-800 hover:border-slate-500 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 transition-all"
+                    className="inline-flex min-h-[44px] items-center gap-1 rounded-xl border border-slate-300/80 bg-white px-3.5 py-1.5 text-[13px] font-bold text-slate-800 hover:border-slate-500 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 transition-all"
                   >
                     <span>Open {a.name}</span>
                     <ArrowRight size={13} />

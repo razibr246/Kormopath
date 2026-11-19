@@ -3,7 +3,7 @@
  * Benchmark: Contra, Deel, Bonsai, and Freelancers Union.
  *
  * Provides:
- * 1. NBR ITES Tax-Exempt Invoicing (Section 52 & 6th Schedule Part A Para 33 of Income Tax Act 2023)
+ * 1. A sourced tax note for invoices (information only; the bank and a tax adviser decide)
  * 2. Clause 4 Internet Blackout Shield (Force Majeure defense against ISP/telecom blackouts)
  * 3. Deterministic milestone progress & FinOps disbursement engine with 2.5% Bangladesh Bank incentive
  */
@@ -60,17 +60,18 @@ export interface ChuktiInvoice {
 }
 
 /**
- * Statutory NBR ITES Tax Exemption Clause
- * Ref: National Board of Revenue, Bangladesh — SRO No. 196-Law/Income Tax-14/2024
- * Sixth Schedule, Part A, Paragraph 33 & Section 52 of Income Tax Act, 2023.
+ * Tax note for invoices: information, not a statutory notice. No section, paragraph, SRO or circular numbers,
+ * because none could be read on an official NBR or Bangladesh Bank page (see lib/finops.ts AIT sources, checked
+ * 2026-11-19: Bangladesh Bank via TBS, the Sixth Schedule exemption via The Daily Star). The bank and a tax
+ * adviser decide; this text never says a payment is exempt.
  */
 export const NBR_ITES_DECLARATION = {
-  en: `STATUTORY NOTICE ON ITES EXPORT TAX EXEMPTION:
-Under the Sixth Schedule (Part A, Paragraph 33) and Section 52 of the Income Tax Act 2023 (Bangladesh), export proceeds from Information Technology Enabled Services (ITES), Software Development, Digital Consultancy, and Cloud Engineering received via formal banking / approved electronic channels are 100% EXEMPT from Advance Income Tax (AIT) withholding at source.
-All remittances under this invoice constitute official export proceeds eligible for the Government of Bangladesh 2.5% Cash Incentive under Bangladesh Bank FE Circular No. 02/2022.`,
-  bn: `জাতীয় রাজস্ব বোর্ড (এনবিআর) আইটিইএস কর অব্যাহতি ঘোষণা:
-আয়কর আইন ২০২৩ (বাংলাদেশ)-এর ষষ্ঠ তফসিল (অংশ ক, অনুচ্ছেদ ৩৩) এবং ৫২ ধারা অনুযায়ী, তথ্যপ্রযুক্তি নির্ভর সেবা (ITES), সফটওয়্যার ডেভেলপমেন্ট ও ডিজিটাল পরামর্শ বাবদ আনুষ্ঠানিক ব্যাংকিং বা অনুমোদিত চ্যানেলে প্রাপ্ত রেমিট্যান্স উৎসে কর কর্তন (AIT) থেকে সম্পূর্ণ অব্যাহতিপ্রাপ্ত (১০০% করমুক্ত)।
-এই ইনভয়েসের যাবতীয় অর্থ বাংলাদেশ ব্যাংক সার্কুলার নং ০২/২০২২ অনুযায়ী সরকারি ২.৫% নগদ প্রণোদনা প্রাপ্তির যোগ্য।`,
+  en: `TAX NOTE (information, not tax advice):
+Bangladesh Bank has said that no source tax should be deducted from freelancing remittances, and freelancing income is reported to be exempt under the Sixth Schedule of the Income Tax Act 2023 (sources: Bangladesh Bank as reported by The Business Standard; The Daily Star). Rules change: confirm with your bank or a tax adviser before relying on this.
+Whether a payment qualifies for the Bangladesh Bank cash incentive for freelancers is decided by the receiving bank.`,
+  bn: `কর বিষয়ক তথ্য (কর পরামর্শ নয়):
+বাংলাদেশ ব্যাংক জানিয়েছে ফ্রিল্যান্সিং রেমিট্যান্স থেকে উৎসে কর কাটা যাবে না, এবং আয়কর আইন ২০২৩-এর ষষ্ঠ তফসিলে ফ্রিল্যান্সিং আয় করমুক্ত বলে প্রকাশিত হয়েছে (সূত্র: দ্য বিজনেস স্ট্যান্ডার্ডে প্রকাশিত বাংলাদেশ ব্যাংকের বক্তব্য; দ্য ডেইলি স্টার)। নিয়ম বদলায়: নির্ভর করার আগে আপনার ব্যাংক বা কর পরামর্শকের সঙ্গে নিশ্চিত হোন।
+ফ্রিল্যান্সারদের নগদ প্রণোদনা কোনো পেমেন্টে প্রযোজ্য কি না, তা গ্রহণকারী ব্যাংক ঠিক করে।`,
 };
 
 /**

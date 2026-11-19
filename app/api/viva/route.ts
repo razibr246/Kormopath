@@ -24,7 +24,7 @@ Return ONLY JSON: {"covered":[...],"feedback":"..."}`;
 
 export async function POST(req: Request) {
   const rl = await checkRateLimitShared(req, { limit: 30, windowMs: 60_000, bucket: "viva" });
-  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
+  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds, rl.store);
 
   const tracer = new Tracer("Examiner");
   const p = Body.safeParse(await req.json().catch(() => ({})));

@@ -170,7 +170,7 @@ export function checkRateLimit(
   return { success: false, limit, remaining: 0, resetSeconds };
 }
 
-export function rateLimitResponse(limit: number, resetSeconds: number): Response {
+export function rateLimitResponse(limit: number, resetSeconds: number, store?: "remote" | "memory"): Response {
   return Response.json(
     {
       error: "Too many requests. Please wait before making more queries.",
@@ -182,6 +182,7 @@ export function rateLimitResponse(limit: number, resetSeconds: number): Response
         "Retry-After": String(resetSeconds),
         "X-RateLimit-Limit": String(limit),
         "X-RateLimit-Remaining": "0",
+        ...(store ? { "X-RateLimit-Store": store } : {}),
       },
     }
   );
@@ -261,6 +262,12 @@ export function setRemoteRateLimitStore(store: RemoteRateLimitStore | null | und
  * Like checkRateLimit, but counts in Redis when a shared store is configured (see above), so the limit holds
  * across all server instances. Falls back to the in-memory limiter if the store is missing or fails.
  */
+/** Hex SHA-256 of an IP (first 32 hex chars), via Web Crypto, for keys stored outside this server. */
+export async function hashIp(ip: string): Promise<string> {
+  const digest = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(`kormopath-rl:${ip}`));
+  return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("").slice(0, 32);
+}
+
 export async function checkRateLimitShared(
   req: Request,
   options: RateLimitOptions = {}
@@ -269,8 +276,9 @@ export async function checkRateLimitShared(
   if (remoteStore) {
     const limit = options.limit ?? 30;
     const windowMs = options.windowMs ?? 60_000;
-    const key = `${options.bucket ?? "default"}:${extractClientIp(req)}`;
     try {
+      // Only a SHA-256 hash of the IP leaves this server: Redis never holds a raw address.
+      const key = `${options.bucket ?? "default"}:${await hashIp(extractClientIp(req))}`;
       const { count, resetMs } = await remoteStore.hit(key, windowMs);
       const resetSeconds = Math.max(1, Math.ceil(resetMs / 1000));
       return { success: count <= limit, limit, remaining: Math.max(0, limit - count), resetSeconds, store: "remote" };

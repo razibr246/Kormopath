@@ -7,7 +7,7 @@ const Body = z.object({ token: z.string().min(20).max(8000), fields: z.array(z.e
 export async function POST(req: Request) {
   if (!signingConfigured()) return NextResponse.json({ error: "Passport sharing is unavailable until a production signing key is configured." }, { status: 503 });
   const rl = await checkRateLimitShared(req, { limit: 10, windowMs: 60_000, bucket: "passport-share" });
-  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
+  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds, rl.store);
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "শেয়ার সেটিংস যাচাই করুন।" }, { status: 400 });
   const result = check(parsed.data.token);

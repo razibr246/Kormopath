@@ -10,7 +10,7 @@ const Body = z.object({ kind: z.enum(["input", "freight"]), query: z.string().tr
 
 export async function POST(req: Request) {
   const rl = await checkRateLimitShared(req, { limit: 8, windowMs: 60_000, bucket: "haat-market" });
-  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
+  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds, rl.store);
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "পণ্য বা রুট ২–১৮০ অক্ষরে লিখুন।" }, { status: 400 });
   if (!geminiAvailable()) return NextResponse.json({ error: "ওয়েব খোঁজার জন্য সার্ভারে GEMINI_API_KEY সেট করুন।" }, { status: 503 });

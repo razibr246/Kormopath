@@ -9,7 +9,7 @@ import { ROKKHA_HELPLINES } from "../../../../lib/rokkhaData.ts";
 import { HELPLINES as LEGAL_HELPLINES } from "../../../../lib/legal/data.ts";
 import { HEALTH_SERVICES } from "../../../../lib/health/services.ts";
 import { HELPLINES as KRISHI_HELPLINES } from "../../../../lib/krishiData.ts";
-import { MFS_FEE_RATES } from "../../../../lib/budget.ts";
+import { MFS_FEE_RATES, calculateMfsCashoutFee, parseAmount } from "../../../../lib/budget.ts";
 import { findRedFlags } from "../../../../lib/health/specialty.ts";
 import { isCrisis } from "../../../../lib/legal/assistGuard.ts";
 
@@ -76,6 +76,32 @@ function bkashFeeText(bn: boolean): string {
   return bn
     ? `বিকাশের নিজের পাতায় (যাচাই ${bnNum(checked)}): এজেন্ট থেকে ক্যাশ আউট ${bnNum(rates.find((r) => r.id === "bkash_ussd")?.ratePct ?? "")}%, প্রিয় এজেন্টে ${bnNum(rates.find((r) => r.id === "bkash_priyo")?.ratePct ?? "")}% (মাসে সীমা আছে)।`
     : `bKash's own page (checked ${checked}): agent cash-out ${rates.find((r) => r.id === "bkash_ussd")?.ratePct}%, Priyo Agent ${rates.find((r) => r.id === "bkash_priyo")?.ratePct}% (monthly limit applies).`;
+}
+
+/**
+ * A bKash cash-out fee question ("bkash e 5000 taka cash out e koto charge?") is answered from the verified rate in
+ * lib/budget.ts before any model call, so Buddy never says it doesn't know a fee the app has verified. Only bKash's
+ * agent rate is verified (bkash.com); other providers get no number, just a pointer to FeeGuard.
+ */
+export function directFeeAnswer(lastUserMessage: string, lang: "bn" | "en"): FallbackAnswer | null {
+  const t = norm(lastUserMessage);
+  if (!/bkash|বিকাশ/i.test(t) || !/charge|fee|cost|cash ?out|koto|কত|চার্জ|খরচ|কাটে|ক্যাশ ?আউট|ফি/i.test(t)) return null;
+  const rate = MFS_FEE_RATES.bkash_app;
+  if (!rate?.verified || !rate.source) return null;
+  const amount = parseAmount(lastUserMessage);
+  const bn = lang === "bn";
+  let example = "";
+  if (amount && amount > 0 && amount <= 10_000_000) {
+    const fee = calculateMfsCashoutFee(amount, "bkash_app");
+    const feeTaka = (fee.feePoisha / 100).toFixed(2);
+    example = bn ? `\n${bnNum(amount)} টাকা এজেন্ট থেকে ক্যাশ আউটে চার্জ ${bnNum(feeTaka)} টাকা।` : `\nCashing out Tk ${amount} at an agent costs Tk ${feeTaka}.`;
+  }
+  const head = bkashFeeText(bn);
+  return {
+    emergency: false,
+    reply: head + example + (bn ? "\nরেট বদলাতে পারে; লেনদেনের আগে বিকাশ অ্যাপে দেখে নিন।" : "\nRates can change; check the bKash app before you transact."),
+    links: [{ href: "/feeguard", label: bn ? "ফি-গার্ড খুলুন" : "Open FeeGuard" }, { href: "/shohoj-budget#wallets", label: bn ? "হাতের টাকা ও ওয়ালেট" : "Wallets" }],
+  };
 }
 
 export function fallbackAnswer(appId: string, lastUserMessage: string, lang: "bn" | "en"): FallbackAnswer {

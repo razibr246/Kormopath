@@ -54,7 +54,7 @@ async function fetchOverpass(tracer: Tracer, query: string): Promise<{ json: unk
 
 export async function GET(req: Request) {
   const rl = await checkRateLimitShared(req, { limit: 20, windowMs: 60_000, bucket: "health-hospitals" });
-  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
+  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds, rl.store);
 
   const sp = new URL(req.url).searchParams;
   const p = Query.safeParse({ lat: sp.get("lat"), lon: sp.get("lon"), r: sp.get("r") ?? undefined });

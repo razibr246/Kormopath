@@ -72,18 +72,18 @@ export default function SettingsPage() {
           <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-[13px] text-amber-950">
             <strong className="block">আপনি কোনো অনলাইন সুবিধা চালালে কী পাঠানো হয়</strong>
             <ul className="mt-2 list-disc space-y-1 pl-5">
-              <li><strong>Workspace audit:</strong> আপনি জমা দেওয়া CV/প্রোফাইল লেখা বা ফাইল Gemini-তে যায়; GitHub username দিলে বা CV-তে GitHub URL থাকলে public repo lookup-এর জন্য username GitHub-এ যায়। Viva উত্তর, pitch-এর নাম/client/scope/দামের তথ্য এবং receipt OCR অনুরোধও সংশ্লিষ্ট KormoPath API-তে যায়; model-backed grading/drafting/OCR হলে Gemini-তে পাঠানো হয়।</li>
-              <li><strong>Probaho AI coach:</strong> আপনি “AI কোচকে জিজ্ঞেস করুন” চাপলে শুধু ওই একটি উত্তরের লেখা Gemini-তে যায়; সার্ভারে সংরক্ষণ বা ক্যাশ করা হয় না।</li>
-              <li><strong>Buddy:</strong> পাঠানো chat বার্তা Gemini-তে যায়। Buddy আপনার ব্রাউজারের অন্য অ্যাপের সংরক্ষিত ডেটা পড়তে পারে না।</li>
-              <li><strong>ওয়েব সার্চ:</strong> My Path, Shohoj Budget ও HaatBazar-এ আপনি যে query লিখে সার্চ করেন তা Gemini Search-এ যায়।</li>
-              <li><strong>MediScan:</strong> prescription-এর ছবি OCR করতে সম্মতি দিয়ে submit করলে ছবিটি Gemini-তে যায়। স্থানীয় নোট বা লেখা upload না করলে স্বয়ংক্রিয়ভাবে পাঠানো হয় না।</li>
-              <li><strong>ভয়েস:</strong> Probaho/Shohoj-এর speech recognition আপনার browser-এর সেবা ব্যবহার করে; browser/provider অনুযায়ী audio বাইরে প্রক্রিয়াকৃত হতে পারে।</li>
-              <li><strong>লাইভ তথ্য:</strong> USD/BDT rate-এর জন্য exchange-rate service এবং HaatBazar আবহাওয়ার জন্য Open-Meteo ব্যবহৃত হয়; আবহাওয়ার অনুরোধে নির্বাচিত জেলার পরিচিতি পাঠানো হয়।</li>
-              <li><strong>Passport:</strong> issue/share করলে signing ও যাচাইয়ের জন্য token data KormoPath API-তে যায়। শেয়ার লিংক যার কাছে থাকবে, মেয়াদ শেষ না হওয়া পর্যন্ত সে নির্বাচিত তথ্য দেখতে পারে।</li>
+              <li><strong>ওয়ার্কস্পেস (দক্ষতা যাচাই):</strong> আপনার জমা দেওয়া সিভি বা প্রোফাইলের লেখা ও ফাইল গুগলের Gemini এআই-তে যায়। GitHub-এর নাম দিলে (বা সিভিতে GitHub লিংক থাকলে) আপনার খোলা প্রকল্পগুলো দেখতে শুধু ওই নামটি GitHub-এ যায়। ভাইভার উত্তর, প্রস্তাবের তথ্য (নাম, ক্লায়েন্ট, কাজের বিবরণ, দাম) আর রসিদের ছবি কর্মপথের সার্ভারে যায়; এআই দিয়ে নম্বর দেওয়া, লেখা তৈরি বা ছবি পড়ার সময় তা Gemini-তে পাঠানো হয়।</li>
+              <li><strong>প্রবাহ কোচ:</strong> “AI কোচকে জিজ্ঞেস করুন” চাপলে শুধু ওই একটি উত্তরের লেখা Gemini-তে যায়; সার্ভারে রাখা হয় না।</li>
+              <li><strong>বাডি:</strong> আপনার পাঠানো বার্তা Gemini-তে যায়। বাডি অন্য অ্যাপে রাখা আপনার তথ্য পড়তে পারে না।</li>
+              <li><strong>ওয়েবে খোঁজ:</strong> আমার পথ, সহজ বাজেট ও হাটবাজারে আপনি যা লিখে খোঁজেন, তা গুগলের খোঁজ সেবায় যায়।</li>
+              <li><strong>মেডিস্ক্যান:</strong> সম্মতি দিয়ে প্রেসক্রিপশনের ছবি পাঠালে তবেই ছবিটি Gemini-তে যায়। আপনি না পাঠালে কিছুই নিজে থেকে যায় না।</li>
+              <li><strong>কণ্ঠ:</strong> প্রবাহ ও সহজ বাজেটে কথা বলে লেখার সুবিধা আপনার ব্রাউজারের নিজস্ব সেবা দিয়ে চলে; ব্রাউজার অনুযায়ী আপনার কণ্ঠ বাইরের সার্ভারে প্রক্রিয়া হতে পারে।</li>
+              <li><strong>লাইভ তথ্য:</strong> ডলারের রেটের জন্য একটি বিনিময়-হার সেবা, আর হাটবাজারের আবহাওয়ার জন্য Open-Meteo ব্যবহার হয়; আবহাওয়া দেখতে শুধু বেছে নেওয়া জেলার নাম পাঠানো হয়।</li>
+              <li><strong>দক্ষতার পাসপোর্ট:</strong> পাসপোর্ট তৈরি বা শেয়ার করলে সই ও যাচাইয়ের জন্য তথ্য কর্মপথের সার্ভারে যায়। শেয়ার লিংক যার কাছে থাকবে, মেয়াদ শেষ না হওয়া পর্যন্ত সে আপনার বেছে নেওয়া তথ্য দেখতে পারবে।</li>
             </ul>
           </div>
-          <p className="text-[12px] text-slate-600">KormoPath application account database-এ এসব local record রাখা হয় না। তবে request প্রক্রিয়ায় KormoPath hosting ও নির্বাচিত third-party provider জড়িত; তাদের retention/data terms আলাদা। API key কোন billing/data tier-এ আছে তা deployment owner নিশ্চিত করবেন। পাসওয়ার্ড, পেমেন্ট গোপন তথ্য, রোগীর পরিচয় বা অপ্রয়োজনীয় sensitive তথ্য কোনো chat/search-এ দেবেন না।</p>
-          <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-[12px] leading-relaxed text-red-950"><strong>Gemini API-এর unpaid service সতর্কতা:</strong> Google-এর বর্তমান শর্তে unpaid quota-তে পাঠানো লেখা, ছবি/ফাইল ও উত্তর Google-এর পণ্য উন্নয়নে ব্যবহৃত হতে পারে এবং মানব পর্যালোচক দেখতে পারেন। সংবেদনশীল, গোপন বা ব্যক্তিগত তথ্য unpaid service-এ পাঠাবেন না। Paid service-এও abuse monitoring-এর জন্য সীমিত logging থাকতে পারে। এই অ্যাপ নিজে billing tier শনাক্ত করতে পারে না। চালুর আগে <a href="https://ai.google.dev/gemini-api/terms" target="_blank" rel="noopener noreferrer" className="font-bold underline">Google Gemini API terms</a> যাচাই করুন।</p>
+          <p className="text-[12px] text-slate-600">কর্মপথ এসব তথ্য কোনো অ্যাকাউন্ট বা ডেটাবেসে জমা রাখে না। তবে অনুরোধ চলার সময় কর্মপথের হোস্টিং আর ওপরে বলা বাইরের সেবাগুলো জড়িত থাকে, আর তাদের তথ্য রাখার নিয়ম আলাদা। পাসওয়ার্ড, পিন, ওটিপি, রোগীর পরিচয় বা অপ্রয়োজনীয় ব্যক্তিগত তথ্য কোনো চ্যাট বা খোঁজে লিখবেন না।</p>
+          <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-[12px] leading-relaxed text-red-950"><strong>গুগলের ফ্রি এআই সেবা নিয়ে সতর্কতা:</strong> গুগলের বর্তমান শর্তে ফ্রি কোটায় পাঠানো লেখা, ছবি, ফাইল ও উত্তর গুগলের পণ্য উন্নয়নে ব্যবহার হতে পারে এবং মানুষ তা পড়ে দেখতে পারে। তাই গোপন বা খুব ব্যক্তিগত তথ্য পাঠাবেন না। টাকা দিয়ে নেওয়া সেবাতেও অপব্যবহার ঠেকাতে কিছু তথ্য কিছু সময় রাখা হতে পারে। এই অ্যাপ নিজে বুঝতে পারে না কোন সেবা ব্যবহার হচ্ছে। বিস্তারিত: <a href="https://ai.google.dev/gemini-api/terms" target="_blank" rel="noopener noreferrer" className="font-bold underline">গুগলের Gemini API শর্ত</a>।</p>
           <p className="text-[12px] text-slate-500">শেয়ার করা বা পাবলিক কম্পিউটারে ব্যবহার শেষে এখান থেকে ডেটা export বা মুছুন। ব্রাউজারের “সাইট ডেটা মুছুন” করলেও সব local data মুছে যাবে।</p>
         </section>
 
@@ -96,14 +96,14 @@ export default function SettingsPage() {
             return (
               <div key={app.ns} className={`flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-white p-4 ${app.sensitive ? "border-sky-300" : "border-slate-200"}`}>
                 <div className="min-w-0">
-                  <Link href={app.href} className="text-[15px] font-bold hover:underline">{app.name}</Link>
-                  {app.sensitive && <span className="ml-2 rounded bg-sky-100 px-1.5 py-0.5 text-[10px] font-bold text-sky-800">সংবেদনশীল স্বাস্থ্য তথ্য</span>}
+                  <Link href={app.href} className="inline-flex min-h-[44px] items-center text-[15px] font-bold hover:underline">{app.name}</Link>
+                  {app.sensitive && <span className="ml-2 rounded bg-sky-100 px-1.5 py-0.5 text-[12px] font-bold text-sky-800">সংবেদনশীল স্বাস্থ্য তথ্য</span>}
                   <p className="text-[12px] text-slate-500">{app.what}</p>
                   <p className="mt-0.5 flex items-center gap-1 text-[11px] text-slate-400"><HardDrive size={12} aria-hidden /> {keys.length ? `${keys.length}টি আইটেম · প্রায় ${(size / 1024).toFixed(1)} KB` : "কিছু সংরক্ষিত নেই"}</p>
                 </div>
                 <div className="flex gap-2">
-                  <button disabled={!keys.length} onClick={() => exportApp(app)} className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-[12px] font-bold disabled:opacity-40"><Download size={14} aria-hidden /> এক্সপোর্ট</button>
-                  <button disabled={!keys.length} onClick={() => wipeApp(app)} className="inline-flex items-center gap-1 rounded-lg border border-red-200 px-3 py-1.5 text-[12px] font-bold text-red-700 disabled:opacity-40"><Trash2 size={14} aria-hidden /> মুছুন</button>
+                  <button disabled={!keys.length} onClick={() => exportApp(app)} className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-[12px] font-bold disabled:opacity-40"><Download size={14} aria-hidden /> এক্সপোর্ট</button>
+                  <button disabled={!keys.length} onClick={() => wipeApp(app)} className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border border-red-200 px-3 py-1.5 text-[12px] font-bold text-red-700 disabled:opacity-40"><Trash2 size={14} aria-hidden /> মুছুন</button>
                 </div>
               </div>
             );

@@ -79,7 +79,7 @@ export function HeroDevice() {
               <button
                 type="button"
                 onClick={() => setActiveTab("finops")}
-                className={`px-2 py-0.5 text-[9.5px] font-semibold rounded transition-colors ${
+                className={`inline-flex min-h-[44px] items-center px-2.5 text-[12px] font-semibold rounded transition-colors ${
                   activeTab === "finops" ? "bg-orange-500 text-white" : "text-slate-400 hover:text-white"
                 }`}
               >
@@ -88,7 +88,7 @@ export function HeroDevice() {
               <button
                 type="button"
                 onClick={() => setActiveTab("passport")}
-                className={`px-2 py-0.5 text-[9.5px] font-semibold rounded transition-colors ${
+                className={`inline-flex min-h-[44px] items-center px-2.5 text-[12px] font-semibold rounded transition-colors ${
                   activeTab === "passport" ? "bg-orange-500 text-white" : "text-slate-400 hover:text-white"
                 }`}
               >
@@ -97,7 +97,7 @@ export function HeroDevice() {
               <button
                 type="button"
                 onClick={() => setActiveTab("contract")}
-                className={`px-2 py-0.5 text-[9.5px] font-semibold rounded transition-colors ${
+                className={`inline-flex min-h-[44px] items-center px-2.5 text-[12px] font-semibold rounded transition-colors ${
                   activeTab === "contract" ? "bg-orange-500 text-white" : "text-slate-400 hover:text-white"
                 }`}
               >

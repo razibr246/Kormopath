@@ -157,7 +157,7 @@ test("issueShare() produces v2 token with strict PII/email redactions", () => {
 
   const shared = res.passport as any;
   assert.equal(shared.name, undefined);
-  assert.equal(shared.assisted, undefined);
+  assert.equal(shared.assisted, false); // assistance is always disclosed in shares
   assert.equal(shared.codeSha256, undefined);
   assert.equal(shared.challenge, undefined);
   assert.equal(shared.testsPassed, undefined);
@@ -185,7 +185,7 @@ test('issueShare() supports all selective field groups ("track", "challenge", "t
 
   assert.equal(shared.name, undefined);
   assert.equal(shared.codeSha256, undefined);
-  assert.equal(shared.assisted, undefined);
+  assert.equal(shared.assisted, false); // assistance is always disclosed in shares
 });
 
 test("check() enforces expiration on selective share tokens", () => {

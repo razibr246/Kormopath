@@ -44,7 +44,7 @@ Never judge accent or pronunciation. Never invent facts about the student. Do no
 
 export async function POST(req: Request) {
   const rl = await checkRateLimitShared(req, { limit: 15, windowMs: 60_000, bucket: "probaho-coach" });
-  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
+  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds, rl.store);
 
   const p = Body.safeParse(await req.json().catch(() => ({})));
   if (!p.success) return NextResponse.json({ error: "Missing answer." }, { status: 400 });

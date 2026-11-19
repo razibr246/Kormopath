@@ -507,7 +507,7 @@ export function ScrollNavigator({ offset = 320, position = 'auto', className = '
   if (position !== 'auto') {
     posClass = position;
   } else if (isFarmer) {
-    posClass = 'fixed right-[25px] sm:right-[33px] z-40 select-none bottom-[11.1rem] lg:bottom-[6.1rem]';
+    posClass = 'fixed right-[25px] sm:right-[33px] z-40 select-none bottom-[calc(12rem+env(safe-area-inset-bottom))] lg:bottom-[6.1rem]';
   } else if (isOfficer || isAbroad) {
     posClass = 'fixed right-[25px] sm:right-[33px] z-40 select-none bottom-[6.1rem]';
   } else {
@@ -580,7 +580,7 @@ export function ScrollNavigator({ offset = 320, position = 'auto', className = '
           onBlur={() => setHovered(false)}
           aria-label={T(`পৃষ্ঠার শীর্ষে যান (${num(pct, 'bn')}%)`, `Scroll to top (${pct}%)`)}
           title={T(`পৃষ্ঠার শীর্ষে যান (${num(pct, 'bn')}%) · [Home] কী চাপুন`, `Scroll to top (${pct}%) · Press [Home] key`)}
-          className="group relative grid h-10 w-10 place-items-center rounded-full bg-primary-800 text-white shadow-[0_8px_20px_-4px_rgba(21,58,29,0.5),0_3px_8px_rgba(0,0,0,0.12)] ring-1 ring-white/30 backdrop-blur-md transition-all duration-300 hover:bg-primary-700 hover:scale-110 active:scale-95 cursor-pointer"
+          className="group relative grid h-11 w-11 place-items-center rounded-full bg-primary-800 text-white shadow-[0_8px_20px_-4px_rgba(21,58,29,0.5),0_3px_8px_rgba(0,0,0,0.12)] ring-1 ring-white/30 backdrop-blur-md transition-all duration-300 hover:bg-primary-700 hover:scale-110 active:scale-95 cursor-pointer"
         >
           {/* Background circular track */}
           <svg className="absolute inset-0 -rotate-90 pointer-events-none" width="40" height="40" viewBox="0 0 40 40">

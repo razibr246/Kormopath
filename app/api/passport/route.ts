@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 export async function POST(req: Request) {
   if (!signingConfigured()) return NextResponse.json({ error: "Passport signing is unavailable until PASSPORT_SECRET is configured with at least 32 random characters." }, { status: 503 });
   const rl = await checkRateLimitShared(req, { limit: 10, bucket: "passport-issue" });
-  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
+  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds, rl.store);
   const tracer = new Tracer("Verifier");
   const p = PassportSchema.safeParse(await req.json().catch(() => ({})));
   if (!p.success) return NextResponse.json({ error: "Passport data failed validation." }, { status: 400 });

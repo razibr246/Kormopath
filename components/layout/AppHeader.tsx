@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { ShieldCheck, Monitor, Lock, Trash2, X, AlertTriangle, RotateCcw } from "lucide-react";
-import { AppSwitcherDropdown, type AppItem } from "@/components/layout/AppSwitcherDropdown";
+import { AppSwitcherDropdown, APP_SHORT_NAME, type AppItem } from "@/components/layout/AppSwitcherDropdown";
 import { KormoPathLogo } from "@/components/brand/KormoPathLogo";
 
 function formatMmSs(sec: number): string {
@@ -150,6 +150,10 @@ export function AppHeader({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showUdcMenu]);
 
+  // The apps open in Bangla: an English product name ("Shohoj Budget") is shown as its Bangla short name, and the
+  // English name moves into the tooltip. A page that already passes a Bangla name keeps it.
+  const shownName = /^[\x00-\x7F]+$/.test(name) && APP_SHORT_NAME[appId] && appId !== "kormopath" ? APP_SHORT_NAME[appId].bn : name;
+
   return (
     <>
       {/* Imminent Inactivity Warning Toast (< 60s) */}
@@ -203,7 +207,7 @@ export function AppHeader({
                 {icon}
               </span>
               <span className="min-w-0">
-                <span className="kp-app-name block truncate font-display text-[18px] font-semibold leading-tight tracking-tight text-slate-900 sm:text-[20px]">{name}</span>
+                <span className="kp-app-name block truncate font-display text-[18px] font-semibold leading-tight tracking-tight text-slate-900 sm:text-[20px]">{shownName}</span>
                 <span className="kp-app-tagline mt-0.5 block truncate text-[11px] font-medium leading-none text-slate-600">{taglineEn ? `${taglineEn} · ${taglineBn}` : taglineBn}</span>
               </span>
             </Link>
@@ -361,7 +365,7 @@ export function SourceTag({
   );
   const cls = `inline-flex flex-wrap items-center gap-x-1 rounded-md border px-1.5 py-0.5 text-[12px] leading-snug ${CONF_STYLE[confidence]}`;
   return url ? (
-    <a href={url} target="_blank" rel="noopener noreferrer" className={`${cls} min-h-[32px] hover:underline`}>
+    <a href={url} target="_blank" rel="noopener noreferrer" aria-label={`${CONF_LABEL[confidence]}${label ? ` · ${label}` : ""} (নতুন ট্যাবে খোলে)`} className={`${cls} min-h-[32px] hover:underline`}>
       {body} ↗
     </a>
   ) : (

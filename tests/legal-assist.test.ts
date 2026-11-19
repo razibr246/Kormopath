@@ -86,3 +86,10 @@ test("legal guard rejects telling people they are eligible, will win, or need no
   }
   assert.deepEqual(checkAnswer("You may qualify; the legal aid office decides. Call 16699.", { crisis: false }), []);
 });
+
+test("guard round 2: 'you qualify', sure court outcomes, easy wins and 'costs nothing' are promises", async () => {
+  const { checkAnswer } = await import("../lib/legal/assistGuard.ts");
+  for (const a of ["You qualify for legal aid.", "The court will surely grant custody.", "You should win easily.", "It costs nothing at all."]) {
+    assert.ok(checkAnswer(a, { userText: "", crisis: false } as never).some((i) => i.code === "promise"), a);
+  }
+});

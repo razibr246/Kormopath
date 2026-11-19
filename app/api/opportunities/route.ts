@@ -14,7 +14,7 @@ const Body = z.object({
 
 export async function POST(req: Request) {
   const rl = await checkRateLimitShared(req, { limit: 8, windowMs: 60_000, bucket: "opportunities" });
-  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
+  if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds, rl.store);
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "একটি পথ বেছে ২–১৮০ অক্ষরের খোঁজ লিখুন।" }, { status: 400 });
   if (!geminiAvailable()) return NextResponse.json({ error: "ওয়েব খোঁজার সুবিধার জন্য সার্ভারে GEMINI_API_KEY দরকার।" }, { status: 503 });

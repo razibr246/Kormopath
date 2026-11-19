@@ -3,8 +3,11 @@ import { useEffect, useMemo, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Navbar, Footer } from "@/components/layout/Chrome";
-import { EcosystemHub } from "@/components/home/EcosystemHub";
+import dynamic from "next/dynamic";
 import { HeroOrbit } from "@/components/home/HeroOrbit";
+// The ecosystem tour is a modal that renders nothing until opened, and it carries the demo personas and the
+// budget parser; loading it on first open keeps them out of every home-page visit.
+const EcosystemHub = dynamic(() => import("@/components/home/EcosystemHub").then((m) => m.EcosystemHub), { ssr: false });
 import { FX_FALLBACK, type Source } from "@/lib/data";
 import { storageKey, usePersistentState } from "@/lib/clientStore";
 import {
@@ -245,11 +248,11 @@ export default function HomePage() {
                 <>Study, work, home and field: <em className="kp-em">one honest path.</em></>
               )}
             </h1>
-            {bn && (
-              <p lang="en" className="mt-3 text-[15px] font-medium text-slate-500 sm:text-[17px]">
-                For a student freelancer: prove your skills, sign a fair contract, see every taka of the payout.
-              </p>
-            )}
+            <p lang={bn ? "bn" : "en"} className="mt-3 text-[15px] font-medium text-slate-500 sm:text-[17px]">
+              {bn
+                ? "শিক্ষার্থী ফ্রিল্যান্সারের জন্য: দক্ষতা প্রমাণ করুন, ন্যায্য চুক্তি করুন, পেমেন্টের প্রতিটি টাকা দেখুন।"
+                : "For a student freelancer: prove your skills, sign a fair contract, see every taka of the payout."}
+            </p>
 
             <p className="mt-5 max-w-[34rem] text-[17px] leading-relaxed text-slate-600 sm:text-[19px]">
               {bn
@@ -521,14 +524,14 @@ export default function HomePage() {
 
       <Footer />
 
-      <EcosystemHub
+      {isEcosystemOpen && <EcosystemHub
         isOpen={isEcosystemOpen}
         onClose={() => setIsEcosystemOpen(false)}
         activePersona={null}
         onSelectPersona={() => {}}
         lang={lang}
         usdBdt={fx.usdBdt}
-      />
+      />}
     </div>
   );
 }

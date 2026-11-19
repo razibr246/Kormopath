@@ -140,7 +140,7 @@ function kindOf(tags: Record<string, unknown>): PlaceKind | null {
  * emergency=yes). Someone in an emergency must never be sent to one, so places whose own name says pharmacy,
  * homeopathy, dispensary or outpatient-only are dropped, as are diagnostic centres that do not also say hospital.
  */
-const NOT_EMERGENCY = /pharma|ফার্মে|ফার্মা|homeo|হোমিও|dispensary|ডিসপেনসারি|\boutdoor\b|আউটডোর|\bopd\b|\bchamber\b|চেম্বার|drug ?store|ওষুধের দোকান|optical|dental|ডেন্টাল/i;
+const NOT_EMERGENCY = /pharma|ফার্মে|ফার্মা|homeo|হোমিও|dispensary|ডিসপেনসারি|\boutdoor\b|আউটডোর|\bopd\b|\bchamber\b|চেম্বার|drug ?store|ওষুধের দোকান|optical|dental|ডেন্টাল|\btooth|\bteeth|dentist|দাঁত|physiotherap|ফিজিওথেরাপি|rehab(ilitation)? (center|centre)|drug (addiction|rehab)|addiction|মাদকাসক্ত|মাদক নিরাময়|নিরাময় কেন্দ্র/i;
 const DIAGNOSTIC = /diagnostic|ডায়াগনস্টিক|ডায়াগনস্টিক/i;
 const HOSPITAL_WORD = /hospital|হাসপাতাল|clinic|ক্লিনিক|medical college|মেডিকেল কলেজ/i;
 export function notEmergencyCare(name: string): boolean {
