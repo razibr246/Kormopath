@@ -1,15 +1,17 @@
 {
-  "generatedAt": "2026-11-19T07:13:54.229Z",
+  "generatedAt": "2026-11-19T17:31:40.794Z",
   "base": "https://kormopath.vercel.app",
   "engines": {
-    "gemini-3.5-flash-lite": 10,
-    "template": 1
+    "rule-based": 6,
+    "gemini-3.5-flash-lite": 19,
+    "gemini-3.1-flash-lite": 3,
+    "template": 3
   },
   "audit": {
     "cvs": 3,
-    "skillsReturned": 21,
-    "verified": 21,
-    "verifiedQuoteFound": 21,
+    "skillsReturned": 22,
+    "verified": 22,
+    "verifiedQuoteFound": 22,
     "rejectedByEvidenceCheck": 0,
     "failures": []
   },
@@ -31,18 +33,24 @@
   ],
   "pitch": {
     "runs": 3,
-    "fromModel": 2,
-    "amountsFound": 8,
+    "fromModel": 0,
+    "amountsFound": 3,
     "amountsNotInContract": 0,
     "marketplaceMentions": 0,
     "failures": []
   },
   "coach": {
     "runs": 3,
-    "fromModel": 3,
-    "quotes": 7,
-    "quotesFound": 7,
+    "fromModel": 2,
+    "quotes": 8,
+    "quotesFound": 8,
     "failures": []
+  },
+  "triage": {
+    "routine": 20,
+    "falseUrgent": 0,
+    "fromModel": 17,
+    "examples": []
   },
   "fees": {
     "cases": 2000,
@@ -53,18 +61,23 @@
   "latencyMs": {
     "/api/audit": {
       "n": 5,
-      "p50": 3793,
-      "p95": 6143
+      "p50": 25500,
+      "p95": 26896
     },
     "/api/pitch": {
       "n": 3,
-      "p50": 6291,
-      "p95": 16239
+      "p50": 26499,
+      "p95": 26602
     },
     "/api/probaho/coach": {
       "n": 3,
-      "p50": 4051,
-      "p95": 4447
+      "p50": 23144,
+      "p95": 25085
+    },
+    "/api/health/assist": {
+      "n": 20,
+      "p50": 6257,
+      "p95": 26298
     }
   }
 }
