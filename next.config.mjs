@@ -1,8 +1,16 @@
 import { PHASE_DEVELOPMENT_SERVER } from "next/constants.js";
 
-// Security headers for every route. A full script CSP is not set because Next.js injects
-// inline bootstrap scripts; these directives restrict framing, plugins, base URLs and form
-// targets without touching scripts.
+// Security headers for every route. These CSP directives restrict framing, plugins, base URLs and form targets.
+// No script-src, on purpose:
+//  - Next.js injects inline bootstrap scripts. The only strict option is a per-request nonce set in middleware,
+//    which forces every page to render dynamically. All pages are prerendered static HTML served from the CDN
+//    today, which is what keeps first load fast on slow mobile data.
+//  - The Examiner sandbox (lib/sandbox.ts) runs the candidate's code with new Function inside a blob: Worker, so a
+//    script policy would still need 'unsafe-eval' and blob:, which removes most of its protection.
+//  - No user-supplied HTML is rendered: the only dangerouslySetInnerHTML is our own JSON-LD, and field360's
+//    innerHTML writes are numeric SVG animation frames.
+// Revisit if the sandbox moves to its own origin (e.g. a sandboxed iframe); a hash-based script-src for the static
+// pages becomes worthwhile then.
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },

@@ -22,12 +22,16 @@ const CRISIS = [
   "marche", "maarche", "nirjaton", "dhorshon", "atmohotta",
   "suicide", "kill myself", "kill me", "rape", "beating me", "beats me", "abuse", "kidnap", "trafficking", "acid attack", "locked me", "threatening to kill",
   "domestic violence", "want to die",
+  // added after the paraphrase suite (tests/legal-crisis-paraphrase.test.ts)
+  "violence", "voilence", "stalk", "molest", "groped", "sexually harass", "sexual harass", "touched me", "not safe", "unsafe at home",
+  "force", "forcing", "child marriage", "জোর করে বিয়ে", "বাল্যবিবাহ", "বাল্য বিবাহ", "jor kore biye", "নিরাপদ না", "নিরাপদ নই", "nirapod na", "nirapod noi",
+  "গলা টিপে", "gola tipe", "লাথি", "laathi", "lathi mare", "mardhor", "pachar", "jouno hoyrani", "jouno hoirani", "atke rakh", "মারার কথা", "মারার হুমকি",
 ];
 // Everyday phrasing in English and Banglish ("my husband hits me every night", "amake mare", "marbe bole hymki").
 const CRISIS_PATTERNS: readonly RegExp[] = [
-  /\b(hits?|hitting|hurts?|slaps?|slapping|punch(es|ed|ing)?|kicks?|kicking|chok(es|ed|ing)|beat(s|en|ing)?|burn(s|ed)?)\b[\s\S]{0,12}\b(me|her|him|us|my (wife|mother|mom|sister|daughter|son|child|kids?))\b/i,
-  /\b(threaten(s|ed|ing)?|will|going to|gonna)\b[\s\S]{0,20}\b(kill|hurt|burn|throw acid)\b/i,
-  /\b(amake|amay|amaire|take|oke|bou ke|bachcha ke|baccha ke)\s*(mare|maare|marche|maarche|pitay|petay|marbe|mere felbe|mere fel)\b/i,
+  /\b(hits?|hitting|hurts?|slap\w*|punch\w*|kick\w*|chok\w*|strangl\w*|beat\w*|beet\w*|burn(s|ed|t)?)\b[\s\S]{0,12}\b(me|her|him|us|my (wife|mother|mom|sister|daughter|son|child|kids?))\b/i,
+  /\b(threaten(s|ed|ing)?|thretening|will|would|going to|gonna)\b[\s\S]{0,20}\b(kill|hurt|burn|throw acid)\b/i,
+  /\b(amake|amay|amaire|take|oke|bou ke|bachcha ke|baccha ke)\s*(mare|maare|marche|maarche|marse|maarse|pitay|petay|marbe|mere felbe|mere fel)\b/i,
   /\b(mere felbe|mere felar|marbe bole|khun korbe|acid marbe)\b/i,
   /(মেরে ফেলবে|মেরে ফেলার|প্রাণে মারার|খুন করবে|এসিড মারবে|গায়ে হাত তোলে|গায়ে হাত তুলে)/,
 ];

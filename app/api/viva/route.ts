@@ -4,7 +4,7 @@ import { Tracer } from "@/lib/trace";
 import { structured, modelName } from "@/lib/llm";
 import { CHALLENGES } from "@/lib/challenges";
 import { verifyEvidence, normalize } from "@/lib/grounding";
-import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
+import { checkRateLimitShared, rateLimitResponse } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -23,7 +23,7 @@ Do not give credit for vague mentions. Then give one short, kind, specific feedb
 Return ONLY JSON: {"covered":[...],"feedback":"..."}`;
 
 export async function POST(req: Request) {
-  const rl = checkRateLimit(req, { limit: 30, windowMs: 60_000, bucket: "viva" });
+  const rl = await checkRateLimitShared(req, { limit: 30, windowMs: 60_000, bucket: "viva" });
   if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
 
   const tracer = new Tracer("Examiner");

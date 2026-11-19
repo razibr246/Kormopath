@@ -126,7 +126,7 @@ export function AgriculturalLifecycle() {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-amber-200/60 pb-4">
         <div>
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-300 bg-amber-100/70 px-3 py-1 text-[11px] font-bold text-amber-900 mb-1.5">
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-300 bg-amber-100/70 px-3 py-1 text-[12px] font-bold text-amber-900 mb-1.5">
             <Sparkles size={13} className="text-amber-600" aria-hidden />
             <span>জীবন্ত কৃষি চক্র ও কৃষক পরিক্রমা • Interactive Agriculture Journey</span>
           </div>
@@ -147,7 +147,7 @@ export function AgriculturalLifecycle() {
               isPlaying
                 ? "bg-amber-600 text-white hover:bg-amber-700"
                 : "border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100"
-            }`}
+            } min-w-[44px]`}
             title={isPlaying ? "এনিমেশন পজ করুন" : "স্বয়ংক্রিয় এনিমেশন চালু করুন"}
           >
             {isPlaying ? <Pause size={14} /> : <Play size={14} />}
@@ -195,7 +195,7 @@ export function AgriculturalLifecycle() {
                   : "border-slate-200 bg-white/70 text-slate-600 hover:bg-slate-50"
               }`}
             >
-              <div className="flex items-center justify-between text-[11px] mb-1">
+              <div className="flex items-center justify-between text-[12px] mb-1">
                 <span className="font-mono">ধাপ ০{idx + 1}</span>
                 {isDone && <CheckCircle2 size={12} className="text-emerald-600" />}
               </div>
@@ -214,7 +214,7 @@ export function AgriculturalLifecycle() {
           {/* Animated Sky Elements */}
           <div className="absolute top-4 left-6 flex items-center gap-2 text-amber-500 motion-safe:animate-pulse">
             <Sun size={32} className="text-amber-500 drop-shadow-md" />
-            <span className="text-[11px] font-bold text-amber-800 bg-white/80 px-2 py-0.5 rounded-full border border-amber-200 backdrop-blur-xs">
+            <span className="text-[12px] font-bold text-amber-800 bg-white/80 px-2 py-0.5 rounded-full border border-amber-200 backdrop-blur-xs">
               {stage.seasonBn}
             </span>
           </div>
@@ -441,7 +441,7 @@ export function AgriculturalLifecycle() {
         <div className="space-y-3.5">
           <div className="flex items-center justify-between">
             <span
-              className="text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full"
+              className="text-[12px] font-extrabold uppercase px-2.5 py-0.5 rounded-full"
               style={{ backgroundColor: `${stage.color}18`, color: stage.color }}
             >
               {stage.titleEn}
@@ -474,7 +474,7 @@ export function AgriculturalLifecycle() {
           <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3 text-[12px] text-emerald-950">
             <strong className="block text-emerald-800 mb-0.5">🌾 মাঠের সাধারণ পরামর্শ</strong>
             <span>{stage.advisoryBn}</span>
-            <span className="mt-1 block text-[11px] text-emerald-800/80">এলাকা ও জাতভেদে বদলায় — উপসহকারী কৃষি কর্মকর্তা বা কৃষি কল সেন্টার ১৬১২৩-এর সঙ্গে মিলিয়ে নিন।</span>
+            <span className="mt-1 block text-[12px] text-emerald-800/80">এলাকা ও জাতভেদে বদলায় — উপসহকারী কৃষি কর্মকর্তা বা কৃষি কল সেন্টার ১৬১২৩-এর সঙ্গে মিলিয়ে নিন।</span>
           </div>
         </div>
       </div>

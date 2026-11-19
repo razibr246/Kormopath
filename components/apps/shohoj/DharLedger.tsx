@@ -331,13 +331,13 @@ export function DharLedger() {
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-[17px] font-bold text-slate-900">{e.counterparty}</span>
               <span
-                className={`rounded-full px-2.5 py-0.5 text-[11.5px] font-bold ${
+                className={`rounded-full px-2.5 py-0.5 text-[12px] font-bold ${
                   recv ? "bg-emerald-100 text-emerald-900" : "bg-orange-100 text-orange-900"
                 }`}
               >
                 {recv ? T("আমি পাব", "I get") : T("আমি দেব", "I pay")}
               </span>
-              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[12px] font-semibold text-slate-700">
                 {categoryInfo.icon} {bn ? categoryInfo.bn : categoryInfo.en}
               </span>
             </div>
@@ -353,16 +353,16 @@ export function DharLedger() {
             {e.due && r > 0 && today && (
               <div className="pt-0.5">
                 {e.due < today ? (
-                  <span className="inline-flex items-center gap-1 rounded-md bg-red-100 px-2 py-0.5 text-[11px] font-bold text-red-800">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-red-100 px-2 py-0.5 text-[12px] font-bold text-red-800">
                     <AlertTriangle size={12} aria-hidden />
                     {T("মেয়াদোত্তীর্ণ!", "Overdue!")}
                   </span>
                 ) : e.due === today ? (
-                  <span className="inline-flex items-center gap-1 rounded-md bg-amber-100 px-2 py-0.5 text-[11px] font-bold text-amber-900">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-amber-100 px-2 py-0.5 text-[12px] font-bold text-amber-900">
                     ⚠️ {T("আজই পরিশোধের দিন", "Due today")}
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 rounded-md bg-sky-100 px-2 py-0.5 text-[11px] font-bold text-sky-800">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-sky-100 px-2 py-0.5 text-[12px] font-bold text-sky-800">
                     ⏳ {T(`বাকি আর ${bnNum(Math.max(1, Math.round((new Date(e.due).getTime() - new Date(today).getTime()) / 86400000)))} দিন`, `${Math.max(1, Math.round((new Date(e.due).getTime() - new Date(today).getTime()) / 86400000))} days left`)}
                   </span>
                 )}
@@ -398,7 +398,7 @@ export function DharLedger() {
         {/* Settlement history */}
         {e.settlements.length > 0 && (
           <div className="mt-3 space-y-1.5 border-t border-slate-100 pt-2.5">
-            <span className="text-[11.5px] font-bold text-slate-500 uppercase tracking-wider block">
+            <span className="text-[12px] font-bold text-slate-500 uppercase tracking-wider block">
               {T("পরিশোধের ইতিহাস:", "Settlement History:")}
             </span>
             <ul className="space-y-1 text-[13px] text-slate-700">
@@ -410,7 +410,7 @@ export function DharLedger() {
                     {s.method && ` (${PAYMENT_METHODS[s.method]?.[bn ? "bn" : "en"] || s.method})`}
                     {s.note && ` · ${s.note}`}
                   </span>
-                  {s.txnId && <span className="font-mono text-[11px] text-slate-500">Txn: {s.txnId}</span>}
+                  {s.txnId && <span className="font-mono text-[12px] text-slate-500">Txn: {s.txnId}</span>}
                 </li>
               ))}
             </ul>
@@ -427,7 +427,7 @@ export function DharLedger() {
                 setPayAmount("");
                 setPayErr("");
               }}
-              className="kp-chip !min-h-[40px] font-bold !bg-emerald-50 !text-emerald-900 !border-emerald-200 hover:!bg-emerald-100"
+              className="kp-chip !min-h-[40px] font-bold !bg-emerald-50 !text-emerald-900 !border-emerald-200 hover:!bg-emerald-100 min-h-[44px] min-w-[44px]"
             >
               <HandCoins size={15} aria-hidden />
               {recv ? T("টাকা পেলাম (শোধ)", "Got Paid") : T("টাকা দিলাম (শোধ)", "I Paid")}
@@ -441,7 +441,7 @@ export function DharLedger() {
                 setReminderEntry(e);
                 setReminderTone("friendly");
               }}
-              className="kp-chip !min-h-[40px] font-semibold !bg-indigo-50 !text-indigo-900 !border-indigo-200 hover:!bg-indigo-100"
+              className="kp-chip !min-h-[40px] font-semibold !bg-indigo-50 !text-indigo-900 !border-indigo-200 hover:!bg-indigo-100 min-h-[44px] min-w-[44px]"
             >
               <Send size={14} aria-hidden />
               {T("তাগাদা ও রিমাইন্ডার", "Smart Reminder")}
@@ -451,7 +451,7 @@ export function DharLedger() {
           <button
             type="button"
             onClick={() => setSlipFor(e.phone || e.counterparty.trim().toLowerCase().replace(/\s+/g, " "))}
-            className="kp-chip !min-h-[40px]"
+            className="kp-chip !min-h-[40px] min-h-[44px] min-w-[44px]"
           >
             <MessageSquareText size={15} aria-hidden /> {T("হিসাবের স্লিপ", "Statement")}
           </button>
@@ -459,7 +459,7 @@ export function DharLedger() {
           <button
             type="button"
             onClick={() => remove(e)}
-            className="kp-chip !min-h-[40px] text-red-700 hover:bg-red-50"
+            className="kp-chip !min-h-[40px] text-red-700 hover:bg-red-50 min-h-[44px] min-w-[44px]"
             aria-label={T(`${e.counterparty}-এর হিসাব মুছুন`, `Delete entry for ${e.counterparty}`)}
           >
             <Trash2 size={15} aria-hidden />
@@ -482,7 +482,7 @@ export function DharLedger() {
                   inputMode="decimal"
                   value={payAmount}
                   onChange={(x) => setPayAmount(x.target.value)}
-                  className="w-full min-h-[40px] rounded-xl border border-slate-300 bg-white px-3 text-[14px]"
+                  className="w-full min-h-[40px] rounded-xl border border-slate-300 bg-white px-3 text-[14px] min-h-[44px]"
                   placeholder={bn ? `সর্বোচ্চ ${bnNum((r / 100).toString())}` : `max ${r / 100}`}
                   data-testid="dhar-pay-amount"
                 />
@@ -495,7 +495,7 @@ export function DharLedger() {
                 <select
                   value={payMethod}
                   onChange={(x) => setPayMethod(x.target.value as PaymentMethod)}
-                  className="w-full min-h-[40px] rounded-xl border border-slate-300 bg-white px-2.5 text-[13.5px]"
+                  className="w-full min-h-[40px] rounded-xl border border-slate-300 bg-white px-2.5 text-[13.5px] min-h-[44px]"
                 >
                   {Object.entries(PAYMENT_METHODS).map(([mKey, mVal]) => (
                     <option key={mKey} value={mKey}>
@@ -513,7 +513,7 @@ export function DharLedger() {
                   value={payTxnId}
                   maxLength={40}
                   onChange={(x) => setPayTxnId(x.target.value)}
-                  className="w-full min-h-[40px] rounded-xl border border-slate-300 bg-white px-3 text-[14px] font-mono"
+                  className="w-full min-h-[40px] rounded-xl border border-slate-300 bg-white px-3 text-[14px] font-mono min-h-[44px]"
                   placeholder="যেমন: BL10A9..."
                 />
               </div>
@@ -526,7 +526,7 @@ export function DharLedger() {
                   value={payNote}
                   maxLength={120}
                   onChange={(x) => setPayNote(x.target.value)}
-                  className="w-full min-h-[40px] rounded-xl border border-slate-300 bg-white px-3 text-[14px]"
+                  className="w-full min-h-[40px] rounded-xl border border-slate-300 bg-white px-3 text-[14px] min-h-[44px]"
                   placeholder={T("যেমন: নগদ ক্যাশ", "e.g. Cash")}
                 />
               </div>
@@ -536,14 +536,14 @@ export function DharLedger() {
               <button
                 type="button"
                 onClick={() => setPayFor(null)}
-                className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-[13px] font-semibold text-slate-700 hover:bg-slate-100"
+                className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-[13px] font-semibold text-slate-700 hover:bg-slate-100 min-h-[44px] min-w-[44px]"
               >
                 {T("বাতিল", "Cancel")}
               </button>
               <button
                 type="button"
                 onClick={() => pay(e)}
-                className="rounded-xl bg-slate-900 px-5 py-2 text-[13px] font-bold text-white hover:bg-black"
+                className="rounded-xl bg-slate-900 px-5 py-2 text-[13px] font-bold text-white hover:bg-black min-h-[44px] min-w-[44px]"
                 data-testid="dhar-pay-save"
               >
                 {T("সংরক্ষণ করুন", "Save Payment")}
@@ -581,7 +581,7 @@ export function DharLedger() {
           <button
             type="button"
             onClick={downloadCalendar}
-            className="kp-chip !min-h-[38px] font-semibold text-slate-700"
+            className="kp-chip !min-h-[44px] font-semibold text-slate-700 min-w-[44px]"
             title={T("ক্যালেন্ডার রিমাইন্ডার ডাউনলোড (.ics)", "Download calendar reminders")}
           >
             <CalendarPlus size={15} /> {T("ক্যালেন্ডার (.ics)", "Calendar (.ics)")}
@@ -589,7 +589,7 @@ export function DharLedger() {
           <button
             type="button"
             onClick={() => setLang(bn ? "en" : "bn")}
-            className="kp-chip !h-9 !rounded-full !text-[12px] font-bold"
+            className="kp-chip !h-11 !rounded-full !text-[12px] font-bold !min-w-[44px]"
             aria-label={bn ? "Switch to English" : "বাংলায় দেখুন"}
           >
             {bn ? "English" : "বাংলা"}
@@ -604,7 +604,7 @@ export function DharLedger() {
           <p className="font-mono text-[24px] font-black text-emerald-950" data-testid="dhar-receive">
             {money(totals.receivePoisha)}
           </p>
-          <span className="text-[11px] text-emerald-700">{T("বকেয়া ফেরত আসার অপেক্ষায়", "Awaiting return")}</span>
+          <span className="text-[12px] text-emerald-700">{T("বকেয়া ফেরত আসার অপেক্ষায়", "Awaiting return")}</span>
         </div>
 
         <div className="rounded-2xl border border-orange-200 bg-orange-50/70 p-4">
@@ -612,7 +612,7 @@ export function DharLedger() {
           <p className="font-mono text-[24px] font-black text-orange-950" data-testid="dhar-pay">
             {money(totals.payPoisha)}
           </p>
-          <span className="text-[11px] text-orange-700">{T("পরিশোধযোগ্য দায়", "Outstanding liabilities")}</span>
+          <span className="text-[12px] text-orange-700">{T("পরিশোধযোগ্য দায়", "Outstanding liabilities")}</span>
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
@@ -625,7 +625,7 @@ export function DharLedger() {
           >
             {money(totals.netPoisha)}
           </p>
-          <span className="text-[11px] text-slate-500">
+          <span className="text-[12px] text-slate-500">
             {totals.netPoisha >= 0 ? T("সার্বিক পাওনা উদ্বৃত্ত", "Net surplus") : T("সার্বিক দেনার পরিমাণ", "Net deficit")}
           </span>
         </div>
@@ -649,7 +649,7 @@ export function DharLedger() {
         <button
           type="button"
           onClick={() => setShowEthics(!showEthics)}
-          className="flex w-full items-center justify-between text-left"
+          className="flex w-full items-center justify-between text-left min-h-[44px]"
         >
           <div className="flex items-center gap-2">
             <BookOpen size={17} className="text-indigo-700" />
@@ -664,7 +664,7 @@ export function DharLedger() {
           <div className="mt-3.5 grid gap-3 sm:grid-cols-2 pt-2 border-t border-indigo-100">
             {KARZ_HASANA_ETHICS.map((rule) => (
               <div key={rule.id} className="rounded-xl bg-white p-3 border border-indigo-100 space-y-1">
-                <span className="text-[11px] font-bold text-indigo-800 block">{rule.sourceBn}</span>
+                <span className="text-[12px] font-bold text-indigo-800 block">{rule.sourceBn}</span>
                 <strong className="text-[13px] text-slate-900 block">{rule.titleBn}</strong>
                 <p className="text-[12px] text-slate-600 leading-relaxed">{rule.descriptionBn}</p>
               </div>
@@ -689,7 +689,7 @@ export function DharLedger() {
               isListening
                 ? "bg-rose-600 text-white animate-pulse"
                 : "border border-indigo-200 bg-indigo-50 text-indigo-900 hover:bg-indigo-100"
-            }`}
+            } min-h-[44px] min-w-[44px]`}
           >
             {isListening ? <MicOff size={15} /> : <Mic size={15} />}
             {isListening ? T("শুনছি... বলুন", "Listening...") : T("ভয়েসে বলুন", "Voice Input")}
@@ -722,7 +722,7 @@ export function DharLedger() {
                       ? "border-emerald-600 bg-emerald-600 text-white shadow-2xs"
                       : "border-orange-600 bg-orange-600 text-white shadow-2xs"
                     : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
-                }`}
+                } min-w-[44px]`}
               >
                 {d === "receivable"
                   ? T("আমি পাব (ধার দিলাম / ঋণ দিলাম)", "I Receive (I Lent)")
@@ -750,7 +750,7 @@ export function DharLedger() {
                       isSelected
                         ? "border-indigo-600 bg-indigo-50 text-indigo-950 font-bold"
                         : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
-                    }`}
+                    } min-h-[44px] min-w-[44px]`}
                   >
                     <span>{catVal.icon}</span>
                     <span>{bn ? catVal.bn : catVal.en}</span>
@@ -764,10 +764,11 @@ export function DharLedger() {
         {/* Inputs Grid */}
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <div>
-            <label className="text-[12.5px] font-bold text-slate-700 block mb-0.5">
+            <label htmlFor="dhar-f-name" className="text-[12.5px] font-bold text-slate-700 block mb-0.5">
               {T("কার সাথে (নাম বা দোকান)", "Name or Shop")}
             </label>
             <input
+              id="dhar-f-name"
               value={form.counterparty}
               maxLength={60}
               onChange={(x) => set("counterparty", x.target.value)}
@@ -778,10 +779,11 @@ export function DharLedger() {
           </div>
 
           <div>
-            <label className="text-[12.5px] font-bold text-slate-700 block mb-0.5">
+            <label htmlFor="dhar-f-amount" className="text-[12.5px] font-bold text-slate-700 block mb-0.5">
               {T("টাকার পরিমাণ (৳)", "Amount (৳)")}
             </label>
             <input
+              id="dhar-f-amount"
               inputMode="decimal"
               value={form.amount}
               onChange={(x) => set("amount", x.target.value)}
@@ -792,10 +794,11 @@ export function DharLedger() {
           </div>
 
           <div>
-            <label className="text-[12.5px] font-bold text-slate-700 block mb-0.5">
+            <label htmlFor="dhar-f-phone" className="text-[12.5px] font-bold text-slate-700 block mb-0.5">
               {T("মোবাইল নম্বর (ঐচ্ছিক)", "Phone (Optional)")}
             </label>
             <input
+              id="dhar-f-phone"
               inputMode="tel"
               value={form.phone}
               onChange={(x) => set("phone", x.target.value)}
@@ -806,10 +809,11 @@ export function DharLedger() {
           </div>
 
           <div>
-            <label className="text-[12.5px] font-bold text-slate-700 block mb-0.5">
+            <label htmlFor="dhar-f-date" className="text-[12.5px] font-bold text-slate-700 block mb-0.5">
               {T("তারিখ", "Date")}
             </label>
             <input
+              id="dhar-f-date"
               type="date"
               value={form.date}
               max={today || undefined}
@@ -819,10 +823,11 @@ export function DharLedger() {
           </div>
 
           <div>
-            <label className="text-[12.5px] font-bold text-slate-700 block mb-0.5">
+            <label htmlFor="dhar-f-due" className="text-[12.5px] font-bold text-slate-700 block mb-0.5">
               {T("ফেরতের শেষ তারিখ (ঐচ্ছিক)", "Due Date (Optional)")}
             </label>
             <input
+              id="dhar-f-due"
               type="date"
               value={form.due}
               min={form.date || undefined}
@@ -832,10 +837,11 @@ export function DharLedger() {
           </div>
 
           <div>
-            <label className="text-[12.5px] font-bold text-slate-700 block mb-0.5">
+            <label htmlFor="dhar-f-note" className="text-[12.5px] font-bold text-slate-700 block mb-0.5">
               {T("নোট বা বিবরণ (ঐচ্ছিক)", "Note (Optional)")}
             </label>
             <input
+              id="dhar-f-note"
               value={form.note}
               maxLength={160}
               onChange={(x) => set("note", x.target.value)}
@@ -880,7 +886,7 @@ export function DharLedger() {
               <button
                 type="button"
                 onClick={save}
-                className="min-h-[42px] rounded-xl bg-emerald-700 px-5 text-[14px] font-bold text-white hover:bg-emerald-800"
+                className="min-h-[42px] rounded-xl bg-emerald-700 px-5 text-[14px] font-bold text-white hover:bg-emerald-800 min-h-[44px] min-w-[44px]"
                 data-testid="dhar-save"
               >
                 {T("সংরক্ষণ করুন", "Confirm & Save")}
@@ -888,7 +894,7 @@ export function DharLedger() {
               <button
                 type="button"
                 onClick={() => setReview(null)}
-                className="min-h-[42px] rounded-xl border border-slate-300 bg-white px-4 text-[14px] font-semibold text-slate-700 hover:bg-slate-100"
+                className="min-h-[42px] rounded-xl border border-slate-300 bg-white px-4 text-[14px] font-semibold text-slate-700 hover:bg-slate-100 min-h-[44px] min-w-[44px]"
               >
                 {T("সংশোধন করুন", "Edit")}
               </button>
@@ -913,11 +919,11 @@ export function DharLedger() {
                     p.netPoisha >= 0
                       ? "border-emerald-200 bg-emerald-50 text-emerald-950 hover:bg-emerald-100"
                       : "border-orange-200 bg-orange-50 text-orange-950 hover:bg-orange-100"
-                  }`}
+                  } min-h-[44px] min-w-[44px]`}
                 >
                   <strong>{p.name}:</strong>{" "}
                   <span className="font-mono font-bold">{money(Math.abs(p.netPoisha))}</span>{" "}
-                  <span className="text-[11.5px]">{p.netPoisha >= 0 ? T("পাব", "to get") : T("দেব", "to pay")}</span>
+                  <span className="text-[12px]">{p.netPoisha >= 0 ? T("পাব", "to get") : T("দেব", "to pay")}</span>
                 </button>
               </li>
             ))}
@@ -928,13 +934,14 @@ export function DharLedger() {
       {/* Search & Filter Toolbar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2">
         <div className="relative flex-1">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            aria-label={T("দেনা-পাওনা খুঁজুন", "Search the ledger")}
             placeholder={T("নাম, ফোন বা নোট দিয়ে খুঁজুন...", "Search by name, phone or note...")}
-            className="w-full min-h-[42px] rounded-xl border border-slate-300 bg-white pl-9 pr-3 text-[13.5px] outline-none focus:border-indigo-600"
+            className="w-full min-h-[42px] rounded-xl border border-slate-300 bg-white pl-9 pr-3 text-[13.5px] outline-none focus:border-indigo-600 min-h-[44px]"
           />
         </div>
 
@@ -942,7 +949,7 @@ export function DharLedger() {
           <select
             value={directionFilter}
             onChange={(e) => setDirectionFilter(e.target.value as any)}
-            className="min-h-[42px] rounded-xl border border-slate-300 bg-white px-3 text-[13px] font-semibold text-slate-800"
+            className="min-h-[42px] rounded-xl border border-slate-300 bg-white px-3 text-[13px] font-semibold text-slate-800 min-h-[44px]"
           >
             <option value="all">{T("সব হিসাব", "All Entries")}</option>
             <option value="receivable">{T("শুধু আমি পাব", "Receivables Only")}</option>
@@ -953,7 +960,7 @@ export function DharLedger() {
           <select
             value={activeCategory}
             onChange={(e) => setActiveCategory(e.target.value as any)}
-            className="min-h-[42px] rounded-xl border border-slate-300 bg-white px-3 text-[13px] font-semibold text-slate-800"
+            className="min-h-[42px] rounded-xl border border-slate-300 bg-white px-3 text-[13px] font-semibold text-slate-800 min-h-[44px]"
           >
             <option value="all">{T("সকল খাত", "All Categories")}</option>
             {Object.entries(DHAR_CATEGORIES).map(([cKey, cVal]) => (
@@ -966,7 +973,7 @@ export function DharLedger() {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as any)}
-            className="min-h-[42px] rounded-xl border border-slate-300 bg-white px-3 text-[13px] font-semibold text-slate-800"
+            className="min-h-[42px] rounded-xl border border-slate-300 bg-white px-3 text-[13px] font-semibold text-slate-800 min-h-[44px]"
           >
             <option value="date_desc">{T("তারিখ (নতুন)", "Date (Newest)")}</option>
             <option value="amount_desc">{T("টাকা (সর্বোচ্চ)", "Amount (High to Low)")}</option>
@@ -988,7 +995,7 @@ export function DharLedger() {
             <button
               type="button"
               onClick={() => setReminderEntry(null)}
-              className="kp-chip !min-h-[36px]"
+              className="kp-chip !min-h-[36px] min-h-[44px] min-w-[44px]"
             >
               <X size={15} />
             </button>
@@ -1008,7 +1015,7 @@ export function DharLedger() {
                     reminderTone === t
                       ? "bg-indigo-900 text-white shadow-2xs"
                       : "border border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
-                  }`}
+                  } min-h-[44px] min-w-[44px]`}
                 >
                   {t === "friendly"
                     ? T("🌸 বিনীত ও মিষ্টি তাগাদা", "Friendly")
@@ -1040,7 +1047,7 @@ export function DharLedger() {
                         flash(T("কপি করা যায়নি", "Could not copy"));
                       }
                     }}
-                    className="kp-chip !min-h-[42px] font-bold"
+                    className="kp-chip !min-h-[42px] font-bold min-h-[44px] min-w-[44px]"
                   >
                     <ClipboardCopy size={15} /> {T("কপি করুন", "Copy Text")}
                   </button>
@@ -1076,7 +1083,7 @@ export function DharLedger() {
             <p className="text-[15px] font-bold text-slate-900">
               {T("হিসাবের স্লিপ (ডিজিটাল রসিদ)", "Dues Statement Slip")}
             </p>
-            <button type="button" onClick={() => setSlipFor(null)} className="kp-chip !min-h-[36px]" aria-label="Close">
+            <button type="button" onClick={() => setSlipFor(null)} className="kp-chip !min-h-[36px] min-h-[44px] min-w-[44px]" aria-label="Close">
               <X size={15} aria-hidden />
             </button>
           </div>
@@ -1084,7 +1091,7 @@ export function DharLedger() {
             {slip}
           </pre>
           <div className="flex flex-wrap gap-2">
-            <button type="button" onClick={copySlip} className="kp-chip !min-h-[42px] font-bold">
+            <button type="button" onClick={copySlip} className="kp-chip !min-h-[42px] font-bold min-h-[44px] min-w-[44px]">
               <ClipboardCopy size={15} aria-hidden /> {T("কপি", "Copy")}
             </button>
             {slipPerson?.phone && (
@@ -1133,7 +1140,7 @@ export function DharLedger() {
           <button
             type="button"
             onClick={() => setShowSettled((v) => !v)}
-            className="kp-chip !min-h-[40px] font-semibold"
+            className="kp-chip !min-h-[40px] font-semibold min-h-[44px] min-w-[44px]"
           >
             {showSettled
               ? T("মিটে যাওয়া হিসাব লুকান", "Hide Settled")

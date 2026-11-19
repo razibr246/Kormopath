@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { Tracer } from "@/lib/trace";
 import { structured } from "@/lib/llm";
-import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
+import { checkRateLimitShared, rateLimitResponse } from "@/lib/rateLimit";
 import { doseIn } from "@/lib/field360Guard";
 
 export const runtime = "nodejs";
@@ -61,7 +61,7 @@ Give a careful first look, as an experienced Sub-Assistant Agriculture Officer o
 Return ONLY JSON with keys: is_crop_photo, crop_seen, image_quality (good|poor|unusable), retake_tip, findings[{key,name_bn,name_en,likelihood,evidence}] (max 3; use a key from the known list when it fits, else "other"; "healthy" if nothing is wrong), urgency (low|medium|high), summary, actions_now[], treatment_note, call_officer_if.`;
 
 export async function POST(req: Request) {
-  const rl = checkRateLimit(req, { limit: 10, windowMs: 60_000, bucket: "field360-doctor" });
+  const rl = await checkRateLimitShared(req, { limit: 10, windowMs: 60_000, bucket: "field360-doctor" });
   if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
   const tracer = new Tracer("CropDoctor");
   const p = Body.safeParse(await req.json().catch(() => ({})));

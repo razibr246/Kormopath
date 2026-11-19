@@ -8,6 +8,7 @@ import {
   type AgeGroup, type BodyAreaId, type MedicalTerm, type RedFlag,
 } from "@/lib/health/specialty";
 import { BodyMap } from "./BodyMap";
+import { isOfflineEngine, OFFLINE_LABEL } from "@/lib/health/offline";
 import "./assistant.css";
 
 type Result =
@@ -151,6 +152,11 @@ export function SymptomAssistant({ lang, setLang }: { lang: "bn" | "en"; setLang
             </div>
           </fieldset>
           <div>
+            <div role="note" data-testid="assist-999-strip" className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border-2 border-red-300 bg-red-50 px-3 py-2 text-[14.5px] font-semibold leading-snug text-red-900">
+              <AlertTriangle size={18} aria-hidden className="shrink-0" />
+              <span className="min-w-0 flex-1">{T("বুকে ব্যথা · শ্বাস নিতে পারছে না · অজ্ঞান · মরে যেতে ইচ্ছা করছে → এখনই ৯৯৯", "Chest pain · can't breathe · unconscious · want to die → call 999 now")}</span>
+              <a href="tel:999" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-red-700 px-3 text-white"><Phone size={16} aria-hidden /> {T("৯৯৯-এ কল", "Call 999")}</a>
+            </div>
             <label htmlFor="hb-text" className="text-[14px] font-semibold text-slate-700">{T("উপসর্গ", "Symptoms")}</label>
             <div className="mt-1 flex gap-2">
               <textarea id="hb-text" data-testid="symptom-input" value={text} onChange={(e) => setText(e.target.value.slice(0, 1500))} rows={4} disabled={!noneTicked}
@@ -164,7 +170,7 @@ export function SymptomAssistant({ lang, setLang }: { lang: "bn" | "en"; setLang
             <label className="text-[13.5px] font-semibold text-slate-700">{T("এখন যে ওষুধ খান", "Medicines you take")}<input value={meds} onChange={(e) => setMeds(e.target.value.slice(0, 200))} disabled={!noneTicked} className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2.5 text-[15px]" /></label>
             <label className="text-[13.5px] font-semibold text-slate-700">{T("অ্যালার্জি", "Allergies")}<input value={allergies} onChange={(e) => setAllergies(e.target.value.slice(0, 120))} disabled={!noneTicked} className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2.5 text-[15px]" /></label>
           </div>
-          <p className="text-[13px] leading-relaxed text-slate-600">{T("ওষুধ ও অ্যালার্জির ঘর শুধু ডাক্তারের নোটে বসে; কোথাও পাঠানো বা সংরক্ষণ হয় না। উপসর্গের লেখা শুধু উত্তর তৈরির জন্য পাঠানো হয়, রাখা হয় না।", "Medicines and allergies only go into your note for the doctor; they are not sent or saved. Symptoms are sent only to make the answer and are not kept.")}</p>
+          <p className="text-[13px] leading-relaxed text-slate-600">{T("ওষুধ ও অ্যালার্জির ঘর শুধু ডাক্তারের নোটে বসে; কোথাও পাঠানো বা সংরক্ষণ হয় না। উপসর্গের লেখা শুধু উত্তর তৈরির জন্য পাঠানো হয়, রাখা হয় না।", "Medicines and allergies only go into your note for the doctor; they are not sent or saved. Symptoms are sent only to make the answer and are not kept.")}{" "}<Link href="/privacy" className="font-semibold text-sky-800 underline underline-offset-2" data-testid="privacy-link">{T("গোপনীয়তা", "Privacy")}</Link></p>
           <button type="button" data-testid="symptom-submit" onClick={submit} disabled={!noneTicked || text.trim().length < 2 || loading} className="kp-btn-primary kp-btn-lg inline-flex items-center gap-2 disabled:opacity-50">
             <Stethoscope size={18} aria-hidden /> {T("কোন ডাক্তার দেখাব?", "Which doctor should I see?")}
           </button>
@@ -208,7 +214,9 @@ export function SymptomAssistant({ lang, setLang }: { lang: "bn" | "en"; setLang
           </details>
           <p className="text-[13px] leading-relaxed text-slate-600">
             {T("এটি রোগ নির্ণয় নয় এবং কোনো ওষুধের পরামর্শ নয় — শুধু কোন ধরনের ডাক্তারের কাছে যাবেন তার ধারণা। অবস্থা খারাপ হলে বা নতুন বিপদের লক্ষণ দেখলে সঙ্গে সঙ্গে ৯৯৯।", "This is not a diagnosis and not medicine advice — only an idea of which kind of doctor to see. If things get worse or a danger sign appears, call 999 at once.")}
-            {" "}<span className="font-mono text-[12px] text-slate-500" data-testid="assist-engine">({result.engine})</span>
+            {" "}{isOfflineEngine(result.engine)
+              ? <span className="rounded-full border border-amber-300 bg-amber-50 px-2 py-0.5 text-[12px] font-semibold text-amber-900" data-testid="offline-label">{T(`${OFFLINE_LABEL.bn} · নিয়ম থেকে`, `${OFFLINE_LABEL.en} · from fixed rules`)}</span>
+              : <span className="font-mono text-[12px] text-slate-500" data-testid="assist-engine">({result.engine})</span>}
           </p>
         </section>
       )}

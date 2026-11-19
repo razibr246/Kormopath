@@ -5,7 +5,7 @@ import { DemoPlayer } from "@/components/judges/DemoPlayer";
 
 export const metadata: Metadata = {
   title: "Demo video",
-  description: "A narrated 2-minute tour of KormoPath: the four-agent flagship and six everyday apps.",
+  description: "A narrated 2-minute tour of KormoPath: the four-agent flagship and 11 everyday apps.",
 };
 
 export default function DemoPage() {

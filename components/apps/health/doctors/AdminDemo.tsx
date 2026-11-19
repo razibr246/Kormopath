@@ -93,6 +93,9 @@ export function AdminDemo() {
           <h1 className="flex items-center gap-2 text-[clamp(26px,4vw,38px)] font-semibold leading-tight text-slate-900"><ShieldCheck size={28} className="text-amber-700" aria-hidden /> {T("অ্যাডমিন ডেমো", "Admin demo")}</h1>
           <button type="button" onClick={() => setLang(bn ? "en" : "bn")} className="kp-chip !h-10 !rounded-full !text-[13px] font-semibold">{bn ? "EN" : "বাং"}</button>
         </div>
+        <p role="note" data-testid="admin-demo-banner" className="rounded-xl bg-red-700 px-4 py-3 text-[16px] font-bold leading-snug text-white">
+          {T("ডেমো — শুধু এই ডিভাইসে। এখান থেকে কোনো টাকা নেওয়া যায় না, কোনো পেমেন্ট নম্বর দেখানো হয় না।", "Demo — this device only. It cannot take payments and never shows a payment number.")}
+        </p>
         <p className="flex gap-2 text-[14.5px] leading-relaxed text-amber-950"><AlertTriangle size={18} className="mt-0.5 shrink-0" aria-hidden /> {T("লগইন নেই, সার্ভার নেই: এখানে যা করবেন তা শুধু এই ডিভাইসে থাকে। আসল সেবা চালাতে হলে এই কাজগুলো একটি সুরক্ষিত সার্ভারে, লগইনসহ করতে হবে।", "No login, no server: everything here stays on this device. Running a real service needs these steps on a secured server with logins.")}</p>
       </section>
       {msg && <p role="status" className="rounded-xl border border-sky-300 bg-sky-50 p-3 text-[14.5px] font-semibold text-sky-900">{msg}</p>}

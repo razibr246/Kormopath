@@ -148,7 +148,7 @@ export default function StepPriorities() {
                   {o.money && <MiniBar value={Math.max(2, (o.money.net / maxVal) * 100)} color={o.money.net < 0 ? 'bg-red-500' : 'bg-primary-500'} className="mt-1" />}
                 </Cell>
                 <Cell cls={hl('fert')} k={T('সার/বিঘা (SRDI)', 'Fertiliser/bigha (SRDI)')} v={o.money?.fert != null ? `৳${num(o.money.fert, lang)}` : '–'} sub={T('খরচের ভেতরেই ধরা', 'already in the cost')} />
-                <Cell cls={hl2('soil', 'glut')} k={T('মাটি · দাম পড়া', 'Soil · price drop')} v={<span className="inline-flex items-center gap-1">{num(o.comp.S, lang)} · <span className={`chip ${RISK_STYLE[o.glut.level].cls}`}>{L(RISK_STYLE[o.glut.level])}</span></span>} />
+                <Cell cls={hl2('soil', 'glut')} k={T('মাটি · দাম পড়া', 'Soil · price drop')} v={<span className="inline-flex items-center gap-1">{num(o.comp.S, lang)} · <span className={`chip !text-[12px] ${RISK_STYLE[o.glut.level].cls}`}>{L(RISK_STYLE[o.glut.level])}</span></span>} />
               </div>
               <WhyBar o={o} weights={decision.weights} className="mt-2.5" />
             </li>
@@ -157,7 +157,7 @@ export default function StepPriorities() {
         {leftOut.length > 0 && (
           <ul className="mt-2.5 space-y-1.5">
             {leftOut.map((o) => (
-              <li key={o.crop.id} className="flex items-center gap-3 rounded-2xl border border-dashed border-red-200 bg-red-50/40 p-3 text-ink/55">
+              <li key={o.crop.id} className="flex items-center gap-3 rounded-2xl border border-dashed border-red-200 bg-red-50/40 p-3 text-ink/75">
                 <Ban size={16} className="shrink-0 text-red-700" />
                 <span className="font-display text-[16px] font-bold line-through decoration-2">{L(o.crop.name)}</span>
                 <span className="text-[13px]">{T(`আপনি বাদ দিয়েছেন (থাকলে নম্বর হতো ${num(o.score, 'bn', { dp: 0 })})`, `Left out by you (it would score ${num(o.score, 'en', { dp: 0 })})`)}</span>
@@ -198,9 +198,9 @@ export default function StepPriorities() {
 
 const Cell = ({ k, v, sub, cls, children }) => (
   <div className={`rounded-lg px-2.5 py-1.5 transition-colors duration-300 ${cls}`}>
-    <div className="text-[11.5px] text-muted">{k}</div>
+    <div className="text-[12px] text-muted">{k}</div>
     <div className="font-semibold tabular">{v}</div>
-    {sub && <div className="text-[11px] leading-4 text-muted">{sub}</div>}
+    {sub && <div className="text-[12px] leading-4 text-muted">{sub}</div>}
     {children}
   </div>
 );

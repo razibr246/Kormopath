@@ -3,7 +3,7 @@ import { z } from "zod";
 import { Tracer } from "@/lib/trace";
 import { structured, llmAvailable, modelName } from "@/lib/llm";
 import { numberAppears, verifyEvidence } from "@/lib/grounding";
-import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
+import { checkRateLimitShared, rateLimitResponse } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -26,7 +26,7 @@ currency (ISO code), date (YYYY-MM-DD or null), reference (transaction ID as pri
 Copy values exactly as printed. If something is not visible, use null. Return ONLY JSON.`;
 
 export async function POST(req: Request) {
-  const rl = checkRateLimit(req, { limit: 20, windowMs: 60_000, bucket: "receipt" });
+  const rl = await checkRateLimitShared(req, { limit: 20, windowMs: 60_000, bucket: "receipt" });
   if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
 
   const tracer = new Tracer("Ledger");

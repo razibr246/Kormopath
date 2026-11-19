@@ -110,7 +110,7 @@ export function OpportunityTracker({ items, onAdd, onUpdate, onRemove }: Tracker
                 </span>
               )}
             </div>
-            <span className="text-[11px] text-slate-500">স্টেজ অনুযায়ী ফিল্টার করুন:</span>
+            <span className="text-[12px] text-slate-500">স্টেজ অনুযায়ী ফিল্টার করুন:</span>
           </div>
 
           <div className="flex flex-wrap gap-1.5 pt-1">
@@ -131,7 +131,7 @@ export function OpportunityTracker({ items, onAdd, onUpdate, onRemove }: Tracker
                   filter === tab.id
                     ? "bg-indigo-700 text-white shadow-sm"
                     : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
-                }`}
+                } min-h-[44px] min-w-[44px]`}
               >
                 {tab.label}
               </button>
@@ -197,7 +197,7 @@ function OpportunityCard({ item, today, onUpdate, onRemove }: Pick<TrackerProps,
   return (
     <li className="min-w-0 space-y-3 rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs hover:border-indigo-300 transition-all">
       <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
-        <a href={item.url} target="_blank" rel="noopener noreferrer" className="flex min-w-0 flex-1 items-start gap-1.5 text-sm font-bold text-indigo-800 hover:underline">
+        <a href={item.url} target="_blank" rel="noopener noreferrer" className="flex min-w-0 flex-1 items-start gap-1.5 text-sm font-bold text-indigo-800 hover:underline min-h-[44px]">
           <span className="min-w-0 [overflow-wrap:anywhere]">{item.title}</span><ExternalLink size={13} className="mt-0.5 shrink-0" aria-hidden />
         </a>
         <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-bold ${statusClass[item.status]}`}>{OPPORTUNITY_STATUSES[item.status]}</span>
@@ -217,12 +217,12 @@ function OpportunityCard({ item, today, onUpdate, onRemove }: Pick<TrackerProps,
         <button
           type="button"
           onClick={() => setShowChecklist(!showChecklist)}
-          className="flex w-full items-center justify-between text-left text-xs font-semibold text-slate-700 hover:text-indigo-900"
+          className="flex w-full items-center justify-between text-left text-xs font-semibold text-slate-700 hover:text-indigo-900 min-h-[44px]"
         >
           <span className="flex items-center gap-1.5">
             <CheckCircle2 size={13} className={checkedCount === APPLICATION_CHECKLIST_TEMPLATE.length ? "text-emerald-600" : "text-indigo-600"} />
             আবেদনের নথিপত্র চেকলিস্ট
-            <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-bold text-indigo-900">
+            <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-[12px] font-bold text-indigo-900">
               {checkedCount}/{APPLICATION_CHECKLIST_TEMPLATE.length}
             </span>
           </span>
@@ -238,22 +238,22 @@ function OpportunityCard({ item, today, onUpdate, onRemove }: Pick<TrackerProps,
                   <button
                     type="button"
                     onClick={() => toggleChecklist(doc.id)}
-                    className="flex flex-1 items-start gap-2 text-left"
+                    className="flex flex-1 items-start gap-2 text-left min-h-[44px] min-w-[44px]"
                   >
                     {isChecked ? (
                       <CheckSquare size={14} className="mt-0.5 shrink-0 text-emerald-600" />
                     ) : (
-                      <Square size={14} className="mt-0.5 shrink-0 text-slate-400" />
+                      <Square size={14} className="mt-0.5 shrink-0 text-slate-500" />
                     )}
                     <span className={isChecked ? "text-slate-500 line-through" : "font-medium text-slate-800"}>
                       {doc.labelBn}
-                      <span className="block text-[10px] text-slate-400 font-normal">{doc.detailBn}</span>
+                      <span className="block text-[12px] text-slate-500 font-normal">{doc.detailBn}</span>
                     </span>
                   </button>
                   {doc.appHref && (
                     <Link
                       href={doc.appHref}
-                      className="inline-flex shrink-0 items-center gap-0.5 text-[10px] font-bold text-indigo-700 hover:underline"
+                      className="inline-flex shrink-0 items-center gap-0.5 text-[12px] font-bold text-indigo-700 hover:underline min-h-[44px] min-w-[44px]"
                     >
                       {doc.appLabel || "টুল"} <ArrowUpRight size={10} />
                     </Link>
@@ -286,8 +286,8 @@ function OpportunityCard({ item, today, onUpdate, onRemove }: Pick<TrackerProps,
         </form>
       ) : (
         <div className="flex items-center justify-between gap-2 border-t border-slate-200 pt-2">
-          <button type="button" className="rounded-lg px-2 py-1.5 text-xs font-bold text-indigo-800 hover:bg-indigo-50" onClick={() => { setDateError(false); setEditing(true); }}>অগ্রগতি সম্পাদনা</button>
-          <button type="button" aria-label={`${item.title} সরান`} className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-700" onClick={() => onRemove(item.id)}><Trash2 size={15} aria-hidden /></button>
+          <button type="button" className="rounded-lg px-2 py-1.5 text-xs font-bold text-indigo-800 hover:bg-indigo-50 min-h-[44px] min-w-[44px]" onClick={() => { setDateError(false); setEditing(true); }}>অগ্রগতি সম্পাদনা</button>
+          <button type="button" aria-label={`${item.title} সরান`} className="grid h-11 w-11 shrink-0 place-items-center rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-700" onClick={() => onRemove(item.id)}><Trash2 size={15} aria-hidden /></button>
         </div>
       )}
     </li>

@@ -25,7 +25,7 @@ export default function QuickPath() {
         <div className="flex items-center gap-2">
           <h2 className="text-[19px] font-bold text-ink">{T('শুরু করুন চার ধাপে', 'Start in four steps')}</h2>
           {n === steps.length && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11.5px] font-bold text-emerald-800 shadow-2xs">
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-[12px] font-bold text-emerald-800 shadow-2xs">
               <Sparkles size={12} className="text-emerald-700" />
               {T('সব ধাপ সম্পন্ন!', 'All steps complete!')}
             </span>
@@ -33,7 +33,7 @@ export default function QuickPath() {
         </div>
         <div className="flex items-center gap-2 text-[13px] font-semibold text-muted">
           <span className="tabular font-bold text-primary-800">{T(`৪টির মধ্যে ${num(n, 'bn')}টি হয়েছে`, `${n} of 4 done`)}</span>
-          <span className="text-muted/40">·</span>
+          <span className="text-muted">·</span>
           <span className="tabular font-bold text-primary-700">{pct}%</span>
         </div>
       </div>
@@ -65,7 +65,7 @@ export default function QuickPath() {
                 {x.done ? <CheckCircle2 size={19} className="text-white" /> : <x.icon size={19} />}
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block text-[11.5px] font-bold uppercase tracking-wider text-muted">
+                <span className="block text-[12px] font-bold uppercase tracking-wider text-muted">
                   {T(`ধাপ ${num(i + 1, 'bn')}`, `Step ${i + 1}`)}
                 </span>
                 <span className="block text-[15px] font-bold leading-tight text-ink group-hover:text-primary-900 transition-colors">
@@ -75,7 +75,7 @@ export default function QuickPath() {
                   {x.sub}
                 </span>
               </span>
-              <ChevronRight size={17} className="shrink-0 text-muted/40 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-primary-700" />
+              <ChevronRight size={17} className="shrink-0 text-muted transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-primary-700" />
             </button>
           </li>
         ))}

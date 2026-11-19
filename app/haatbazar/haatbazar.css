@@ -103,7 +103,7 @@
   grid-auto-flow: column;
   align-items: center;
   gap: 5px;
-  font: 700 11.5px/1.1 var(--font-sans, system-ui);
+  font: 700 12px/1.1 var(--font-sans, system-ui);
   color: oklch(0.32 0.05 60);
   text-align: center;
   white-space: nowrap;

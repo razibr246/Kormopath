@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
+import { checkRateLimitShared, rateLimitResponse } from "@/lib/rateLimit";
 import { Tracer } from "@/lib/trace";
 import { prepareBanglaSpeech, banglaShare } from "@/lib/banglaSpeech";
 import { TTS_MODELS, geminiAvailable, interact, outputAudio } from "@/lib/gemini";
@@ -17,7 +17,7 @@ const VOICE = process.env.GEMINI_TTS_VOICE || "Kore";
 const STYLE = "Warm, calm and friendly; standard Bangladeshi Bangla as spoken by an educated Dhaka speaker; natural pace with short pauses at each দাঁড়ি; no Kolkata or English accent.";
 
 export async function POST(req: Request) {
-  const rl = checkRateLimit(req, { limit: 12, windowMs: 60_000, bucket: "buddy-speech" });
+  const rl = await checkRateLimitShared(req, { limit: 12, windowMs: 60_000, bucket: "buddy-speech" });
   if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
 
   const parsed = Body.safeParse(await req.json().catch(() => null));

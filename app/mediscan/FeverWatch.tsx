@@ -7,6 +7,7 @@ import {
   DENGUE_SOURCES, WARNING_SIGNS, assessFever, feverSummaryText, sanitizeFeverWatch, todayInBangladesh,
   MAX_FEVER_CHECKS, type FeverCheck, type FeverWatch as FeverWatchData,
 } from "@/lib/dengue";
+import { readableDate } from "./bnDate";
 
 const bnNum = (v: number | string) => String(v).replace(/\d/g, (d) => "০১২৩৪৫৬৭৮৯"[Number(d)]);
 
@@ -63,13 +64,16 @@ export function FeverWatch() {
             )}
           </p>
         </div>
-        <button type="button" onClick={() => setLang(bn ? "en" : "bn")} className="kp-chip !h-8 !rounded-full !text-[12px] font-semibold" aria-label={bn ? "Switch to English" : "বাংলায় দেখুন"}>{bn ? "EN" : "বাং"}</button>
+        <button type="button" onClick={() => setLang(bn ? "en" : "bn")} className="kp-chip !h-11 !min-w-[44px] !rounded-full !text-[13px] font-semibold" aria-label={bn ? "Switch to English" : "বাংলায় দেখুন"}>{bn ? "EN" : "বাং"}</button>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
           <label htmlFor="fv-start" className="text-[14px] font-semibold text-slate-800">{T("জ্বর কবে শুরু হয়েছে", "When did the fever start")}</label>
-          <input id="fv-start" type="date" value={feverStart} max={today || undefined} onChange={(e) => setFeverStart(e.target.value)} className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2.5 text-[15px]" />
+          <input id="fv-start" type="date" value={feverStart} max={today || undefined} onChange={(e) => setFeverStart(e.target.value)} aria-describedby="fv-start-read" className="mt-1 min-h-[48px] w-full rounded-xl border border-slate-300 px-3 py-2.5 text-[15px]" />
+          <p id="fv-start-read" className="mt-1 text-[14px] text-slate-700" data-testid="fever-start-bn">
+            {feverStart ? <>{T("বেছে নেওয়া তারিখ: ", "Chosen date: ")}<strong className="font-semibold text-slate-900">{readableDate(feverStart, bn)}</strong></> : T("ক্যালেন্ডার থেকে তারিখ বেছে নিন", "Pick the date from the calendar")}
+          </p>
           {a.day !== null && <p className="mt-1 text-[14px] font-semibold text-slate-800" data-testid="fever-day">{T(`আজ জ্বরের ${bnNum(a.day)}তম দিন`, `Today is day ${a.day} of the fever`)}</p>}
         </div>
         <label className="flex min-h-[52px] items-center gap-3 self-end rounded-xl border border-slate-300 px-3 py-2 text-[15px]">

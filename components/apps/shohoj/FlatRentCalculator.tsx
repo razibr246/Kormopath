@@ -177,7 +177,7 @@ export function FlatRentCalculator({
             tab === "movein"
               ? "border-emerald-700 text-emerald-900 bg-emerald-50/50"
               : "border-transparent text-slate-600 hover:text-slate-900"
-          }`}
+          } min-h-[44px] min-w-[44px]`}
         >
           ১. বাসা বদল ও ১ম মাসের খরচের বাজেট
         </button>
@@ -188,7 +188,7 @@ export function FlatRentCalculator({
             tab === "split"
               ? "border-emerald-700 text-emerald-900 bg-emerald-50/50"
               : "border-transparent text-slate-600 hover:text-slate-900"
-          }`}
+          } min-h-[44px] min-w-[44px]`}
         >
           ২. ফ্ল্যাটমেট রুম ভাড়া বণ্টন ক্যালকুলেটর
         </button>
@@ -216,7 +216,7 @@ export function FlatRentCalculator({
                   type="text"
                   value={rentInput}
                   onChange={(e) => setRentInput(e.target.value)}
-                  className="mt-1 w-full min-h-[42px] rounded-xl border border-slate-300 px-3.5 text-[15px] font-mono font-semibold"
+                  className="mt-1 w-full min-h-[42px] rounded-xl border border-slate-300 px-3.5 text-[15px] font-mono font-semibold min-h-[44px]"
                 />
               </div>
 
@@ -228,7 +228,7 @@ export function FlatRentCalculator({
                   type="text"
                   value={advanceInput}
                   onChange={(e) => setAdvanceInput(e.target.value)}
-                  className="mt-1 w-full min-h-[42px] rounded-xl border border-slate-300 px-3.5 text-[15px] font-mono font-semibold"
+                  className="mt-1 w-full min-h-[42px] rounded-xl border border-slate-300 px-3.5 text-[15px] font-mono font-semibold min-h-[44px]"
                 />
               </div>
 
@@ -240,7 +240,7 @@ export function FlatRentCalculator({
                   type="text"
                   value={utilsInput}
                   onChange={(e) => setUtilsInput(e.target.value)}
-                  className="mt-1 w-full min-h-[42px] rounded-xl border border-slate-300 px-3.5 text-[15px] font-mono"
+                  className="mt-1 w-full min-h-[42px] rounded-xl border border-slate-300 px-3.5 text-[15px] font-mono min-h-[44px]"
                 />
               </div>
 
@@ -252,7 +252,7 @@ export function FlatRentCalculator({
                   type="text"
                   value={vanInput}
                   onChange={(e) => setVanInput(e.target.value)}
-                  className="mt-1 w-full min-h-[42px] rounded-xl border border-slate-300 px-3.5 text-[15px] font-mono"
+                  className="mt-1 w-full min-h-[42px] rounded-xl border border-slate-300 px-3.5 text-[15px] font-mono min-h-[44px]"
                 />
               </div>
 
@@ -264,7 +264,7 @@ export function FlatRentCalculator({
                   type="text"
                   value={mealInput}
                   onChange={(e) => setMealInput(e.target.value)}
-                  className="mt-1 w-full min-h-[42px] rounded-xl border border-slate-300 px-3.5 text-[15px] font-mono"
+                  className="mt-1 w-full min-h-[42px] rounded-xl border border-slate-300 px-3.5 text-[15px] font-mono min-h-[44px]"
                 />
               </div>
             </div>
@@ -307,7 +307,7 @@ export function FlatRentCalculator({
 
               <div className="rounded-xl bg-slate-900 text-white p-3.5 flex items-center justify-between">
                 <div>
-                  <span className="text-[12px] text-slate-400 block">পরবর্তী প্রতি মাসের আনুমানিক খরচ</span>
+                  <span className="text-[12px] text-slate-500 block">পরবর্তী প্রতি মাসের আনুমানিক খরচ</span>
                   <strong className="text-[18px] font-bold font-mono">
                     {takaText(moveInResult.recurringMonthlyPoisha, true)} / মাস
                   </strong>
@@ -364,7 +364,7 @@ export function FlatRentCalculator({
                   type="text"
                   value={totalFlatRentInput}
                   onChange={(e) => setTotalFlatRentInput(e.target.value)}
-                  className="w-32 min-h-[42px] rounded-xl border border-slate-300 px-3 text-[16px] font-mono font-bold text-emerald-900"
+                  className="w-32 min-h-[42px] rounded-xl border border-slate-300 px-3 text-[16px] font-mono font-bold text-emerald-900 min-h-[44px]"
                 />
               </div>
             </div>
@@ -385,7 +385,7 @@ export function FlatRentCalculator({
                     value={room.name}
                     onChange={(e) => updateRoom(room.id, { name: e.target.value })}
                     placeholder="রুমের নাম"
-                    className="w-36 min-h-[38px] rounded-lg border border-slate-300 bg-white px-2.5 text-[14px] font-semibold"
+                    className="w-36 min-h-[38px] rounded-lg border border-slate-300 bg-white px-2.5 text-[14px] font-semibold min-h-[44px]"
                   />
 
                   <input
@@ -393,10 +393,10 @@ export function FlatRentCalculator({
                     value={room.occupantName}
                     onChange={(e) => updateRoom(room.id, { occupantName: e.target.value })}
                     placeholder="কে বা কারা থাকবেন"
-                    className="min-w-[130px] flex-1 min-h-[38px] rounded-lg border border-slate-300 bg-white px-2.5 text-[14px]"
+                    className="min-w-[130px] flex-1 min-h-[38px] rounded-lg border border-slate-300 bg-white px-2.5 text-[14px] min-h-[44px]"
                   />
 
-                  <label className="flex items-center gap-1.5 text-[13px] font-medium text-slate-700 cursor-pointer">
+                  <label className="flex items-center gap-1.5 text-[13px] font-medium text-slate-700 cursor-pointer min-h-[44px]">
                     <input
                       type="checkbox"
                       checked={room.hasAttachedBath}
@@ -406,7 +406,7 @@ export function FlatRentCalculator({
                     <span>অ্যাটাচড বাথ (+৩০%)</span>
                   </label>
 
-                  <label className="flex items-center gap-1.5 text-[13px] font-medium text-slate-700 cursor-pointer">
+                  <label className="flex items-center gap-1.5 text-[13px] font-medium text-slate-700 cursor-pointer min-h-[44px]">
                     <input
                       type="checkbox"
                       checked={room.hasBalcony}
@@ -420,7 +420,7 @@ export function FlatRentCalculator({
                     <button
                       type="button"
                       onClick={() => removeRoom(room.id)}
-                      className="text-slate-400 hover:text-red-700 p-1"
+                      className="text-slate-500 hover:text-red-700 p-1 min-h-[44px] min-w-[44px]"
                       aria-label="Remove room"
                     >
                       <Trash2 size={16} />
@@ -435,7 +435,7 @@ export function FlatRentCalculator({
                 type="button"
                 onClick={addRoom}
                 disabled={rooms.length >= 8}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-[13.5px] font-bold text-slate-800 hover:bg-slate-50 disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-[13.5px] font-bold text-slate-800 hover:bg-slate-50 disabled:opacity-50 min-h-[44px] min-w-[44px]"
               >
                 <Plus size={16} />
                 <span>আরও একটি রুম যোগ করুন</span>
@@ -452,7 +452,7 @@ export function FlatRentCalculator({
               <button
                 type="button"
                 onClick={copySplitSummary}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-800 px-3.5 py-2 text-[13px] font-bold text-white hover:bg-emerald-900 transition-colors"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-800 px-3.5 py-2 text-[13px] font-bold text-white hover:bg-emerald-900 transition-colors min-h-[44px] min-w-[44px]"
               >
                 {copiedSplit ? <Check size={15} /> : <Copy size={15} />}
                 <span>{copiedSplit ? "কপি হয়েছে" : "মেসেঞ্জারে শেয়ার কপি"}</span>
@@ -467,7 +467,7 @@ export function FlatRentCalculator({
                 >
                   <div className="flex items-center justify-between">
                     <strong className="text-[15px] text-slate-900">{item.name}</strong>
-                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-900">
+                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[12px] font-bold text-emerald-900">
                       {bnDigits(item.percentage)}%
                     </span>
                   </div>

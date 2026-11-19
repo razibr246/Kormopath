@@ -126,12 +126,12 @@ export function RentPocketsPanel({ month, today, recordedIncomePoisha }: { month
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 id="pockets-h" className="flex items-center gap-1.5 text-[16px] font-bold"><Home size={17} aria-hidden /> {t("title")}</h2>
         <div className="flex items-center gap-2">
-          <div role="group" aria-label="Language" className="inline-flex rounded-lg border border-slate-200 text-[11px] font-bold">
+          <div role="group" aria-label="Language" className="inline-flex rounded-lg border border-slate-200 text-[12px] font-bold">
             {(["bn", "en"] as const).map((l) => (
-              <button key={l} onClick={() => setLang(l)} aria-pressed={lang === l} className={`px-2 py-1 ${lang === l ? "bg-slate-900 text-white" : "text-slate-600"} rounded-md`}>{l === "bn" ? "বাংলা" : "EN"}</button>
+              <button key={l} onClick={() => setLang(l)} aria-pressed={lang === l} className={`px-2 py-1 ${lang === l ? "bg-slate-900 text-white" : "text-slate-600"} rounded-md min-h-[44px] min-w-[44px]`}>{l === "bn" ? "বাংলা" : "EN"}</button>
             ))}
           </div>
-          <button onClick={() => { setOpen(!open); setPending(null); }} className="text-[12px] font-bold text-emerald-700">{open ? t("cancel") : t("add")}</button>
+          <button onClick={() => { setOpen(!open); setPending(null); }} className="text-[12px] font-bold text-emerald-700 min-h-[44px] min-w-[44px]">{open ? t("cancel") : t("add")}</button>
         </div>
       </div>
       <p className="text-[12px] text-slate-500">{t("intro")}</p>
@@ -148,12 +148,12 @@ export function RentPocketsPanel({ month, today, recordedIncomePoisha }: { month
             onChange={(e) => setIncomeText(e.target.value)}
             onBlur={commitIncome}
             onKeyDown={(e) => { if (e.key === "Enter") commitIncome(); }}
-            className="w-32 rounded border border-slate-200 px-2 py-1 text-[14px] font-bold"
+            className="w-32 rounded border border-slate-200 px-2 py-1 text-[14px] font-bold min-h-[44px]"
           />
           <button
             onClick={() => { setIncomeText(null); setIncomeByMonth((m) => { const n = { ...m }; delete n[month]; return n; }); }}
             disabled={manualIncome === undefined}
-            className="rounded-lg bg-white px-2 py-1 font-bold text-emerald-800 ring-1 ring-emerald-200 disabled:opacity-40"
+            className="rounded-lg bg-white px-2 py-1 font-bold text-emerald-800 ring-1 ring-emerald-200 disabled:opacity-40 min-h-[44px] min-w-[44px]"
           >
             {t("useRecorded")}
           </button>
@@ -166,20 +166,20 @@ export function RentPocketsPanel({ month, today, recordedIncomePoisha }: { month
           {!pending ? (
             <>
               <label className="font-bold text-slate-600">{t("kind")}
-                <select value={kind} onChange={(e) => setKind(e.target.value as DueKind)} className="mt-1 block w-full rounded border border-slate-200 bg-white px-2 py-1">
+                <select value={kind} onChange={(e) => setKind(e.target.value as DueKind)} className="mt-1 block w-full rounded border border-slate-200 bg-white px-2 py-1 min-h-[44px]">
                   {DUE_KINDS.map((k) => <option key={k.id} value={k.id}>{k[lang]}</option>)}
                 </select>
               </label>
               <label className="font-bold text-slate-600">{t("name")}
-                <input value={name} onChange={(e) => setName(e.target.value)} placeholder={kindLabel(kind)} className="mt-1 block w-full rounded border border-slate-200 px-2 py-1" />
+                <input value={name} onChange={(e) => setName(e.target.value)} placeholder={kindLabel(kind)} className="mt-1 block w-full rounded border border-slate-200 px-2 py-1 min-h-[44px]" />
               </label>
               <label className="font-bold text-slate-600">{t("amount")}
-                <input inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} className="mt-1 block w-full rounded border border-slate-200 px-2 py-1" />
+                <input inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} className="mt-1 block w-full rounded border border-slate-200 px-2 py-1 min-h-[44px]" />
               </label>
               <label className="font-bold text-slate-600">{t("day")}
-                <input type="number" min={1} max={31} value={day} onChange={(e) => setDay(Math.min(31, Math.max(1, Math.floor(Number(e.target.value) || 1))))} className="mt-1 block w-full rounded border border-slate-200 px-2 py-1" />
+                <input type="number" min={1} max={31} value={day} onChange={(e) => setDay(Math.min(31, Math.max(1, Math.floor(Number(e.target.value) || 1))))} className="mt-1 block w-full rounded border border-slate-200 px-2 py-1 min-h-[44px]" />
               </label>
-              <button disabled={!formValid} onClick={review} className="col-span-2 rounded-lg bg-slate-900 py-1.5 font-bold text-white disabled:opacity-40">{t("review")}</button>
+              <button disabled={!formValid} onClick={review} className="col-span-2 rounded-lg bg-slate-900 py-1.5 font-bold text-white disabled:opacity-40 min-h-[44px] min-w-[44px]">{t("review")}</button>
             </>
           ) : (
             <div className="col-span-2 space-y-2 rounded-lg border-2 border-emerald-500 bg-emerald-50/50 p-3">
@@ -188,8 +188,8 @@ export function RentPocketsPanel({ month, today, recordedIncomePoisha }: { month
                 {lang === "bn" ? `প্রতি মাসের ${pending.dueDay} তারিখ` : `day ${pending.dueDay} each month`} ({lang === "bn" ? "এ মাসে" : "this month"} {dueDateInMonth(pending.dueDay, month)})
               </p>
               <div className="flex gap-2">
-                <button onClick={confirmSave} className="inline-flex items-center gap-1 rounded-lg bg-emerald-700 px-3 py-1.5 font-bold text-white"><Check size={13} aria-hidden /> {t("save")}</button>
-                <button onClick={() => setPending(null)} className="inline-flex items-center gap-1 rounded-lg bg-white px-3 py-1.5 font-bold text-slate-700 ring-1 ring-slate-200"><X size={13} aria-hidden /> {t("cancel")}</button>
+                <button onClick={confirmSave} className="inline-flex items-center gap-1 rounded-lg bg-emerald-700 px-3 py-1.5 font-bold text-white min-h-[44px] min-w-[44px]"><Check size={13} aria-hidden /> {t("save")}</button>
+                <button onClick={() => setPending(null)} className="inline-flex items-center gap-1 rounded-lg bg-white px-3 py-1.5 font-bold text-slate-700 ring-1 ring-slate-200 min-h-[44px] min-w-[44px]"><X size={13} aria-hidden /> {t("cancel")}</button>
               </div>
             </div>
           )}
@@ -236,13 +236,13 @@ export function RentPocketsPanel({ month, today, recordedIncomePoisha }: { month
                   </div>
                   <div className="flex items-center gap-1">
                     {l.status === "paid" ? (
-                      <button onClick={() => setPayments((p) => unmarkDuePaid(p, l.dueId, month))} className="inline-flex items-center gap-1 rounded-lg bg-slate-100 px-2 py-1 font-bold text-slate-700"><Undo2 size={12} aria-hidden /> {t("undo")}</button>
+                      <button onClick={() => setPayments((p) => unmarkDuePaid(p, l.dueId, month))} className="inline-flex items-center gap-1 rounded-lg bg-slate-100 px-2 py-1 font-bold text-slate-700 min-h-[44px] min-w-[44px]"><Undo2 size={12} aria-hidden /> {t("undo")}</button>
                     ) : (
-                      <button onClick={() => setPaying({ dueId: l.dueId, paidOn: today.startsWith(month) ? today : l.dueDate, amount: String(l.amountPoisha / 100) })} className="rounded-lg bg-emerald-700 px-2 py-1 font-bold text-white">{t("markPaid")}</button>
+                      <button onClick={() => setPaying({ dueId: l.dueId, paidOn: today.startsWith(month) ? today : l.dueDate, amount: String(l.amountPoisha / 100) })} className="rounded-lg bg-emerald-700 px-2 py-1 font-bold text-white min-h-[44px] min-w-[44px]">{t("markPaid")}</button>
                     )}
                     <button
                       onClick={() => { if (window.confirm(lang === "bn" ? `"${l.name}" মুছবেন? আগের পরিশোধের রেকর্ড থাকবে।` : `Delete "${l.name}"? Past payment records are kept.`)) setDues((d) => d.filter((x) => x.id !== l.dueId)); }}
-                      className="rounded p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                      className="rounded p-1.5 text-slate-500 hover:bg-red-50 hover:text-red-600 min-h-[44px] min-w-[44px]"
                       aria-label={lang === "bn" ? "মুছুন" : "Delete"}
                     >
                       <Trash2 size={14} />
@@ -252,19 +252,19 @@ export function RentPocketsPanel({ month, today, recordedIncomePoisha }: { month
                 {paying?.dueId === l.dueId && (
                   <div className="mt-2 grid grid-cols-2 gap-2 rounded-lg border-2 border-emerald-500 bg-emerald-50/50 p-2">
                     <label className="font-bold text-slate-600">{t("paidOn")}
-                      <input type="date" value={paying.paidOn} onChange={(e) => setPaying({ ...paying, paidOn: e.target.value })} className="mt-1 block w-full rounded border border-slate-200 px-2 py-1" />
+                      <input type="date" value={paying.paidOn} onChange={(e) => setPaying({ ...paying, paidOn: e.target.value })} className="mt-1 block w-full rounded border border-slate-200 px-2 py-1 min-h-[44px]" />
                     </label>
                     <label className="font-bold text-slate-600">{t("amount")}
-                      <input inputMode="decimal" value={paying.amount} onChange={(e) => setPaying({ ...paying, amount: e.target.value })} className="mt-1 block w-full rounded border border-slate-200 px-2 py-1" />
+                      <input inputMode="decimal" value={paying.amount} onChange={(e) => setPaying({ ...paying, amount: e.target.value })} className="mt-1 block w-full rounded border border-slate-200 px-2 py-1 min-h-[44px]" />
                     </label>
-                    <p className="col-span-2 text-[11px] text-slate-600">
+                    <p className="col-span-2 text-[12px] text-slate-600">
                       {paying.paidOn && paying.paidOn <= l.dueDate
                         ? (lang === "bn" ? "নির্ধারিত তারিখের মধ্যে: সময়মতো হিসেবে লেখা হবে।" : "On or before the due date: recorded as on time.")
                         : (lang === "bn" ? "নির্ধারিত তারিখের পরে: দেরিতে হিসেবে লেখা হবে।" : "After the due date: recorded as late.")}
                     </p>
                     <div className="col-span-2 flex gap-2">
-                      <button onClick={confirmPaid} className="inline-flex items-center gap-1 rounded-lg bg-emerald-700 px-3 py-1.5 font-bold text-white"><Check size={13} aria-hidden /> {t("confirmPaid")}</button>
-                      <button onClick={() => setPaying(null)} className="inline-flex items-center gap-1 rounded-lg bg-white px-3 py-1.5 font-bold text-slate-700 ring-1 ring-slate-200"><X size={13} aria-hidden /> {t("cancel")}</button>
+                      <button onClick={confirmPaid} className="inline-flex items-center gap-1 rounded-lg bg-emerald-700 px-3 py-1.5 font-bold text-white min-h-[44px] min-w-[44px]"><Check size={13} aria-hidden /> {t("confirmPaid")}</button>
+                      <button onClick={() => setPaying(null)} className="inline-flex items-center gap-1 rounded-lg bg-white px-3 py-1.5 font-bold text-slate-700 ring-1 ring-slate-200 min-h-[44px] min-w-[44px]"><X size={13} aria-hidden /> {t("cancel")}</button>
                     </div>
                   </div>
                 )}
@@ -292,11 +292,11 @@ export function RentPocketsPanel({ month, today, recordedIncomePoisha }: { month
           </ul>
           <button
             onClick={() => downloadText(`payment-record-self-recorded-${today}.csv`, paymentRecordCsv(payments, today))}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-1.5 text-[12px] font-bold text-white"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-1.5 text-[12px] font-bold text-white min-h-[44px] min-w-[44px]"
           >
             <Download size={13} aria-hidden /> {t("download")}
           </button>
-          <p className="text-[11px] text-slate-500">{t("selfRecorded")}</p>
+          <p className="text-[12px] text-slate-500">{t("selfRecorded")}</p>
         </div>
       )}
     </section>

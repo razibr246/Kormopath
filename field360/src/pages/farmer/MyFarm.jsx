@@ -188,9 +188,9 @@ export default function MyFarm() {
             <div className="rounded-xl bg-clay-50 p-3"><div className="text-[12.5px] text-clay-700">{T('পানি নামে', 'Drainage')}</div><div className="text-[15px] font-bold">{{ poor: T('ধীরে', 'Slowly'), imperfect: T('মাঝারি', 'Fair'), good: T('দ্রুত', 'Quickly') }[soil.drainage] ?? '–'}</div></div>
           </div>
           <div className="mt-3 flex flex-wrap gap-1.5 text-[13px]">
-            {soil.texture && <span className="chip bg-black/5 text-ink/75">{T('বুনট', 'Texture')}: {L(TEXTURE[soil.texture] ?? { bn: soil.texture, en: soil.texture })}</span>}
-            {soil.wrb?.[0] && <span className="chip bg-black/5 text-ink/75">{soil.wrb[0].name}</span>}
-            {soil.physiography?.[0] && <span className="chip bg-black/5 text-ink/75">SRDI: {lang === 'en' ? ({ 'পলি মাটি': 'Alluvial soil', 'খিয়ার মাটি': 'Barind clay (Khiyar)', 'খিয়ার মাটি': 'Barind clay (Khiyar)', 'পাহাড়ী মাটি': 'Hill soil', 'পাহাড়ী মাটি': 'Hill soil' }[soil.physiography[0]] || soil.physiography[0]) : soil.physiography[0]}</span>}
+            {soil.texture && <span className="chip !text-[12px] bg-black/5 text-ink/75">{T('বুনট', 'Texture')}: {L(TEXTURE[soil.texture] ?? { bn: soil.texture, en: soil.texture })}</span>}
+            {soil.wrb?.[0] && <span className="chip !text-[12px] bg-black/5 text-ink/75">{soil.wrb[0].name}</span>}
+            {soil.physiography?.[0] && <span className="chip !text-[12px] bg-black/5 text-ink/75">SRDI: {lang === 'en' ? ({ 'পলি মাটি': 'Alluvial soil', 'খিয়ার মাটি': 'Barind clay (Khiyar)', 'খিয়ার মাটি': 'Barind clay (Khiyar)', 'পাহাড়ী মাটি': 'Hill soil', 'পাহাড়ী মাটি': 'Hill soil' }[soil.physiography[0]] || soil.physiography[0]) : soil.physiography[0]}</span>}
           </div>
           <p className="mt-3 text-[13.5px] text-muted">{soil.tested ? T('pH আর জৈব পদার্থ আপনার মাটি পরীক্ষার; বাকিটা ISRIC SoilGrids-এর আনুমানিক হিসাব।', 'pH and organic matter are from your soil test; the rest is the ISRIC SoilGrids estimate.') : (soil.scope === 'field' ? T('আপনার জমির ২৫০ মিটারের ঘরের হিসাব (ISRIC SoilGrids), মাঠের মাটি পরীক্ষা নয়।', 'For your field’s 250 m cell (ISRIC SoilGrids), not a field soil test.') : T('ইউনিয়নের মাঝখানের হিসাব (ISRIC SoilGrids), মাঠের মাটি পরীক্ষা নয়।', 'For the union centre (ISRIC SoilGrids), not a field soil test.'))}</p>
           <SoilTestCard />

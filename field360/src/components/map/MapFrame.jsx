@@ -253,7 +253,7 @@ function TypePicker({ type, setType, labels, setLabels }) {
                 <span className={`block h-[70px] w-[70px] overflow-hidden rounded-2xl p-[3px] ${type === k ? 'ring-[3px] ring-primary-600' : 'ring-1 ring-border'}`}>
                   <img src={b.thumb} alt="" loading="lazy" className="h-full w-full rounded-[13px] object-cover" />
                 </span>
-                {b.hd && <span className="-mt-4 rounded-full bg-[#1a73e8] px-1.5 text-[10.5px] font-bold leading-4 text-white">HD</span>}
+                {b.hd && <span className="-mt-4 rounded-full bg-[#1a73e8] px-1.5 text-[12px] font-bold leading-4 text-white">HD</span>}
                 <span className={`text-[13.5px] ${type === k ? 'font-semibold text-primary-700' : 'text-ink'}`}>{tr(b)}</span>
               </button>
             ))}
@@ -412,11 +412,11 @@ export default function MapFrame({ center, zoom = 15, height = 400, className = 
       {overlay && <div className="pointer-events-none absolute bottom-10 left-3 right-20 z-[500] flex flex-wrap gap-2">{overlay}</div>}
       {base.s2 && (
         <div className="pointer-events-none absolute bottom-9 left-3 right-16 z-[520] flex flex-col items-start gap-1.5">
-          <span className="rounded-full bg-ink/75 px-2.5 py-1 text-[11.5px] font-semibold text-white shadow">{T('সেন্টিনেল-২, ১০ মিটার · মাসের সবচেয়ে পরিষ্কার ছবি', 'Sentinel-2, 10 m · clearest picture of the month')}</span>
+          <span className="rounded-full bg-ink/75 px-2.5 py-1 text-[12px] font-semibold text-white shadow">{T('সেন্টিনেল-২, ১০ মিটার · মাসের সবচেয়ে পরিষ্কার ছবি', 'Sentinel-2, 10 m · clearest picture of the month')}</span>
           <div className="pointer-events-auto flex flex-wrap gap-1 rounded-2xl bg-white/90 p-1 shadow-lg backdrop-blur" role="group" aria-label={T('ছবির মাস', 'Picture month')}>
             {s2Wins.map((w, i) => (
               <button key={w.id} type="button" onClick={() => setS2Win(i)} aria-pressed={s2Win === i}
-                className={`rounded-xl px-2.5 py-1.5 text-left text-[11.5px] leading-tight transition-colors duration-300 ${s2Win === i ? 'bg-primary-700 text-white' : 'text-ink hover:bg-primary-50'}`}>
+                className={`rounded-xl px-2.5 py-1.5 text-left text-[12px] leading-tight transition-colors duration-300 ${s2Win === i ? 'bg-primary-700 text-white' : 'text-ink hover:bg-primary-50'}`}>
                 <span className="block font-semibold">{w.recent ? T('সাম্প্রতিক', 'Latest') : fmtBangla(w.mid, s.lang).replace(/^\S+\s/, '')}</span>
                 <span className={`block ${s2Win === i ? 'text-white/80' : 'text-muted'}`}>{w.recent ? T('গত ৩০ দিন', 'last 30 days') : `${fmtDate(w.mid, s.lang).replace(/^\S+\s/, '')} ${s.lang === 'bn' ? bnDigits(new Date(w.mid).getUTCFullYear()) : new Date(w.mid).getUTCFullYear()}`}</span>
               </button>
@@ -426,11 +426,11 @@ export default function MapFrame({ center, zoom = 15, height = 400, className = 
       )}
       {base.nasaDates && (
         <div className="pointer-events-none absolute bottom-9 left-3 right-16 z-[520] flex flex-col items-start gap-1.5">
-          <span className="rounded-full bg-ink/75 px-2.5 py-1 text-[11.5px] font-semibold text-white shadow">{T('নাসা উপগ্রহের ছবি · তারিখ বাছুন', 'NASA satellite photo · pick a date')}</span>
+          <span className="rounded-full bg-ink/75 px-2.5 py-1 text-[12px] font-semibold text-white shadow">{T('নাসা উপগ্রহের ছবি · তারিখ বাছুন', 'NASA satellite photo · pick a date')}</span>
           <div className="pointer-events-auto flex flex-wrap gap-1 rounded-2xl bg-white/90 p-1 shadow-lg backdrop-blur" role="group" aria-label={T('ছবির তারিখ', 'Photo date')}>
             {nasaDates.map((d) => (
               <button key={d} type="button" onClick={() => setNasaDate(d)} aria-pressed={nasaDate === d}
-                className={`rounded-xl px-2.5 py-1.5 text-left text-[11.5px] leading-tight transition-colors duration-300 ${nasaDate === d ? 'bg-primary-700 text-white' : 'text-ink hover:bg-primary-50'}`}>
+                className={`rounded-xl px-2.5 py-1.5 text-left text-[12px] leading-tight transition-colors duration-300 ${nasaDate === d ? 'bg-primary-700 text-white' : 'text-ink hover:bg-primary-50'}`}>
                 <span className="block font-semibold">{fmtBangla(parseISO(d), s.lang).replace(/^\S+\s/, '')}</span>
                 <span className={`block ${nasaDate === d ? 'text-white/80' : 'text-muted'}`}>{fmtDate(parseISO(d), s.lang)}</span>
               </button>

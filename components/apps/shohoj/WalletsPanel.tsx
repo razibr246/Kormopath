@@ -109,7 +109,7 @@ export function WalletsPanel({ txs }: { txs: Transaction[] }) {
               "What each wallet holds. Moving money between your own wallets (like a bKash cash-out) is not spending — only the charge is.")}
           </p>
         </div>
-        <button type="button" onClick={() => setLang(bn ? "en" : "bn")} className="kp-chip !h-8 !rounded-full !text-[12px] font-semibold" aria-label={bn ? "Switch to English" : "বাংলায় দেখুন"}>{bn ? "EN" : "বাং"}</button>
+        <button type="button" onClick={() => setLang(bn ? "en" : "bn")} className="kp-chip !h-11 !rounded-full !text-[12px] font-semibold !min-w-[44px]" aria-label={bn ? "Switch to English" : "বাংলায় দেখুন"}>{bn ? "EN" : "বাং"}</button>
       </div>
 
       {/* balances */}
@@ -129,7 +129,7 @@ export function WalletsPanel({ txs }: { txs: Transaction[] }) {
         <span className="rounded-full bg-amber-50 px-3 py-1 font-semibold text-amber-900" data-testid="wallet-charges">
           {T(`এই মাসের চার্জ: ${taka(charges.feePoisha, true)} (${bnDigits(String(charges.count))}টি)`, `Charges this month: ${taka(charges.feePoisha, false)} (${charges.count})`)}
         </span>
-        <button type="button" onClick={startOpenings} className="inline-flex items-center gap-1 font-semibold text-emerald-800 underline-offset-2 hover:underline"><Pencil size={14} aria-hidden /> {T("শুরুর ব্যালান্স লিখুন", "Set opening balances")}</button>
+        <button type="button" onClick={startOpenings} className="inline-flex items-center gap-1 font-semibold text-emerald-800 underline-offset-2 hover:underline min-h-[44px] min-w-[44px]"><Pencil size={14} aria-hidden /> {T("শুরুর ব্যালান্স লিখুন", "Set opening balances")}</button>
       </div>
       <p className="text-[12px] text-slate-500">{T("ব্যালান্স = শুরুর ব্যালান্স + আয় − খরচ (মূল খাতায় যে মাধ্যমে লেখা) ± স্থানান্তর − চার্জ। নিজে লেখা হিসাব; ব্যাংক বা এমএফএস থেকে আনা নয়।", "Balance = opening + income − expense (by payment method in the main ledger) ± transfers − charges. Your own records, not read from any bank or MFS.")}</p>
 
@@ -138,13 +138,13 @@ export function WalletsPanel({ txs }: { txs: Transaction[] }) {
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {WALLET_IDS.map((w) => (
               <label key={w} className="text-[12px] font-semibold text-slate-700">{L(w)}
-                <input inputMode="decimal" value={openDraft[w] ?? ""} onChange={(e) => setOpenDraft({ ...openDraft, [w]: e.target.value })} className="mt-1 block w-full rounded-lg border border-slate-300 px-2 py-1.5 font-mono text-[14px]" />
+                <input inputMode="decimal" value={openDraft[w] ?? ""} onChange={(e) => setOpenDraft({ ...openDraft, [w]: e.target.value })} className="mt-1 block w-full rounded-lg border border-slate-300 px-2 py-1.5 font-mono text-[14px] min-h-[44px]" />
               </label>
             ))}
           </div>
           <div className="flex gap-2">
-            <button type="button" onClick={saveOpenings} className="inline-flex min-h-[40px] items-center gap-1 rounded-lg bg-slate-900 px-3 text-[13px] font-bold text-white"><Check size={15} aria-hidden /> {T("সংরক্ষণ", "Save")}</button>
-            <button type="button" onClick={() => setEditOpen(false)} className="inline-flex min-h-[40px] items-center gap-1 rounded-lg border border-slate-300 px-3 text-[13px]"><X size={15} aria-hidden /> {T("বাতিল", "Cancel")}</button>
+            <button type="button" onClick={saveOpenings} className="inline-flex min-h-[40px] items-center gap-1 rounded-lg bg-slate-900 px-3 text-[13px] font-bold text-white min-h-[44px] min-w-[44px]"><Check size={15} aria-hidden /> {T("সংরক্ষণ", "Save")}</button>
+            <button type="button" onClick={() => setEditOpen(false)} className="inline-flex min-h-[40px] items-center gap-1 rounded-lg border border-slate-300 px-3 text-[13px] min-h-[44px] min-w-[44px]"><X size={15} aria-hidden /> {T("বাতিল", "Cancel")}</button>
           </div>
         </div>
       )}
@@ -154,31 +154,31 @@ export function WalletsPanel({ txs }: { txs: Transaction[] }) {
         <h3 className="flex items-center gap-1.5 text-[15px] font-bold text-slate-900"><ArrowRightLeft size={16} aria-hidden /> {T("এক ওয়ালেট থেকে আরেকটিতে", "Move between wallets")}</h3>
         <div className="grid gap-2 sm:grid-cols-4">
           <label className="text-[12px] font-semibold text-slate-700">{T("থেকে", "From")}
-            <select value={draft.from} onChange={(e) => setDraft({ ...draft, from: e.target.value as WalletId, provider: "" })} className="mt-1 block w-full rounded-lg border border-slate-300 px-2 py-1.5 text-[14px]" data-testid="wt-from">
+            <select value={draft.from} onChange={(e) => setDraft({ ...draft, from: e.target.value as WalletId, provider: "" })} className="mt-1 block w-full rounded-lg border border-slate-300 px-2 py-1.5 text-[14px] min-h-[44px]" data-testid="wt-from">
               {WALLET_IDS.map((w) => <option key={w} value={w}>{L(w)}</option>)}
             </select>
           </label>
           <label className="text-[12px] font-semibold text-slate-700">{T("কোথায়", "To")}
-            <select value={draft.to} onChange={(e) => setDraft({ ...draft, to: e.target.value as WalletId })} className="mt-1 block w-full rounded-lg border border-slate-300 px-2 py-1.5 text-[14px]" data-testid="wt-to">
+            <select value={draft.to} onChange={(e) => setDraft({ ...draft, to: e.target.value as WalletId })} className="mt-1 block w-full rounded-lg border border-slate-300 px-2 py-1.5 text-[14px] min-h-[44px]" data-testid="wt-to">
               {WALLET_IDS.map((w) => <option key={w} value={w}>{L(w)}</option>)}
             </select>
           </label>
           <label className="text-[12px] font-semibold text-slate-700">{kind === "cashout" ? T("হাতে পাবেন (৳)", "Cash in hand (৳)") : T("পরিমাণ (৳)", "Amount (৳)")}
-            <input inputMode="decimal" value={draft.amount} onChange={(e) => setDraft({ ...draft, amount: e.target.value })} className="mt-1 block w-full rounded-lg border border-slate-300 px-2 py-1.5 font-mono text-[14px]" data-testid="wt-amount" />
+            <input inputMode="decimal" value={draft.amount} onChange={(e) => setDraft({ ...draft, amount: e.target.value })} className="mt-1 block w-full rounded-lg border border-slate-300 px-2 py-1.5 font-mono text-[14px] min-h-[44px]" data-testid="wt-amount" />
           </label>
           <label className="text-[12px] font-semibold text-slate-700">{T("তারিখ", "Date")}
-            <input type="date" value={draft.date || today} max={today || undefined} onChange={(e) => setDraft({ ...draft, date: e.target.value })} className="mt-1 block w-full rounded-lg border border-slate-300 px-2 py-1.5 text-[14px]" />
+            <input type="date" value={draft.date || today} max={today || undefined} onChange={(e) => setDraft({ ...draft, date: e.target.value })} className="mt-1 block w-full rounded-lg border border-slate-300 px-2 py-1.5 text-[14px] min-h-[44px]" />
           </label>
         </div>
         {canCashout && (
           <div className="flex flex-wrap gap-3 text-[13px]">
-            <label className="inline-flex items-center gap-1.5"><input type="radio" name="wt-kind" checked={kind === "cashout"} onChange={() => setDraft({ ...draft, kind: "cashout" })} /> {T("ক্যাশ আউট (চার্জ লাগে)", "Cash-out (has a charge)")}</label>
-            <label className="inline-flex items-center gap-1.5"><input type="radio" name="wt-kind" checked={kind === "transfer"} onChange={() => setDraft({ ...draft, kind: "transfer" })} /> {T("চার্জ ছাড়া স্থানান্তর", "Transfer without a charge")}</label>
+            <label className="inline-flex items-center gap-1.5 min-h-[44px]"><input type="radio" name="wt-kind" checked={kind === "cashout"} onChange={() => setDraft({ ...draft, kind: "cashout" })} /> {T("ক্যাশ আউট (চার্জ লাগে)", "Cash-out (has a charge)")}</label>
+            <label className="inline-flex items-center gap-1.5 min-h-[44px]"><input type="radio" name="wt-kind" checked={kind === "transfer"} onChange={() => setDraft({ ...draft, kind: "transfer" })} /> {T("চার্জ ছাড়া স্থানান্তর", "Transfer without a charge")}</label>
           </div>
         )}
         {kind === "cashout" && provider && (
           <label className="block text-[12px] font-semibold text-slate-700">{T("কোন হারে", "Which rate")}
-            <select value={provider} onChange={(e) => setDraft({ ...draft, provider: e.target.value as MfsProvider })} className="mt-1 block w-full rounded-lg border border-slate-300 px-2 py-1.5 text-[14px]" data-testid="wt-provider">
+            <select value={provider} onChange={(e) => setDraft({ ...draft, provider: e.target.value as MfsProvider })} className="mt-1 block w-full rounded-lg border border-slate-300 px-2 py-1.5 text-[14px] min-h-[44px]" data-testid="wt-provider">
               {providers.map((p) => <option key={p} value={p}>{(bn ? MFS_FEE_RATES[p].nameBn : MFS_FEE_RATES[p].nameEn)}{state.rateOverrides[p] !== undefined ? T(` — আপনার হার ${state.rateOverrides[p]}%`, ` — your rate ${state.rateOverrides[p]}%`) : ""}</option>)}
             </select>
           </label>
@@ -192,10 +192,10 @@ export function WalletsPanel({ txs }: { txs: Transaction[] }) {
             {most !== null && <span className="block text-[12px] text-slate-600">{T(`এই ব্যালান্সে চার্জসহ সর্বোচ্চ হাতে পাবেন ${taka(most, true)}।`, `With this balance the most you can get in hand is ${taka(most, false)}.`)}</span>}
           </p>
         )}
-        <input value={draft.note} maxLength={120} onChange={(e) => setDraft({ ...draft, note: e.target.value })} placeholder={T("নোট (ঐচ্ছিক)", "Note (optional)")} className="block w-full rounded-lg border border-slate-300 px-2 py-1.5 text-[14px]" />
+        <input aria-label={T("নোট (ঐচ্ছিক)", "Note (optional)")} value={draft.note} maxLength={120} onChange={(e) => setDraft({ ...draft, note: e.target.value })} placeholder={T("নোট (ঐচ্ছিক)", "Note (optional)")} className="block w-full rounded-lg border border-slate-300 px-2 py-1.5 text-[14px] min-h-[44px]" />
         {err && <p role="alert" className="text-[13px] font-semibold text-red-700">{err}</p>}
         {!review ? (
-          <button type="button" onClick={toReview} disabled={!today} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl bg-emerald-700 px-4 text-[14px] font-bold text-white disabled:opacity-50" data-testid="wt-review">{T("দেখে নিন", "Review")}</button>
+          <button type="button" onClick={toReview} disabled={!today} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl bg-emerald-700 px-4 text-[14px] font-bold text-white disabled:opacity-50 min-w-[44px]" data-testid="wt-review">{T("দেখে নিন", "Review")}</button>
         ) : (
           <div className="space-y-2 rounded-xl border-2 border-emerald-500 bg-emerald-50/50 p-3" data-testid="wt-confirm">
             <p className="text-[14px] font-semibold text-slate-900">
@@ -203,8 +203,8 @@ export function WalletsPanel({ txs }: { txs: Transaction[] }) {
                 `${L(review.from)} → ${L(review.to)}: ${taka(review.amountPoisha, false)}${review.feePoisha ? `, charge ${taka(review.feePoisha, false)}` : ""}, ${review.date}. Is this right?`)}
             </p>
             <div className="flex gap-2">
-              <button type="button" onClick={confirmSave} className="inline-flex min-h-[44px] items-center gap-1 rounded-xl bg-slate-900 px-4 text-[14px] font-bold text-white" data-testid="wt-save"><Check size={16} aria-hidden /> {T("হ্যাঁ, সংরক্ষণ করুন", "Yes, save")}</button>
-              <button type="button" onClick={() => setReview(null)} className="inline-flex min-h-[44px] items-center gap-1 rounded-xl border border-slate-300 bg-white px-4 text-[14px]"><X size={16} aria-hidden /> {T("না, বদলাব", "No, edit")}</button>
+              <button type="button" onClick={confirmSave} className="inline-flex min-h-[44px] items-center gap-1 rounded-xl bg-slate-900 px-4 text-[14px] font-bold text-white min-w-[44px]" data-testid="wt-save"><Check size={16} aria-hidden /> {T("হ্যাঁ, সংরক্ষণ করুন", "Yes, save")}</button>
+              <button type="button" onClick={() => setReview(null)} className="inline-flex min-h-[44px] items-center gap-1 rounded-xl border border-slate-300 bg-white px-4 text-[14px] min-w-[44px]"><X size={16} aria-hidden /> {T("না, বদলাব", "No, edit")}</button>
             </div>
           </div>
         )}
@@ -215,7 +215,7 @@ export function WalletsPanel({ txs }: { txs: Transaction[] }) {
           {recent.map((t) => (
             <li key={t.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2">
               <span><span className="font-mono">{bn ? bnDigits(t.date) : t.date}</span> · {L(t.from)} → {L(t.to)} · <span className="font-mono font-semibold">{taka(t.amountPoisha, bn)}</span>{t.feePoisha > 0 && <span className="text-amber-800"> · {T("চার্জ", "charge")} {taka(t.feePoisha, bn)}</span>}{t.note && <span className="text-slate-500"> · {t.note}</span>}</span>
-              <button type="button" onClick={() => remove(t.id)} className="text-red-700" aria-label={T("মুছুন", "Delete")}><Trash2 size={15} aria-hidden /></button>
+              <button type="button" onClick={() => remove(t.id)} className="text-red-700 min-h-[44px] min-w-[44px]" aria-label={T("মুছুন", "Delete")}><Trash2 size={15} aria-hidden /></button>
             </li>
           ))}
         </ol>
@@ -223,7 +223,7 @@ export function WalletsPanel({ txs }: { txs: Transaction[] }) {
 
       {/* rates and their sources */}
       <details className="rounded-xl border border-slate-200 p-3">
-        <summary className="cursor-pointer text-[14px] font-semibold text-slate-800">{T("ক্যাশ-আউট চার্জের হার ও উৎস — নিজের হার দিন", "Cash-out rates and sources — set your own")}</summary>
+        <summary className="cursor-pointer text-[14px] font-semibold text-slate-800 min-h-[44px] min-w-[44px]">{T("ক্যাশ-আউট চার্জের হার ও উৎস — নিজের হার দিন", "Cash-out rates and sources — set your own")}</summary>
         <ul className="mt-3 space-y-3">
           {(Object.keys(MFS_FEE_RATES) as MfsProvider[]).map((p) => {
             const c = MFS_FEE_RATES[p];
@@ -232,7 +232,7 @@ export function WalletsPanel({ txs }: { txs: Transaction[] }) {
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="text-[13.5px] font-semibold text-slate-800">{bn ? c.nameBn : c.nameEn}</span>
                   <label className="inline-flex items-center gap-1 text-[12px] text-slate-600">{T("আপনার হার %", "Your rate %")}
-                    <input inputMode="decimal" defaultValue={state.rateOverrides[p] ?? ""} placeholder={String(c.ratePct)} onBlur={(e) => setRate(p, e.target.value)} className="w-20 rounded-lg border border-slate-300 px-2 py-1 font-mono text-[13px]" aria-label={`${c.nameEn} rate`} />
+                    <input inputMode="decimal" defaultValue={state.rateOverrides[p] ?? ""} placeholder={String(c.ratePct)} onBlur={(e) => setRate(p, e.target.value)} className="w-20 rounded-lg border border-slate-300 px-2 py-1 font-mono text-[13px] min-h-[44px]" aria-label={`${c.nameEn} rate`} />
                   </label>
                 </div>
                 {c.source

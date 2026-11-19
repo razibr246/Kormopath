@@ -115,11 +115,15 @@ export function StatCard({ icon: Icon, label, value, note, tone = 'green', tag, 
       {note && <p className="mt-1 text-[13px] leading-5 text-muted truncate">{note}</p>}
       {tag && <div className="mt-2"><Tags list={[tag]} /></div>}
       <span aria-hidden="true" className={`pointer-events-none absolute inset-x-4 bottom-0 h-[2px] bg-gradient-to-r opacity-0 transition-opacity duration-300 group-hover:opacity-100 motion-reduce:transition-none ${STAT_ACCENT[tone] || STAT_ACCENT.green}`} />
-      {to && <ChevronRight aria-hidden="true" size={17} className="stat-card-arrow absolute bottom-3.5 right-3.5 text-muted/60 transition-[transform,color] duration-250 ease-[var(--ease-spring)] group-hover:translate-x-1 group-hover:text-primary-700 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0" />}
+      {to && <ChevronRight aria-hidden="true" size={17} className="stat-card-arrow absolute bottom-3.5 right-3.5 text-muted transition-[transform,color] duration-250 ease-[var(--ease-spring)] group-hover:translate-x-1 group-hover:text-primary-700 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0" />}
     </>
   );
   const cls = `stat-card surface-card cv-auto group relative block overflow-hidden rounded-2xl p-4 transition-[transform,box-shadow,border-color] duration-300 ease-[var(--ease-spring)] motion-reduce:transition-none motion-reduce:hover:translate-y-0 ${to ? 'pb-8' : ''} ${STAT_GLOW[tone] || ''}`;
-  return to ? <Link to={to} className={`${cls} lift`}>{body}</Link> : <div className={cls}>{body}</div>;
+  // KormoPath: cv-auto (content-visibility) can hide the card text from tools that read innerText while it is off-screen,
+  // so the link also carries its name explicitly.
+  const plain = (v) => (typeof v === 'string' || typeof v === 'number' ? String(v) : null);
+  const name = [plain(label), plain(value), plain(note)].filter(Boolean).join(' · ') || undefined;
+  return to ? <Link to={to} aria-label={name} className={`${cls} lift`}>{body}</Link> : <div className={cls}>{body}</div>;
 }
 
 export function Card({ className = '', children, ...p }) {
@@ -159,7 +163,7 @@ export const climateTag = () => (clim.prov.status === 'REAL' ? 'MODEL' : 'PLACEH
 export const soilTag = () => (soilData.provenance.status === 'REAL' ? 'MODEL' : 'DEMO');
 export function Tag({ t }) {
   const { L } = useStore();
-  return <span className={`chip ${TAG_STYLE[t]}`} title={L(TAG_HELP[t])}>{L(TAG_LABEL[t])}</span>;
+  return <span className={`chip !text-[12px] ${TAG_STYLE[t]}`} title={L(TAG_HELP[t])}>{L(TAG_LABEL[t])}</span>;
 }
 // What each label means, spelled out (the label's own tooltip does not show on a phone).
 export function TagLegend({ kinds = ['SAT', 'STATION', 'MODEL', 'RECORD', 'RULE', 'AI', 'DEMO'], className = '' }) {
@@ -260,7 +264,7 @@ export function Note({ children, tone = 'info', className = '' }) {
 export function Input({ className = '', ...props }) {
   return (
     <input
-      className={`h-11 w-full rounded-xl border border-border/90 bg-white/95 px-3.5 text-[15px] text-ink outline-none transition-all duration-200 placeholder:text-muted/60 hover:border-primary-300 focus:border-primary-500 focus:bg-white focus:ring-4 focus:ring-primary-500/12 shadow-2xs disabled:bg-black/[.03] disabled:text-muted ${className}`}
+      className={`h-11 w-full rounded-xl border border-border/90 bg-white/95 px-3.5 text-[15px] text-ink outline-none transition-all duration-200 placeholder:text-muted hover:border-primary-300 focus:border-primary-500 focus:bg-white focus:ring-4 focus:ring-primary-500/12 shadow-2xs disabled:bg-black/[.03] disabled:text-muted ${className}`}
       {...props}
     />
   );
@@ -270,7 +274,7 @@ export function Textarea({ className = '', rows = 3, ...props }) {
   return (
     <textarea
       rows={rows}
-      className={`w-full rounded-xl border border-border/90 bg-white/95 p-3.5 text-[15px] text-ink outline-none transition-all duration-200 placeholder:text-muted/60 hover:border-primary-300 focus:border-primary-500 focus:bg-white focus:ring-4 focus:ring-primary-500/12 shadow-2xs disabled:bg-black/[.03] disabled:text-muted ${className}`}
+      className={`w-full rounded-xl border border-border/90 bg-white/95 p-3.5 text-[15px] text-ink outline-none transition-all duration-200 placeholder:text-muted hover:border-primary-300 focus:border-primary-500 focus:bg-white focus:ring-4 focus:ring-primary-500/12 shadow-2xs disabled:bg-black/[.03] disabled:text-muted ${className}`}
       {...props}
     />
   );

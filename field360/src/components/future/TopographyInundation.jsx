@@ -128,7 +128,7 @@ export default function TopographyInundation({ parcelId }) {
           <div className="mt-1 font-display text-[20px] font-bold text-ink">
             {num(elev, lang, { dp: 1 })} <span className="text-[12px] font-normal text-muted">{T('মিটার', 'm')}</span>
           </div>
-          <div className="text-[11px] text-muted">
+          <div className="text-[12px] text-muted">
             {T(`মডেল ফারাক: ±${num(spread, lang, { dp: 1 })} মি`, `Model spread: ±${num(spread, lang, { dp: 1 })} m`)}
           </div>
         </div>
@@ -138,7 +138,7 @@ export default function TopographyInundation({ parcelId }) {
           <div className={`mt-1 font-display text-[20px] font-bold ${relief < 0 ? 'text-amber-700' : 'text-emerald-700'}`}>
             {relief > 0 ? '+' : ''}{num(relief, lang, { dp: 1 })} <span className="text-[12px] font-normal text-muted">{T('মিটার', 'm')}</span>
           </div>
-          <div className="text-[11px] text-muted">
+          <div className="text-[12px] text-muted">
             {relief < -1 ? T('চারপাশ থেকে নিচু', 'Lower than surroundings') : T('উঁচু বা সমতল', 'Ridge or plateau')}
           </div>
         </div>
@@ -148,7 +148,7 @@ export default function TopographyInundation({ parcelId }) {
           <div className="mt-1 font-display text-[20px] font-bold text-ink">
             {num(slope, lang, { dp: 2 })}%
           </div>
-          <div className="text-[11px] text-muted">
+          <div className="text-[12px] text-muted">
             {slope < 1 ? T('সমান জমি (নিষ্কাশন ধীর)', 'Flat plain (slow runoff)') : T('ঢালু জমি (পানি নামে)', 'Sloped (quick drainage)')}
           </div>
         </div>
@@ -158,7 +158,7 @@ export default function TopographyInundation({ parcelId }) {
           <div className={`mt-1 text-[13.5px] font-bold ${landClass.tone}`}>
             {L(landClass)}
           </div>
-          <div className="text-[11px] text-muted">
+          <div className="text-[12px] text-muted">
             {L(upazila.name)} · {T('পার্সেল', 'Parcel')} {currentParcelId}
           </div>
         </div>
@@ -189,7 +189,7 @@ export default function TopographyInundation({ parcelId }) {
           className="mt-3 h-2.5 w-full cursor-pointer appearance-none rounded-lg bg-teal-200 accent-teal-700"
         />
 
-        <div className="mt-2 flex justify-between text-[11px] text-teal-800/80">
+        <div className="mt-2 flex justify-between text-[12px] text-teal-800/80">
           <span>{T('০.০ মি (শুকনো/নিষ্কাশিত)', '0.0m (Dry/Drained)')}</span>
           <span>{T('০.৫ মি (আমন ধানের পানি)', '0.5m (Standard Aman)')}</span>
           <span>{T('১.২ মি (আকস্মিক বন্যা - Sub1)', '1.2m (Flash Flood - Sub1)')}</span>
@@ -234,15 +234,15 @@ export default function TopographyInundation({ parcelId }) {
 
           {/* Plough Pan Layer (কাদার স্তর) */}
           <line x1="0" y1={groundY + 12} x2="500" y2={groundY + 12} stroke="#382614" strokeWidth="2.5" strokeDasharray="6 3" />
-          <text x="490" y={groundY + 24} textAnchor="end" fontSize="8.5" fill="#ffffff" opacity="0.8">
+          <text x="490" y={groundY + 24} textAnchor="end" fontSize="12" fill="#ffffff" opacity="0.8">
             {T('প্লাও প্যান (১৫–২০ সেমি কাদার শক্ত স্তর)', 'Plough pan (15–20cm hard layer)')}
           </text>
 
           {/* Field Bunds (আইল) */}
           <path d="M 40,140 L 50,132 L 60,140 Z" fill="#785536" />
           <path d="M 440,140 L 450,132 L 460,140 Z" fill="#785536" />
-          <text x="50" y="128" textAnchor="middle" fontSize="8" fill="#5c4028">{T('আইল', 'Bund')}</text>
-          <text x="450" y="128" textAnchor="middle" fontSize="8" fill="#5c4028">{T('আইল', 'Bund')}</text>
+          <text x="50" y="128" textAnchor="middle" fontSize="12" fill="#5c4028">{T('আইল', 'Bund')}</text>
+          <text x="450" y="128" textAnchor="middle" fontSize="12" fill="#5c4028">{T('আইল', 'Bund')}</text>
 
           {/* Plant Stems (Rice hills across the parcel) */}
           {[100, 150, 200, 250, 300, 350, 400].map((x) => (
@@ -272,7 +272,7 @@ export default function TopographyInundation({ parcelId }) {
                 stroke="#e0f2fe"
                 strokeWidth="1.5"
               />
-              <text x="15" y={waterY + 14} fontSize="9.5" fontWeight="bold" fill="#0369a1">
+              <text x="15" y={waterY + 14} fontSize="12" fontWeight="bold" fill="#0369a1">
                 {T(`প্লাবন গভীরতা: ${num(waterLevelM, lang, { dp: 2 })} মি`, `Inundation depth: ${num(waterLevelM, lang, { dp: 2 })} m`)}
               </text>
             </g>
@@ -280,7 +280,7 @@ export default function TopographyInundation({ parcelId }) {
 
           {/* Elevation Datum Marker */}
           <line x1="20" y1="20" x2="20" y2="140" stroke="#64748b" strokeWidth="1" strokeDasharray="3 3" />
-          <text x="25" y="30" fontSize="9" fill="#475569" fontWeight="bold">
+          <text x="25" y="30" fontSize="12" fill="#475569" fontWeight="bold">
             {T(`SRTM ${num(elev, lang, { dp: 1 })} মি. গড় সমুদ্রপৃষ্ঠ`, `SRTM ${num(elev, lang, { dp: 1 })} m ASL`)}
           </text>
         </svg>

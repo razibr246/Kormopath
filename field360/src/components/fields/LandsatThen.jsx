@@ -26,7 +26,7 @@ export default function LandsatThen({ parcel, upazilaId }) {
             <span className="font-semibold">{b.k}</span>
             <span className="h-3 rounded-full bg-black/[.06]"><span className="block h-3 rounded-full bg-primary-600" style={{ width: `${Math.max(3, b.v * 100)}%` }} /></span>
             <span className="text-right tabular">{num(b.v, s.lang, { dp: 2 })}</span>
-            <span className="col-start-2 -mt-1.5 text-[11.5px] text-muted">{b.src}</span>
+            <span className="col-start-2 -mt-1.5 text-[12px] text-muted">{b.src}</span>
           </li>
         ))}
       </ul>

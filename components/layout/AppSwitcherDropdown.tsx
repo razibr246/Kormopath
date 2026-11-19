@@ -23,6 +23,10 @@ import {
 } from "lucide-react";
 import { storageKey, usePersistentState } from "@/lib/clientStore";
 
+const BN_DIGITS = "০১২৩৪৫৬৭৮৯";
+/** Bengali digits for the app count, so it reads the same as the home page's count. */
+const toBn = (n: number) => String(n).replace(/\d/g, (d) => BN_DIGITS[Number(d)]);
+
 export interface AppItem {
   id: "kormopath" | "path" | "feeguard" | "chuktiguard" | "admitbuddy" | "mediscan" | "shohoj" | "haatbazar" | "krishi" | "rokkha" | "legal" | "probaho";
   stageNum: "০১" | "০২" | "০৩" | "০৪" | "০৫" | "০৬" | "০৭";
@@ -224,6 +228,7 @@ export function AppSwitcherDropdown({
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const [recentApps, setRecentApps] = usePersistentState<AppItem["id"][]>(
     storageKey("platform", "recentApps"),
@@ -281,8 +286,9 @@ export function AppSwitcherDropdown({
       }
     }
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
+      if (event.key === "Escape" && dropdownRef.current?.querySelector('[role="dialog"]')) {
         setIsOpen(false);
+        triggerRef.current?.focus(); // focus returns to the button that opened the menu
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -310,6 +316,8 @@ export function AppSwitcherDropdown({
     <div className="relative inline-block text-left" ref={dropdownRef}>
       {/* Trigger Button with badge and chevron */}
       <button
+        ref={triggerRef}
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={`group flex items-center gap-2 rounded-xl border px-3 py-1.5 text-left shadow-xs transition-all ${
           isLight
@@ -321,13 +329,13 @@ export function AppSwitcherDropdown({
       >
         <span className="hidden h-2 w-2 rounded-full bg-emerald-600 sm:flex" aria-hidden="true" />
         <div className="text-left">
-          <span className={`block text-[12px] font-bold leading-tight ${isLight ? "text-slate-900" : "text-white"}`}>
+          <span className={`kp-switcher-label block text-[12px] font-bold leading-tight ${isLight ? "text-slate-900" : "text-white"}`}>
             {lang === "bn" ? currentApp.nameBn.split(" ")[0] : currentApp.nameEn.split(" ")[0]}
           </span>
           <span className={`hidden text-[10px] leading-none sm:block ${isLight ? "text-slate-500" : "text-amber-300/80"}`}>
-            {lang === "bn" ? `${currentApp.stageNum} ${currentApp.stageNameBn}` : `${currentApp.stageNum} ${currentApp.stageNameEn}`}
+            {lang === "bn" ? currentApp.stageNameBn : currentApp.stageNameEn}
           </span>
-          <span className="sr-only">{lang === "bn" ? " · অ্যাপ বদলান" : " · switch app"}</span>
+          <span className="sr-only">{lang === "bn" ? `${currentApp.nameBn} · অ্যাপ বদলান` : `${currentApp.nameEn} · switch app`}</span>
         </div>
         <ChevronDown
           size={16}
@@ -349,10 +357,10 @@ export function AppSwitcherDropdown({
           {/* Header Label */}
           <div className="flex items-center justify-between px-2.5 pt-1.5 pb-2 border-b border-line">
             <span className={`text-[12px] font-bold tracking-wide uppercase ${isLight ? "text-slate-500" : "text-slate-400"}`}>
-              {lang === "bn" ? "৭ ধাপের জীবনচক্র ও অ্যাপ" : "7-Stage Life Cycle Apps"}
+              {lang === "bn" ? "সব অ্যাপ" : "All apps"}
             </span>
-            <span className="text-[10px] font-mono font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-              {lang === "bn" ? `${APPS_LIST.length}টি টুল` : `${APPS_LIST.length} tools`}
+            <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+              {lang === "bn" ? `${toBn(APPS_LIST.length)}টি অ্যাপ` : `${APPS_LIST.length} apps`}
             </span>
           </div>
 
@@ -443,7 +451,6 @@ export function AppSwitcherDropdown({
 
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] font-mono font-semibold opacity-70">{app.stageNum}</span>
                         <span className="truncate leading-tight font-semibold">{displayName}</span>
                       </div>
                       <span className={`block text-[11px] leading-none truncate mt-0.5 ${isSelected ? "text-white/80" : "text-slate-500"}`}>

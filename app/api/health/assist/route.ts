@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { Tracer } from "@/lib/trace";
 import { structured } from "@/lib/llm";
-import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
+import { checkRateLimitShared, rateLimitResponse } from "@/lib/rateLimit";
 import { BODY_AREAS, SPECIALTIES, SPECIALTY_IDS, findTerm, routeSymptoms, specialtyById, type SpecialtyId } from "@/lib/health/specialty";
 import { checkAssistOutput } from "@/lib/health/healthGuard";
 
@@ -36,7 +36,7 @@ tellDoctor: 2-4 short points (in the person's language) of facts from their own 
 Return ONLY JSON {"specialtyId":"...","whyBn":"...","whyEn":"...","tellDoctor":["..."]}.`;
 
 export async function POST(req: Request) {
-  const rl = checkRateLimit(req, { limit: 20, windowMs: 60_000, bucket: "health-assist" });
+  const rl = await checkRateLimitShared(req, { limit: 20, windowMs: 60_000, bucket: "health-assist" });
   if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
   const tracer = new Tracer("HealthAssistant");
   const p = Body.safeParse(await req.json().catch(() => ({})));

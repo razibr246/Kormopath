@@ -141,7 +141,7 @@ export default function Help() {
                       <label key={p?.key ?? 'unsure'} className={`flex cursor-pointer gap-3 rounded-xl border px-3 py-2.5 transition-all duration-150 active:scale-[0.99] has-[:focus-visible]:ring-4 has-[:focus-visible]:ring-primary-100 ${on ? 'border-primary-600 bg-primary-50 shadow-xs' : 'border-border hover:bg-canvas hover:border-primary-200'}`}>
                         <input type="radio" name="problem" checked={on} onChange={() => setProblem(p?.key ?? null)} className="mt-1.5 accent-primary-700" />
                         <span className="min-w-0">
-                          <span className="flex flex-wrap items-center gap-1.5 text-[14.5px] font-semibold">{p ? L(p) : T('বুঝতে পারছি না', 'Not sure')}{p?.urgent && <span className="chip bg-red-50 text-red-700 ring-1 ring-red-200">{T('দ্রুত ছড়ায়', 'spreads fast')}</span>}</span>
+                          <span className="flex flex-wrap items-center gap-1.5 text-[14.5px] font-semibold">{p ? L(p) : T('বুঝতে পারছি না', 'Not sure')}{p?.urgent && <span className="chip !text-[12px] bg-red-50 text-red-700 ring-1 ring-red-200">{T('দ্রুত ছড়ায়', 'spreads fast')}</span>}</span>
                           <span className="block text-[13px] leading-5 text-muted">{p ? L(p.look) : T('ছবি দিন আর খুলে লিখুন, কর্মকর্তা দেখে বলবেন।', 'Add a photo and describe it; the officer will tell you.')}</span>
                         </span>
                       </label>
@@ -240,8 +240,8 @@ export default function Help() {
                             <div className="mt-0.5 text-[13.5px] leading-5 text-muted">{L(r.text)}</div>
                             <div className="mt-1.5 flex flex-wrap gap-1.5 text-[12px] text-muted">
                               <span className="font-medium">{d === 0 ? T('আজ', 'Today') : T(`${num(d, 'bn')} দিন আগে`, `${d} days ago`)}</span>
-                              {r.priority === 'High' && <span className="chip bg-red-50 text-red-700 ring-1 ring-red-200">{T('জরুরি', 'Urgent')}</span>}
-                              {r.context && <span className="chip bg-sky-50 text-sky-800 ring-1 ring-sky-200">{T('জমির তথ্য সঙ্গে', 'Field details attached')}</span>}
+                              {r.priority === 'High' && <span className="chip !text-[12px] bg-red-50 text-red-700 ring-1 ring-red-200">{T('জরুরি', 'Urgent')}</span>}
+                              {r.context && <span className="chip !text-[12px] bg-sky-50 text-sky-800 ring-1 ring-sky-200">{T('জমির তথ্য সঙ্গে', 'Field details attached')}</span>}
                             </div>
                           </div>
                         </div>

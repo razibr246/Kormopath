@@ -244,11 +244,11 @@ export default function FieldsMap({
                   <div className="text-[13px] font-bold text-slate-900">
                     {`${num(i + 1, lang)}. ${tr(p.name)}`}
                   </div>
-                  <div className="text-[11.5px] text-slate-600">
+                  <div className="text-[12px] text-slate-600">
                     {T(`${num(p.area_dec, 'bn')} শতক (${num(p.area_dec / 33, 'bn', { dp: 1 })} বিঘা)`, `${num(p.area_dec, 'en')} decimals (${num(p.area_dec / 33, 'en', { dp: 1 })} bigha)`)}
                   </div>
                   {chosen?.crop && (
-                    <div className="mt-0.5 text-[11px] font-semibold text-primary-700">
+                    <div className="mt-0.5 text-[12px] font-semibold text-primary-700">
                       {tr(chosen.crop.name)}
                     </div>
                   )}
@@ -282,21 +282,21 @@ export default function FieldsMap({
       {/* Mode-specific Legend Bar */}
       {mapMode !== 'satellite' && (
         <div className="pointer-events-none absolute bottom-3 left-3 z-[401]">
-          <div className="pointer-events-auto rounded-xl border border-white/20 bg-[#163020]/90 px-3 py-1.5 text-white shadow-lg backdrop-blur-md text-[11.5px]">
+          <div className="pointer-events-auto rounded-xl border border-white/20 bg-[#163020]/90 px-3 py-1.5 text-white shadow-lg backdrop-blur-md text-[12px]">
             {mapMode === 'ndvi' && (
               <div className="flex items-center gap-2">
                 <span className="font-bold text-emerald-300">NDVI:</span>
                 <span className="flex items-center gap-1">
                   <span className="h-2.5 w-4 rounded-sm bg-amber-500" />
-                  <span className="tabular text-[10.5px]">{num(0.3, lang, { dp: 1 })} ({T('কম', 'Low')})</span>
+                  <span className="tabular text-[12px]">{num(0.3, lang, { dp: 1 })} ({T('কম', 'Low')})</span>
                 </span>
                 <span className="flex items-center gap-1">
                   <span className="h-2.5 w-4 rounded-sm bg-lime-500" />
-                  <span className="tabular text-[10.5px]">{num(0.6, lang, { dp: 1 })} ({T('মধ্যম', 'Mid')})</span>
+                  <span className="tabular text-[12px]">{num(0.6, lang, { dp: 1 })} ({T('মধ্যম', 'Mid')})</span>
                 </span>
                 <span className="flex items-center gap-1">
                   <span className="h-2.5 w-4 rounded-sm bg-emerald-500" />
-                  <span className="tabular text-[10.5px]">{num(0.8, lang, { dp: 1 })}+ ({T('চমৎকার', 'High')})</span>
+                  <span className="tabular text-[12px]">{num(0.8, lang, { dp: 1 })}+ ({T('চমৎকার', 'High')})</span>
                 </span>
               </div>
             )}
@@ -333,15 +333,15 @@ export default function FieldsMap({
               </div>
               <div className="flex items-center gap-3 text-[12px] font-semibold">
                 <div className="hidden xs:block">
-                  <span className="text-white/60 mr-1">{T('বৃষ্টিপাত:', 'Rain:')}</span>
+                  <span className="text-white/80 mr-1">{T('বৃষ্টিপাত:', 'Rain:')}</span>
                   <span className="tabular text-white">{num(rainMm, lang, { dp: 1, min: 1 })} {T('মিমি', 'mm')}</span>
                 </div>
                 <div className="hidden md:block">
-                  <span className="text-white/60 mr-1">{T('আর্দ্রতা:', 'Humidity:')}</span>
+                  <span className="text-white/80 mr-1">{T('আর্দ্রতা:', 'Humidity:')}</span>
                   <span className="tabular text-white">{num(humidityPct, lang)}%</span>
                 </div>
                 <div>
-                  <span className="text-white/60 mr-1">{T('বাতাস:', 'Wind:')}</span>
+                  <span className="text-white/80 mr-1">{T('বাতাস:', 'Wind:')}</span>
                   <span className="tabular text-white">{num(windSpeedKmh, lang, { dp: 1 })} {T('মি/সে', 'm/s')}</span>
                 </div>
               </div>
@@ -360,7 +360,7 @@ export default function FieldsMap({
                 key={t.id}
                 type="button"
                 onClick={() => setActiveMobileHud(t.id)}
-                className={`flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-bold shadow-md backdrop-blur-md transition-all ${
+                className={`flex items-center gap-1 rounded-full px-3 py-1 text-[12px] font-bold shadow-md backdrop-blur-md transition-all ${
                   activeMobileHud === t.id
                     ? 'border border-primary-300 bg-primary-800 text-white'
                     : 'border border-white/20 bg-[#163020]/80 text-white/70'
@@ -381,7 +381,7 @@ export default function FieldsMap({
                   <Sprout size={14} />
                   {T('বৃদ্ধির ধাপ (BBCH)', 'Crop Stage (BBCH)')}
                 </span>
-                <span className="whitespace-nowrap rounded-full bg-white/10 px-2 py-0.5 text-[10.5px] text-white">
+                <span className="whitespace-nowrap rounded-full bg-white/10 px-2 py-0.5 text-[12px] text-white">
                   BBCH {num(41, lang)}–{num(50, lang)}
                 </span>
               </div>
@@ -398,7 +398,7 @@ export default function FieldsMap({
                   />
                 ))}
               </div>
-              <div className="mt-1.5 flex justify-between gap-2 whitespace-nowrap text-[11px] text-white/70">
+              <div className="mt-1.5 flex justify-between gap-2 whitespace-nowrap text-[12px] text-white/70">
                 <span>{T('রোপণ সম্পন্ন', 'Planted')}</span>
                 <span>{T('তোলার অপেক্ষা', 'Harvest soon')}</span>
               </div>
@@ -411,7 +411,7 @@ export default function FieldsMap({
                   <Droplets size={14} />
                   {T('সারের প্রয়োগ মাত্রা', 'Application Rates')}
                 </span>
-                <span className="whitespace-nowrap text-[10.5px] text-white/70">N-P-K</span>
+                <span className="whitespace-nowrap text-[12px] text-white/70">N-P-K</span>
               </div>
               <div className="mt-2 space-y-1.5 text-[12px] leading-snug">
                 <div className="flex items-center justify-between gap-2">
@@ -451,7 +451,7 @@ export default function FieldsMap({
                   <Activity size={14} />
                   {T('NDVI সূচক ও স্বাস্থ্য', 'NDVI & Crop Health')}
                 </span>
-                <span className="whitespace-nowrap rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10.5px] text-emerald-300">
+                <span className="whitespace-nowrap rounded-full bg-emerald-500/20 px-2 py-0.5 text-[12px] text-emerald-300">
                   {T('সেন্টিনেল-২', 'Sentinel-2')}
                 </span>
               </div>
@@ -472,7 +472,7 @@ export default function FieldsMap({
                 <div className="bg-amber-400" style={{ width: '25%' }} />
                 <div className="bg-red-500" style={{ width: '10%' }} />
               </div>
-              <div className="mt-1.5 flex flex-wrap justify-between gap-x-2 text-[11px] text-white/65">
+              <div className="mt-1.5 flex flex-wrap justify-between gap-x-2 text-[12px] text-white/80">
                 <span className="whitespace-nowrap">{T('রেজোলিউশন ১০ মি.', 'Res. 10m')}</span>
                 <span className="whitespace-nowrap tabular">{T('মেঘ <৫%', 'Cloud <5%')}</span>
               </div>
@@ -485,7 +485,7 @@ export default function FieldsMap({
                   <Calendar size={14} />
                   {T('আসন্ন মাঠের কাজ', 'Scheduled Work')}
                 </span>
-                <span className="max-w-full truncate whitespace-nowrap text-[10.5px] text-white/70">
+                <span className="max-w-full truncate whitespace-nowrap text-[12px] text-white/70">
                   {sel ? tr(sel.name) : ''}
                 </span>
               </div>

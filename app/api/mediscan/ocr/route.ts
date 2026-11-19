@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { Tracer } from "@/lib/trace";
 import { structured, llmAvailable, modelName } from "@/lib/llm";
-import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
+import { checkRateLimitShared, rateLimitResponse } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 export const maxDuration = 45;
@@ -36,7 +36,7 @@ phone numbers and addresses. If the image is not a prescription or is unreadable
 Return only JSON: {"lines":["..."],"legible":true|false}.`;
 
 export async function POST(req: Request) {
-  const rl = checkRateLimit(req, { limit: 10, windowMs: 60_000, bucket: "mediscan-ocr" });
+  const rl = await checkRateLimitShared(req, { limit: 10, windowMs: 60_000, bucket: "mediscan-ocr" });
   if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
 
   const parsed = Body.safeParse(await req.json().catch(() => null));

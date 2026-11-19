@@ -260,7 +260,7 @@ export function TrustView({ results: r, primaryModel }: { results: EvalResults; 
 
         {/* 5. Links */}
         <section className="flex flex-wrap gap-3">
-          <Link href="/judges" className="kp-btn-primary">{t("2-minute judge tour", "২ মিনিটের বিচারক গাইড")} <ArrowRight size={15} /></Link>
+          <Link href="/judges" className="kp-btn-primary">{t("3-minute judge tour", "৩ মিনিটের বিচারক গাইড")} <ArrowRight size={15} /></Link>
           <Link href="/settings" className="kp-btn-ghost"><ShieldCheck size={15} /> {t("Privacy: what is sent where", "প্রাইভেসি: কোন তথ্য কোথায় যায়")}</Link>
           <a href="https://github.com/razibr246/Kormopath" target="_blank" rel="noopener noreferrer" className="kp-btn-ghost">
             {t("Source code on GitHub", "গিটহাবে সোর্স কোড")} <ExternalLink size={14} />

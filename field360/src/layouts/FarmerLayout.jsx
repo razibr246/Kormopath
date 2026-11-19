@@ -9,7 +9,7 @@ import { useStore, demo } from '../store';
 import { IRRIGATION, cropName } from '../engine/crops';
 import { num, bnDigits } from '../engine/dates';
 import FarmerAvatar from '../components/brand/FarmerAvatar';
-import FarmerTour, { startFarmerTour } from '../components/tour/FarmerTour';
+import FarmerTour, { startFarmerTour, farmerTourSeen } from '../components/tour/FarmerTour';
 import ChakraAgent from '../components/chakra/ChakraAgent';
 import FarmerModeSwitch from '../components/farmer/FarmerModeSwitch';
 import { openCommandPalette } from '../components/CommandPalette';
@@ -79,7 +79,7 @@ function AccountMenu() {
         <FarmerAvatar id={farmer.id} size={28} rounded="rounded-lg" fallback={<span className="grid h-7 w-7 place-items-center rounded-lg bg-primary-100 text-[14px] font-bold text-primary-800">{L(farmer.name).slice(0, 1)}</span>} />
         <span className="hidden leading-tight md:block">
           <span className="block max-w-[130px] truncate text-[14px] font-bold">{L(farmer.name)}</span>
-          <span className="block text-[11.5px] text-muted">{L(u)}, {L(upazila.name)}</span>
+          <span className="block text-[12px] text-muted">{L(u)}, {L(upazila.name)}</span>
         </span>
         <ChevronDown size={15} className="text-muted" />
       </button>
@@ -170,6 +170,8 @@ export default function FarmerLayout() {
   const loc = useLocation();
   const navigate = useNavigate();
   const [more, setMore] = useState(false);
+  // First visit on this device: the guide button carries a visible label instead of the guide opening by itself.
+  const [tourNew, setTourNew] = useState(() => !farmerTourSeen());
   useScrollOnNavigate();
   // The current page's tab sits on a glossy green pill that glides to the next tab on a spring (as on the home page).
   const tabs = useRef(null);
@@ -247,14 +249,14 @@ export default function FarmerLayout() {
           <div className="flex shrink-0 items-center gap-2 sm:gap-2.5">
             {/* KormoPath home. A plain link (full page load), so this app's stylesheet never follows to KormoPath. */}
             <a href="/" data-testid="f360-kormopath-home" title="KormoPath Home" aria-label="KormoPath Home"
-              className="flex h-10 shrink-0 items-center rounded-xl border border-border bg-white/80 px-2.5 shadow-2xs transition-colors hover:border-paddy-500">
+              className="flex h-11 min-w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-white/80 px-2.5 shadow-2xs transition-colors hover:border-paddy-500">
               <span className="hidden lg:inline-flex"><KormoPathLogo theme="light" variant="compact" size="sm" /></span>
               <span className="inline-flex lg:hidden"><KormoPathLogo theme="light" variant="mark" size="sm" /></span>
             </a>
             <BackButton />
             {macosPortal && <MacNavPills />}
             {upazila && (
-              <div className="hidden 2xl:flex shrink-0 items-center gap-1.5 rounded-full border border-primary-200/70 bg-primary-50/80 px-2.5 py-1 text-[11.5px] font-semibold text-primary-900 shadow-2xs backdrop-blur-xs">
+              <div className="hidden 2xl:flex shrink-0 items-center gap-1.5 rounded-full border border-primary-200/70 bg-primary-50/80 px-2.5 py-1 text-[12px] font-semibold text-primary-900 shadow-2xs backdrop-blur-xs">
                 <span className="telemetry-pulse shrink-0" />
                 <span className="truncate max-w-[125px]">{L(upazila.name)}, {L(upazila.district)}</span>
                 <span className="text-primary-300">·</span>
@@ -275,22 +277,23 @@ export default function FarmerLayout() {
             >
               <Search size={16} className="text-primary-700 shrink-0" />
               <span className="hidden text-muted font-normal text-[12.5px]">{T('খুঁজুন', 'Search')}</span>
-              <kbd className="hidden items-center rounded border border-border/80 bg-black/[0.04] px-1.5 py-0.5 text-[10px] font-bold text-muted">
+              <kbd className="hidden items-center rounded border border-border/80 bg-black/[0.04] px-1.5 py-0.5 text-[12px] font-bold text-muted">
                 ⌘K
               </kbd>
             </button>
-            <button type="button" onClick={() => startFarmerTour()} data-tour="tour-btn"
-              className="grid h-9 w-9 sm:h-10 sm:w-10 place-items-center rounded-xl border border-border bg-white text-ink/75 shadow-2xs transition-all duration-200 hover:scale-105 hover:bg-primary-50 hover:text-primary-800 active:scale-95 shrink-0"
+            <button type="button" onClick={() => { setTourNew(false); startFarmerTour(); }} data-tour="tour-btn"
+              className={`${tourNew ? 'inline-flex h-11 items-center gap-1 px-2.5 border-primary-600 bg-primary-50 text-[13px] font-bold text-primary-800' : 'grid h-11 w-11 place-items-center border-border bg-white'} rounded-xl border text-ink/75 shadow-2xs transition-all duration-200 hover:scale-105 hover:bg-primary-50 hover:text-primary-800 active:scale-95 shrink-0`}
               aria-label={T('গাইড মোড · অ্যাপের পুরো সফর', 'Guide Mode · Full App Tour')}
               title={T('গাইড মোড: অ্যাপের পুরো সফর', 'Guide Mode: Tour of the whole app')}>
               <Compass size={18} className="text-primary-700" />
+              {tourNew && <span aria-hidden="true">{T('গাইড', 'Guide')}</span>}
             </button>
             <button type="button" onClick={() => navigate('/farmer/help')} data-tour="bell"
-              className={`relative grid h-9 w-9 sm:h-10 sm:w-10 place-items-center rounded-xl border bg-white transition-all duration-200 hover:scale-105 active:scale-95 shadow-2xs shrink-0 ${unreadAdvisories > 0 ? 'border-red-200 text-red-600 shadow-[0_0_14px_rgba(220,38,38,0.25)] hover:bg-red-50/50' : 'border-border text-ink/75 hover:bg-primary-50'}`}
+              className={`relative grid h-11 w-11 place-items-center rounded-xl border bg-white transition-all duration-200 hover:scale-105 active:scale-95 shadow-2xs shrink-0 ${unreadAdvisories > 0 ? 'border-red-200 text-red-600 shadow-[0_0_14px_rgba(220,38,38,0.25)] hover:bg-red-50/50' : 'border-border text-ink/75 hover:bg-primary-50'}`}
               aria-label={unreadAdvisories ? T(`কর্মকর্তার ${num(unreadAdvisories, 'bn')}টি নতুন বার্তা`, `${unreadAdvisories} new messages from your officer`) : T('কর্মকর্তার বার্তা', 'Messages from your officer')}>
               <Bell size={18} className={unreadAdvisories > 0 ? 'animate-[drift_3s_ease-in-out_infinite]' : ''} />
               {unreadAdvisories > 0 && (
-                <span className="pulse-ring absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-red-600 px-1 text-[11px] font-bold text-white shadow-sm">
+                <span className="pulse-ring absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-red-600 px-1 text-[12px] font-bold text-white shadow-sm">
                   {T(num(unreadAdvisories, 'bn'), String(unreadAdvisories))}
                 </span>
               )}
@@ -364,11 +367,11 @@ export default function FarmerLayout() {
       <nav data-tour="nav" className="farmer-mobile-nav fixed inset-x-3 bottom-0 z-50 lg:hidden" style={{ paddingBottom: 'max(.75rem, env(safe-area-inset-bottom))' }} aria-label={T('কৃষকের পাতা', 'Farmer pages')}>
         <div className="glass mx-auto grid max-w-lg grid-cols-5 rounded-[28px] border border-white/70 px-1.5 py-1.5 shadow-[0_16px_40px_-10px_rgba(13,38,20,0.38)] backdrop-blur-xl">
           {bottom.map((n) => (
-            <NavLink key={n.to} to={n.to} end={n.end} className={({ isActive }) => `flex flex-col items-center gap-0.5 rounded-[22px] py-1 text-[11.5px] font-semibold transition-all duration-200 active:scale-95 ${isActive ? 'text-primary-950 font-bold' : 'text-ink/70 hover:text-ink'}`}>
+            <NavLink key={n.to} to={n.to} end={n.end} className={({ isActive }) => `flex flex-col items-center gap-0.5 rounded-[22px] py-1 text-[12px] font-semibold transition-all duration-200 active:scale-95 ${isActive ? 'text-primary-950 font-bold' : 'text-ink/70 hover:text-ink'}`}>
               {({ isActive }) => (<><span className={`grid h-7 w-12 place-items-center rounded-full transition-all duration-350 ease-[cubic-bezier(.34,1.4,.64,1)] ${isActive ? 'scale-110 bg-primary-600/20 text-primary-800 shadow-[inset_0_1px_0_rgba(255,255,255,.9),0_2px_8px_-2px_rgba(67,134,58,0.35)]' : 'scale-100'}`}><n.icon size={19} /></span><span>{n.short ?? n.label}</span></>)}
             </NavLink>
           ))}
-          <button type="button" onClick={() => setMore(true)} className={`relative flex flex-col items-center gap-0.5 rounded-[22px] py-1 text-[11.5px] font-semibold transition-all duration-200 active:scale-95 ${restActive ? 'text-primary-950 font-bold' : 'text-ink/70 hover:text-ink'}`} aria-haspopup="dialog" aria-expanded={more} aria-controls="farmer-more-dialog">
+          <button type="button" onClick={() => setMore(true)} className={`relative flex flex-col items-center gap-0.5 rounded-[22px] py-1 text-[12px] font-semibold transition-all duration-200 active:scale-95 ${restActive ? 'text-primary-950 font-bold' : 'text-ink/70 hover:text-ink'}`} aria-haspopup="dialog" aria-expanded={more} aria-controls="farmer-more-dialog">
             <span className={`grid h-7 w-12 place-items-center rounded-full transition-all duration-350 ease-[cubic-bezier(.34,1.4,.64,1)] ${restActive ? 'scale-110 bg-primary-600/20 text-primary-800 shadow-[inset_0_1px_0_rgba(255,255,255,.9),0_2px_8px_-2px_rgba(67,134,58,0.35)]' : 'scale-100'}`}><Ellipsis size={19} /></span>
             <span>{T('আরও', 'More')}</span>
             {unreadAdvisories > 0 && <span className="absolute top-1 right-3 h-2 w-2 rounded-full bg-red-600 ring-2 ring-white" />}

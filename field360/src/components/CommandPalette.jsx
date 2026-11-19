@@ -443,7 +443,7 @@ export default function CommandPalette() {
               setSelectedIndex(0);
             }}
             placeholder={T('যেকোনো পাতা, কৃষক, উপজেলা বা ফসল খুঁজুন... (যেমন: ডাক্তার, রাডার, ধান)', 'Search anything in MaathSathi... (e.g. Doctor, Radar, Wheat)')}
-            className="w-full bg-transparent text-[16px] font-medium text-ink outline-none placeholder:text-muted/60"
+            className="w-full bg-transparent text-[16px] font-medium text-ink outline-none placeholder:text-muted"
           />
           {query && (
             <button
@@ -455,7 +455,7 @@ export default function CommandPalette() {
               <X size={14} />
             </button>
           )}
-          <kbd className="hidden sm:inline-flex items-center gap-1 rounded-md border border-border bg-canvas px-2 py-0.5 text-[11px] font-bold text-muted">
+          <kbd className="hidden sm:inline-flex items-center gap-1 rounded-md border border-border bg-canvas px-2 py-0.5 text-[12px] font-bold text-muted">
             ESC
           </kbd>
         </div>
@@ -495,7 +495,7 @@ export default function CommandPalette() {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <span className="truncate text-[14.5px] font-bold">{item.title}</span>
-                      <span className="rounded-full bg-black/[0.04] px-2 py-0.5 text-[10.5px] font-semibold text-muted">
+                      <span className="rounded-full bg-black/[0.04] px-2 py-0.5 text-[12px] font-semibold text-muted">
                         {item.category}
                       </span>
                     </div>
@@ -526,7 +526,7 @@ export default function CommandPalette() {
               <span className="ml-0.5">{T('নির্বাচন', 'select')}</span>
             </span>
           </div>
-          <span className="text-[11.5px] font-medium text-primary-800">
+          <span className="text-[12px] font-medium text-primary-800">
             {T('মাঠসাথী', 'MaathSathi')}
           </span>
         </div>

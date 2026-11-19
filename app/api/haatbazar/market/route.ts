@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
+import { checkRateLimitShared, rateLimitResponse } from "@/lib/rateLimit";
 import { Tracer } from "@/lib/trace";
 import { geminiAvailable, groundedSearch, SEARCH_ERROR_BN } from "@/lib/gemini";
 
@@ -9,7 +9,7 @@ export const maxDuration = 45;
 const Body = z.object({ kind: z.enum(["input", "freight"]), query: z.string().trim().min(2).max(180) });
 
 export async function POST(req: Request) {
-  const rl = checkRateLimit(req, { limit: 8, windowMs: 60_000, bucket: "haat-market" });
+  const rl = await checkRateLimitShared(req, { limit: 8, windowMs: 60_000, bucket: "haat-market" });
   if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "পণ্য বা রুট ২–১৮০ অক্ষরে লিখুন।" }, { status: 400 });

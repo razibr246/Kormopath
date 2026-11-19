@@ -54,7 +54,7 @@ export const HELPLINES: readonly Helpline[] = [
     id: "emergency", number: "999",
     bn: "জাতীয় জরুরি সেবা", en: "National emergency service",
     whenBn: "এখনই বিপদ: পুলিশ, অ্যাম্বুলেন্স, ফায়ার সার্ভিস", whenEn: "Danger right now: police, ambulance, fire",
-    source: src("আইনগত সহায়তা অধিদপ্তর — জরুরি যোগাযোগ (৯৯৯)", "https://nlaso.gov.bd/"),
+    source: { label: "বাংলাদেশ জাতীয় তথ্য বাতায়ন — জরুরি সেবা নম্বরসমূহ (৯৯৯)", url: "https://bangladesh.gov.bd", checked: "2026-11-19" },
   },
   {
     id: "women_children", number: "109",
@@ -66,13 +66,13 @@ export const HELPLINES: readonly Helpline[] = [
     id: "govt_info", number: "333",
     bn: "সরকারি তথ্য ও সেবা", en: "Government information and services",
     whenBn: "কোন অফিসে যাবেন, কোন সেবা কোথায়", whenEn: "Which office to go to, where a service is",
-    source: src("আইনগত সহায়তা অধিদপ্তর — সরকারি তথ্য ও সেবা (৩৩৩)", "https://nlaso.gov.bd/"),
+    source: { label: "বাংলাদেশ জাতীয় তথ্য বাতায়ন — জরুরি সেবা নম্বরসমূহ (৩৩৩)", url: "https://bangladesh.gov.bd", checked: "2026-11-19" },
   },
   {
     id: "land", number: "16122",
     bn: "ভূমি সেবা হটলাইন", en: "Land service hotline",
     whenBn: "জমির সেবা, নামজারি ও ভূমি অফিসের অভিযোগ", whenEn: "Land services, mutation and land office complaints",
-    source: src("The Business Standard — 16122 land service hotline", "https://www.tbsnews.net/node/485078"),
+    source: { label: "ভূমি মন্ত্রণালয় — Land 16122 Helpline (hotline.land.gov.bd)", url: "https://hotline.land.gov.bd/", checked: "2026-11-19" },
   },
 ] as const;
 

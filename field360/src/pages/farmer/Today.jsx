@@ -68,7 +68,7 @@ function WaterGauge({ fw }) {
         <div className="h-full rounded-full bg-white transition-all duration-700 ease-out shadow-xs" style={{ width: `${full * 100}%` }} />
         <div className="absolute inset-y-0 w-1 bg-amber-300 shadow-sm" style={{ left: `${stress * 100}%` }} />
       </div>
-      <div className="relative mt-1.5 h-4 text-[11.5px] text-white/70">
+      <div className="relative mt-1.5 h-4 text-[12px] text-white/70">
         <span className="absolute left-0">{T('শুকনো', 'Dry')}</span>
         <span className="absolute -translate-x-1/2 whitespace-nowrap text-amber-100 font-medium" style={{ left: `${stress * 100}%` }}>↑ {T('এর বাঁয়ে পানির টান', 'left of this: stress')}</span>
         <span className="absolute right-0">{T('পুরো ভেজা', 'Fully wet')}</span>
@@ -114,9 +114,9 @@ function FieldNow({ parcel, crop, dToday }) {
                   [T('পানি জমা', 'Standing water'), `${num(Math.round((r.last.water ?? 0) * 100), lang)}%`, (r.last.water ?? 0) > 0.1 ? 'text-blue-800 bg-blue-100/70 border-blue-200' : 'text-muted bg-canvas border-border/70', (r.last.water ?? 0) > 0.1 ? T('পানি আছে', 'Standing') : T('নেই', 'None')]
                 ].map(([k, v, badgeCls, statusText]) => (
                   <div key={k} className="rounded-xl border border-border/80 bg-canvas/80 px-2 py-2.5 transition-all hover:bg-canvas">
-                    <dt className="text-[11.5px] leading-tight text-muted">{k}</dt>
+                    <dt className="text-[12px] leading-tight text-muted">{k}</dt>
                     <dd className="font-display mt-0.5 text-[18px] font-bold tabular text-ink">{v}</dd>
-                    <span className={`mt-1 inline-block rounded-full border px-2 py-0.2 text-[10px] font-semibold ${badgeCls}`}>{statusText}</span>
+                    <span className={`mt-1 inline-block rounded-full border px-2 py-0.2 text-[12px] font-semibold ${badgeCls}`}>{statusText}</span>
                   </div>
                 ))}
               </dl>
@@ -262,7 +262,7 @@ export default function Today() {
                 <div className="rounded-xl bg-white/15 px-3 py-2"><dt className="text-white/75">{T('পরের সেচ', 'Next irrigation')}</dt><dd className="text-[15px] font-bold">{nextIrr}</dd></div>
                 <div className="rounded-xl bg-white/15 px-3 py-2"><dt className="text-white/75">{T(`আপনার ${bnDigits(farmer.area_dec)} শতকে লাগবে`, `For your ${farmer.area_dec} decimal`)}</dt>
                   <dd className="text-[15px] font-bold tabular">{fw.net >= 5 ? T(`প্রায় ${num(fw.m3, 'bn')} ঘনমিটার`, `about ${num(fw.m3, 'en')} m³`) : T('এখন দরকার নেই', 'none needed now')}</dd>
-                  {fw.net >= 5 && <dd className="text-[11.5px] leading-4 text-white/70">{T(`${num(fw.net, 'bn')} মিমি শিকড়ে পৌঁছাতে; নালার অপচয় ধরে (${num(FIELD_EFF * 100, 'bn')}% কাজে লাগে)`, `${num(fw.net, 'en')} mm to the roots, allowing for losses (${FIELD_EFF * 100}% reaches them)`)}</dd>}</div>
+                  {fw.net >= 5 && <dd className="text-[12px] leading-4 text-white/70">{T(`${num(fw.net, 'bn')} মিমি শিকড়ে পৌঁছাতে; নালার অপচয় ধরে (${num(FIELD_EFF * 100, 'bn')}% কাজে লাগে)`, `${num(fw.net, 'en')} mm to the roots, allowing for losses (${FIELD_EFF * 100}% reaches them)`)}</dd>}</div>
               </dl>
             </>
           )}
@@ -313,10 +313,10 @@ export default function Today() {
                     const t = parseISO(x.d);
                     return (
                       <div key={x.d} className={`rounded-xl px-1 py-2 text-center transition-all duration-200 hover:-translate-y-0.5 ${i === 0 ? 'bg-primary-50 ring-1 ring-primary-200' : 'bg-canvas hover:bg-canvas/80'}`} title={T(`${fmtDate(t, 'bn')}: বৃষ্টি ${num(x.rain, 'bn', { dp: 1 })} মিমি, ${num(x.tmin, 'bn')}–${num(x.tmax, 'bn')}°, ET₀ ${num(x.et0, 'bn', { dp: 1 })} মিমি`, `${fmtDate(t, 'en')}: rain ${x.rain} mm, ${x.tmin}–${x.tmax}°, ET₀ ${x.et0} mm`)}>
-                        <div className="text-[11.5px] font-semibold text-muted">{i === 0 ? T('আজ', 'Today') : WEEKDAY[lang][new Date(t).getUTCDay()]}</div>
+                        <div className="text-[12px] font-semibold text-muted">{i === 0 ? T('আজ', 'Today') : WEEKDAY[lang][new Date(t).getUTCDay()]}</div>
                         <div className="mt-1 text-[13px] font-bold tabular">{num(x.tmax, lang)}°</div>
                         <div className="mx-auto mt-1 flex h-8 w-2 flex-col justify-end overflow-hidden rounded-full bg-sky-100"><div className="w-full rounded-full bg-sky-500 transition-all duration-500" style={{ height: `${Math.min(100, ((x.rain ?? 0) / 30) * 100)}%` }} /></div>
-                        <div className="mt-1 text-[11px] tabular text-sky-800">{num(x.rain, lang, { dp: (x.rain ?? 0) < 10 ? 1 : 0 })}</div>
+                        <div className="mt-1 text-[12px] tabular text-sky-800">{num(x.rain, lang, { dp: (x.rain ?? 0) < 10 ? 1 : 0 })}</div>
                       </div>
                     );
                   })}

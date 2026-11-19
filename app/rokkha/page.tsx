@@ -91,7 +91,7 @@ export default function RokkhaPage() {
         icon={<ShieldCheck size={20} aria-hidden />}
         accent="from-amber-500 to-orange-700"
         right={
-          <button type="button" onClick={() => setLang(bn ? "en" : "bn")} className="kp-chip !h-8 !rounded-full !text-[12px] font-semibold" aria-label={bn ? "Switch to English" : "বাংলায় দেখুন"}>
+          <button type="button" onClick={() => setLang(bn ? "en" : "bn")} className="kp-chip !h-11 !rounded-full !text-[12px] font-semibold !min-w-[44px]" aria-label={bn ? "Switch to English" : "বাংলায় দেখুন"}>
             {bn ? "EN" : "বাং"}
           </button>
         }
@@ -113,7 +113,7 @@ export default function RokkhaPage() {
               "Check a suspicious SMS or call script, pause before a risky transfer, know what to do if money is lost, and get ready for cyclones and floods. Everything runs on your phone.",
             )}
           </p>
-          <button type="button" data-testid="rk-call-open" onClick={() => setCallOpen(true)} className="rk-callbtn mt-4">
+          <button type="button" data-testid="rk-call-open" onClick={() => setCallOpen(true)} className="rk-callbtn mt-4 min-h-[44px] min-w-[44px]">
             <PhoneOff size={26} aria-hidden />
             <span className="text-left">
               <span className="block text-[18px] font-bold leading-tight">{T("কলে আছেন? কেউ টাকা বা ওটিপি চাইছে?", "On a call? Someone asking for money or an OTP?")}</span>
@@ -162,7 +162,7 @@ const OFFICIAL_CALLS = [
 
 /** Alert button for saved guardians; opens the phone's own SMS app, the user still presses send. */
 function GuardianAlert({ bn, T, guardians }: Txt & { guardians: Guardian[] }) {
-  if (!guardians.length) return <a href="#guardian" className="text-[14px] font-semibold text-amber-900 underline underline-offset-4">{T("পরিবারের কাউকে পাহারাদার হিসেবে যোগ করুন", "Add a family guardian")}</a>;
+  if (!guardians.length) return <a href="#guardian" className="inline-flex min-h-[44px] items-center text-[14px] font-semibold text-amber-900 underline underline-offset-4">{T("পরিবারের কাউকে পাহারাদার হিসেবে যোগ করুন", "Add a family guardian")}</a>;
   const names = guardians.map((g) => g.name || g.number).join(", ");
   return (
     <a data-testid="rk-guardian-alert" href={smsHref(guardians.map((g) => g.number), bn ? GUARDIAN_ALERT_BN : GUARDIAN_ALERT_EN)} className="kp-btn-ghost min-h-[48px] rounded-2xl px-4 font-bold">
@@ -245,7 +245,7 @@ function GuardianSection({ bn, T, guardians, setGuardians }: Txt & { guardians: 
         {guardians.map((g) => (
           <li key={g.number} className="flex items-center justify-between gap-2 rounded-2xl bg-paper p-3 ring-1 ring-line">
             <span className="min-w-0"><span className="block font-bold text-ink">{g.name || T("পাহারাদার", "Guardian")}</span><span className="font-mono text-[14px] text-slate-600">{bn ? toBnDigits(g.number) : g.number}</span></span>
-            <button type="button" onClick={() => setGuardians(guardians.filter((x) => x.number !== g.number))} className="kp-btn-ghost min-h-[44px] rounded-xl px-3" aria-label={T(`${g.name || g.number} মুছুন`, `Remove ${g.name || g.number}`)}><Trash2 size={16} aria-hidden /></button>
+            <button type="button" onClick={() => setGuardians(guardians.filter((x) => x.number !== g.number))} className="kp-btn-ghost min-h-[44px] rounded-xl px-3 min-w-[44px]" aria-label={T(`${g.name || g.number} মুছুন`, `Remove ${g.name || g.number}`)}><Trash2 size={16} aria-hidden /></button>
           </li>
         ))}
       </ul>
@@ -253,11 +253,11 @@ function GuardianSection({ bn, T, guardians, setGuardians }: Txt & { guardians: 
         <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
           <div>
             <label htmlFor="rk-g-name" className="text-[13.5px] font-semibold text-slate-700">{T("নাম (যেমন: ছেলে, রিনা)", "Name (e.g. son, Rina)")}</label>
-            <input id="rk-g-name" value={name} onChange={(e) => setName(e.target.value)} maxLength={40} className="rk-field mt-1" />
+            <input id="rk-g-name" value={name} onChange={(e) => setName(e.target.value)} maxLength={40} className="rk-field mt-1 min-h-[44px]" />
           </div>
           <div>
             <label htmlFor="rk-g-num" className="text-[13.5px] font-semibold text-slate-700">{T("মোবাইল নম্বর", "Mobile number")}</label>
-            <input id="rk-g-num" value={number} onChange={(e) => setNumber(e.target.value)} inputMode="tel" maxLength={20} className="rk-field mt-1 font-mono" placeholder="017XXXXXXXX" />
+            <input id="rk-g-num" value={number} onChange={(e) => setNumber(e.target.value)} inputMode="tel" maxLength={20} className="rk-field mt-1 font-mono min-h-[44px]" placeholder="017XXXXXXXX" />
           </div>
           <button type="button" data-testid="rk-g-review" onClick={review} className="kp-btn-primary min-h-[48px] rounded-2xl px-5 font-bold">{T("যোগ করুন", "Add")}</button>
         </div>
@@ -321,7 +321,7 @@ function MessageChecker({ bn, T, shared, guardians, onLinks }: Txt & { shared: {
     <section id="check" className="rk-section rk-card p-5 sm:p-6" aria-labelledby="check-title">
       <SectionHead id="check-title" icon={MessageSquareWarning} title={T("বার্তা যাচাই", "Check a message")} sub={T("এসএমএস, হোয়াটসঅ্যাপ বা ফোনে যা বলেছে, এখানে লিখুন বা পেস্ট করুন। লেখা ফোনের বাইরে যায় না।", "Paste an SMS, WhatsApp text or what a caller said. The text never leaves your phone.")} />
       <label htmlFor="rk-msg" className="text-[14px] font-semibold text-slate-700">{T("বার্তার লেখা", "Message text")}</label>
-      <textarea id="rk-msg" data-testid="rk-msg" value={text} onChange={(e) => setText(e.target.value)} rows={5} maxLength={5000} className="rk-field mt-1 leading-relaxed" placeholder={T("যেমন: ভুলে আপনার নম্বরে টাকা চলে গেছে…", "e.g. I sent money to your number by mistake…")} />
+      <textarea id="rk-msg" data-testid="rk-msg" value={text} onChange={(e) => setText(e.target.value)} rows={5} maxLength={5000} className="rk-field mt-1 leading-relaxed min-h-[44px]" placeholder={T("যেমন: ভুলে আপনার নম্বরে টাকা চলে গেছে…", "e.g. I sent money to your number by mistake…")} />
       <div className="mt-3 flex flex-wrap gap-2">
         <button type="button" data-testid="rk-check" onClick={() => setChecked(text)} disabled={!text.trim()} className="kp-btn-primary min-h-[48px] rounded-2xl px-5 font-bold disabled:opacity-50">{T("লক্ষণ খুঁজুন", "Look for signs")}</button>
         {canPaste && <button type="button" onClick={paste} className="kp-btn-ghost min-h-[48px] rounded-2xl px-4"><ClipboardPaste size={17} aria-hidden /> {T("পেস্ট করে যাচাই", "Paste and check")}</button>}
@@ -405,7 +405,7 @@ function PauseFlow({ bn, T, num }: Txt & { num: (n: number | string) => string }
 
   const set = <K extends keyof TransferInputs>(k: K, v: TransferInputs[K]) => setInp((p) => ({ ...p, [k]: v }));
   const toggle = (k: "metInPerson" | "urgency" | "secrecy" | "viaNewNumber", bnL: string, enL: string, inverse = false) => (
-    <label className="rk-toggle">
+    <label className="rk-toggle min-h-[44px]">
       <input type="checkbox" checked={inverse ? !inp[k] : inp[k]} onChange={(e) => set(k, inverse ? !e.target.checked : e.target.checked)} />
       <span>{T(bnL, enL)}</span>
     </label>
@@ -419,18 +419,18 @@ function PauseFlow({ bn, T, num }: Txt & { num: (n: number | string) => string }
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
               <label htmlFor="rk-amt" className="text-[14px] font-semibold text-slate-700">{T("কত টাকা (৳)", "Amount (৳)")}</label>
-              <input id="rk-amt" inputMode="numeric" value={amountText} onChange={(e) => { const v = e.target.value.replace(/[^\d০-৯]/g, "").slice(0, 9); setAmountText(v); set("amountTaka", Number(v.replace(/[০-৯]/g, (d) => String("০১২৩৪৫৬৭৮৯".indexOf(d)))) || 0); }} className="rk-field mt-1 font-mono" placeholder="5000" />
+              <input id="rk-amt" inputMode="numeric" value={amountText} onChange={(e) => { const v = e.target.value.replace(/[^\d০-৯]/g, "").slice(0, 9); setAmountText(v); set("amountTaka", Number(v.replace(/[০-৯]/g, (d) => String("০১২৩৪৫৬৭৮৯".indexOf(d)))) || 0); }} className="rk-field mt-1 font-mono min-h-[44px]" placeholder="5000" />
             </div>
             <div>
               <label htmlFor="rk-method" className="text-[14px] font-semibold text-slate-700">{T("কীভাবে পাঠাতে বলছে", "How they want it")}</label>
-              <select id="rk-method" value={inp.method} onChange={(e) => set("method", e.target.value as PayMethod)} className="rk-field mt-1">
+              <select id="rk-method" value={inp.method} onChange={(e) => set("method", e.target.value as PayMethod)} className="rk-field mt-1 min-h-[44px]">
                 {METHODS.map((m) => <option key={m.id} value={m.id}>{bn ? m.bn : m.en}</option>)}
               </select>
             </div>
           </div>
           <div>
             <label htmlFor="rk-who" className="text-[14px] font-semibold text-slate-700">{T("কে টাকা চাইছে", "Who is asking")}</label>
-            <select id="rk-who" value={inp.requester} onChange={(e) => set("requester", e.target.value as Requester)} className="rk-field mt-1">
+            <select id="rk-who" value={inp.requester} onChange={(e) => set("requester", e.target.value as Requester)} className="rk-field mt-1 min-h-[44px]">
               {REQUESTERS.map((r) => <option key={r.id} value={r.id}>{bn ? r.bn : r.en}</option>)}
             </select>
           </div>
@@ -469,8 +469,8 @@ function PauseFlow({ bn, T, num }: Txt & { num: (n: number | string) => string }
               <p className="sr-only" role="timer">{running ? T(`বিরতির ${toBnDigits(mm + 1)} মিনিট বাকি`, `${mm + 1} minutes of the pause left`) : ""}</p>
               <p className="mt-1 text-[13.5px] text-slate-600">{running ? T("বিরতি চলছে। এর মধ্যে নিচের ধাপগুলো করুন।", "Pause running. Do the steps below meanwhile.") : done ? T("বিরতি শেষ। ধাপগুলো করা হলে তবেই সিদ্ধান্ত নিন।", "Pause over. Decide only after doing the steps.") : T("প্রস্তাবিত বিরতি", "Suggested pause")}</p>
               <div className="mt-2 flex flex-wrap gap-2">
-                {!running && res.pauseMinutes > 0 && <button type="button" onClick={() => { setStartedFor(res.pauseMinutes); setUntil(Date.now() + res.pauseMinutes * 60000); }} className="kp-btn-sun min-h-[44px] rounded-xl px-4 font-bold">{T("বিরতি শুরু করুন", "Start the pause")}</button>}
-                {(running || done) && <button type="button" onClick={() => setUntil(0)} className="kp-btn-ghost min-h-[44px] rounded-xl px-4">{T("রিসেট", "Reset")}</button>}
+                {!running && res.pauseMinutes > 0 && <button type="button" onClick={() => { setStartedFor(res.pauseMinutes); setUntil(Date.now() + res.pauseMinutes * 60000); }} className="kp-btn-sun min-h-[44px] rounded-xl px-4 font-bold min-w-[44px]">{T("বিরতি শুরু করুন", "Start the pause")}</button>}
+                {(running || done) && <button type="button" onClick={() => setUntil(0)} className="kp-btn-ghost min-h-[44px] rounded-xl px-4 min-w-[44px]">{T("রিসেট", "Reset")}</button>}
               </div>
             </div>
           </div>
@@ -499,8 +499,8 @@ function LostMoney({ bn, T, links }: Txt & { links: string }) {
   const text = report[which];
   const input = (k: keyof typeof f, bnL: string, enL: string, props: Record<string, string> = {}) => (
     <div>
-      <label htmlFor={`rk-${k}`} className="text-[13.5px] font-semibold text-slate-700">{T(bnL, enL)}</label>
-      <input id={`rk-${k}`} value={f[k]} onChange={(e) => setF((p) => ({ ...p, [k]: e.target.value }))} className="rk-field mt-1" {...props} />
+      <label htmlFor={`rk-rep-${k}`} className="text-[13.5px] font-semibold text-slate-700">{T(bnL, enL)}</label>
+      <input id={`rk-rep-${k}`} value={f[k]} onChange={(e) => setF((p) => ({ ...p, [k]: e.target.value }))} className="rk-field mt-1 min-h-[44px]" {...props} />
     </div>
   );
   const copy = async () => {
@@ -535,14 +535,14 @@ function LostMoney({ bn, T, links }: Txt & { links: string }) {
         {input("yourNumber", "আপনার নম্বর", "Your number", { inputMode: "tel" })}
       </div>
       <label htmlFor="rk-links" className="mt-3 block text-[13.5px] font-semibold text-slate-700">{T("সন্দেহজনক লিংক (বার্তা যাচাই থেকে আপনা-আপনি আসে)", "Suspicious links (filled in from the message check)")}</label>
-      <textarea id="rk-links" data-testid="rk-report-links" rows={2} maxLength={600} value={f.links} onChange={(e) => setF((p) => ({ ...p, links: e.target.value }))} className="rk-field mt-1 font-mono text-[13px]" />
+      <textarea id="rk-links" data-testid="rk-report-links" rows={2} maxLength={600} value={f.links} onChange={(e) => setF((p) => ({ ...p, links: e.target.value }))} className="rk-field mt-1 font-mono text-[13px] min-h-[44px]" />
       <label htmlFor="rk-what" className="mt-3 block text-[13.5px] font-semibold text-slate-700">{T("কী ঘটেছে", "What happened")}</label>
-      <textarea id="rk-what" rows={3} maxLength={1500} value={f.whatHappened} onChange={(e) => setF((p) => ({ ...p, whatHappened: e.target.value }))} className="rk-field mt-1" />
+      <textarea id="rk-what" rows={3} maxLength={1500} value={f.whatHappened} onChange={(e) => setF((p) => ({ ...p, whatHappened: e.target.value }))} className="rk-field mt-1 min-h-[44px]" />
 
       <div className="mt-4 flex flex-wrap items-center gap-2" role="group" aria-label={T("রিপোর্টের ধরন", "Report type")}>
-        <button type="button" aria-pressed={which === "helpline"} onClick={() => setWhich("helpline")} className={`min-h-[44px] rounded-xl px-4 font-semibold ring-1 ${which === "helpline" ? "bg-emerald-800 text-white ring-emerald-800" : "bg-white text-ink ring-line"}`}>{T("হেল্পলাইনের জন্য", "For the helpline")}</button>
-        <button type="button" aria-pressed={which === "gd"} onClick={() => setWhich("gd")} className={`min-h-[44px] rounded-xl px-4 font-semibold ring-1 ${which === "gd" ? "bg-emerald-800 text-white ring-emerald-800" : "bg-white text-ink ring-line"}`}>{T("থানায় জিডি", "Police GD")}</button>
-        <button type="button" onClick={copy} className="kp-btn-primary min-h-[44px] rounded-xl px-4 font-bold"><ClipboardCopy size={16} aria-hidden /> {T("কপি করুন", "Copy")}</button>
+        <button type="button" aria-pressed={which === "helpline"} onClick={() => setWhich("helpline")} className={`min-h-[44px] rounded-xl px-4 font-semibold ring-1 ${which === "helpline" ? "bg-emerald-800 text-white ring-emerald-800" : "bg-white text-ink ring-line"} min-w-[44px]`}>{T("হেল্পলাইনের জন্য", "For the helpline")}</button>
+        <button type="button" aria-pressed={which === "gd"} onClick={() => setWhich("gd")} className={`min-h-[44px] rounded-xl px-4 font-semibold ring-1 ${which === "gd" ? "bg-emerald-800 text-white ring-emerald-800" : "bg-white text-ink ring-line"} min-w-[44px]`}>{T("থানায় জিডি", "Police GD")}</button>
+        <button type="button" onClick={copy} className="kp-btn-primary min-h-[44px] rounded-xl px-4 font-bold min-w-[44px]"><ClipboardCopy size={16} aria-hidden /> {T("কপি করুন", "Copy")}</button>
         <span aria-live="polite" className="text-[13px] font-semibold text-emerald-800">{copied}</span>
       </div>
       <pre className="mt-3 max-h-[360px] overflow-auto whitespace-pre-wrap break-words rounded-2xl bg-white p-4 font-mono text-[13px] leading-relaxed text-slate-800 ring-1 ring-line" aria-label={T("রিপোর্টের লেখা", "Report text")}>{text}</pre>
@@ -588,7 +588,7 @@ function Readiness({ bn, T, num }: Txt & { num: (n: number | string) => string }
       <div className="grid gap-4 md:grid-cols-[1fr_1.4fr]">
         <div className="rounded-2xl bg-paper p-4 ring-1 ring-line">
           <label htmlFor="rk-district" className="text-[14px] font-semibold text-slate-700">{T("জেলা", "District")}</label>
-          <select id="rk-district" value={district} onChange={(e) => setDistrict(e.target.value)} className="rk-field mt-1 font-semibold">
+          <select id="rk-district" value={district} onChange={(e) => setDistrict(e.target.value)} className="rk-field mt-1 font-semibold min-h-[44px]">
             {DISTRICTS.map((d) => <option key={d.id} value={d.id}>{bn ? d.nameBn : d.id[0].toUpperCase() + d.id.slice(1)}</option>)}
           </select>
           <div className="mt-3" aria-live="polite">
@@ -596,9 +596,9 @@ function Readiness({ bn, T, num }: Txt & { num: (n: number | string) => string }
               <>
                 <p className="text-[13px] font-semibold text-slate-500">{T("পরের ২৪ ঘণ্টা", "Next 24 hours")}</p>
                 <dl className="mt-1 grid grid-cols-3 gap-2 text-center">
-                  <div className="rounded-xl bg-white p-2 ring-1 ring-line"><dt className="text-[11.5px] text-slate-500">{T("বৃষ্টির সম্ভাবনা", "Rain chance")}</dt><dd className="font-mono text-[20px] font-bold text-ink">{num(wx.maxRain)}%</dd></div>
-                  <div className="rounded-xl bg-white p-2 ring-1 ring-line"><dt className="text-[11.5px] text-slate-500">{T("সর্বোচ্চ বাতাস", "Max wind")}</dt><dd className="font-mono text-[20px] font-bold text-ink">{num(wx.maxWind)}<span className="text-[11px]"> {T("কিমি/ঘ", "km/h")}</span></dd></div>
-                  <div className="rounded-xl bg-white p-2 ring-1 ring-line"><dt className="text-[11.5px] text-slate-500">{T("মোট বৃষ্টি", "Total rain")}</dt><dd className="font-mono text-[20px] font-bold text-ink">{num(wx.rainMm)}<span className="text-[11px]"> {T("মিমি", "mm")}</span></dd></div>
+                  <div className="rounded-xl bg-white p-2 ring-1 ring-line"><dt className="text-[12px] text-slate-500">{T("বৃষ্টির সম্ভাবনা", "Rain chance")}</dt><dd className="font-mono text-[20px] font-bold text-ink">{num(wx.maxRain)}%</dd></div>
+                  <div className="rounded-xl bg-white p-2 ring-1 ring-line"><dt className="text-[12px] text-slate-500">{T("সর্বোচ্চ বাতাস", "Max wind")}</dt><dd className="font-mono text-[20px] font-bold text-ink">{num(wx.maxWind)}<span className="text-[12px]"> {T("কিমি/ঘ", "km/h")}</span></dd></div>
+                  <div className="rounded-xl bg-white p-2 ring-1 ring-line"><dt className="text-[12px] text-slate-500">{T("মোট বৃষ্টি", "Total rain")}</dt><dd className="font-mono text-[20px] font-bold text-ink">{num(wx.rainMm)}<span className="text-[12px]"> {T("মিমি", "mm")}</span></dd></div>
                 </dl>
                 <div className="mt-2"><SourceTag confidence="reported" label={wx.source.label} url={wx.source.url} /></div>
                 <p className="mt-2 text-[12.5px] text-slate-600">{T("এটি মডেলের সাধারণ পূর্বাভাস, সরকারি সতর্কসংকেত নয়।", "This is a general model forecast, not an official warning signal.")}</p>
@@ -623,10 +623,10 @@ function Readiness({ bn, T, num }: Txt & { num: (n: number | string) => string }
           <ul className="mt-2 grid gap-2">
             {PREP_CHECKLIST.map((p) => (
               <li key={p.id}>
-                <label className="rk-toggle">
+                <label className="rk-toggle min-h-[44px]">
                   <input type="checkbox" checked={ticks.includes(p.id)} onChange={() => toggle(p.id)} />
                   <span className={ticks.includes(p.id) ? "text-slate-500 line-through decoration-emerald-700/50" : ""}>{bn ? p.bn : p.en}</span>
-                  {p.hazard !== "both" && <span className="ml-auto shrink-0 rounded-full bg-sky-50 px-2 py-0.5 text-[11px] font-semibold text-sky-800 ring-1 ring-sky-200">{p.hazard === "cyclone" ? T("ঘূর্ণিঝড়", "Cyclone") : T("বন্যা", "Flood")}</span>}
+                  {p.hazard !== "both" && <span className="ml-auto shrink-0 rounded-full bg-sky-50 px-2 py-0.5 text-[12px] font-semibold text-sky-800 ring-1 ring-sky-200">{p.hazard === "cyclone" ? T("ঘূর্ণিঝড়", "Cyclone") : T("বন্যা", "Flood")}</span>}
                 </label>
               </li>
             ))}
@@ -658,7 +658,7 @@ function Helplines({ bn, T }: Txt) {
               <li key={h.id} className="flex flex-col rounded-2xl bg-paper p-4 ring-1 ring-line">
                 <div className="flex items-start justify-between gap-2">
                   <p className="min-w-0 text-[14.5px] font-bold leading-snug text-ink">{bn ? h.nameBn : h.nameEn}</p>
-                  <a href={`tel:${h.number}`} className="kp-btn-primary shrink-0 rounded-xl px-3 py-1.5 font-mono text-[15px] font-bold" aria-label={`${bn ? h.nameBn : h.nameEn}: ${T("ফোন করুন", "call")} ${h.number}`}>{bn ? h.numberBn : h.number}</a>
+                  <a href={`tel:${h.number}`} className="kp-btn-primary min-h-[44px] shrink-0 rounded-xl px-3 py-1.5 font-mono text-[15px] font-bold" aria-label={`${bn ? h.nameBn : h.nameEn}: ${T("ফোন করুন", "call")} ${h.number}`}>{bn ? h.numberBn : h.number}</a>
                 </div>
                 <p className="mt-1 text-[13.5px] text-slate-700">{bn ? h.forBn : h.forEn}</p>
                 {h.noteBn && <p className="mt-1 break-words text-[12.5px] text-slate-600">{h.noteBn}</p>}

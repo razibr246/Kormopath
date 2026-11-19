@@ -3,7 +3,7 @@ import { z } from "zod";
 import { Tracer } from "@/lib/trace";
 import { structured, modelName } from "@/lib/llm";
 import { unknownAmounts } from "@/lib/grounding";
-import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
+import { checkRateLimitShared, rateLimitResponse } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -45,7 +45,7 @@ ${b.name}`,
 }
 
 export async function POST(req: Request) {
-  const rl = checkRateLimit(req, { limit: 30, windowMs: 60_000, bucket: "pitch" });
+  const rl = await checkRateLimitShared(req, { limit: 30, windowMs: 60_000, bucket: "pitch" });
   if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
 
   const tracer = new Tracer("Outreach");

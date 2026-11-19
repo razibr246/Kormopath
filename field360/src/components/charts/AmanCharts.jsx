@@ -9,7 +9,7 @@ import { fmtDate, num } from '../../engine/dates';
 import { CAT, SHIFT_DAYS, RAIN_FINAL_TO, doyToMs, frameUrl } from '../../radar/aman';
 
 const TEAL = '#2f8a8f', GOLD = '#d08f26', GREEN = '#2f6e2f', INK = '#13261b', MUTED = '#5d6a63', GRID = '#eef0ec';
-const tick = { fontSize: 11, fill: MUTED };
+const tick = { fontSize: 12, fill: MUTED };
 const monthStarts = (year, from, to) => [4, 5, 6, 7, 8, 9, 10].map((m) => Math.round((Date.UTC(year, m, 1) - Date.UTC(year, 0, 1)) / 864e5) + 1).filter((d) => d >= from && d <= to);
 
 // ───────── one season: radar VH (median and middle half of the 36 fields) over daily IMERG rain ─────────
@@ -50,8 +50,8 @@ export function SeasonChart({ detail, row, year, height = 320 }) {
           <Bar yAxisId="rain" dataKey="rain" fill={TEAL} fillOpacity={0.45} radius={[2, 2, 0, 0]} animationDuration={400} />
           <Area yAxisId="vh" dataKey="band" stroke="none" fill={GREEN} fillOpacity={0.14} connectNulls animationDuration={500} />
           <Line yAxisId="vh" dataKey="med" stroke={GREEN} strokeWidth={2.6} dot={{ r: 2.6, fill: GREEN, strokeWidth: 0 }} activeDot={{ r: 5 }} connectNulls animationDuration={600} />
-          {row.transplantNormal !== null && <ReferenceLine yAxisId="vh" x={row.transplantNormal} stroke={MUTED} strokeDasharray="5 4" label={{ value: T('স্বাভাবিক', 'Usual'), position: 'insideTopLeft', fontSize: 11, fill: MUTED, dy: -18 }} />}
-          {sum.transplantDoy !== null && sum.reliable && <ReferenceLine yAxisId="vh" x={sum.transplantDoy} stroke={GOLD} strokeWidth={2.4} label={{ value: T(`রোপণ ${day(sum.transplantDoy)}`, `Transplanting ${day(sum.transplantDoy)}`), position: 'insideTopRight', fontSize: 11.5, fontWeight: 700, fill: '#87580e', dy: -18 }} />}
+          {row.transplantNormal !== null && <ReferenceLine yAxisId="vh" x={row.transplantNormal} stroke={MUTED} strokeDasharray="5 4" label={{ value: T('স্বাভাবিক', 'Usual'), position: 'insideTopLeft', fontSize: 12, fill: MUTED, dy: -18 }} />}
+          {sum.transplantDoy !== null && sum.reliable && <ReferenceLine yAxisId="vh" x={sum.transplantDoy} stroke={GOLD} strokeWidth={2.4} label={{ value: T(`রোপণ ${day(sum.transplantDoy)}`, `Transplanting ${day(sum.transplantDoy)}`), position: 'insideTopRight', fontSize: 12, fontWeight: 700, fill: '#87580e', dy: -18 }} />}
         </ComposedChart>
       </ResponsiveContainer>
     </div>
@@ -188,12 +188,12 @@ export function RadarTimelapse({ detail, row, year }) {
         </svg>
         <div className="pointer-events-none absolute left-3 top-3 rounded-xl bg-black/50 px-3 py-1.5 text-white backdrop-blur">
           <div className="text-[15px] font-bold tabular">{fmtDate(Date.parse(f.date), lang)}</div>
-          <div className="text-[11.5px] text-white/80">{T(`সেন্টিনেল-${f.platform.slice(-2).toUpperCase()} · ${f.orbit === 'ascending' ? 'সন্ধ্যার পাস' : 'ভোরের পাস'} · ${num(i + 1, 'bn')}/${num(frames.length, 'bn')}`, `Sentinel-${f.platform.slice(-2).toUpperCase()} · ${f.orbit} pass · ${i + 1}/${frames.length}`)}</div>
+          <div className="text-[12px] text-white/80">{T(`সেন্টিনেল-${f.platform.slice(-2).toUpperCase()} · ${f.orbit === 'ascending' ? 'সন্ধ্যার পাস' : 'ভোরের পাস'} · ${num(i + 1, 'bn')}/${num(frames.length, 'bn')}`, `Sentinel-${f.platform.slice(-2).toUpperCase()} · ${f.orbit} pass · ${i + 1}/${frames.length}`)}</div>
         </div>
         <div className="pointer-events-none absolute bottom-3 right-3 w-[170px] rounded-xl bg-black/50 px-3 py-2 text-white backdrop-blur">
-          <div className="flex items-baseline justify-between"><span className="text-[11.5px] text-white/80">{T('রোপণ ধরা পড়েছে', 'Transplanted')}</span><b className="text-[15px] tabular">{num(done, lang)}/{num(fields.length, lang)}</b></div>
+          <div className="flex items-baseline justify-between"><span className="text-[12px] text-white/80">{T('রোপণ ধরা পড়েছে', 'Transplanted')}</span><b className="text-[15px] tabular">{num(done, lang)}/{num(fields.length, lang)}</b></div>
           <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-white/20"><div className="h-full rounded-full transition-[width] duration-500" style={{ width: `${(done / Math.max(1, fields.length)) * 100}%`, background: GOLD }} /></div>
-          <div className="mt-1 text-[10.5px] text-white/65">{T(`পুরো মৌসুমে ${num(everSeen, 'bn')}টিতে`, `${everSeen} by the season's end`)}</div>
+          <div className="mt-1 text-[12px] text-white/80">{T(`পুরো মৌসুমে ${num(everSeen, 'bn')}টিতে`, `${everSeen} by the season's end`)}</div>
         </div>
       </div>
       <SeasonTimeline detail={detail} year={year} frames={frames} i={i} onSeek={seek} />
@@ -266,7 +266,7 @@ export function YearsStrip({ row, year, onPick }) {
       {ticks.map((d) => (
         <g key={d}>
           <line x1={x(d)} x2={x(d)} y1={H - 18} y2={H - 13} stroke="#cfd6d1" />
-          <text x={x(d)} y={H - 2} textAnchor="middle" fontSize="11" fill={MUTED}>{fmtDate(doyToMs(2025, d), lang)}</text>
+          <text x={x(d)} y={H - 2} textAnchor="middle" fontSize="12" fill={MUTED}>{fmtDate(doyToMs(2025, d), lang)}</text>
         </g>
       ))}
     </svg>
@@ -287,7 +287,7 @@ export function RainTrend({ row, height = 230 }) {
           <YAxis tick={tick} tickLine={false} axisLine={false} tickFormatter={(v) => num(v, lang)} width={48} />
           <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12.5, border: '1px solid #dfe7dc' }} labelFormatter={(y) => num(y, lang).replace(/,/g, '')}
             formatter={(v, n, p) => [`${num(v, lang)} ${T('মিমি', 'mm')}${n !== 'trend' && p.payload.provisional ? T(' (অস্থায়ী)', ' (provisional)') : ''}`, n === 'trend' ? T('ধারা (সেনের ঢাল)', 'Trend (Sen’s slope)') : T('জুন–জুলাইয়ের বৃষ্টি', 'June–July rain')]} />
-          {row.rainNormal !== null && <ReferenceLine y={row.rainNormal} stroke={MUTED} strokeDasharray="5 4" label={{ value: T('স্বাভাবিক', 'Normal'), position: 'insideTopLeft', fontSize: 11, fill: MUTED }} />}
+          {row.rainNormal !== null && <ReferenceLine y={row.rainNormal} stroke={MUTED} strokeDasharray="5 4" label={{ value: T('স্বাভাবিক', 'Normal'), position: 'insideTopLeft', fontSize: 12, fill: MUTED }} />}
           <Bar dataKey="v" radius={[4, 4, 0, 0]} animationDuration={450}>
             {data.map((d) => <Cell key={d.y} fill={d.provisional ? '#b9c2bc' : d.v >= row.rainNormal ? TEAL : '#c98a4b'} fillOpacity={0.85} />)}
           </Bar>
@@ -332,7 +332,7 @@ export function DistrictMap({ district, year, selected, home, onPick }) {
         return (
           <g key={u.id} pointerEvents="none">
             <text x={cx} y={cy} textAnchor="middle" fontSize="14" fontWeight={u.id === selected ? 800 : 600} fill={INK} stroke="#fff" strokeWidth="3.5" paintOrder="stroke">{lang === 'bn' ? u.bn : u.en}</text>
-            {u.id === home && <text x={cx} y={cy + 16} textAnchor="middle" fontSize="11" fontWeight="700" fill="#87580e" stroke="#fff" strokeWidth="3" paintOrder="stroke">{T('আপনার উপজেলা', 'Your upazila')}</text>}
+            {u.id === home && <text x={cx} y={cy + 16} textAnchor="middle" fontSize="12" fontWeight="700" fill="#87580e" stroke="#fff" strokeWidth="3" paintOrder="stroke">{T('আপনার উপজেলা', 'Your upazila')}</text>}
           </g>
         );
       })}

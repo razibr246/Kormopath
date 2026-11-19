@@ -4,7 +4,7 @@ import { Tracer } from "@/lib/trace";
 import { structured } from "@/lib/llm";
 import { QUESTIONS, analyzeAnswer } from "@/lib/speech";
 import { verifyEvidence } from "@/lib/grounding";
-import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
+import { checkRateLimitShared, rateLimitResponse } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -43,7 +43,7 @@ Return ONLY JSON: {"strengths":[{"point","quote"}],"gaps":[{"tip"}],"stronger_se
 Never judge accent or pronunciation. Never invent facts about the student. Do not give a score.`;
 
 export async function POST(req: Request) {
-  const rl = checkRateLimit(req, { limit: 15, windowMs: 60_000, bucket: "probaho-coach" });
+  const rl = await checkRateLimitShared(req, { limit: 15, windowMs: 60_000, bucket: "probaho-coach" });
   if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
 
   const p = Body.safeParse(await req.json().catch(() => ({})));

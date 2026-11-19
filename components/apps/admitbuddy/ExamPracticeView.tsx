@@ -159,7 +159,7 @@ export function ExamPracticeView() {
           <button
             type="button"
             onClick={handleStartExam}
-            className="shrink-0 inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-blue-700 px-5 py-2.5 text-[14.5px] font-bold text-white shadow-sm hover:bg-blue-800 active:scale-98 transition-all"
+            className="shrink-0 inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-blue-700 px-5 py-2.5 text-[14.5px] font-bold text-white shadow-sm hover:bg-blue-800 active:scale-98 transition-all min-w-[44px]"
           >
             <Play size={17} fill="currentColor" />
             <span>মডেল টেস্ট দিন</span>
@@ -180,7 +180,7 @@ export function ExamPracticeView() {
             mode === "exam" && !examActive
               ? "bg-slate-900 text-white shadow-2xs"
               : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-          }`}
+          } min-h-[44px] min-w-[44px]`}
         >
           পরীক্ষা নির্বাচন
         </button>
@@ -199,7 +199,7 @@ export function ExamPracticeView() {
               mode === "review"
                 ? "bg-blue-700 text-white shadow-2xs"
                 : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-            }`}
+            } min-h-[44px] min-w-[44px]`}
           >
             ফলাফল ও ব্যাখ্যা
           </button>
@@ -216,7 +216,7 @@ export function ExamPracticeView() {
             mode === "flashcards"
               ? "bg-blue-700 text-white shadow-2xs"
               : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-          }`}
+          } min-h-[44px] min-w-[44px]`}
         >
           কুইক রিভিশন ফ্ল্যাশকার্ড
         </button>
@@ -232,7 +232,7 @@ export function ExamPracticeView() {
             mode === "history"
               ? "bg-blue-700 text-white shadow-2xs"
               : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-          }`}
+          } min-h-[44px] min-w-[44px]`}
         >
           আমার স্কোর ও ইতিহাস ({bnDigits(history.length)})
         </button>
@@ -309,7 +309,7 @@ export function ExamPracticeView() {
                   onClick={() => setSubjectFilter("all")}
                   className={`rounded-lg px-2.5 py-1 text-[12px] font-bold transition-all ${
                     subjectFilter === "all" ? "bg-blue-700 text-white" : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-                  }`}
+                  } min-h-[44px] min-w-[44px]`}
                 >
                   সব বিষয়
                 </button>
@@ -320,7 +320,7 @@ export function ExamPracticeView() {
                     onClick={() => setSubjectFilter(sub)}
                     className={`rounded-lg px-2.5 py-1 text-[12px] font-bold transition-all ${
                       subjectFilter === sub ? "bg-blue-700 text-white" : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-                    }`}
+                    } min-h-[44px] min-w-[44px]`}
                   >
                     {sub}
                   </button>
@@ -360,7 +360,7 @@ export function ExamPracticeView() {
                   onClick={() => setExamViewType("card")}
                   className={`rounded-md px-2.5 py-1 font-bold transition-all ${
                     examViewType === "card" ? "bg-white text-blue-900 shadow-2xs" : "text-slate-600 hover:text-slate-900"
-                  }`}
+                  } min-h-[44px] min-w-[44px]`}
                 >
                   কার্ড ভিউ
                 </button>
@@ -369,7 +369,7 @@ export function ExamPracticeView() {
                   onClick={() => setExamViewType("omr")}
                   className={`rounded-md px-2.5 py-1 font-bold transition-all ${
                     examViewType === "omr" ? "bg-blue-700 text-white shadow-2xs" : "text-slate-600 hover:text-slate-900"
-                  }`}
+                  } min-h-[44px] min-w-[44px]`}
                 >
                   OMR শিট ভিউ
                 </button>
@@ -386,7 +386,7 @@ export function ExamPracticeView() {
                     handleFinishExam();
                   }
                 }}
-                className="rounded-xl bg-slate-900 px-4 py-2 text-[13.5px] font-bold text-white hover:bg-slate-800"
+                className="rounded-xl bg-slate-900 px-4 py-2 text-[13.5px] font-bold text-white hover:bg-slate-800 min-h-[44px] min-w-[44px]"
               >
                 পরীক্ষা জমা দিন
               </button>
@@ -403,7 +403,7 @@ export function ExamPracticeView() {
                   key={q.id}
                   type="button"
                   onClick={() => setCurrentQIndex(idx)}
-                  className={`h-8 w-8 rounded-lg text-[13px] font-mono font-bold transition-all ${
+                  className={`h-11 w-11 rounded-lg text-[13px] font-mono font-bold transition-all ${
                     isCurrent
                       ? "ring-2 ring-blue-600 bg-blue-600 text-white"
                       : isAnswered
@@ -457,7 +457,7 @@ export function ExamPracticeView() {
                                 e.stopPropagation();
                                 handleSelectOption(q.id, optIdx);
                               }}
-                              className={`h-7 w-7 rounded-full text-[11px] font-mono font-extrabold flex items-center justify-center transition-all ${
+                              className={`h-11 w-11 rounded-full text-[12px] font-mono font-extrabold flex items-center justify-center transition-all ${
                                 isBubbleFilled
                                   ? "bg-slate-900 text-white shadow-2xs scale-105"
                                   : "border border-slate-300 bg-white text-slate-600 hover:border-slate-500 hover:bg-slate-100"
@@ -482,7 +482,7 @@ export function ExamPracticeView() {
                   <button
                     type="button"
                     onClick={() => setExamViewType("card")}
-                    className="text-[12px] text-blue-700 font-bold hover:underline"
+                    className="text-[12px] text-blue-700 font-bold hover:underline min-h-[44px] min-w-[44px]"
                   >
                     কার্ড ভিউতে বিস্তারিত দেখুন →
                   </button>
@@ -533,7 +533,7 @@ export function ExamPracticeView() {
                   type="button"
                   disabled={currentQIndex === 0}
                   onClick={() => setCurrentQIndex((prev) => Math.max(0, prev - 1))}
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 px-4 py-2 text-[14px] font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 px-4 py-2 text-[14px] font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-40 min-h-[44px] min-w-[44px]"
                 >
                   <ArrowLeft size={16} />
                   <span>পূর্ববর্তী প্রশ্ন</span>
@@ -543,7 +543,7 @@ export function ExamPracticeView() {
                   <button
                     type="button"
                     onClick={() => setCurrentQIndex((prev) => Math.min(trackQuestions.length - 1, prev + 1))}
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-blue-700 px-5 py-2 text-[14px] font-bold text-white hover:bg-blue-800"
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-blue-700 px-5 py-2 text-[14px] font-bold text-white hover:bg-blue-800 min-h-[44px] min-w-[44px]"
                   >
                     <span>পরবর্তী প্রশ্ন</span>
                     <ArrowRight size={16} />
@@ -552,7 +552,7 @@ export function ExamPracticeView() {
                   <button
                     type="button"
                     onClick={handleFinishExam}
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-700 px-5 py-2 text-[14px] font-bold text-white hover:bg-emerald-800"
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-700 px-5 py-2 text-[14px] font-bold text-white hover:bg-emerald-800 min-h-[44px] min-w-[44px]"
                   >
                     <Check size={16} />
                     <span>পরীক্ষা সমাপ্ত করুন</span>
@@ -577,7 +577,7 @@ export function ExamPracticeView() {
               <button
                 type="button"
                 onClick={handleStartExam}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-blue-700 px-4 py-2 text-[14px] font-bold text-white hover:bg-blue-800"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-blue-700 px-4 py-2 text-[14px] font-bold text-white hover:bg-blue-800 min-h-[44px] min-w-[44px]"
               >
                 <RotateCcw size={15} />
                 <span>পুনরায় পরীক্ষা দিন</span>
@@ -590,7 +590,7 @@ export function ExamPracticeView() {
                 <strong className="text-[26px] font-extrabold text-blue-900 font-mono">
                   {bnDigits(latestAttempt.score)}
                 </strong>
-                <span className="text-[11px] text-slate-500 block">পূর্ণমান: {bnDigits(latestAttempt.totalQuestions)}</span>
+                <span className="text-[12px] text-slate-500 block">পূর্ণমান: {bnDigits(latestAttempt.totalQuestions)}</span>
               </div>
 
               <div className="rounded-xl bg-white p-3.5 border border-emerald-200">
@@ -598,7 +598,7 @@ export function ExamPracticeView() {
                 <strong className="text-[26px] font-extrabold text-emerald-700 font-mono">
                   {bnDigits(latestAttempt.correctCount)}
                 </strong>
-                <span className="text-[11px] text-emerald-800 block">+{bnDigits(latestAttempt.correctCount * 1.0)} নম্বর</span>
+                <span className="text-[12px] text-emerald-800 block">+{bnDigits(latestAttempt.correctCount * 1.0)} নম্বর</span>
               </div>
 
               <div className="rounded-xl bg-white p-3.5 border border-rose-200">
@@ -606,7 +606,7 @@ export function ExamPracticeView() {
                 <strong className="text-[26px] font-extrabold text-rose-700 font-mono">
                   {bnDigits(latestAttempt.wrongCount)}
                 </strong>
-                <span className="text-[11px] text-rose-800 block">-{bnDigits(latestAttempt.wrongCount * trackInfo.negativeMark)} নম্বর</span>
+                <span className="text-[12px] text-rose-800 block">-{bnDigits(latestAttempt.wrongCount * trackInfo.negativeMark)} নম্বর</span>
               </div>
 
               <div className="rounded-xl bg-white p-3.5 border border-slate-200">
@@ -614,7 +614,7 @@ export function ExamPracticeView() {
                 <strong className="text-[26px] font-extrabold text-slate-900 font-mono">
                   {bnDigits(latestAttempt.accuracyPercentage)}%
                 </strong>
-                <span className="text-[11px] text-slate-500 block">উত্তর দিয়েছেন: {bnDigits(latestAttempt.answeredCount)} টি</span>
+                <span className="text-[12px] text-slate-500 block">উত্তর দিয়েছেন: {bnDigits(latestAttempt.answeredCount)} টি</span>
               </div>
             </div>
 
@@ -736,7 +736,7 @@ export function ExamPracticeView() {
                   flashcardSubject === sub
                     ? "bg-blue-700 text-white shadow-2xs"
                     : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-                }`}
+                } min-h-[44px] min-w-[44px]`}
               >
                 {sub === "all" ? "সকল বিষয়" : sub}
               </button>
@@ -760,7 +760,7 @@ export function ExamPracticeView() {
                       <span className="rounded-md bg-blue-100 px-2.5 py-0.5 font-bold text-blue-900">
                         {activeCard.subject} · {activeCard.topic}
                       </span>
-                      <span className="font-mono text-slate-400">
+                      <span className="font-mono text-slate-500">
                         {bnDigits(flashcardIndex + 1)} / {bnDigits(filteredFlashcards.length)}
                       </span>
                     </div>
@@ -768,7 +768,7 @@ export function ExamPracticeView() {
                     <div className="my-auto py-4">
                       {!cardFlipped ? (
                         <div className="space-y-2">
-                          <span className="text-[12px] font-extrabold uppercase tracking-wider text-slate-400 block">প্রশ্ন / সূত্র</span>
+                          <span className="text-[12px] font-extrabold uppercase tracking-wider text-slate-500 block">প্রশ্ন / সূত্র</span>
                           <p className="text-[18px] sm:text-[20px] font-bold text-slate-900 leading-relaxed">
                             {activeCard.front}
                           </p>
@@ -786,7 +786,7 @@ export function ExamPracticeView() {
                       )}
                     </div>
 
-                    <div className="text-[12px] text-slate-400">
+                    <div className="text-[12px] text-slate-500">
                       {cardFlipped ? "পুনরায় প্রশ্ন দেখতে আবার ট্যাপ করুন" : "উত্তর দেখতে কার্ডে ট্যাপ করুন"}
                     </div>
                   </div>
@@ -799,7 +799,7 @@ export function ExamPracticeView() {
                         setCardFlipped(false);
                         setFlashcardIndex((prev) => Math.max(0, prev - 1));
                       }}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 px-4 py-2 text-[14px] font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 px-4 py-2 text-[14px] font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-40 min-h-[44px] min-w-[44px]"
                     >
                       <ArrowLeft size={16} /> পূর্ববর্তী
                     </button>
@@ -813,7 +813,7 @@ export function ExamPracticeView() {
                         setCardFlipped(false);
                         setFlashcardIndex((prev) => Math.min(filteredFlashcards.length - 1, prev + 1));
                       }}
-                      className="inline-flex items-center gap-1.5 rounded-xl bg-blue-700 px-4 py-2 text-[14px] font-bold text-white hover:bg-blue-800 disabled:opacity-40"
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-blue-700 px-4 py-2 text-[14px] font-bold text-white hover:bg-blue-800 disabled:opacity-40 min-h-[44px] min-w-[44px]"
                     >
                       পরবর্তী <ArrowRight size={16} />
                     </button>
@@ -851,7 +851,7 @@ export function ExamPracticeView() {
 
                     <div className="flex items-center gap-3">
                       <div className="text-right">
-                        <span className="text-[11px] text-slate-500 block">নম্বর</span>
+                        <span className="text-[12px] text-slate-500 block">নম্বর</span>
                         <strong className="text-[18px] font-extrabold text-blue-900 font-mono">
                           {bnDigits(att.score)} / {bnDigits(att.totalQuestions)}
                         </strong>

@@ -109,7 +109,7 @@ export default function DemoTour() {
     >
       {/* Draggable Drag-Bar Affordance */}
       <div className="flex items-center justify-between pb-1.5 -mt-0.5 select-none">
-        <div className="flex items-center gap-1.5 text-[11px] font-medium text-ink/40">
+        <div className="flex items-center gap-1.5 text-[12px] font-medium text-ink/75">
           <GripHorizontal size={14} className="text-primary-700/60" />
           <span className="hidden sm:inline">{T('মাউস দিয়ে টেনে যে কোনো স্থানে সরান', 'Drag anywhere to move')}</span>
         </div>
@@ -117,7 +117,7 @@ export default function DemoTour() {
           <button
             type="button"
             onClick={resetPos}
-            className="text-[11px] font-semibold text-primary-700 hover:text-primary-900 transition underline underline-offset-2 cursor-pointer"
+            className="text-[12px] font-semibold text-primary-700 hover:text-primary-900 transition underline underline-offset-2 cursor-pointer"
             title={T('মাঝখানে ফিরিয়ে আনুন', 'Reset position to default')}
           >
             {T('মাঝখানে আনুন', 'Reset position')}
@@ -131,7 +131,7 @@ export default function DemoTour() {
       <div className="flex items-start gap-3">
         <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary-700 text-white"><Clapperboard size={18} /></span>
         <div className="min-w-0 flex-1" aria-live="polite" aria-atomic="true">
-          <p className="text-[11.5px] font-bold uppercase tracking-[.14em] text-primary-700">{T(`ডেমো গল্প · ধাপ ${(k + 1).toLocaleString('bn-BD')}/${TOUR.length.toLocaleString('bn-BD')}`, `Demo story · step ${k + 1}/${TOUR.length}`)}</p>
+          <p className="text-[12px] font-bold uppercase tracking-[.14em] text-primary-700">{T(`ডেমো গল্প · ধাপ ${(k + 1).toLocaleString('bn-BD')}/${TOUR.length.toLocaleString('bn-BD')}`, `Demo story · step ${k + 1}/${TOUR.length}`)}</p>
           <p className="mt-0.5 text-[16px] font-bold leading-snug">{L(step.title)}</p>
           <p className="mt-1 text-[13.5px] leading-6 text-ink/75">{L(step.say)}</p>
         </div>
@@ -139,7 +139,7 @@ export default function DemoTour() {
       </div>
       <div className="mt-3 flex items-center justify-between gap-2">
         <button type="button" disabled={k === 0} onClick={() => to(k - 1)} className="inline-flex h-10 items-center gap-1.5 rounded-full px-4 text-[14px] font-semibold text-ink/70 hover:bg-black/5 disabled:opacity-40 cursor-pointer"><ArrowLeft size={16} />{T('আগে', 'Back')}</button>
-        <p className="text-[12px] font-medium tabular-nums text-ink/55">{T('← → চালান · Esc বন্ধ', '← → navigate · Esc close')}</p>
+        <p className="text-[12px] font-medium tabular-nums text-ink/75">{T('← → চালান · Esc বন্ধ', '← → navigate · Esc close')}</p>
         {k < TOUR.length - 1
           ? <button type="button" onClick={() => to(k + 1)} className="inline-flex h-10 items-center gap-1.5 rounded-full bg-primary-700 px-4 text-[14px] font-semibold text-white hover:bg-primary-800 cursor-pointer">{T('পরের ধাপ', 'Next')}<ArrowRight size={16} /></button>
           : <button type="button" onClick={close} className="inline-flex h-10 items-center gap-1.5 rounded-full bg-primary-700 px-4 text-[14px] font-semibold text-white hover:bg-primary-800 cursor-pointer">{T('শেষ', 'Done')}</button>}

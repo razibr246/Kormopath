@@ -66,24 +66,24 @@ export default function Dashboard() {
             {/* Real-time Agro-Climatic HUD Strip */}
             <div className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-4 max-w-xl">
               <div className="rounded-xl border border-white/15 bg-white/10 p-2.5 backdrop-blur-md transition-all hover:bg-white/15">
-                <div className="text-[11px] font-medium text-white/70">{T('তাপমাত্রা (BMD)', 'Temp (BMD)')}</div>
+                <div className="text-[12px] font-medium text-white/70">{T('তাপমাত্রা (BMD)', 'Temp (BMD)')}</div>
                 <div className="mt-0.5 text-[16px] font-bold text-white tabular">{num(weather?.tmax ? Math.round(weather.tmax) : 23, lang)}°C</div>
-                <div className="text-[10px] text-emerald-300">{T('স্বাভাবিক রবি', 'Normal Rabi')}</div>
+                <div className="text-[12px] text-emerald-300">{T('স্বাভাবিক রবি', 'Normal Rabi')}</div>
               </div>
               <div className="rounded-xl border border-white/15 bg-white/10 p-2.5 backdrop-blur-md transition-all hover:bg-white/15">
-                <div className="text-[11px] font-medium text-white/70">{T('সেচ সংকেত', 'Water Status')}</div>
+                <div className="text-[12px] font-medium text-white/70">{T('সেচ সংকেত', 'Water Status')}</div>
                 <div className="mt-0.5 text-[15px] font-bold text-emerald-200 truncate">{L(WATER_COLORS[water.color])}</div>
-                <div className="text-[10px] text-white/60">{L(stage)}</div>
+                <div className="text-[12px] text-white/80">{L(stage)}</div>
               </div>
               <div className="rounded-xl border border-white/15 bg-white/10 p-2.5 backdrop-blur-md transition-all hover:bg-white/15">
-                <div className="text-[11px] font-medium text-white/70">{T('মাটির আর্দ্রতা (SMAP)', 'Soil Moisture')}</div>
+                <div className="text-[12px] font-medium text-white/70">{T('মাটির আর্দ্রতা (SMAP)', 'Soil Moisture')}</div>
                 <div className="mt-0.5 text-[16px] font-bold text-white tabular">{num(farmer.irrigation === 'rainfed' ? 0.21 : 0.31, lang, { dp: 2, min: 2 })} m³/m³</div>
-                <div className="text-[10px] text-sky-300">{T('পর্যাপ্ত স্তর', 'Adequate level')}</div>
+                <div className="text-[12px] text-sky-300">{T('পর্যাপ্ত স্তর', 'Adequate level')}</div>
               </div>
               <div className="rounded-xl border border-white/15 bg-white/10 p-2.5 backdrop-blur-md transition-all hover:bg-white/15">
-                <div className="text-[11px] font-medium text-white/70">{T('ফসল তোলার বাকি', 'Days to Harvest')}</div>
+                <div className="text-[12px] font-medium text-white/70">{T('ফসল তোলার বাকি', 'Days to Harvest')}</div>
                 <div className="mt-0.5 text-[16px] font-bold text-amber-200 tabular">{daysTo > 0 ? num(daysTo, lang) : num(0, lang)} {T('দিন', 'days')}</div>
-                <div className="text-[10px] text-white/60">{fmtDate(chosen.hw.start, lang)}</div>
+                <div className="text-[12px] text-white/80">{fmtDate(chosen.hw.start, lang)}</div>
               </div>
             </div>
           </div>
@@ -91,7 +91,7 @@ export default function Dashboard() {
             <div className="flex items-start gap-3.5">
               <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-primary-100 to-primary-200 text-primary-800 shadow-sm transition-transform duration-300 hover:scale-105"><next.icon size={24} /></span>
               <div className="min-w-0">
-                <div className="text-[12px] font-bold uppercase tracking-wider text-primary-700 flex items-center gap-1.5">
+                <div className="text-[12px] font-bold uppercase tracking-wider text-primary-800 flex items-center gap-1.5">
                   <span className="h-2 w-2 rounded-full bg-primary-600 animate-pulse" />
                   {T('এখন যা করবেন', 'Your next step')}
                 </div>
@@ -112,7 +112,7 @@ export default function Dashboard() {
                 className="h-2.5 overflow-hidden rounded-full bg-primary-100 shadow-inner">
                 <div className="plan-progress-fill h-full rounded-full bg-gradient-to-r from-primary-500 via-primary-600 to-paddy-500 shadow-sm transition-all duration-500" style={{ width: `${planProgress}%` }} />
               </div>
-              {!landConfirmed && <p className="mt-1.5 text-[11.5px] text-muted">{T('জমি বাছাই করলেই পরিকল্পনার ধাপ শুরু হবে।', 'Choose your field to begin the plan steps.')}</p>}
+              {!landConfirmed && <p className="mt-1.5 text-[12px] text-muted">{T('জমি বাছাই করলেই পরিকল্পনার ধাপ শুরু হবে।', 'Choose your field to begin the plan steps.')}</p>}
             </div>
             <Button to={next.to} className="mt-4 w-full shadow-md py-3 text-[15px] font-semibold">{next.cta}<ChevronRight size={17} /></Button>
           </div>
@@ -124,7 +124,7 @@ export default function Dashboard() {
       <Card className="p-5" data-tour="dash-year">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-[20px] font-bold tracking-tight">{T('আপনার বছর, বাংলা মাসে', 'Your year, by Bangla month')}</h2>
-          <div className="flex items-center gap-3"><ScoreRing value={chosen.score} size={40} /><Link to="/farmer/plan" onClick={() => goStep(4)} className="text-[14.5px] font-semibold text-primary-700 hover:underline">{T('পরামর্শ বদলে দেখুন', 'Explore other options')}</Link></div>
+          <div className="flex items-center gap-3"><ScoreRing value={chosen.score} size={40} /><Link to="/farmer/plan" onClick={() => goStep(4)} className="inline-flex min-h-[44px] items-center text-[14.5px] font-semibold text-primary-800 hover:underline">{T('পরামর্শ বদলে দেখুন', 'Explore other options')}</Link></div>
         </div>
         <SeasonRibbon />
       </Card>
@@ -196,7 +196,7 @@ export default function Dashboard() {
                 <div className="text-muted">{T(`${num(farmer.area_dec, 'bn')} শতক, ${IRRIGATION[farmer.irrigation].bn}, ${demo.unions.find((u) => u.id === farmer.union).bn}`, `${num(farmer.area_dec, 'en')} decimal, ${IRRIGATION[farmer.irrigation].en.toLowerCase()}, ${L(demo.unions.find((u) => u.id === farmer.union))}`)}</div>
               </>
             )}
-            <Link to="/farmer/farm" className="mt-1 inline-flex items-center gap-1 font-semibold text-primary-700 hover:underline">{myParcels.length > 1 ? T('উপগ্রহে সব জমি দেখুন', 'See every field from space') : T('মানচিত্রে দেখুন', 'View on the map')}<ChevronRight size={15} /></Link>
+            <Link to="/farmer/farm" className="mt-1 inline-flex min-h-[44px] items-center gap-1 font-semibold text-primary-700 hover:underline">{myParcels.length > 1 ? T('উপগ্রহে সব জমি দেখুন', 'See every field from space') : T('মানচিত্রে দেখুন', 'View on the map')}<ChevronRight size={15} /></Link>
           </div>
         </Card>
       </div>

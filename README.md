@@ -1,10 +1,12 @@
 # KormoPath AI · কর্মপথ
 
-**A Bangladesh-first collection of career, learning, finance, agriculture and health tools.**
+**AI you can check, for one Bangladeshi student freelancer's journey: skill proof → contract → payout.**
 
-KormoPath currently contains six standalone applications, a shared landing page and Workspace tools. It is an early-stage web app: it does not have user accounts, a shared cloud profile, a database-backed workspace, or cross-device sync. Most saved data stays in browser local storage. The product audit and roadmap are in [`docs/architecture/EXISTING_PROJECT_AUDIT.md`](docs/architecture/EXISTING_PROJECT_AUDIT.md) and [`docs/research/FEATURE_OPPORTUNITY_MAP.md`](docs/research/FEATURE_OPPORTUNITY_MAP.md).
+The flagship user is a student who can code but can't prove it, signs no contract, and never sees how much taka actually arrives. The Workspace (`/workspace`) takes them from a CV to a signed Skill Passport, a bilingual contract and an itemised payout comparison. The same trust engine (every claim quotes its source, money is computed by tested code, never by the model) is reused in 11 more apps, so KormoPath has 12 apps in all, the same count the in-app switcher shows. Judges: start at `/judges` for a 3-minute guided path.
 
-## Current applications
+It is an early-stage web app: it does not have user accounts, a shared cloud profile, a database-backed workspace, or cross-device sync. Most saved data stays in browser local storage. The product audit and roadmap are in [`docs/architecture/EXISTING_PROJECT_AUDIT.md`](docs/architecture/EXISTING_PROJECT_AUDIT.md) and [`docs/research/FEATURE_OPPORTUNITY_MAP.md`](docs/research/FEATURE_OPPORTUNITY_MAP.md).
+
+## The flagship journey (`/workspace`)
 
 | Step | Agent | What it does | What's real |
 |---|---|---|---|
@@ -13,7 +15,13 @@ KormoPath currently contains six standalone applications, a shared landing page 
 | 3. Win a direct client | Outreach | Writes the cold email and a bilingual (English/বাংলা) contract with an internet-shutdown clause | Email checked so every $ figure matches the contract; contract text is a fixed template (the AI never writes legal clauses) |
 | 4. Bring the money home | Treasurer | Compares payout channels and tracks income | Pure deterministic math with unit tests and reconciliation checks; FX lookup; CSV export |
 
-Other apps include HaatBazar AI (agriculture and market information), MaathSathi (`/krishi`: land records, field tasks, crop doctor, livestock/poultry/fish books and verified government support for farmers), Rokkha (`/rokkha`: a rule-based scam-signal checker that quotes the exact matching words, a cooling-off pause before risky transfers, a recovery report for the MFS helpline and a police GD, IFRC-based cyclone/flood readiness, and helplines each with an official source and check date, last checked 2026-11-17), Shohoj Budget, MediScan BD (prescription text support), Probaho and AdmitBuddy. Availability and maturity vary; AI and third-party features need configuration and are not professional advice or a substitute for qualified review.
+The one fee figure the story uses is Fiverr's 20% seller fee (`lib/data.ts`, Fiverr Terms of Service, checked 2026-10-29). Every taka amount is computed live by `lib/finops.ts` for the user's own invoice and exchange rate, so no fixed taka "saving" is quoted anywhere.
+
+The sample-profile autopilot runs steps 1, 3 and 4 in one click. Step 2 is a live exam it cannot take for you; using the reference fix or a model viva answer marks the passport "assisted", and `/verify` shows that.
+
+## The same trust engine, reused in 11 more apps
+
+FeeGuard BD and ChuktiGuard (the Treasurer's fee engine and the contract templates, as standalone tools), My Path Board (`/opportunities`), Legal Aid (`/legal`: legal information, never legal advice), HaatBazar AI (agriculture and market information), MaathSathi (`/krishi/field#/farmer`; farm book at `/krishi`: land records, field tasks, crop doctor, livestock/poultry/fish books and verified government support for farmers), Rokkha (`/rokkha`: a rule-based scam-signal checker that quotes the exact matching words, a cooling-off pause before risky transfers, a recovery report for the MFS helpline and a police GD, IFRC-based cyclone/flood readiness, and helplines each with an official source and check date, last checked 2026-11-17), Shohoj Budget, MediScan BD (prescription text support), Probaho Coach and AdmitBuddy. Availability and maturity vary; AI and third-party features need configuration and are not professional advice or a substitute for qualified review.
 
 My Path lets you bookmark search results or add your own links, track application status, record follow-up dates and outcomes, export each path to CSV, and download follow-up dates as an iCalendar file for Google Calendar or other calendars. The app does not send notifications itself. The tracker works in your browser without an API key.
 
@@ -47,7 +55,7 @@ npm start -- -p 3100
 CHROME_PATH=/usr/bin/chromium npm run test:browser
 ```
 
-`BASE` can override the default `http://localhost:3100`. Browser tests clear local data on the test origin; use a dedicated test browser profile. CI runs the same build and browser journeys. The interface uses native system typography (San Francisco on Apple devices), with locally served Inter on other devices and Hind Siliguri for Bangla. Font licenses are in `public/font-licenses/`.
+`BASE` can override the default `http://localhost:3100`. Browser tests clear local data on the test origin; use a dedicated test browser profile. CI runs the same build and browser journeys. Headings use Fraunces and Noto Serif Bengali, numbers use JetBrains Mono (all via `next/font`, `app/layout.tsx`). Older font licence files are in `public/font-licenses/`.
 
 Production passport signing and sharing return HTTP 503 until a suitable signing key is configured. Signatures protect record integrity; browser-submitted assessment results do not establish independent identity or skill certification. Local profiles start empty and restored profile values are bounded before use.
 
@@ -58,7 +66,7 @@ Production passport signing and sharing return HTTP 503 until a suitable signing
 3. Settings → Environment Variables:
    - `GEMINI_API_KEY` — free key from https://aistudio.google.com/apikey
    - `PASSPORT_SECRET` — at least 32 random characters (e.g. `openssl rand -hex 32`)
-   - `GEMINI_MODEL` — optional, defaults to `gemini-2.5-flash`
+   - `GEMINI_MODEL` — optional, defaults to `gemini-4-hydrogen` (then `gemini-3.5-flash-lite`, `gemini-3.1-flash-lite`; see `lib/gemini.ts`)
 4. Deploy, then verify environment variables, route behavior, data disclosures, security headers, and the production build for your deployment. The app has not been audited as production-ready; see the audit and security roadmap before handling sensitive data.
 
 ## Data and AI

@@ -116,7 +116,7 @@ function StoryRail({ current, go, steps }) {
         <ol className="relative ml-3 mt-4 space-y-3 border-l-2 border-primary-100">
           {steps.map((st, k) => (
             <li key={k} className="relative pl-5">
-              <span className={`absolute -left-[11px] top-0.5 grid h-5 w-5 place-items-center rounded-full text-[11px] font-bold transition-all duration-300 ${k === current ? 'bg-primary-800 text-white ring-4 ring-primary-100 scale-110 shadow-sm' : k < current ? 'bg-primary-600 text-white' : 'border-2 border-primary-200 bg-white text-muted'}`}>{num(k + 1, lang)}</span>
+              <span className={`absolute -left-[11px] top-0.5 grid h-5 w-5 place-items-center rounded-full text-[12px] font-bold transition-all duration-300 ${k === current ? 'bg-primary-800 text-white ring-4 ring-primary-100 scale-110 shadow-sm' : k < current ? 'bg-primary-600 text-white' : 'border-2 border-primary-200 bg-white text-muted'}`}>{num(k + 1, lang)}</span>
               <button type="button" onClick={() => go(k)} className="group text-left transition-transform duration-200 active:scale-[0.98]">
                 <div className={`text-[14.5px] font-semibold transition-colors duration-200 ${k === current ? 'text-primary-800' : 'text-ink/80 group-hover:text-primary-700'}`}>{st.label}</div>
                 <div className="text-[13px] text-muted transition-colors group-hover:text-ink/70">{out[k]}</div>
@@ -125,7 +125,7 @@ function StoryRail({ current, go, steps }) {
           ))}
           {after.map((a, k) => (
             <li key={a.to} className="relative pl-5">
-              <span className="absolute -left-[11px] top-0.5 grid h-5 w-5 place-items-center rounded-full border-2 border-primary-200 bg-white text-[11px] font-bold text-ink/40 transition-transform duration-200 hover:scale-110">{num(steps.length + k + 1, lang)}</span>
+              <span className="absolute -left-[11px] top-0.5 grid h-5 w-5 place-items-center rounded-full border-2 border-primary-200 bg-white text-[12px] font-bold text-ink/75 transition-transform duration-200 hover:scale-110">{num(steps.length + k + 1, lang)}</span>
               <Link to={a.to} className="group block transition-transform duration-200 active:scale-[0.98]">
                 <div className="text-[14.5px] font-semibold text-ink/80 transition-colors group-hover:text-primary-700">{a.label}</div>
                 <div className="text-[13px] text-muted transition-colors group-hover:text-ink/70">{a.out}</div>

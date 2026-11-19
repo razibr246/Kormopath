@@ -69,10 +69,10 @@ export default function SprayCheck({ lat, lon, tz, compact = false }) {
                   <p className="text-[12.5px] font-semibold text-muted">{day(d)}</p>
                   <ol className="mt-1 flex flex-wrap gap-1" aria-label={T(`${day(d)}, ঘণ্টা ধরে`, `${day(d)}, hour by hour`)}>
                     {plan.hours.filter((x) => x.date === d).map((x) => (
-                      <li key={x.time} title={x.why.map((w) => L(w)).join('; ') || L(LOOK.go)} className={`grid h-11 min-w-11 place-items-center rounded-lg px-1 text-[11.5px] font-semibold leading-tight ${LOOK[x.ok].cell}`}>
+                      <li key={x.time} title={x.why.map((w) => L(w)).join('; ') || L(LOOK.go)} className={`grid h-11 min-w-11 place-items-center rounded-lg px-1 text-[12px] font-semibold leading-tight ${LOOK[x.ok].cell}`}>
                         <span>{lang === 'bn' ? bnDigits(x.hour % 12 || 12) : x.hour % 12 || 12}</span>
                         <span className="sr-only">{h(x.hour)}: {L(LOOK[x.ok])}{T('। ', '. ')}{x.why.map((w) => L(w)).join(T('। ', '. '))}</span>
-                        <span aria-hidden="true" className="text-[10px] font-bold">{x.ok === 'go' ? '✓' : x.ok === 'risk' ? '!' : '✕'}</span>
+                        <span aria-hidden="true" className="text-[12px] font-bold">{x.ok === 'go' ? '✓' : x.ok === 'risk' ? '!' : '✕'}</span>
                       </li>
                     ))}
                   </ol>

@@ -73,7 +73,7 @@ test("services: 999 first, every entry sourced and dated, phones are dialable di
   assert.equal(HEALTH_SERVICES[0].phone, "999");
   for (const s of HEALTH_SERVICES) {
     assert.match(s.source.url, /^https:\/\//, s.id);
-    assert.equal(s.source.checked, "2026-11-18", s.id);
+    assert.match(s.source.checked, /^2026-11-(18|19)$/, s.id);
     if (s.phone) assert.match(s.phone, /^\d{3,6}$/, s.id);
   }
 });
@@ -116,4 +116,8 @@ test("health guard catches doses in words, hedged diagnoses and unlisted medicin
     assert.ok(unsafeIn(bad), `should block: ${bad}`);
   }
   for (const ok of ["See a medicine specialist and tell them how long the cough has lasted.", "একজন শিশু বিশেষজ্ঞ দেখান।"]) assert.equal(unsafeIn(ok), null, ok);
+});
+
+test("999 is sourced to the national portal's emergency-number list, not a third-party page", () => {
+  assert.equal(HEALTH_SERVICES[0].source.url, "https://bangladesh.gov.bd");
 });

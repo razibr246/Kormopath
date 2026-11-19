@@ -23,7 +23,7 @@ export default function SatWater({ id }) {
   const sm = useMemo(() => smapNow(waterSat, id), [id]);
   const chk = useMemo(() => smapVsPower(waterSat, soilWetness, id), [id]);
   if (!g && !sm) return null;
-  const tick = { fontSize: 11, fill: MUTED };
+  const tick = { fontSize: 12, fill: MUTED };
   const data = g?.years.map((y) => ({ year: y.year, cm: Math.round(y.cm * 10) / 10, trend: g.trend ? Math.round(g.trend.line(y.year) * 10) / 10 : null })) ?? [];
   const falling = g?.trend && g.trend.p < 0.05 && g.trend.perDecade < 0, rising = g?.trend && g.trend.p < 0.05 && g.trend.perDecade > 0;
   const mon = sm ? (lang === 'bn' ? MONTHS_BN : MONTHS_EN)[+sm.month.slice(5) - 1] : '';
@@ -58,7 +58,7 @@ export default function SatWater({ id }) {
               ? T('উত্তর-পশ্চিম ভারতে মাটির নিচের পানি বছর বছর কমছে; সেচের জন্য নলকূপে পানি তোলাই এর মূল কারণ বলে GRACE দিয়েই দেখানো হয়েছে (Rodell ও অন্যরা ২০০৯, Nature)। ধান-গমের মতো বেশি সেচের চক্রের আসল খরচ মাটির নিচে জমছে।', 'Groundwater under north-west India is falling year by year; GRACE itself showed that pumping for irrigation is the main cause (Rodell et al. 2009, Nature). A thirsty cycle like rice–wheat runs up its real cost underground.')
               : T('এ অঞ্চলে মাটির ওপরে-নিচে জমা পানি বছর বছর কমছে। বেশি সেচের ফসল এই ঘাটতি বাড়ায়।', 'The water stored on and under this region is falling year by year. Heavily irrigated crops add to the loss.')}</Note>}
           {rising && <p className="mt-2 text-[12.5px] leading-5 text-muted">{T('এ অঞ্চলে জমা পানি কমছে না, বরং বাড়ছে।', 'The water stored here is not falling; it is rising.')}</p>}
-          <p className="mt-2 text-[11.5px] leading-4 text-muted">{T(`GRACE-এর একেকটি ঘর প্রায় ৩০০ কিমি চওড়া, তাই এটি পুরো অঞ্চলের পানি, এক জমির নয়; কাছাকাছি উপজেলায় একই মান আসে। ২০১৭–১৮-এ দুই উপগ্রহের মাঝে ফাঁক। GIBS-এর রঙের মাপ ±${num(GRACE_CAP, 'bn')} সেমিতে থামে${g.capped ? ', আর কিছু মাস সেই সীমা ছুঁয়েছে, তাই আসল পরিবর্তন আরও বড় হতে পারে' : ''}।`, `Each GRACE cell is about 300 km across, so this is the region’s water, not one field’s; nearby upazilas share a value. A gap in 2017–18 between the two missions. GIBS’s colour scale stops at ±${GRACE_CAP} cm${g.capped ? ', and some months reach it, so the true change may be larger' : ''}.`)}</p>
+          <p className="mt-2 text-[12px] leading-4 text-muted">{T(`GRACE-এর একেকটি ঘর প্রায় ৩০০ কিমি চওড়া, তাই এটি পুরো অঞ্চলের পানি, এক জমির নয়; কাছাকাছি উপজেলায় একই মান আসে। ২০১৭–১৮-এ দুই উপগ্রহের মাঝে ফাঁক। GIBS-এর রঙের মাপ ±${num(GRACE_CAP, 'bn')} সেমিতে থামে${g.capped ? ', আর কিছু মাস সেই সীমা ছুঁয়েছে, তাই আসল পরিবর্তন আরও বড় হতে পারে' : ''}।`, `Each GRACE cell is about 300 km across, so this is the region’s water, not one field’s; nearby upazilas share a value. A gap in 2017–18 between the two missions. GIBS’s colour scale stops at ±${GRACE_CAP} cm${g.capped ? ', and some months reach it, so the true change may be larger' : ''}.`)}</p>
         </div>
       )}
       {sm && (
@@ -73,7 +73,7 @@ export default function SatWater({ id }) {
           {sm.pct != null && sm.pct < -10 && <Note tone="gold" className="mt-2">{T('রবির শুরুতে মাটি স্বাভাবিকের চেয়ে শুকনো। বোনার আগে "জো" দেখে নিন; জমিতে থেকে যাওয়া পানিতে চলে এমন ফসল (মসুর, ছোলা, সরিষা) বা হালকা সেচের পরিকল্পনা রাখুন।', 'The soil is drier than usual at the start of the Rabi. Check the moisture ("jo") before sowing, and plan for crops that run on stored water (lentil, chickpea, mustard) or a light irrigation.')}</Note>}
           {sm.pct != null && sm.pct > 10 && <p className="mt-2 text-[12.5px] leading-5 text-muted">{T('মাটি স্বাভাবিকের চেয়ে ভেজা: বোনার আগে জমি শুকানোর সময় রাখুন।', 'The soil is wetter than usual: allow time for the field to dry before sowing.')}</p>}
           {chk && <p className="mt-2 text-[12.5px] leading-5 text-muted">{T(`তথ্য যাচাই: SMAP আর নাসা পাওয়ারের নিজের মাটির আর্দ্রতা (MERRA-2) ${num(chk.n, 'bn')} মাসে পাশাপাশি রাখলে মিল r = ${num(chk.r, 'bn', { dp: 2 })}। দুটোই নাসার একই ধরনের ভূমি-মডেলের অংশ ব্যবহার করে, তাই এটা সামঞ্জস্যের পরীক্ষা, স্বাধীন প্রমাণ নয়।`, `Data check: SMAP against NASA POWER’s own soil wetness (MERRA-2) over ${chk.n} months gives r = ${num(chk.r, 'en', { dp: 2 })}. Both draw on NASA’s GEOS land modelling, so this is a consistency check, not independent proof.`)}</p>}
-          <p className="mt-2 text-[11.5px] leading-4 text-muted">{T('SMAP লেভেল-৪ (প্রায় ৯ কিমি), প্রতি মাসের ৮ ও ২২ তারিখের মাপের গড়; চলতি মাসে যেদিন পর্যন্ত পাওয়া গেছে। উৎস: নাসা GIBS।', 'SMAP Level 4 (about 9 km), the mean of the 8th and 22nd of each month; the current month as far as it is out. Source: NASA GIBS.')}</p>
+          <p className="mt-2 text-[12px] leading-4 text-muted">{T('SMAP লেভেল-৪ (প্রায় ৯ কিমি), প্রতি মাসের ৮ ও ২২ তারিখের মাপের গড়; চলতি মাসে যেদিন পর্যন্ত পাওয়া গেছে। উৎস: নাসা GIBS।', 'SMAP Level 4 (about 9 km), the mean of the 8th and 22nd of each month; the current month as far as it is out. Source: NASA GIBS.')}</p>
         </div>
       )}
     </div>

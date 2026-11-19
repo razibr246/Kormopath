@@ -45,7 +45,7 @@ function Panel({ kicker, title, children }) {
     </div>
   );
 }
-const Hero = ({ v, unit, note }) => <div className="mt-2"><div className="font-display text-[44px] font-bold leading-none text-primary-800 tabular">{v}<span className="ml-1 text-[20px] text-ink/60">{unit}</span></div>{note && <div className="mt-1 text-[13px] text-muted">{note}</div>}</div>;
+const Hero = ({ v, unit, note }) => <div className="mt-2"><div className="font-display text-[44px] font-bold leading-none text-primary-800 tabular">{v}<span className="ml-1 text-[20px] text-ink/75">{unit}</span></div>{note && <div className="mt-1 text-[13px] text-muted">{note}</div>}</div>;
 
 export default function RadarStory({ district, row, detail, home }) {
   const { s, T, L, officerUpazila } = useStore();

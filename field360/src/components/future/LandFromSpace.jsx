@@ -44,8 +44,8 @@ export default function LandFromSpace({ upazila, place }) {
               return (
                 <g key={i}>
                   <rect x={x} y={120 - h} width={22} height={h} rx={4} fill={lean ? LEAN : GREEN} opacity={lean ? 1 : 0.85}><title>{`${mo(i + 1)}: NDVI ${n(v, 2)}`}</title></rect>
-                  <text x={x + 11} y={136} textAnchor="middle" fontSize="9.5" fill={MUTED}>{mo(i + 1)}</text>
-                  {(lean || i + 1 === d.green.greenest) && <text x={x + 11} y={116 - h} textAnchor="middle" fontSize="9" fill="#1f2a24">{n(v, 2)}</text>}
+                  <text x={x + 11} y={136} textAnchor="middle" fontSize="12" fill={MUTED}>{mo(i + 1)}</text>
+                  {(lean || i + 1 === d.green.greenest) && <text x={x + 11} y={116 - h} textAnchor="middle" fontSize="12" fill="#1f2a24">{n(v, 2)}</text>}
                 </g>
               );
             })}
@@ -63,7 +63,7 @@ export default function LandFromSpace({ upazila, place }) {
               return (
                 <g key={r.y}>
                   <rect x={x} y={r.z >= 0 ? 70 - h : 70} width={Math.max(3, w - 3)} height={h} rx={2} fill={r.stress ? RED : r.z >= 0 ? GREEN : '#a9b8a6'}><title>{`${r.y}: NDVI ${n(r.v, 2)}`}</title></rect>
-                  {(r.stress || (i % 4 === 0 && !rabi.slice(Math.max(0, i - 1), i + 2).some((q) => q.stress))) && <text x={x + w / 2} y={r.z >= 0 || r.stress ? 146 : 146} textAnchor="middle" fontSize="8.5" fill={r.stress ? RED : MUTED}>{yr(r.y)}</text>}
+                  {(r.stress || (i % 4 === 0 && !rabi.slice(Math.max(0, i - 1), i + 2).some((q) => q.stress))) && <text x={x + w / 2} y={r.z >= 0 || r.stress ? 146 : 146} textAnchor="middle" fontSize="12" fill={r.stress ? RED : MUTED}>{yr(r.y)}</text>}
                 </g>
               );
             })}

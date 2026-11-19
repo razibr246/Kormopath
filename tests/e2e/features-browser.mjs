@@ -33,7 +33,7 @@ await p.goto(`${BASE}/shohoj-budget`, { waitUntil: "networkidle2" });
 await p.evaluate(() => localStorage.clear());
 await p.reload({ waitUntil: "networkidle2" });
 const tourLink = await p.$('a[href="/judges"]');
-check(!!tourLink, "Strip: 'Judges: 2-minute tour' link on app pages");
+check(!!tourLink, "Strip: 'Judges: 3-minute tour' link on app pages");
 await wait(300);
 const loaded = await p.$('[data-testid="load-example"]');
 check(!!loaded, "Shohoj: 'Load example data' shown on empty ledger");
@@ -50,7 +50,7 @@ await p.close();
 p = await page();
 await p.goto(`${BASE}/judges`, { waitUntil: "networkidle2" });
 t = await p.evaluate(() => document.body.innerText);
-check(t.includes("KormoPath in 2 minutes") && ["AdmitBuddy", "MediScan BD", "Shohoj Budget", "HaatBazar AI", "Probaho Coach", "FeeGuard BD"].every((n) => t.includes(n)), "Judge tour: English guide lists flagship + all 6 apps");
+check(t.includes("KormoPath in 3 minutes") && ["AdmitBuddy", "MediScan BD", "Shohoj Budget", "HaatBazar AI", "Probaho Coach", "FeeGuard BD"].every((n) => t.includes(n)), "Judge tour: English guide lists flagship + all 6 apps");
 await p.close();
 
 p = await page();

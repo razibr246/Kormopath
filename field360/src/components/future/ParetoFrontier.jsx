@@ -78,7 +78,7 @@ export default function ParetoFrontier({ list, sumOf, rotName }) {
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="max-w-3xl">
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 rounded-full bg-primary-100 px-2.5 py-0.5 text-[11.5px] font-bold text-primary-900">
+            <span className="inline-flex items-center gap-1 rounded-full bg-primary-100 px-2.5 py-0.5 text-[12px] font-bold text-primary-900">
               <Award size={13} className="text-primary-700" />
               {T('প্যারেটো-অনুকূল বিশ্লেষণ', 'Pareto-Optimal Trade Study')}
             </span>
@@ -138,7 +138,7 @@ export default function ParetoFrontier({ list, sumOf, rotName }) {
                 <span className="text-muted">{T('আগের:', 'Habit:')} <b className="text-slate-600">{dim.baseVal}</b></span>
               </div>
             </div>
-            <p className="mt-3 border-t border-border/60 pt-2 text-[11.5px] leading-4 text-muted">
+            <p className="mt-3 border-t border-border/60 pt-2 text-[12px] leading-4 text-muted">
               {dim.note}
             </p>
           </div>

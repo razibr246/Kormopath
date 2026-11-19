@@ -212,7 +212,7 @@ export function StepDecision() {
           </div>
           <div className="flex shrink-0 flex-col items-center">
             <div className="rounded-full bg-white p-1"><ScoreRing value={rec.score} size={60} /></div>
-            <div className="mt-1 text-[11.5px] text-white/75">{T('১০০-এর মধ্যে', 'out of 100')}</div>
+            <div className="mt-1 text-[12px] text-white/75">{T('১০০-এর মধ্যে', 'out of 100')}</div>
           </div>
         </div>
         <p className="mt-3 max-w-2xl text-[17px] font-medium leading-7">{sentence}</p>
@@ -221,7 +221,7 @@ export function StepDecision() {
             <div key={f.k} className="min-w-0 rounded-xl bg-white/10 px-3 py-2.5 ring-1 ring-white/15">
               <dt className="flex items-center gap-1.5 text-[12.5px] text-white/75"><f.icon size={14} className="shrink-0" />{f.k}</dt>
               <dd className="mt-0.5 text-[15px] font-semibold leading-snug tabular">{f.v}</dd>
-              {f.sub && <dd className="text-[12px] text-white/65">{f.sub}</dd>}
+              {f.sub && <dd className="text-[12px] text-white/80">{f.sub}</dd>}
             </div>
           ))}
         </dl>
@@ -248,15 +248,15 @@ export function StepDecision() {
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-1.5">
                     <span className="font-display text-[19px] font-bold">{L(o.crop.name)}</span>
-                    {isCur && <span className="chip bg-black/5 text-ink/70">{T('গতবারের ফসল', 'your last crop')}</span>}
-                    {isRec && <span className="chip bg-primary-700 text-white">{T('পরামর্শ', 'recommended')}</span>}
+                    {isCur && <span className="chip !text-[12px] bg-black/5 text-ink/70">{T('গতবারের ফসল', 'your last crop')}</span>}
+                    {isRec && <span className="chip !text-[12px] bg-primary-700 text-white">{T('পরামর্শ', 'recommended')}</span>}
                   </div>
                   <div className="text-[13.5px] text-muted">{L(o.crop.action)} {fmtDate(o.t0, lang)}, {shiftLabel(o.shift, T)}</div>
                   <dl className="mt-2 grid grid-cols-1 gap-x-4 gap-y-1 text-[13.5px] sm:grid-cols-2">
                     <div className="flex gap-1.5"><dt className="text-muted">{T('ঠিকঠাক মৌসুম', 'Good seasons')}</dt><dd className="font-semibold tabular">{T(`${bnDigits(o.bt.now.n)}টির মধ্যে ${bnDigits(o.bt.now.safe)}টি`, `${o.bt.now.safe} of ${o.bt.now.n}`)} <span className="font-normal text-muted">{T(`(আগে ${bnDigits(o.bt.then.safe)}/${bnDigits(o.bt.then.n)})`, `(was ${o.bt.then.safe}/${o.bt.then.n})`)}</span></dd></div>
                     <div className="flex gap-1.5"><dt className="text-muted">{T('সেচ', 'Water')}</dt><dd><WaterNeed level={o.crop.water} /></dd></div>
                     <div className="flex gap-1.5"><dt className="text-muted">{T('লাভ/বিঘা', 'Profit/bigha')}</dt><dd className="font-semibold tabular">{o.money ? `৳${num(o.money.net / 1000, lang, { dp: 1 })} ${T('হাজার', 'k')}` : '–'}</dd></div>
-                    <div className="flex gap-1.5"><dt className="text-muted">{T('দাম পড়ার ঝুঁকি', 'Price-drop risk')}</dt><dd><span className={`chip ${RISK_STYLE[o.glut.level].cls}`}>{L(RISK_STYLE[o.glut.level])}</span></dd></div>
+                    <div className="flex gap-1.5"><dt className="text-muted">{T('দাম পড়ার ঝুঁকি', 'Price-drop risk')}</dt><dd><span className={`chip !text-[12px] ${RISK_STYLE[o.glut.level].cls}`}>{L(RISK_STYLE[o.glut.level])}</span></dd></div>
                   </dl>
                 </div>
               </div>
@@ -371,7 +371,7 @@ export function StepRotation() {
                     <div className="text-[14px] text-muted">{T(`${chosen.crop.name.bn} তোলার পর`, `After the ${chosen.crop.name.en.toLowerCase()}`)}</div>
                     <div className="font-display text-[28px] font-bold text-sky-700">{L(b.crop.name)}</div>
                   </div>
-                  <div className="flex shrink-0 flex-col items-center"><ScoreRing value={b.score} size={52} color="#33707b" /><span className="mt-0.5 text-[11px] text-muted">{T('১০০-এর মধ্যে', 'out of 100')}</span></div>
+                  <div className="flex shrink-0 flex-col items-center"><ScoreRing value={b.score} size={52} color="#33707b" /><span className="mt-0.5 text-[12px] text-muted">{T('১০০-এর মধ্যে', 'out of 100')}</span></div>
                 </div>
                 <dl className="mt-3 grid grid-cols-2 gap-2">
                   {facts.map((f) => (
@@ -459,7 +459,7 @@ export function BoardStatus({ nReal, nSample }) {
             : shared.reason === 'unconfigured'
               ? T('সবার পরিকল্পনা মেলানোর সার্ভার এখনো চালু হয়নি। এখন দেখানো হচ্ছে এই ফোনের পরিকল্পনা আর নমুনা প্রতিবেশী।', 'The shared plan server is not switched on yet. Showing this phone’s plans and sample neighbours.')
               : T('সার্ভারে পৌঁছানো যাচ্ছে না (ইন্টারনেট?)। এখন দেখানো হচ্ছে এই ফোনের পরিকল্পনা আর নমুনা প্রতিবেশী।', 'Cannot reach the plan server (internet?). Showing this phone’s plans and sample neighbours.')}
-        {nSample > 0 && <span className="text-ink/60">{T(` পাশে ${bnDigits(nSample)}টি নমুনা জমি, আলাদা রঙে।`, ` Plus ${nSample} sample fields, in their own colour.`)}</span>}
+        {nSample > 0 && <span className="text-ink/75">{T(` পাশে ${bnDigits(nSample)}টি নমুনা জমি, আলাদা রঙে।`, ` Plus ${nSample} sample fields, in their own colour.`)}</span>}
       </span>
       {shared.status !== 'connecting' && <button type="button" onClick={refreshShared} className="rounded-full border border-current/20 px-2.5 py-0.5 text-[12.5px] font-semibold hover:bg-white/60">{T('এখনই হালনাগাদ', 'Refresh now')}</button>}
     </div>
@@ -510,7 +510,7 @@ export function PriceHistory({ crop, hw }) {
               );
             })}
           </ul>
-          <div className="mt-1.5 grid grid-cols-[40px_1fr_92px] gap-2 text-[11.5px] text-muted"><span /><span className="flex justify-between"><span>← {T('কম দাম', 'lower')}</span><span>{T('সাধারণ', 'usual')}</span><span>{T('বেশি দাম', 'higher')} →</span></span><span>{T('কেজিপ্রতি', 'a kg')}</span></div>
+          <div className="mt-1.5 grid grid-cols-[40px_1fr_92px] gap-2 text-[12px] text-muted"><span /><span className="flex justify-between"><span>← {T('কম দাম', 'lower')}</span><span>{T('সাধারণ', 'usual')}</span><span>{T('বেশি দাম', 'higher')} →</span></span><span>{T('কেজিপ্রতি', 'a kg')}</span></div>
           {!h.enough && <Note tone="gold" className="mt-3">{T(`কৃষি বিপণন অধিদপ্তর এই মাসগুলোর দাম মাত্র ${bnDigits(h.n)} বছর দিয়েছে, তাই ধরনটা নিশ্চিত নয়।`, `DAM reported these months in only ${h.n} years, so the pattern is not certain.`)}</Note>}
         </>
       ) : (
@@ -601,7 +601,7 @@ export function StepGlut() {
               <div className="font-display text-[17px] font-bold text-ink">{fmtDate(o.t0, lang)}</div>
               <div className="text-[12px] text-muted">{fmtBangla(o.t0, lang)}</div>
               <div className="mt-1 text-[12px] text-muted">{T(`তোলা ${fmtDate(o.hw.start, 'bn')} থেকে`, `harvest from ${fmtDate(o.hw.start, 'en')}`)}</div>
-              <span className={`chip mt-2 ${RISK_STYLE[o.glut.level].cls}`}>{T('ঝুঁকি', 'Risk')} {L(RISK_STYLE[o.glut.level])}</span>
+              <span className={`chip !text-[12px] mt-2 ${RISK_STYLE[o.glut.level].cls}`}>{T('ঝুঁকি', 'Risk')} {L(RISK_STYLE[o.glut.level])}</span>
             </button>
           );
         })}

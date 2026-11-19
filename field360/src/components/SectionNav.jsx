@@ -377,7 +377,7 @@ export function SectionNav({ sections, label, className = '' }) {
               <LayoutGrid size={15} className={menuOpen ? 'text-emerald-400' : 'text-primary-700'} />
               <span className="hidden md:inline">{T('সকল অংশ', 'All sections')}</span>
               <span
-                className={`rounded-full px-1.5 py-0.2 text-[11px] font-extrabold ${
+                className={`rounded-full px-1.5 py-0.2 text-[12px] font-extrabold ${
                   menuOpen ? 'bg-white/20 text-white' : 'bg-primary-100 text-primary-800'
                 }`}
               >
@@ -423,7 +423,7 @@ export function SectionNav({ sections, label, className = '' }) {
                         }`}
                       >
                         <span className="flex items-center gap-2 truncate">
-                          <span className={`text-[11px] font-bold tabular w-5 shrink-0 ${isAct ? 'text-white/80' : 'text-muted'}`}>
+                          <span className={`text-[12px] font-bold tabular w-5 shrink-0 ${isAct ? 'text-white/80' : 'text-muted'}`}>
                             {s.lang === 'bn' ? num(idx + 1, 'bn') : idx + 1}.
                           </span>
                           <span className="truncate">{sec.label}</span>
@@ -562,7 +562,7 @@ export function ScrollNavigator({ offset = 320, position = 'auto', className = '
       >
         {/* Tooltip pill on hover / focus: floats smoothly to the left of the button */}
         <div
-          className={`pointer-events-none hidden sm:flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary-950/90 px-2.5 py-1 text-[11.5px] font-bold text-white shadow-lg backdrop-blur-md transition-all duration-200 ease-out ${
+          className={`pointer-events-none hidden sm:flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary-950/90 px-2.5 py-1 text-[12px] font-bold text-white shadow-lg backdrop-blur-md transition-all duration-200 ease-out ${
             hovered ? 'translate-x-0 opacity-100 scale-100' : 'translate-x-2 opacity-0 scale-90'
           }`}
         >

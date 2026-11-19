@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
+import { checkRateLimitShared, rateLimitResponse } from "@/lib/rateLimit";
 import { Tracer } from "@/lib/trace";
 import { geminiAvailable, groundedSearch, SEARCH_ERROR_BN } from "@/lib/gemini";
 
@@ -10,7 +10,7 @@ export const maxDuration = 45;
 const Body = z.object({ query: z.string().trim().min(2).max(160) });
 
 export async function POST(req: Request) {
-  const rl = checkRateLimit(req, { limit: 8, windowMs: 60_000, bucket: "product-search" });
+  const rl = await checkRateLimitShared(req, { limit: 8, windowMs: 60_000, bucket: "product-search" });
   if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
 
   const parsed = Body.safeParse(await req.json().catch(() => null));

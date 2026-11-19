@@ -61,9 +61,9 @@ function RadarPage() {
         tags={['SAT', 'RULE']} />
 
       <div className="mb-5 flex flex-wrap gap-2 text-[12.5px]">
-        <span className="chip bg-sky-100 text-sky-900"><Satellite size={13} />{T(`সেন্টিনেল-১ রাডার · ${fmtDate(Date.parse(THROUGH), 'bn')} পর্যন্ত`, `Sentinel-1 radar · to ${fmtDate(Date.parse(THROUGH), 'en')}`)}</span>
-        <span className="chip bg-sky-100 text-sky-900"><CloudRain size={13} />{T(`নাসা আইমার্জ বৃষ্টি · ${rainThrough ? fmtDate(Date.parse(rainThrough), 'bn') : ''} পর্যন্ত`, `NASA IMERG rain · to ${rainThrough ? fmtDate(Date.parse(rainThrough), 'en') : ''}`)}</span>
-        <span className="chip bg-sky-100 text-sky-900"><Layers size={13} />{T('ফসলি জমি: সেন্টিনেল-২ ভূমি-ব্যবহার', 'Cropland: Sentinel-2 land cover')}</span>
+        <span className="chip !text-[12px] bg-sky-100 text-sky-900"><Satellite size={13} />{T(`সেন্টিনেল-১ রাডার · ${fmtDate(Date.parse(THROUGH), 'bn')} পর্যন্ত`, `Sentinel-1 radar · to ${fmtDate(Date.parse(THROUGH), 'en')}`)}</span>
+        <span className="chip !text-[12px] bg-sky-100 text-sky-900"><CloudRain size={13} />{T(`নাসা আইমার্জ বৃষ্টি · ${rainThrough ? fmtDate(Date.parse(rainThrough), 'bn') : ''} পর্যন্ত`, `NASA IMERG rain · to ${rainThrough ? fmtDate(Date.parse(rainThrough), 'en') : ''}`)}</span>
+        <span className="chip !text-[12px] bg-sky-100 text-sky-900"><Layers size={13} />{T('ফসলি জমি: সেন্টিনেল-২ ভূমি-ব্যবহার', 'Cropland: Sentinel-2 land cover')}</span>
       </div>
 
       {openable.length > 1 && (
@@ -72,7 +72,7 @@ function RadarPage() {
           {openable.map((u) => (
             <button key={u.id} type="button" onClick={() => setView(u.id)} aria-pressed={u.id === view}
               className={`h-9 rounded-full px-3.5 text-[13.5px] font-semibold transition-all duration-150 active:scale-95 ${u.id === view ? 'bg-primary-700 text-white shadow-sm ring-2 ring-primary-700/20' : 'bg-black/[.04] text-ink/75 hover:bg-black/[.08]'}`}>
-              {L(u)}{u.id === home && <span className={`ml-1.5 text-[11.5px] ${u.id === view ? 'text-white/80' : 'text-paddy-700'}`}>{T('আপনার', 'yours')}</span>}
+              {L(u)}{u.id === home && <span className={`ml-1.5 text-[12px] ${u.id === view ? 'text-white/80' : 'text-paddy-700'}`}>{T('আপনার', 'yours')}</span>}
             </button>
           ))}
         </div>
@@ -222,11 +222,11 @@ function RadarPage() {
                   <tr key={u.id} className={u.id === view ? 'bg-primary-50' : ''}>
                     <td className="px-4 py-3 font-semibold">{hasGeo(u.id) && u.id !== view
                       ? <button type="button" onClick={() => { setView(u.id); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="font-semibold text-primary-700 underline-offset-2 hover:underline">{L(u)}</button>
-                      : L(u)}{u.id === home && <span className="ml-1.5 text-[11.5px] font-semibold text-paddy-700">{T('আপনার', 'yours')}</span>}</td>
+                      : L(u)}{u.id === home && <span className="ml-1.5 text-[12px] font-semibold text-paddy-700">{T('আপনার', 'yours')}</span>}</td>
                     <td className={`px-4 py-3 tabular ${x.reliable ? '' : 'text-muted'}`}>{x.transplantDoy === null ? '—' : x.reliable ? day(x.transplantDoy) : T('কম জমি', 'Too few')} <span className="text-[12px] text-muted">({num(x.nDetected, lang)}/{num(x.nFields, lang)})</span></td>
                     <td className="px-4 py-3 tabular text-muted">{u.transplantNormal === null ? '—' : day(u.transplantNormal)}</td>
                     <td className="px-4 py-3"><Badge tone={c.tone}>{L(c)}{x.shift ? ` ${x.shift > 0 ? '+' : '−'}${num(Math.abs(x.shift), lang)}` : ''}</Badge></td>
-                    <td className="px-4 py-3 tabular">{x.rainJJ === null ? '—' : `${num(x.rainJJ, lang)} ${T('মিমি', 'mm')}`}{x.rainProvisional && <span className="ml-1 text-[11.5px] text-muted">{T('অস্থায়ী', 'provisional')}</span>}</td>
+                    <td className="px-4 py-3 tabular">{x.rainJJ === null ? '—' : `${num(x.rainJJ, lang)} ${T('মিমি', 'mm')}`}{x.rainProvisional && <span className="ml-1 text-[12px] text-muted">{T('অস্থায়ী', 'provisional')}</span>}</td>
                   </tr>
                 );
               })}
@@ -375,7 +375,7 @@ function OnsetCard({ upazila, name }) {
           note={tr.significant ? T(`পরিসংখ্যানে জোরালো (p = ${dec(tr.p, 2)})`, `Statistically significant (p = ${dec(tr.p, 2)})`) : T(`পরিসংখ্যানে জোরালো নয় (p = ${dec(tr.p, 2)}); বছরে বছরে ওঠানামাই বেশি`, `Not statistically significant (p = ${dec(tr.p, 2)}); year-to-year swings dominate`)} />
       </div>
       <svg viewBox={`0 0 ${W} ${H}`} className="mt-4 w-full" role="img" aria-label={T('প্রতি বছরের বৃষ্টি শুরুর তারিখ', 'Rain-onset date each year')}>
-        {ticks.map((d) => <g key={d}><line x1={P.l} x2={W - P.r} y1={Y(d)} y2={Y(d)} stroke="#000" strokeOpacity=".07" /><text x={P.l - 6} y={Y(d) + 4} textAnchor="end" fontSize="10.5" fill="#5d6a63">{usualDay(d)}</text></g>)}
+        {ticks.map((d) => <g key={d}><line x1={P.l} x2={W - P.r} y1={Y(d)} y2={Y(d)} stroke="#000" strokeOpacity=".07" /><text x={P.l - 6} y={Y(d) + 4} textAnchor="end" fontSize="12" fill="#5d6a63">{usualDay(d)}</text></g>)}
         <line x1={P.l} x2={W - P.r} y1={Y(o.usual)} y2={Y(o.usual)} stroke="#2f8a8f" strokeDasharray="4 4" strokeOpacity=".7" />
         {o.rows.map((r) => <g key={r.year}>
           {r.power.doy != null && <circle cx={X(r.year)} cy={Y(r.power.doy)} r="4" fill="none" stroke="#8a948e" strokeWidth="1.4" />}
@@ -383,7 +383,7 @@ function OnsetCard({ upazila, name }) {
             // set in by the day the search opens: drawn as a triangle pointing earlier
             ? <path d={`M${X(r.year)} ${Y(r.imerg.doy) - 6} l5 8 h-10z`} fill={r.imerg.complete ? '#2f8a8f' : '#ffffff'} stroke="#2f8a8f" strokeWidth="1.4"><title>{`${num(r.year, lang).replace(/,/g, '')}: ${T('১৫ মে বা আগে', 'by 15 May or earlier')}`}</title></path>
             : <circle cx={X(r.year)} cy={Y(r.imerg.doy)} r="5" fill={r.imerg.complete ? '#2f8a8f' : '#ffffff'} stroke="#2f8a8f" strokeWidth="1.6"><title>{`${num(r.year, lang).replace(/,/g, '')}: ${day(r.year, r.imerg.doy)}${r.imerg.complete ? '' : T(' (অস্থায়ী)', ' (provisional)')}`}</title></circle>)}
-          {(r.year - y0) % 5 === 0 && <text x={X(r.year)} y={H - 8} textAnchor="middle" fontSize="10.5" fill="#5d6a63">{num(r.year, lang).replace(/,/g, '')}</text>}
+          {(r.year - y0) % 5 === 0 && <text x={X(r.year)} y={H - 8} textAnchor="middle" fontSize="12" fill="#5d6a63">{num(r.year, lang).replace(/,/g, '')}</text>}
         </g>)}
       </svg>
       <p className="mt-2 text-[12.5px] leading-5 text-muted">{T(`নিয়ম: ১৫ মে থেকে প্রথম দিন যেখান থেকে ৫ দিনে অন্তত ${dec(o.thresholdMm, 1)} মিমি (এখানকার বর্ষার স্বাভাবিক ৫-দিনের বৃষ্টি), পরের ৩০ দিনে ১০ দিনের শুকনো ফাঁক নেই আর বর্ষার অর্ধেক মাসের বৃষ্টি। ত্রিভুজ: সেই বছর ১৫ মে-র আগেই বৃষ্টি টানা নেমেছিল। ড্যাশ রেখা: সাধারণ তারিখ।`, `Rule: the first day from 15 May that starts at least ${dec(o.thresholdMm, 1)} mm in 5 days (this place's usual monsoon 5-day rain), with no 10-day dry gap and at least half a monsoon month's rain in the next 30 days. Triangles: years the rains had set in before 15 May. Dashed line: the usual date.`)}</p>

@@ -93,7 +93,7 @@ export default function FarmworkScene({ kind, from, to, lang, T, onDateChange, s
           <h3 className="flex items-center gap-2 text-[16px] font-bold text-primary-950"><Wind size={17} className="text-primary-700" />{T(sc.action.bn, sc.action.en)}</h3>
           <p className="mt-0.5 text-[12.5px] text-muted">{T(`আজকের কাজ · ${stage.label.bn} · ${date}`, `Today’s action · ${stage.label.en} · ${date}`)}</p>
         </div>
-        <label className="inline-flex items-center gap-2 text-[12px] font-medium text-muted">
+        <label className="inline-flex min-h-[44px] items-center gap-2 text-[12px] font-medium text-muted">
           <input type="checkbox" checked={reduced} onChange={(e) => setReduced(e.target.checked)} className="accent-primary-700" />
           {T('কম নড়াচড়া', 'Reduced motion')}
         </label>
@@ -103,12 +103,12 @@ export default function FarmworkScene({ kind, from, to, lang, T, onDateChange, s
         {sc.seam ? <div ref={seamBox} aria-hidden="true" className="pointer-events-none absolute inset-0" style={{ opacity: 0 }}><Art lang={lang} svgRef={seamRef} /></div> : null}
       </div>
       <div className="px-4 pb-4 pt-3 sm:px-5">
-        <div className="grid grid-cols-[1fr_auto_1fr] gap-1 text-[10.5px] text-muted">
+        <div className="grid grid-cols-[1fr_auto_1fr] gap-1 text-[12px] text-muted">
           <span className="truncate">{T(`${sc.range.bn} · ${fmtBangla(from, 'bn')}`, `${sc.range.en} · ${fmtDate(from, 'en')}`)}</span>
           <span className="font-semibold text-primary-800">{T(stage.label.bn, stage.label.en)} · {num(stageIndex + 1, lang)}/{num(stages.length, lang)}</span>
           <span className="truncate text-right">{from === to ? '' : lang === 'bn' ? fmtBangla(to, 'bn') : fmtDate(to, 'en')}</span>
         </div>
-        {standInFor && <p className="mt-1.5 text-[11px] text-muted">{T(`${standInFor.bn}-এর নিজস্ব অ্যানিমেশন এখনো নেই; সবচেয়ে কাছের কাজটি দেখানো হচ্ছে।`, `${standInFor.en} has no animation of its own yet; the closest work is shown.`)}</p>}
+        {standInFor && <p className="mt-1.5 text-[12px] text-muted">{T(`${standInFor.bn}-এর নিজস্ব অ্যানিমেশন এখনো নেই; সবচেয়ে কাছের কাজটি দেখানো হচ্ছে।`, `${standInFor.en} has no animation of its own yet; the closest work is shown.`)}</p>}
       </div>
     </section>
   );

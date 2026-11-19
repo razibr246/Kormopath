@@ -26,7 +26,7 @@ export default function SoilVerdict({ ff, second, sumOf, rotName }) {
       ? T(`খড় জমিতে রাখলে মাটি ভালো হয়, কিন্তু গরুর খাবার কম থাকে (${signed(x.v, 'bn')} ফসলের খড়)`, `Straw kept on the field builds the soil but leaves less for cattle (${signed(x.v, 'en')} crops’ worth of straw)`)
       : T(`গরুর খাবারের খড় বা লতা: বছরে ${signed(x.v, 'bn')} ফসলের মতো`, `Straw or haulm for cattle: ${signed(x.v, 'en')} crops’ worth a year`)),
   };
-  const Sign = ({ n }) => (n > 0 ? <ArrowUpRight size={15} className="shrink-0 text-primary-700" /> : n < 0 ? <ArrowDownRight size={15} className="shrink-0 text-red-700" /> : <Minus size={15} className="shrink-0 text-ink/40" />);
+  const Sign = ({ n }) => (n > 0 ? <ArrowUpRight size={15} className="shrink-0 text-primary-700" /> : n < 0 ? <ArrowDownRight size={15} className="shrink-0 text-red-700" /> : <Minus size={15} className="shrink-0 text-ink/75" />);
   const block = (e, title) => {
     const lines = soilChanges(sumOf(e), habit, e.rot.residue);
     return (

@@ -69,6 +69,7 @@ function Question({
   busy,
   consented,
   onGrade,
+  onAssisted,
 }: {
   q: Challenge["viva"][number];
   idx: number;
@@ -76,6 +77,8 @@ function Question({
   busy: boolean;
   consented: boolean;
   onGrade: (a: string) => void;
+  /** A model answer was filled in: the passport must say "assisted". */
+  onAssisted?: () => void;
 }) {
   const [answer, setAnswer] = useState("");
   const dict = useDictation((t) => setAnswer((a) => (a ? a + " " : "") + t.trim()));
@@ -91,6 +94,7 @@ function Question({
   };
 
   const autoFillSample = () => {
+    onAssisted?.();
     if (q.id === "w1") {
       setAnswer(
         "We make it idempotent: record processed event IDs in a Set and skip repeats if already seen. In production, we persist event IDs in a database with a unique constraint, checking and inserting in an atomic transaction to prevent race conditions."
@@ -193,9 +197,12 @@ export function StageViva(props: {
   results: TestResult[] | null;
   compileError: string | null;
   running: boolean;
-  onRun: () => void;
+  /** Runs the tests; pass `src` to test code that was just set (the editor state may not have updated yet). */
+  onRun: (src?: string) => void;
   assisted: boolean;
   onReveal: () => void;
+  /** Called when a model viva answer is auto-filled; flags the passport as assisted. */
+  onAssisted?: () => void;
   grades: Record<string, VivaGrade>;
   grading: string | null;
   onGrade: (qid: string, a: string) => void;
@@ -258,10 +265,10 @@ export function StageViva(props: {
   };
 
   const applyFixAndRun = () => {
-    props.setCode(ch.reference);
-    setTimeout(() => {
-      props.onRun();
-    }, 150);
+    // Goes through onReveal so the passport is flagged "assisted" (it used to load the reference silently).
+    props.onReveal();
+    // Test the reference itself: `props.onRun` from this render still sees the old editor code.
+    props.onRun(ch.reference);
   };
 
   return (
@@ -334,7 +341,7 @@ export function StageViva(props: {
               </div>
             </div>
             <div className="mt-2 flex flex-wrap items-center gap-2">
-              <Btn onClick={props.onRun} disabled={props.running}>
+              <Btn onClick={() => props.onRun()} disabled={props.running}>
                 {props.running ? <Loader2 size={16} className="animate-spin" /> : <Play size={16} />} Run Sandboxed Tests
               </Btn>
               <button
@@ -438,6 +445,7 @@ export function StageViva(props: {
               busy={props.grading === q.id}
               consented={vivaConsent}
               onGrade={(a) => props.onGrade(q.id, a)}
+              onAssisted={props.onAssisted}
             />
           ))}
         </div>

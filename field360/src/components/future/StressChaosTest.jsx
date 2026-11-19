@@ -71,7 +71,7 @@ export default function StressChaosTest({ ff, rotName }) {
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="max-w-3xl">
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-[11.5px] font-bold text-red-900">
+            <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-[12px] font-bold text-red-900">
               <Zap size={13} className="text-red-700" />
               {T('ডিজিটাল টুইন স্ট্রেস পরীক্ষা', 'Digital Twin Chaos Stress Test')}
             </span>

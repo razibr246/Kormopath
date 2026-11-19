@@ -186,3 +186,97 @@ export function rateLimitResponse(limit: number, resetSeconds: number): Response
     }
   );
 }
+
+/* ------------------------------------------------------------------------------------------------
+ * Optional shared store (Upstash Redis / Vercel KV REST API).
+ *
+ * The in-memory buckets above are per server instance, so on a serverless deployment each warm instance has its
+ * own budget. When UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN (or Vercel KV's KV_REST_API_URL +
+ * KV_REST_API_TOKEN) are set, checkRateLimitShared() counts requests in Redis instead, with a fixed window per
+ * key: INCR, then PEXPIRE ... NX, then PTTL, in one pipeline call. Plain fetch, no extra dependency.
+ * Without those variables, or if Redis does not answer within REMOTE_TIMEOUT_MS, it uses the in-memory limiter,
+ * so a Redis outage never takes the API down.
+ * ---------------------------------------------------------------------------------------------- */
+
+export interface RemoteRateLimitStore {
+  /** Counts one request against `key` and returns the count in the current window and ms until it resets. */
+  hit(key: string, windowMs: number): Promise<{ count: number; resetMs: number }>;
+}
+
+type FetchLike = (url: string, init: { method: string; headers: Record<string, string>; body: string; signal?: AbortSignal }) => Promise<{ ok: boolean; status: number; json(): Promise<unknown> }>;
+
+export const REMOTE_TIMEOUT_MS = 800;
+
+export class UpstashRateLimitStore implements RemoteRateLimitStore {
+  private readonly url: string;
+  private readonly token: string;
+  private readonly fetchImpl: FetchLike;
+  private readonly prefix: string;
+  constructor(url: string, token: string, fetchImpl: FetchLike = fetch as unknown as FetchLike, prefix = "kormopath:rl:") {
+    this.url = url.replace(/\/+$/, "");
+    this.token = token;
+    this.fetchImpl = fetchImpl;
+    this.prefix = prefix;
+  }
+
+  async hit(key: string, windowMs: number): Promise<{ count: number; resetMs: number }> {
+    const k = this.prefix + key;
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), REMOTE_TIMEOUT_MS);
+    try {
+      const res = await this.fetchImpl(`${this.url}/pipeline`, {
+        method: "POST",
+        headers: { authorization: `Bearer ${this.token}`, "content-type": "application/json" },
+        body: JSON.stringify([["INCR", k], ["PEXPIRE", k, String(windowMs), "NX"], ["PTTL", k]]),
+        signal: ctrl.signal,
+      });
+      if (!res.ok) throw new Error(`Rate limit store HTTP ${res.status}`);
+      const out = (await res.json()) as Array<{ result?: unknown; error?: string }>;
+      const count = Number(out?.[0]?.result);
+      const ttl = Number(out?.[2]?.result);
+      if (!Array.isArray(out) || out.some((r) => r?.error) || !Number.isFinite(count)) throw new Error("Rate limit store returned an unexpected reply");
+      return { count, resetMs: Number.isFinite(ttl) && ttl > 0 ? ttl : windowMs };
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+}
+
+/** Builds the shared store from env vars, or returns null when none are configured. */
+export function remoteStoreFromEnv(env: Record<string, string | undefined> = process.env, fetchImpl?: FetchLike): RemoteRateLimitStore | null {
+  const url = env.UPSTASH_REDIS_REST_URL?.trim() || env.KV_REST_API_URL?.trim();
+  const token = env.UPSTASH_REDIS_REST_TOKEN?.trim() || env.KV_REST_API_TOKEN?.trim();
+  if (!url || !token || !/^https:\/\//.test(url)) return null;
+  return new UpstashRateLimitStore(url, token, fetchImpl);
+}
+
+let remoteStore: RemoteRateLimitStore | null | undefined; // undefined = not read from env yet
+
+/** Override the shared store (tests), or pass null to force the in-memory limiter. */
+export function setRemoteRateLimitStore(store: RemoteRateLimitStore | null | undefined): void {
+  remoteStore = store;
+}
+
+/**
+ * Like checkRateLimit, but counts in Redis when a shared store is configured (see above), so the limit holds
+ * across all server instances. Falls back to the in-memory limiter if the store is missing or fails.
+ */
+export async function checkRateLimitShared(
+  req: Request,
+  options: RateLimitOptions = {}
+): Promise<{ success: boolean; limit: number; remaining: number; resetSeconds: number; store: "remote" | "memory" }> {
+  if (remoteStore === undefined) remoteStore = remoteStoreFromEnv();
+  if (remoteStore) {
+    const limit = options.limit ?? 30;
+    const windowMs = options.windowMs ?? 60_000;
+    const key = `${options.bucket ?? "default"}:${extractClientIp(req)}`;
+    try {
+      const { count, resetMs } = await remoteStore.hit(key, windowMs);
+      const resetSeconds = Math.max(1, Math.ceil(resetMs / 1000));
+      return { success: count <= limit, limit, remaining: Math.max(0, limit - count), resetSeconds, store: "remote" };
+    } catch {
+      // Store down or slow: keep serving with the per-instance limiter rather than failing open or closed.
+    }
+  }
+  return { ...checkRateLimit(req, options), store: "memory" };
+}

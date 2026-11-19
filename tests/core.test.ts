@@ -235,7 +235,7 @@ test("effectiveRate is net taka per invoiced dollar and never beats the mid-mark
   assert.equal(effectiveRate(channels[0], 0), null);
 });
 
-test("calculateFreelancerAIT implements Bangladesh Income Tax Act 2023 rules and Section 124 penalties", async () => {
+test("calculateFreelancerAIT: foreign IT freelancing exempt, PSR uplift of 50%, local rates from the user (defaults labelled unverified)", async () => {
   const { calculateFreelancerAIT } = await import("../lib/finops.ts");
 
   // 1. Foreign Export (ITES) — 100% tax exempt with 2.5% cash incentive
@@ -251,7 +251,9 @@ test("calculateFreelancerAIT implements Bangladesh Income Tax Act 2023 rules and
   assert.equal(exportRes.incentiveEligible, true);
   assert.equal(exportRes.incentiveAmountBdt, 2500); // 2.5% of 100k
   assert.equal(exportRes.netReceivableBdt, 102500);
-  assert.ok(exportRes.lawReference.includes("৭৬ ধারা"));
+  // No section numbers from the old 1984 Ordinance; the exemption is cited to the 2023 Act's Sixth Schedule.
+  assert.ok(!/৭৬ ধারা|৫২এএ|১২৪/.test(exportRes.lawReference));
+  assert.ok(exportRes.lawReference.includes("ষষ্ঠ তফসিল"));
 
   // 2. Local Corporate IT Contract with PSR — 5% TDS
   const localItWithPsr = calculateFreelancerAIT({
@@ -280,7 +282,16 @@ test("calculateFreelancerAIT implements Bangladesh Income Tax Act 2023 rules and
   assert.equal(localItNoPsr.aitAmountBdt, 7500);
   assert.equal(localItNoPsr.netReceivableBdt, 92500);
   assert.equal(localItNoPsr.grossBdt - localItNoPsr.aitAmountBdt, localItNoPsr.netReceivableBdt);
-  assert.ok(localItNoPsr.lawReference.includes("১২৪"));
+  assert.ok(localItNoPsr.lawReference.includes("৫০%"));
+  assert.ok(!/১২৪|৫২এএ/.test(localItNoPsr.lawReference));
+  // The default rate is labelled unverified; the user's certificate rate replaces it.
+  assert.equal(localItNoPsr.rateFromUser, false);
+  assert.ok(localItNoPsr.adviceBn.includes("যাচাই করা নয়"));
+  const own = calculateFreelancerAIT({ amountBdt: 100000, contractType: "local_corporate_it", hasPsr: true, hasTin: true, ratePct: 7 });
+  assert.equal(own.baseRatePct, 7);
+  assert.equal(own.aitAmountBdt, 7000);
+  assert.equal(own.rateFromUser, true);
+  assert.ok(!own.adviceBn.includes("যাচাই করা নয়"));
 
   // 4. Local Corporate Consulting Contract with & without PSR (10% vs 15%)
   const consultWithPsr = calculateFreelancerAIT({

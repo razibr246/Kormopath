@@ -26,12 +26,12 @@ export default function WhyBar({ o, weights, legend = true, className = '' }) {
         {parts.map((p) => <span key={p.k} style={{ width: `${p.add}%`, background: FACTOR[p.k].c }} className="h-full border-r-2 border-white last:border-r-0" />)}
       </div>
       {legend && (
-        <ul className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[11.5px] leading-4 text-ink/70">
+        <ul className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[12px] leading-4 text-ink/70">
           {parts.map((p) => (
             <li key={p.k} className="inline-flex items-center gap-1">
               <span className="h-2 w-2 rounded-full" style={{ background: FACTOR[p.k].c }} />
               {L(FACTOR[p.k])} <b className="tabular font-semibold text-ink/85">{num(p.add, s.lang, { dp: 0 })}</b>
-              <span className="text-ink/45">/{num(p.w * 100, s.lang)}</span>
+              <span className="text-ink/75">/{num(p.w * 100, s.lang)}</span>
             </li>
           ))}
         </ul>

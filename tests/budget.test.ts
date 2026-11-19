@@ -130,8 +130,10 @@ test("Unusual expense flagged only with enough history", () => {
 test("MFS Cash-Out Fee: computes exact integer poisha for all major providers", () => {
   // ৳1,000 withdrawal (100,000 poisha)
   const bkashApp = calculateMfsCashoutFee(1000, "bkash_app");
-  assert.equal(bkashApp.feePoisha, 1490, "bKash App 1.49% is exactly 1490 poisha (৳14.90)");
-  assert.equal(bkashApp.totalWithFeePoisha, 101490);
+  assert.equal(bkashApp.feePoisha, 1850, "bKash app agent cash-out 1.85% (bkash.com: Tk 18.50 per 1,000)");
+  assert.equal(bkashApp.totalWithFeePoisha, 101850);
+  assert.equal(MFS_FEE_RATES.bkash_app.verified, true);
+  assert.ok(MFS_FEE_RATES.bkash_app.source?.url.startsWith("https://www.bkash.com/"));
 
   const bkashUssd = calculateMfsCashoutFee(1000, "bkash_ussd");
   assert.equal(bkashUssd.feePoisha, 1850, "bKash USSD 1.85% is exactly 1850 poisha (৳18.50)");
@@ -151,10 +153,10 @@ test("MFS Cash-Out Fee: computes exact integer poisha for all major providers", 
 });
 
 test("MFS Cash-Out Fee: ceil invariant guarantees no lost fractional poisha", () => {
-  // ৳333 at 1.49%: 33300 * 0.0149 = 496.17 poisha -> Math.ceil gives 497 poisha (৳4.97)
+  // ৳333 at 1.85%: 33300 * 0.0185 = 616.05 poisha -> Math.ceil gives 617 poisha (৳6.17)
   const fee = calculateMfsCashoutFee(333, "bkash_app");
-  assert.equal(fee.feePoisha, 497);
-  assert.equal(fee.totalWithFeePoisha, 33300 + 497);
+  assert.equal(fee.feePoisha, 617);
+  assert.equal(fee.totalWithFeePoisha, 33300 + 617);
 
   // Zero amount gives zero fee without error
   const zero = calculateMfsCashoutFee(0, "bkash_app");

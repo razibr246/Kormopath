@@ -89,6 +89,13 @@ async function post(path: string, key: string, body: unknown, timeoutMs: number)
  * Runs one interaction across models and keys. Returns the response and the model that answered,
  * or null when nothing worked; every attempt is in the trace.
  */
+/** v1beta when the request carries a non-text part (image, document, audio), else v1. */
+export function apiVersionFor(request: InteractionRequest): "v1" | "v1beta" {
+  const input = request.input;
+  if (!Array.isArray(input)) return "v1";
+  return input.some((p) => typeof p === "object" && p !== null && "type" in p && (p.type === "image" || p.type === "document" || p.type === "audio")) ? "v1beta" : "v1";
+}
+
 export async function interact(
   tracer: Tracer,
   request: InteractionRequest,
@@ -104,7 +111,9 @@ export async function interact(
     const left = cooldown.remainingMs(model);
     if (left > 0) tracer.log(model, `Failed recently (rate limit or timeout); tried last for ${Math.ceil(left / 1000)} s more`, "warn");
   }
-  const path = `/${options.apiVersion ?? "v1"}/interactions`;
+  // Image, document and audio inputs are only accepted on v1beta ("The value 'image' is not supported for
+  // 'input[n].type' in v1, it is available in v1beta"), so file requests go there; text stays on v1.
+  const path = `/${options.apiVersion ?? apiVersionFor(request)}/interactions`;
   // Total budget stays inside the route time limit (~30 s). Each attempt is capped so a slow
   // primary model still leaves time for the lighter fallback model.
   const timeoutMs = Math.min(options.timeoutMs ?? 26_000, 40_000);

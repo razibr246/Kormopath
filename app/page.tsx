@@ -245,11 +245,16 @@ export default function HomePage() {
                 <>Study, work, home and field: <em className="kp-em">one honest path.</em></>
               )}
             </h1>
+            {bn && (
+              <p lang="en" className="mt-3 text-[15px] font-medium text-slate-500 sm:text-[17px]">
+                For a student freelancer: prove your skills, sign a fair contract, see every taka of the payout.
+              </p>
+            )}
 
             <p className="mt-5 max-w-[34rem] text-[17px] leading-relaxed text-slate-600 sm:text-[19px]">
               {bn
-                ? "বাংলাদেশের দৈনন্দিন কাজের জন্য ১১টি ব্যবহারিক টুল আর একজন বাংলা সহকারী। টাকার হিসাব নির্ধারিত নিয়মে, প্রতিটি সংখ্যার পাশে উৎস, আর কোনো তথ্য বানিয়ে বলা হয় না।"
-                : "Eleven practical tools and a Bangla assistant for everyday work in Bangladesh. Money maths follows fixed rules, every number shows its source, and nothing is made up."}
+                ? "মূল যাত্রা একজন ছাত্র ফ্রিল্যান্সারের: দক্ষতার প্রমাণ, তারপর চুক্তি, তারপর টাকা হাতে। একই ট্রাস্ট ইঞ্জিনে চলে আরও ১১টি অ্যাপ, মোট ১২টি। টাকার হিসাব নির্ধারিত নিয়মে, প্রতিটি সংখ্যার পাশে উৎস, আর কোনো তথ্য বানিয়ে বলা হয় না।"
+                : "The flagship journey is a student freelancer's: skill proof, then a contract, then the payout. The same trust engine runs 11 more apps, 12 in all. Money maths follows fixed rules, every number shows its source, and nothing is made up."}
             </p>
 
             {/* Task-first search */}
@@ -369,7 +374,7 @@ export default function HomePage() {
         <section id="apps-showcase" aria-labelledby="tools-title" className="scroll-mt-28 pt-24">
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div>
-              <p className="kp-eyebrow">{bn ? "১১টি টুল · তিনটি পথ" : "Eleven tools · three paths"}</p>
+              <p className="kp-eyebrow">{bn ? "একই ইঞ্জিনে আরও ১১টি অ্যাপ" : "11 more apps · same trust engine"}</p>
               <h2 id="tools-title" className="mt-3 text-[clamp(30px,4vw,48px)] font-semibold leading-tight tracking-tight text-slate-900">
                 {bn ? <>যা দরকার, <em className="kp-em">সেটাই খুলুন</em></> : <>Open <em className="kp-em">just what you need</em></>}
               </h2>

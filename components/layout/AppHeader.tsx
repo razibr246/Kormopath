@@ -82,6 +82,20 @@ export function AppHeader({
     }
   }, [udcActive]);
 
+  // Escape or a click outside closes the shared-PC menu; focus goes back to its button.
+  useEffect(() => {
+    if (!showUdcMenu) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      setShowUdcMenu(false);
+      menuRef.current?.querySelector<HTMLButtonElement>("button")?.focus();
+    };
+    const onDown = (e: MouseEvent) => { if (menuRef.current && !menuRef.current.contains(e.target as Node)) setShowUdcMenu(false); };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("mousedown", onDown);
+    return () => { document.removeEventListener("keydown", onKey); document.removeEventListener("mousedown", onDown); };
+  }, [showUdcMenu]);
+
   const resetTimer = useCallback(() => {
     setSecondsLeft(900);
   }, []);
@@ -183,14 +197,14 @@ export function AppHeader({
           মূল অংশে যান
         </a>
         <div className="kp-nav mx-auto flex max-w-7xl items-center justify-between gap-3 px-2.5 py-2 sm:px-3">
-          <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+          <div className="kp-app-brand flex min-w-0 items-center gap-2.5 sm:gap-3">
             <Link href={href} className="flex min-w-0 items-center gap-2.5">
               <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-gradient-to-br ${accent} text-white shadow-[inset_0_1px_0_rgba(255,255,255,.3),0_6px_14px_-6px_rgba(60,36,18,.55)]`} aria-hidden>
                 {icon}
               </span>
               <span className="min-w-0">
-                <span className="block truncate font-display text-[18px] font-semibold leading-tight tracking-tight text-slate-900 sm:text-[20px]">{name}</span>
-                <span className="mt-0.5 block truncate text-[11px] font-medium leading-none text-slate-600">{taglineEn ? `${taglineEn} · ${taglineBn}` : taglineBn}</span>
+                <span className="kp-app-name block truncate font-display text-[18px] font-semibold leading-tight tracking-tight text-slate-900 sm:text-[20px]">{name}</span>
+                <span className="kp-app-tagline mt-0.5 block truncate text-[11px] font-medium leading-none text-slate-600">{taglineEn ? `${taglineEn} · ${taglineBn}` : taglineBn}</span>
               </span>
             </Link>
             {/* Desktop Logo Link */}
@@ -205,7 +219,7 @@ export function AppHeader({
             {/* Mobile Logo Link */}
             <Link
               href="/"
-              className="flex shrink-0 items-center gap-1 rounded-xl border border-line bg-white/70 px-2 py-1 text-[12px] font-medium text-slate-700 transition-colors hover:border-amber-500 lg:hidden"
+              className="flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1 rounded-xl border border-line bg-white/70 px-2 py-1 text-[12px] font-medium text-slate-700 transition-colors hover:border-amber-500 lg:hidden"
               title="KormoPath Home"
               aria-label="KormoPath Home"
             >
@@ -213,13 +227,15 @@ export function AppHeader({
               <KormoPathLogo theme="light" variant="mark" size="sm" />
             </Link>
           </div>
-          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <div className="kp-app-actions flex shrink-0 items-center gap-2 sm:gap-3">
             {/* UDC / Shared Terminal Privacy Mode Toggle */}
             <div className="relative" ref={menuRef}>
               {udcActive ? (
                 <button
                   type="button"
                   onClick={() => setShowUdcMenu(!showUdcMenu)}
+                  aria-expanded={showUdcMenu}
+                  aria-haspopup="dialog"
                   className="inline-flex h-8 items-center gap-1.5 rounded-full border border-amber-300 bg-amber-50/90 px-2.5 text-[11.5px] font-semibold text-amber-900 shadow-xs hover:bg-amber-100 transition-colors"
                   title="শেয়ার্ড পিসি মোড সক্রিয় (১৫ মিনিট অসক্রিয়তায় ডেটা মুছবে)"
                 >
@@ -249,7 +265,8 @@ export function AppHeader({
                     <button
                       type="button"
                       onClick={() => setShowUdcMenu(false)}
-                      className="text-slate-400 hover:text-slate-600"
+                      aria-label="বন্ধ করুন"
+                      className="grid h-11 w-11 place-items-center rounded-lg text-slate-400 hover:text-slate-600"
                     >
                       <X size={14} />
                     </button>
@@ -342,9 +359,9 @@ export function SourceTag({
       {checked ? <span> · যাচাই {checked}</span> : null}
     </>
   );
-  const cls = `inline-flex flex-wrap items-center gap-x-1 rounded-md border px-1.5 py-0.5 text-[10.5px] leading-snug ${CONF_STYLE[confidence]}`;
+  const cls = `inline-flex flex-wrap items-center gap-x-1 rounded-md border px-1.5 py-0.5 text-[12px] leading-snug ${CONF_STYLE[confidence]}`;
   return url ? (
-    <a href={url} target="_blank" rel="noopener noreferrer" className={`${cls} hover:underline`}>
+    <a href={url} target="_blank" rel="noopener noreferrer" className={`${cls} min-h-[32px] hover:underline`}>
       {body} ↗
     </a>
   ) : (

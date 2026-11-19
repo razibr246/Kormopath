@@ -76,7 +76,7 @@ export function ShapeOverPhoto({ parcel, box }) {
           </g>
         ))}
       </svg>
-      <span className="pointer-events-none absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-[11.5px] font-semibold text-white backdrop-blur">
+      <span className="pointer-events-none absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-[12px] font-semibold text-white backdrop-blur">
         <CircleDashed size={12} />{T('শুধু পিন; জমির আসল সীমানা দেওয়া হয়নি', 'Pin only; no real boundary given')}
       </span>
     </>
@@ -93,7 +93,7 @@ export function BoundaryBadge({ parcel, className = '' }) {
   const Icon = b ? SOURCE_ICON[b.source] : MapPinned;
   const tone = st === 'verified' ? 'bg-primary-50 text-primary-800 ring-primary-200' : st === 'none' ? 'bg-black/5 text-ink/70 ring-black/10' : 'bg-amber-50 text-amber-800 ring-amber-200';
   return (
-    <span className={`chip ring-1 ${tone} ${className}`} title={b ? tr(SOURCES[b.source].help) : undefined}>
+    <span className={`chip !text-[12px] ring-1 ${tone} ${className}`} title={b ? tr(SOURCES[b.source].help) : undefined}>
       <Icon size={13} />{b ? `${tr(SOURCES[b.source])} · ${tr(STATUS_TEXT[st])}` : tr(STATUS_TEXT.none)}
     </span>
   );

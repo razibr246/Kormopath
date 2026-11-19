@@ -65,7 +65,7 @@ export function BoundaryFacts({ geometry, posErr = null, recordDec = null, compa
             </div>
           ))}
         </dl>
-        <p className="mt-2 text-[11.5px] leading-4 text-muted">{T('মাপ WGS84 উপবৃত্তের ওপর (জিওডেসিক)। ১ বিঘা = ২০ কাঠা = ১৪,৪০০ বর্গফুট = ৩৩.০৬ শতক; কোনো কোনো জেলায় স্থানীয় বিঘা আলাদা।', 'Measured on the WGS84 ellipsoid (geodesic). 1 bigha = 20 katha = 14,400 sq ft = 33.06 decimal; the local bigha differs in some districts.')}</p>
+        <p className="mt-2 text-[12px] leading-4 text-muted">{T('মাপ WGS84 উপবৃত্তের ওপর (জিওডেসিক)। ১ বিঘা = ২০ কাঠা = ১৪,৪০০ বর্গফুট = ৩৩.০৬ শতক; কোনো কোনো জেলায় স্থানীয় বিঘা আলাদা।', 'Measured on the WGS84 ellipsoid (geodesic). 1 bigha = 20 katha = 14,400 sq ft = 33.06 decimal; the local bigha differs in some districts.')}</p>
       </div>
 
       <div className="rounded-2xl border border-border p-3.5">
@@ -94,7 +94,7 @@ export function BoundaryFacts({ geometry, posErr = null, recordDec = null, compa
               <li key={`${pi}-${i}`}>{m.parts.length > 1 ? `${pi + 1}.` : ''}{i + 1}. {la.toFixed(7)}, {lo.toFixed(7)}</li>
             )))}
           </ol>
-          <p className="mt-1 text-[11.5px] text-muted">{T('অক্ষাংশ, দ্রাঘিমাংশ (WGS84, EPSG:4326)', 'Latitude, longitude (WGS84, EPSG:4326)')}</p>
+          <p className="mt-1 text-[12px] text-muted">{T('অক্ষাংশ, দ্রাঘিমাংশ (WGS84, EPSG:4326)', 'Latitude, longitude (WGS84, EPSG:4326)')}</p>
         </details>
       </div>
     </div>

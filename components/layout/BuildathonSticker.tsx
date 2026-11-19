@@ -35,7 +35,7 @@ export function BuildathonSticker() {
         )}
       </a>
       <a href="/judges" className="whitespace-nowrap rounded-full bg-amber-900 px-2.5 py-0.5 text-[10.5px] font-bold text-amber-50 hover:bg-amber-800 sm:px-3 sm:text-[12px]">
-        <span className="sm:hidden">Judge tour →</span><span className="hidden sm:inline">Judges: 2-minute tour →</span>
+        <span className="sm:hidden">Judge tour →</span><span className="hidden sm:inline">Judges: 3-minute tour →</span>
       </a>
       </div>
     </div>

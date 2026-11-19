@@ -33,7 +33,7 @@ export default function SupplyChart({ bins, real, mine, normal, dip, highlight =
   const { s, T } = useStore();
   const lang = s.lang;
   const weeks = [...bins.keys(), ...(real ? [...real.keys()] : []), ...(mine ? [...mine.keys()] : [])];
-  if (!weeks.length) return <div className="text-sm text-ink/50 p-4">{T('এই ফসলের কোনো পরিকল্পনা নেই', 'No plans for this crop')}</div>;
+  if (!weeks.length) return <div className="text-sm text-ink/75 p-4">{T('এই ফসলের কোনো পরিকল্পনা নেই', 'No plans for this crop')}</div>;
   const lo = Math.min(...weeks) - 1, hi = Math.max(...weeks) + 1;
   const limit = normal * HIGH_FACTOR;
   const data = [];
@@ -71,12 +71,12 @@ export default function SupplyChart({ bins, real, mine, normal, dip, highlight =
           <ComposedChart data={data} margin={{ top: 22, right: 8, left: -14, bottom: 0 }}>
             <CartesianGrid vertical={false} stroke="#eef0ec" />
             {dip && <ReferenceArea x1={labelOf(Math.max(dip[0], lo))} x2={labelOf(Math.min(dip[1], hi))} fill={DIP} fillOpacity={0.12} />}
-            <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#5d6a63' }} interval="preserveStartEnd" minTickGap={14} tickLine={false} axisLine={{ stroke: '#cfd6d1' }} />
-            <YAxis tick={{ fontSize: 11, fill: '#5d6a63' }} domain={[0, top]} ticks={ticks} tickFormatter={(v) => num(v, lang, { dp })} tickLine={false} axisLine={false}
-              label={{ value: T('টন', 't'), position: 'insideTopLeft', offset: 0, dx: 14, dy: -20, fontSize: 11, fill: '#5d6a63' }} />
+            <XAxis dataKey="label" tick={{ fontSize: 12, fill: '#5d6a63' }} interval="preserveStartEnd" minTickGap={14} tickLine={false} axisLine={{ stroke: '#cfd6d1' }} />
+            <YAxis tick={{ fontSize: 12, fill: '#5d6a63' }} domain={[0, top]} ticks={ticks} tickFormatter={(v) => num(v, lang, { dp })} tickLine={false} axisLine={false}
+              label={{ value: T('টন', 't'), position: 'insideTopLeft', offset: 0, dx: 14, dy: -20, fontSize: 12, fill: '#5d6a63' }} />
             <Tooltip content={tip} cursor={{ fill: 'rgba(19,38,27,.05)' }} />
             <ReferenceLine y={limit} stroke={LIMIT} strokeDasharray="5 4" ifOverflow="extendDomain"
-              label={legend ? undefined : { value: T('অতিরিক্ত সরবরাহের সীমা', 'Oversupply line'), position: 'insideTopRight', fontSize: 10.5, fill: LIMIT }} />
+              label={legend ? undefined : { value: T('অতিরিক্ত সরবরাহের সীমা', 'Oversupply line'), position: 'insideTopRight', fontSize: 12, fill: LIMIT }} />
             <Bar dataKey="others" stackId="a" fill={color} maxBarSize={56} radius={mine || real ? [0, 0, 0, 0] : [5, 5, 0, 0]} animationDuration={450}>
               {data.map((d) => <Cell key={d.w} fill={d.over ? OVER : color} fillOpacity={highlight.length && !highlight.includes(d.w) ? 0.45 : 0.9} />)}
             </Bar>

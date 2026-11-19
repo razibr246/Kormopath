@@ -44,7 +44,7 @@ export default function FieldRisks({ parcel, tm: tmIn, upazilaId }) {
               </div>
               <p className="mt-1.5 text-[13.5px] font-semibold leading-5 text-ink/85">{L(r.value)}</p>
               <p className="mt-1 text-[13px] leading-5 text-muted">{L(r.note)}</p>
-              <p className="mt-1.5 text-[11.5px] font-semibold uppercase tracking-wide text-ink/45">{r.src}</p>
+              <p className="mt-1.5 text-[12px] font-semibold uppercase tracking-wide text-ink/75">{r.src}</p>
             </li>
           );
         })}

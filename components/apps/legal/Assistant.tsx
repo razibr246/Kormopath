@@ -8,6 +8,7 @@ import { PROBLEM_CATEGORIES } from "@/lib/legal/taxonomy";
 import { GENERAL_TOPICS, INQUIRIES } from "@/lib/legal/inquiries";
 import { INDIGENOUS_LANGUAGES, interpretSemanticBridge, type IndigenousLanguage, type SemanticBridgeResult } from "@/lib/legal/semanticBridge";
 import { VoiceCall, speakText, stopSpeaking, type AssistReply } from "./VoiceCall";
+import { isOfflineEngine, OFFLINE_LABEL } from "@/lib/health/offline";
 
 /*
  * Legal assistant: ask in text or by a call. Ported from the Digital Legal Aid System's citizen chat and voice agent
@@ -104,7 +105,9 @@ function AnswerCard({ reply, bn, latest, scaleKey }: { reply: Reply; bn: boolean
           : <Link key={n.href} href={reply.categoryId && n.href === "/legal/apply" ? `${n.href}?category=${reply.categoryId}` : n.href} className="kp-btn-primary min-h-[44px]">{bn ? n.bn : n.en} <ArrowRight size={16} aria-hidden /></Link>))}
         <button type="button" onClick={() => void listen()} className="kp-btn-ghost min-h-[44px]"><Volume2 size={16} aria-hidden /> {speaking ? T("থামান", "Stop") : T("শুনুন", "Listen")}</button>
         <span className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[12px] font-semibold text-slate-600" data-testid={latest ? "assist-engine" : undefined} data-engine={reply.engine}>
-          {reply.engine === "rule-based" ? T("যাচাই করা নিয়মভিত্তিক উত্তর", "Verified rule-based answer") : `${T("এআই, যাচাই করা", "AI, checked")} · ${reply.engine}`}
+          {isOfflineEngine(reply.engine)
+            ? <span data-testid={latest ? "offline-label" : undefined}>{T(`${OFFLINE_LABEL.bn} · যাচাই করা নিয়ম থেকে`, `${OFFLINE_LABEL.en} · from checked rules`)}</span>
+            : `${T("এআই, যাচাই করা", "AI, checked")} · ${reply.engine}`}
         </span>
         <button type="button" onClick={() => setShowTrace((v) => !v)} className="text-[12.5px] font-semibold text-indigo-800 underline underline-offset-2" aria-expanded={showTrace}>{T("কীভাবে তৈরি হলো", "How this was made")}</button>
       </div>
@@ -197,6 +200,7 @@ export function Assistant() {
           </div>
         </div>
         <p className="max-w-[62ch] rounded-xl border border-indigo-200 bg-indigo-50/60 px-3 py-2 text-[13.5px] leading-relaxed text-indigo-950">{bn ? NOT_LEGAL_ADVICE_BN : NOT_LEGAL_ADVICE_EN}</p>
+        <p className="max-w-[62ch] text-[13px] text-slate-600">{T("এআই চালু থাকলে শুধু আপনার লেখা প্রশ্নটি Google-এ যায় (সংরক্ষণ বন্ধ)। ", "When AI is on, only your typed question goes to Google (storage off). ")}<Link href="/privacy" className="font-semibold text-indigo-800 underline underline-offset-2" data-testid="privacy-link">{T("গোপনীয়তা", "Privacy")}</Link></p>
         {community !== "bn" && <p className="max-w-[62ch] text-[13.5px] text-slate-600">{T("চাকমা ও মারমা শব্দের অর্থ একটি প্রাথমিক শব্দতালিকা থেকে আন্দাজ করা হয়; ভুল হতে পারে, তাই প্রতিবার আপনাকে নিশ্চিত করতে বলা হবে।", "Chakma and Marma words are interpreted from an early word list; it can be wrong, so you will be asked to confirm each time.")}</p>}
         <div className="flex flex-wrap gap-2" role="tablist" aria-label={T("কীভাবে জিজ্ঞাসা করবেন", "How to ask")}>
           <button type="button" role="tab" aria-selected={mode === "text"} onClick={() => setMode("text")} className={`kp-chip !h-11 ${mode === "text" ? "kp-chip-on" : ""}`}><Keyboard size={16} aria-hidden /> {T("লিখে জিজ্ঞাসা", "Ask by text")}</button>

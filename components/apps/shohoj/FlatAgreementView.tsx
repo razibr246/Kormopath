@@ -107,7 +107,7 @@ export function FlatAgreementView({ initialListing }: FlatAgreementViewProps) {
           <button
             type="button"
             onClick={() => setLang(lang === "bn" ? "en" : "bn")}
-            className="rounded-full border border-slate-300 px-3.5 py-1 text-[13px] font-bold hover:bg-slate-50"
+            className="rounded-full border border-slate-300 px-3.5 py-1 text-[13px] font-bold hover:bg-slate-50 min-h-[44px] min-w-[44px]"
           >
             {lang === "bn" ? "English Draft" : "বাংলা খসড়া"}
           </button>
@@ -131,7 +131,7 @@ export function FlatAgreementView({ initialListing }: FlatAgreementViewProps) {
                 value={ownerName}
                 onChange={(e) => setOwnerName(e.target.value)}
                 placeholder="যেমন: জনাব মোঃ সেলিম"
-                className="mt-1 w-full min-h-[40px] rounded-xl border border-slate-300 px-3 text-[14px]"
+                className="mt-1 w-full min-h-[40px] rounded-xl border border-slate-300 px-3 text-[14px] min-h-[44px]"
               />
             </div>
 
@@ -144,7 +144,7 @@ export function FlatAgreementView({ initialListing }: FlatAgreementViewProps) {
                 value={tenantName}
                 onChange={(e) => setTenantName(e.target.value)}
                 placeholder="যেমন: আরিফুল ইসলাম"
-                className="mt-1 w-full min-h-[40px] rounded-xl border border-slate-300 px-3 text-[14px]"
+                className="mt-1 w-full min-h-[40px] rounded-xl border border-slate-300 px-3 text-[14px] min-h-[44px]"
               />
             </div>
 
@@ -158,7 +158,7 @@ export function FlatAgreementView({ initialListing }: FlatAgreementViewProps) {
                   value={tenantNid}
                   onChange={(e) => setTenantNid(e.target.value)}
                   placeholder="NID বা Varsity ID"
-                  className="mt-1 w-full min-h-[40px] rounded-xl border border-slate-300 px-3 text-[13.5px]"
+                  className="mt-1 w-full min-h-[40px] rounded-xl border border-slate-300 px-3 text-[13.5px] min-h-[44px]"
                 />
               </div>
 
@@ -169,7 +169,7 @@ export function FlatAgreementView({ initialListing }: FlatAgreementViewProps) {
                   value={tenantPhone}
                   onChange={(e) => setTenantPhone(e.target.value)}
                   placeholder="01XXXXXXXXX"
-                  className="mt-1 w-full min-h-[40px] rounded-xl border border-slate-300 px-3 text-[13.5px] font-mono"
+                  className="mt-1 w-full min-h-[40px] rounded-xl border border-slate-300 px-3 text-[13.5px] font-mono min-h-[44px]"
                 />
               </div>
             </div>
@@ -181,7 +181,7 @@ export function FlatAgreementView({ initialListing }: FlatAgreementViewProps) {
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 placeholder="রোড, বাড়ি, ফ্ল্যাট নং, এলাকা"
-                className="mt-1 w-full min-h-[40px] rounded-xl border border-slate-300 px-3 text-[14px]"
+                className="mt-1 w-full min-h-[40px] rounded-xl border border-slate-300 px-3 text-[14px] min-h-[44px]"
               />
             </div>
 
@@ -194,7 +194,7 @@ export function FlatAgreementView({ initialListing }: FlatAgreementViewProps) {
                   type="text"
                   value={rentTaka}
                   onChange={(e) => setRentTaka(e.target.value)}
-                  className="mt-1 w-full min-h-[40px] rounded-xl border border-slate-300 px-3 text-[14px] font-mono font-bold text-emerald-900"
+                  className="mt-1 w-full min-h-[40px] rounded-xl border border-slate-300 px-3 text-[14px] font-mono font-bold text-emerald-900 min-h-[44px]"
                 />
               </div>
 
@@ -206,7 +206,7 @@ export function FlatAgreementView({ initialListing }: FlatAgreementViewProps) {
                   type="text"
                   value={advanceTaka}
                   onChange={(e) => setAdvanceTaka(e.target.value)}
-                  className="mt-1 w-full min-h-[40px] rounded-xl border border-slate-300 px-3 text-[14px] font-mono font-bold"
+                  className="mt-1 w-full min-h-[40px] rounded-xl border border-slate-300 px-3 text-[14px] font-mono font-bold min-h-[44px]"
                 />
               </div>
             </div>
@@ -222,7 +222,7 @@ export function FlatAgreementView({ initialListing }: FlatAgreementViewProps) {
                   max="28"
                   value={dueDay}
                   onChange={(e) => setDueDay(e.target.value)}
-                  className="mt-1 w-full min-h-[40px] rounded-xl border border-slate-300 px-3 text-[14px]"
+                  className="mt-1 w-full min-h-[40px] rounded-xl border border-slate-300 px-3 text-[14px] min-h-[44px]"
                 />
               </div>
 
@@ -236,7 +236,7 @@ export function FlatAgreementView({ initialListing }: FlatAgreementViewProps) {
                   max="6"
                   value={noticeMonths}
                   onChange={(e) => setNoticeMonths(e.target.value)}
-                  className="mt-1 w-full min-h-[40px] rounded-xl border border-slate-300 px-3 text-[14px]"
+                  className="mt-1 w-full min-h-[40px] rounded-xl border border-slate-300 px-3 text-[14px] min-h-[44px]"
                 />
               </div>
             </div>
@@ -247,7 +247,7 @@ export function FlatAgreementView({ initialListing }: FlatAgreementViewProps) {
                 rows={2}
                 value={billsNote}
                 onChange={(e) => setBillsNote(e.target.value)}
-                className="mt-1 w-full rounded-xl border border-slate-300 p-2.5 text-[13px]"
+                className="mt-1 w-full rounded-xl border border-slate-300 p-2.5 text-[13px] min-h-[44px]"
               />
             </div>
 
@@ -259,7 +259,7 @@ export function FlatAgreementView({ initialListing }: FlatAgreementViewProps) {
                 rows={2}
                 value={customRules}
                 onChange={(e) => setCustomRules(e.target.value)}
-                className="mt-1 w-full rounded-xl border border-slate-300 p-2.5 text-[13px]"
+                className="mt-1 w-full rounded-xl border border-slate-300 p-2.5 text-[13px] min-h-[44px]"
               />
             </div>
           </div>
@@ -278,7 +278,7 @@ export function FlatAgreementView({ initialListing }: FlatAgreementViewProps) {
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-[13px] font-bold text-slate-800 hover:bg-slate-50 shadow-2xs"
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-[13px] font-bold text-slate-800 hover:bg-slate-50 shadow-2xs min-h-[44px] min-w-[44px]"
                 >
                   {copied ? <Check size={14} className="text-emerald-700" /> : <Copy size={14} />}
                   <span>{copied ? "কপি হয়েছে!" : "কপি"}</span>
@@ -286,7 +286,7 @@ export function FlatAgreementView({ initialListing }: FlatAgreementViewProps) {
                 <button
                   type="button"
                   onClick={handleDownload}
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-[13px] font-bold text-slate-800 hover:bg-slate-50 shadow-2xs"
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-[13px] font-bold text-slate-800 hover:bg-slate-50 shadow-2xs min-h-[44px] min-w-[44px]"
                 >
                   <Download size={14} />
                   <span>ডাউনলোড</span>
@@ -294,7 +294,7 @@ export function FlatAgreementView({ initialListing }: FlatAgreementViewProps) {
                 <button
                   type="button"
                   onClick={handlePrint}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-3 py-1.5 text-[13px] font-bold text-white hover:bg-slate-800 shadow-2xs"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-3 py-1.5 text-[13px] font-bold text-white hover:bg-slate-800 shadow-2xs min-h-[44px] min-w-[44px]"
                 >
                   <Printer size={14} />
                   <span>প্রিন্ট</span>

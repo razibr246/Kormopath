@@ -480,14 +480,14 @@ export default function SoilColumn({ row, season, soc0, soil = {}, health, title
           <rect y={SKY} width={W} height={H - SKY} fill={`url(#side-${uid})`} pointerEvents="none" />
 
           {/* Depth scale. */}
-          {[10, 20].map((cm) => <g key={cm}><line x1="0" x2="6" y1={ycm(cm)} y2={ycm(cm)} stroke="#fff" strokeWidth=".8" opacity=".8" /><text x="8" y={ycm(cm) + 3} fontSize="8" fill="#fff" opacity=".8">{lang === 'bn' ? bnDigits(cm) : cm}</text></g>)}
-          <text x="6" y={H - 8} fontSize="8.5" fill="#fff" opacity=".85">{T('০–৩০ সেমি মাটি', 'Topsoil 0–30 cm')}</text>
+          {[10, 20].map((cm) => <g key={cm}><line x1="0" x2="6" y1={ycm(cm)} y2={ycm(cm)} stroke="#fff" strokeWidth=".8" opacity=".8" /><text x="8" y={ycm(cm) + 3} fontSize="12" fill="#fff" opacity=".8">{lang === 'bn' ? bnDigits(cm) : cm}</text></g>)}
+          <text x="6" y={H - 8} fontSize="12" fill="#fff" opacity=".85">{T('০–৩০ সেমি মাটি', 'Topsoil 0–30 cm')}</text>
         </svg>
         <div className="pointer-events-none absolute left-2 top-2 rounded-full bg-white/90 px-2 py-0.5 text-[12px] font-bold text-ink shadow-sm">{L(crop.name)}</div>
         <div className="pointer-events-none absolute bottom-2 right-1.5 rounded-lg bg-black/45 px-1.5 py-0.5 text-right text-white backdrop-blur-[2px] sm:bottom-7 sm:right-2 sm:px-2 sm:py-1">
-          <div className="hidden text-[10.5px] leading-none opacity-85 sm:block">{T('জৈব পদার্থ', 'Organic matter')}</div>
+          <div className="hidden text-[12px] leading-none opacity-85 sm:block">{T('জৈব পদার্থ', 'Organic matter')}</div>
           <div className="font-display text-[13px] font-bold leading-tight tabular sm:text-[17px]">{num(om, lang, { dp: 2 })}%</div>
-          <div className={`hidden text-[10.5px] font-semibold leading-none tabular sm:block ${dOm >= 0 ? 'text-lime-200' : 'text-red-200'}`}>{Math.abs(dOm) < 0.005 ? T('শুরুর মতো', 'as at start') : `${dOm > 0 ? '+' : '−'}${num(Math.abs(dOm), lang, { dp: 2 })} ${T('শুরু থেকে', 'since start')}`}</div>
+          <div className={`hidden text-[12px] font-semibold leading-none tabular sm:block ${dOm >= 0 ? 'text-lime-200' : 'text-red-200'}`}>{Math.abs(dOm) < 0.005 ? T('শুরুর মতো', 'as at start') : `${dOm > 0 ? '+' : '−'}${num(Math.abs(dOm), lang, { dp: 2 })} ${T('শুরু থেকে', 'since start')}`}</div>
         </div>
       </div>
     </figure>

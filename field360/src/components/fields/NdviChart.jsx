@@ -46,8 +46,8 @@ export default function NdviChart({ series, expected = [], season }) {
             <CartesianGrid stroke="#e7ece4" vertical={false} />
             {season && <ReferenceArea x1={Math.max(season.start, t0)} x2={Math.min(season.end, t1)} fill="#edc067" fillOpacity={0.12} ifOverflow="hidden" />}
             <XAxis dataKey="t" type="number" scale="time" domain={[t0, t1]} ticks={ticks} tickFormatter={fmtTick} allowDuplicatedCategory={false}
-              tick={{ fontSize: 11, fill: '#566a5e' }} tickLine={false} axisLine={{ stroke: '#d5ddd1' }} />
-            <YAxis domain={[0, 1]} ticks={[0, 0.25, 0.5, 0.75, 1]} tickFormatter={(v) => num(Math.round(v * 100), lang)} tick={{ fontSize: 11, fill: '#566a5e' }} tickLine={false} axisLine={false} />
+              tick={{ fontSize: 12, fill: '#566a5e' }} tickLine={false} axisLine={{ stroke: '#d5ddd1' }} />
+            <YAxis domain={[0, 1]} ticks={[0, 0.25, 0.5, 0.75, 1]} tickFormatter={(v) => num(Math.round(v * 100), lang)} tick={{ fontSize: 12, fill: '#566a5e' }} tickLine={false} axisLine={false} />
             <Tooltip content={<Tip lang={lang} T={T} />} cursor={{ stroke: '#8a9a8f', strokeDasharray: '3 3' }} />
             <Line data={typ} dataKey="v" type="monotone" stroke={TYPICAL} strokeWidth={2} strokeDasharray="5 5" dot={false} activeDot={false} isAnimationActive={false} />
             <Line data={obs} dataKey="ndvi" type="monotone" stroke={FIELD} strokeWidth={2} dot={dot} activeDot={{ r: 6, stroke: '#fff', strokeWidth: 2, fill: FIELD }} isAnimationActive={false} />

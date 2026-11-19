@@ -67,11 +67,11 @@ export function AdmissionCostEstimator() {
             </p>
           </div>
           <div className="rounded-2xl border border-emerald-200 bg-white p-4 text-center shrink-0 min-w-[160px] shadow-2xs">
-            <span className="text-[11.5px] font-bold text-slate-500 block">সম্ভাব্য মোট খরচ</span>
+            <span className="text-[12px] font-bold text-slate-500 block">সম্ভাব্য মোট খরচ</span>
             <div className="text-[24px] font-black text-emerald-800">
               ৳ {bnDigits(report.grandTotalBdt.toLocaleString("en-US"))}
             </div>
-            <span className="text-[11px] text-slate-500">{selectedUnits.length}টি ইউনিট নির্বাচিত</span>
+            <span className="text-[12px] text-slate-500">{selectedUnits.length}টি ইউনিট নির্বাচিত</span>
           </div>
         </div>
       </div>
@@ -108,16 +108,16 @@ export function AdmissionCostEstimator() {
                       isChecked
                         ? "border-emerald-600 bg-emerald-50/70 text-emerald-950 shadow-2xs"
                         : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
-                    }`}
+                    } min-h-[44px] min-w-[44px]`}
                   >
                     <div className="space-y-0.5 pr-2">
                       <div className="flex items-center gap-1.5">
-                        <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10.5px] font-bold text-slate-700">
+                        <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[12px] font-bold text-slate-700">
                           {item.universityShort}
                         </span>
                         <span className="text-[13px] font-bold">{item.unitNameBn}</span>
                       </div>
-                      <p className="text-[11.5px] text-slate-500">
+                      <p className="text-[12px] text-slate-500">
                         কেন্দ্র: {item.centerLocations.join(", ")}
                       </p>
                     </div>
@@ -125,7 +125,7 @@ export function AdmissionCostEstimator() {
                       <span className="text-[13px] font-black text-slate-900">
                         ৳ {bnDigits(item.estimatedFeeBdt)}
                       </span>
-                      <span className="block text-[11px] font-semibold text-amber-800">আনুমানিক · যাচাই হয়নি</span>
+                      <span className="block text-[12px] font-semibold text-amber-800">আনুমানিক · যাচাই হয়নি</span>
                     </div>
                   </button>
                 );
@@ -148,7 +148,7 @@ export function AdmissionCostEstimator() {
                 <select
                   value={applicantHomeDistrict}
                   onChange={(e) => setApplicantHomeDistrict(e.target.value)}
-                  className="w-full min-h-[40px] rounded-xl border border-slate-300 bg-white px-3 text-[14px]"
+                  className="w-full min-h-[40px] rounded-xl border border-slate-300 bg-white px-3 text-[14px] min-h-[44px]"
                 >
                   <option value="ঢাকা">ঢাকা বিভাগ (Dhaka)</option>
                   <option value="চট্টগ্রাম">চট্টগ্রাম (Chattogram)</option>
@@ -160,7 +160,7 @@ export function AdmissionCostEstimator() {
                   <option value="ময়মনসিংহ">ময়মনসিংহ (Mymensingh)</option>
                   <option value="অন্যান্য">অন্যান্য জেলা (Outside Dhaka)</option>
                 </select>
-                <p className="text-[11px] text-slate-500 mt-1">
+                <p className="text-[12px] text-slate-500 mt-1">
                   ঢাকার বাইরের শিক্ষার্থীদের বুয়েট/জাবি/রাবি ক্যাম্পাসে যাতায়াত খরচ যুক্ত হয়।
                 </p>
               </div>
@@ -172,7 +172,7 @@ export function AdmissionCostEstimator() {
                 <select
                   value={lodgingType}
                   onChange={(e) => setLodgingType(e.target.value as any)}
-                  className="w-full min-h-[40px] rounded-xl border border-slate-300 bg-white px-3 text-[14px]"
+                  className="w-full min-h-[40px] rounded-xl border border-slate-300 bg-white px-3 text-[14px] min-h-[44px]"
                 >
                   <option value="relatives">পরিচিত / আত্মীয়-স্বজনের বাসা (৳ ০)</option>
                   <option value="mess">বিশ্ববিদ্যালয়ের হল / ছাত্র মেস (গেস্ট) (~৳ ৬০০/রাত)</option>
@@ -190,9 +190,9 @@ export function AdmissionCostEstimator() {
                   max="8"
                   value={numberOfExamsRequiringTravel}
                   onChange={(e) => setNumberOfExamsRequiringTravel(Math.max(0, parseInt(e.target.value) || 0))}
-                  className="w-full min-h-[40px] rounded-xl border border-slate-300 bg-white px-3 text-[14px]"
+                  className="w-full min-h-[40px] rounded-xl border border-slate-300 bg-white px-3 text-[14px] min-h-[44px]"
                 />
-                <p className="text-[11px] text-slate-500 mt-1">
+                <p className="text-[12px] text-slate-500 mt-1">
                   যেসব পরীক্ষার কেন্দ্র আপনার নিজ শহরের বাইরে।
                 </p>
               </div>
@@ -212,10 +212,10 @@ export function AdmissionCostEstimator() {
                       setMockTestBudget(Math.round(val * 0.45));
                       setBooksBudget(Math.round(val * 0.55));
                     }}
-                    className="w-full min-h-[40px] rounded-xl border border-slate-300 bg-white px-3 text-[14px]"
+                    className="w-full min-h-[40px] rounded-xl border border-slate-300 bg-white px-3 text-[14px] min-h-[44px]"
                   />
                 </div>
-                <p className="text-[11px] text-slate-500 mt-1">
+                <p className="text-[12px] text-slate-500 mt-1">
                   কোচিং/অনলাইন মডেল টেস্ট ও প্রশ্নব্যাংক ক্রয়ের আনুমানিক ব্যয়।
                 </p>
               </div>

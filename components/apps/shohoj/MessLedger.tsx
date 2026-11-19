@@ -268,7 +268,7 @@ export function MessLedger() {
         <button
           type="button"
           onClick={() => setLang(bn ? "en" : "bn")}
-          className="kp-chip !h-8 !rounded-full !text-[12px] font-semibold"
+          className="kp-chip !h-11 !rounded-full !text-[12px] font-semibold !min-w-[44px]"
           aria-label={bn ? "Switch to English" : "বাংলায় দেখুন"}
         >
           {bn ? "EN" : "বাং"}
@@ -284,7 +284,7 @@ export function MessLedger() {
             subTab === "ledger"
               ? "bg-emerald-800 text-white shadow-sm"
               : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-          }`}
+          } min-w-[44px]`}
         >
           <UtensilsCrossed size={17} />
           <span>{T("১. মিলের খাতা ও মেস হিসাব", "1. Meal & Bazar Ledger")}</span>
@@ -297,7 +297,7 @@ export function MessLedger() {
             subTab === "directory"
               ? "bg-emerald-800 text-white shadow-sm"
               : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-          }`}
+          } min-w-[44px]`}
         >
           <Building2 size={17} />
           <span>{T("২. মেস ও ফ্ল্যাট ডিরেক্টরি", "2. Mess & Flat Directory")}</span>
@@ -310,7 +310,7 @@ export function MessLedger() {
             subTab === "post"
               ? "bg-emerald-800 text-white shadow-sm"
               : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-          }`}
+          } min-w-[44px]`}
         >
           <Plus size={17} />
           <span>{T("৩. বাসা/সিট পোস্ট করুন", "3. Post To-Let")}</span>
@@ -323,7 +323,7 @@ export function MessLedger() {
             subTab === "calculator"
               ? "bg-emerald-800 text-white shadow-sm"
               : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-          }`}
+          } min-w-[44px]`}
         >
           <Calculator size={17} />
           <span>{T("৪. বাজেট ও রুম ভাগ", "4. Budget & Room Split")}</span>
@@ -336,7 +336,7 @@ export function MessLedger() {
             subTab === "agreement"
               ? "bg-emerald-800 text-white shadow-sm"
               : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-          }`}
+          } min-w-[44px]`}
         >
           <FileText size={17} />
           <span>{T("৫. চুক্তিপত্রের খসড়া", "5. Tenancy Agreement")}</span>
@@ -402,7 +402,7 @@ export function MessLedger() {
                     }));
                     setDay("");
                   }}
-                  className={`${field} !min-h-[38px]`}
+                  className={`${field} !min-h-[38px] min-h-[44px]`}
                   aria-label={T("হিসাব শুরুর তারিখ", "Cycle start day")}
                 >
                   {Array.from({ length: 28 }, (_, i) => i + 1).map((d) => (
@@ -433,14 +433,14 @@ export function MessLedger() {
                 onChange={(e) => setNewName(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && addMember()}
                 placeholder={T("সদস্যের নাম, যেমন রাকিব", "Member name, e.g. Rakib")}
-                className={`${field} min-w-0 flex-1`}
+                className={`${field} min-w-0 flex-1 min-h-[44px]`}
               />
               <button
                 type="button"
                 data-testid="mess-add-member"
                 onClick={addMember}
                 disabled={!newName.trim() || st.members.length >= MAX_MEMBERS}
-                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl bg-slate-900 px-4 text-[15px] font-bold text-white disabled:opacity-50"
+                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl bg-slate-900 px-4 text-[15px] font-bold text-white disabled:opacity-50 min-w-[44px]"
               >
                 <UserPlus size={17} aria-hidden /> {T("যোগ করুন", "Add")}
               </button>
@@ -463,7 +463,7 @@ export function MessLedger() {
                         }))
                       }
                       title={T("এই মাসে আছেন / নেই", "In the mess this month / away")}
-                      className="font-semibold"
+                      className="font-semibold min-h-[44px] min-w-[44px]"
                     >
                       {m.name}
                       {!m.active && ` · ${T("নেই", "away")}`}
@@ -472,7 +472,7 @@ export function MessLedger() {
                       type="button"
                       onClick={() => removeMember(m.id)}
                       aria-label={T(`${m.name} মুছুন`, `Remove ${m.name}`)}
-                      className="grid h-7 w-7 place-items-center rounded-full text-slate-500 hover:text-red-700"
+                      className="grid h-11 w-11 place-items-center rounded-full text-slate-500 hover:text-red-700"
                     >
                       <Trash2 size={14} aria-hidden />
                     </button>
@@ -483,7 +483,7 @@ export function MessLedger() {
 
             <fieldset className="flex flex-wrap items-center gap-3 text-[14px]">
               <legend className="sr-only">{T("মিল রেট", "Meal rate")}</legend>
-              <label className="flex items-center gap-2">
+              <label className="flex items-center gap-2 min-h-[44px]">
                 <input
                   type="radio"
                   name="mess-mode"
@@ -493,7 +493,7 @@ export function MessLedger() {
                 />{" "}
                 {T("মোট বাজার ÷ মোট মিল", "Bazar ÷ meals")}
               </label>
-              <label className="flex items-center gap-2">
+              <label className="flex items-center gap-2 min-h-[44px]">
                 <input
                   type="radio"
                   name="mess-mode"
@@ -513,7 +513,7 @@ export function MessLedger() {
                       setSt((s) => ({ ...s, fixedRatePoisha: parseTaka(e.target.value) ?? 0 }))
                     }
                     aria-label={T("প্রতি মিলের রেট (টাকা)", "Rate per meal (taka)")}
-                    className={`${field} !min-h-[38px] w-28`}
+                    className={`${field} !min-h-[38px] w-28 min-h-[44px]`}
                     placeholder={T("প্রতি মিল", "per meal")}
                   />
                 </label>
@@ -538,7 +538,7 @@ export function MessLedger() {
                     <button
                       type="button"
                       onClick={() => setSt((s) => ({ ...s, rotaOffset: (s.rotaOffset + 1) % 1000 }))}
-                      className="rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-[13px] font-semibold text-amber-900"
+                      className="rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-[13px] font-semibold text-amber-900 min-h-[44px] min-w-[44px]"
                     >
                       {T("পরের জনকে দিন", "Pass to next")}
                     </button>
@@ -586,7 +586,7 @@ export function MessLedger() {
                                   ),
                                 }))
                               }
-                              className="min-h-[40px] rounded-lg border border-slate-300 bg-white px-1.5 text-[15px]"
+                              className="min-h-[40px] rounded-lg border border-slate-300 bg-white px-1.5 text-[15px] min-h-[44px]"
                               aria-label={`${m.name} ${bn ? sl.bn : sl.en}`}
                             >
                               {HALF_OPTIONS.map((h) => (
@@ -607,7 +607,7 @@ export function MessLedger() {
                                 meals: setGuests(s.meals, editDay, m.id, Number(e.target.value)),
                               }))
                             }
-                            className="min-h-[40px] rounded-lg border border-slate-300 bg-white px-1.5 text-[15px]"
+                            className="min-h-[40px] rounded-lg border border-slate-300 bg-white px-1.5 text-[15px] min-h-[44px]"
                             aria-label={T(`${m.name}-এর অতিথি মিল`, `${m.name}'s guest meals`)}
                           >
                             {Array.from({ length: 21 }, (_, h) => h).map((h) => (
@@ -682,7 +682,7 @@ export function MessLedger() {
                                   <button
                                     type="button"
                                     onClick={() => setDay(d)}
-                                    className={`h-8 w-full min-w-[34px] font-mono ${
+                                    className={`h-11 w-full min-w-[34px] font-mono ${
                                       d === editDay ? "bg-emerald-50" : ""
                                     } ${h ? "text-slate-900" : "text-slate-300"}`}
                                     aria-label={`${m.name} ${d}: ${mealsText(h, bn)}`}
@@ -713,7 +713,7 @@ export function MessLedger() {
                   <select
                     value={bz.by}
                     onChange={(e) => setBz({ ...bz, by: e.target.value })}
-                    className={`${field} w-full`}
+                    className={`${field} w-full min-h-[44px]`}
                     aria-label={T("কে বাজার করলেন", "Who paid")}
                   >
                     {active.map((m) => (
@@ -729,7 +729,7 @@ export function MessLedger() {
                       onChange={(e) => setBz({ ...bz, amount: e.target.value })}
                       placeholder={T("টাকা", "Taka")}
                       aria-label={T("বাজারের টাকা", "Bazar amount")}
-                      className={`${field} w-28`}
+                      className={`${field} w-28 min-h-[44px]`}
                     />
                     <input
                       value={bz.note}
@@ -737,7 +737,7 @@ export function MessLedger() {
                       onChange={(e) => setBz({ ...bz, note: e.target.value })}
                       placeholder={T("কী কিনলেন", "What")}
                       aria-label={T("নোট", "Note")}
-                      className={`${field} min-w-0 flex-1`}
+                      className={`${field} min-w-0 flex-1 min-h-[44px]`}
                     />
                   </div>
                   <button
@@ -766,7 +766,7 @@ export function MessLedger() {
                               setSt((s) => ({ ...s, bazar: s.bazar.filter((x) => x.id !== b.id) }))
                             }
                             aria-label={T("মুছুন", "Delete")}
-                            className="text-slate-400 hover:text-red-700"
+                            className="text-slate-500 hover:text-red-700 min-h-[44px] min-w-[44px]"
                           >
                             <Trash2 size={14} />
                           </button>
@@ -783,7 +783,7 @@ export function MessLedger() {
                   <select
                     value={dep.by}
                     onChange={(e) => setDep({ ...dep, by: e.target.value })}
-                    className={`${field} w-full`}
+                    className={`${field} w-full min-h-[44px]`}
                     aria-label={T("কে জমা দিলেন", "Who deposited")}
                   >
                     {active.map((m) => (
@@ -798,7 +798,7 @@ export function MessLedger() {
                     onChange={(e) => setDep({ ...dep, amount: e.target.value })}
                     placeholder={T("টাকা", "Taka")}
                     aria-label={T("জমার টাকা", "Deposit amount")}
-                    className={`${field} w-full`}
+                    className={`${field} w-full min-h-[44px]`}
                   />
                   <button
                     type="button"
@@ -824,7 +824,7 @@ export function MessLedger() {
                               setSt((s) => ({ ...s, deposits: s.deposits.filter((x) => x.id !== d.id) }))
                             }
                             aria-label={T("মুছুন", "Delete")}
-                            className="text-slate-400 hover:text-red-700"
+                            className="text-slate-500 hover:text-red-700 min-h-[44px] min-w-[44px]"
                           >
                             <Trash2 size={14} />
                           </button>
@@ -840,7 +840,7 @@ export function MessLedger() {
                     <select
                       value={ut.kind}
                       onChange={(e) => setUt({ ...ut, kind: e.target.value as UtilityKind })}
-                      className={`${field} min-w-0 flex-1`}
+                      className={`${field} min-w-0 flex-1 min-h-[44px]`}
                       aria-label={T("বিলের ধরন", "Bill type")}
                     >
                       {UTILITY_KINDS.map((k) => (
@@ -855,13 +855,13 @@ export function MessLedger() {
                       onChange={(e) => setUt({ ...ut, amount: e.target.value })}
                       placeholder={T("টাকা", "Taka")}
                       aria-label={T("বিলের টাকা", "Bill amount")}
-                      className={`${field} w-24`}
+                      className={`${field} w-24 min-h-[44px]`}
                     />
                   </div>
                   <select
                     value={ut.paidBy}
                     onChange={(e) => setUt({ ...ut, paidBy: e.target.value })}
-                    className={`${field} w-full`}
+                    className={`${field} w-full min-h-[44px]`}
                     aria-label={T("কে বিল দিলেন", "Paid by")}
                   >
                     <option value="">{T("ম্যানেজারের ক্যাশ বক্স থেকে", "From the manager's cash box")}</option>
@@ -901,7 +901,7 @@ export function MessLedger() {
                               }))
                             }
                             aria-label={T("মুছুন", "Delete")}
-                            className="text-slate-400 hover:text-red-700"
+                            className="text-slate-500 hover:text-red-700 min-h-[44px] min-w-[44px]"
                           >
                             <Trash2 size={14} />
                           </button>
@@ -1018,7 +1018,7 @@ export function MessLedger() {
                   <button
                     type="button"
                     onClick={copy}
-                    className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 text-[15px]"
+                    className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 text-[15px] min-w-[44px]"
                   >
                     <ClipboardCopy size={17} aria-hidden /> {T("হিসাব কপি করুন", "Copy sheet")}
                   </button>
@@ -1027,7 +1027,7 @@ export function MessLedger() {
                     onClick={() =>
                       downloadText(`mess-${st.cycleStart}.txt`, sheet, "text/plain;charset=utf-8")
                     }
-                    className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 text-[15px]"
+                    className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 text-[15px] min-w-[44px]"
                   >
                     <Download size={17} aria-hidden /> {T("ডাউনলোড", "Download")}
                   </button>
@@ -1035,7 +1035,7 @@ export function MessLedger() {
                     type="button"
                     data-testid="mess-close"
                     onClick={doClose}
-                    className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl bg-slate-900 px-4 text-[15px] font-bold text-white"
+                    className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl bg-slate-900 px-4 text-[15px] font-bold text-white min-w-[44px]"
                   >
                     <Lock size={17} aria-hidden /> {T("মাস বন্ধ করুন", "Close cycle")}
                   </button>
@@ -1052,7 +1052,7 @@ export function MessLedger() {
 
           {st.history.length > 0 && (
             <details className={card}>
-              <summary className="cursor-pointer text-[15px] font-bold">
+              <summary className="cursor-pointer text-[15px] font-bold min-h-[44px] min-w-[44px]">
                 {T(`আগের মাসগুলো (${N(st.history.length)})`, `Earlier cycles (${st.history.length})`)}
               </summary>
               <ul className="space-y-2">

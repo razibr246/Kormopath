@@ -44,7 +44,7 @@ export default function MessagePopup() {
         <ul className="max-h-[48vh] space-y-2.5 overflow-y-auto overscroll-contain scroll-thin p-4">
           {show.map((m, i) => (
             <li key={m.id} style={{ animation: 'page-in 0.4s var(--ease-spring) both', animationDelay: `${i * 65}ms` }} className="rounded-2xl border border-primary-100 bg-primary-50/70 p-3.5 transition-all duration-200 hover:border-primary-200 hover:shadow-sm">
-              {!s.remoteMsgs.some((remote) => remote.id === m.id) && <div className="mb-1 text-[11.5px] font-bold text-amber-800">{T('এই ব্রাউজারের ডেমো বার্তা · আসল বার্তা নয়', 'Local demo message · not an actual delivery')}</div>}
+              {!s.remoteMsgs.some((remote) => remote.id === m.id) && <div className="mb-1 text-[12px] font-bold text-amber-800">{T('এই ব্রাউজারের ডেমো বার্তা · আসল বার্তা নয়', 'Local demo message · not an actual delivery')}</div>}
               <div className="text-[12.5px] font-semibold text-primary-700">{kind(m)} · {fmtDate(m.at ?? m.sent, lang)}</div>
               <p className="mt-1 whitespace-pre-line text-[15px] leading-7 text-ink">{m.text}</p>
             </li>

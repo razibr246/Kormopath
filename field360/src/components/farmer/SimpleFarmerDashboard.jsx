@@ -385,12 +385,12 @@ export default function SimpleFarmerDashboard() {
           <div className="rounded-2xl border border-sky-200 bg-sky-50/70 p-3.5 shadow-2xs hover:shadow-xs transition-all">
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-[20px]">🛰️</span>
-              <span className="rounded bg-sky-200/80 px-1.5 py-0.5 text-[10px] font-black text-sky-900 font-mono">SMAP</span>
+              <span className="rounded bg-sky-200/80 px-1.5 py-0.5 text-[12px] font-black text-sky-900 font-mono">SMAP</span>
             </div>
             <div className="text-[13px] font-extrabold text-sky-950 leading-tight">
               {T('মাটির আর্দ্রতা', 'Root Soil Moisture')}
             </div>
-            <div className="text-[11px] font-semibold text-sky-800 mt-1 leading-snug">
+            <div className="text-[12px] font-semibold text-sky-800 mt-1 leading-snug">
               {isRed
                 ? T('শিকড়ে পানির টান (ঘাটতি)', 'Root zone dry')
                 : isAmber
@@ -403,12 +403,12 @@ export default function SimpleFarmerDashboard() {
           <div className="rounded-2xl border border-blue-200 bg-blue-50/70 p-3.5 shadow-2xs hover:shadow-xs transition-all">
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-[20px]">🌧️</span>
-              <span className="rounded bg-blue-200/80 px-1.5 py-0.5 text-[10px] font-black text-blue-900 font-mono">GPM IMERG</span>
+              <span className="rounded bg-blue-200/80 px-1.5 py-0.5 text-[12px] font-black text-blue-900 font-mono">GPM IMERG</span>
             </div>
             <div className="text-[13px] font-extrabold text-blue-950 leading-tight">
               {T('বৃষ্টিপাত ট্র্যাকার', 'Rainfall Tracker')}
             </div>
-            <div className="text-[11px] font-semibold text-blue-800 mt-1 leading-snug">
+            <div className="text-[12px] font-semibold text-blue-800 mt-1 leading-snug">
               {weather?.days?.[0]?.rain > 0
                 ? `${num(weather.days[0].rain, s.lang, { dp: 1 })} ${T('মিমি বৃষ্টির আভাস', 'mm rain forecast')}`
                 : T('আজ বৃষ্টির সম্ভাবনা কম', 'No rain expected today')}
@@ -419,12 +419,12 @@ export default function SimpleFarmerDashboard() {
           <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-3.5 shadow-2xs hover:shadow-xs transition-all">
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-[20px]">🌡️</span>
-              <span className="rounded bg-amber-200/80 px-1.5 py-0.5 text-[10px] font-black text-amber-900 font-mono">POWER / ECO</span>
+              <span className="rounded bg-amber-200/80 px-1.5 py-0.5 text-[12px] font-black text-amber-900 font-mono">POWER / ECO</span>
             </div>
             <div className="text-[13px] font-extrabold text-amber-950 leading-tight">
               {T('রোদ ও তাপদাহ', 'Heat & Evaporation')}
             </div>
-            <div className="text-[11px] font-semibold text-amber-800 mt-1 leading-snug">
+            <div className="text-[12px] font-semibold text-amber-800 mt-1 leading-snug">
               {num(Math.round(weather?.days?.[0]?.tmax ?? 28), s.lang)}{T('°সে · ফুল ফোটার তাপসীমা ৩৫°সে', '°C · Limit 35°C')}
             </div>
           </div>
@@ -433,12 +433,12 @@ export default function SimpleFarmerDashboard() {
           <div className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-3.5 shadow-2xs hover:shadow-xs transition-all">
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-[20px]">🌿</span>
-              <span className="rounded bg-emerald-200/80 px-1.5 py-0.5 text-[10px] font-black text-emerald-900 font-mono">Landsat NDVI</span>
+              <span className="rounded bg-emerald-200/80 px-1.5 py-0.5 text-[12px] font-black text-emerald-900 font-mono">Landsat NDVI</span>
             </div>
             <div className="text-[13px] font-extrabold text-emerald-950 leading-tight">
               {T('সবুজ ক্যানোপি', 'Green Canopy')}
             </div>
-            <div className="text-[11px] font-semibold text-emerald-800 mt-1 leading-snug">
+            <div className="text-[12px] font-semibold text-emerald-800 mt-1 leading-snug">
               {T('জমি আচ্ছাদন ও ক্ষয়রোধ', 'Vegetation cover vs erosion')}
             </div>
           </div>
@@ -447,12 +447,12 @@ export default function SimpleFarmerDashboard() {
           <div className="rounded-2xl border border-indigo-200 bg-indigo-50/70 p-3.5 shadow-2xs hover:shadow-xs transition-all">
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-[20px]">💧</span>
-              <span className="rounded bg-indigo-200/80 px-1.5 py-0.5 text-[10px] font-black text-indigo-900 font-mono">GRACE-FO</span>
+              <span className="rounded bg-indigo-200/80 px-1.5 py-0.5 text-[12px] font-black text-indigo-900 font-mono">GRACE-FO</span>
             </div>
             <div className="text-[13px] font-extrabold text-indigo-950 leading-tight">
               {T('ভূগর্ভস্থ পানি', 'Groundwater Level')}
             </div>
-            <div className="text-[11px] font-semibold text-indigo-800 mt-1 leading-snug">
+            <div className="text-[12px] font-semibold text-indigo-800 mt-1 leading-snug">
               {T('অ্যাকুইফারের পানি সঞ্চয়', 'Deep aquifer storage')}
             </div>
           </div>
@@ -461,12 +461,12 @@ export default function SimpleFarmerDashboard() {
           <div className="rounded-2xl border border-teal-200 bg-teal-50/70 p-3.5 shadow-2xs hover:shadow-xs transition-all">
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-[20px]">🏔️</span>
-              <span className="rounded bg-teal-200/80 px-1.5 py-0.5 text-[10px] font-black text-teal-900 font-mono">SRTM 30m</span>
+              <span className="rounded bg-teal-200/80 px-1.5 py-0.5 text-[12px] font-black text-teal-900 font-mono">SRTM 30m</span>
             </div>
             <div className="text-[13px] font-extrabold text-teal-950 leading-tight">
               {T('উচ্চতা ও প্লাবন', 'Elevation & Flood')}
             </div>
-            <div className="text-[11px] font-semibold text-teal-800 mt-1 leading-snug">
+            <div className="text-[12px] font-semibold text-teal-800 mt-1 leading-snug">
               {terrain ? `${num(terrain.elev, s.lang, { dp: 0 })} ${T('মি উঁচু', 'm ASL')}` : T('মাঝারি উঁচু জমি', 'Medium land')}
             </div>
           </div>
@@ -598,7 +598,7 @@ export default function SimpleFarmerDashboard() {
                       <div className="font-display text-[17px] font-black tabular text-ink">
                         {num(Math.round(d.tmax ?? 25), s.lang)}°C
                       </div>
-                      <div className="text-[11.5px] font-bold text-sky-800 mt-0.5">
+                      <div className="text-[12px] font-bold text-sky-800 mt-0.5">
                         {(d.rain ?? 0) > 0 ? `${num(d.rain, s.lang, { dp: 1 })} ${T('মিমি বৃষ্টি', 'mm rain')}` : T('বৃষ্টি নেই', 'No rain')}
                       </div>
                     </div>
@@ -660,10 +660,10 @@ export default function SimpleFarmerDashboard() {
               >
                 <div className="flex w-full items-center justify-between mb-1">
                   <Icon size={20} className={active ? 'text-amber-200' : 'text-primary-700'} />
-                  {active && <span className="rounded-full bg-white/20 px-1.5 py-0.2 text-[10px] font-black">✓</span>}
+                  {active && <span className="rounded-full bg-white/20 px-1.5 py-0.2 text-[12px] font-black">✓</span>}
                 </div>
                 <div className="font-display text-[14px] font-black leading-tight">{opt.label}</div>
-                <div className={`text-[11px] font-medium mt-0.5 ${active ? 'text-emerald-100' : 'text-muted'}`}>
+                <div className={`text-[12px] font-medium mt-0.5 ${active ? 'text-emerald-100' : 'text-muted'}`}>
                   {opt.sub}
                 </div>
               </button>
@@ -737,7 +737,7 @@ export default function SimpleFarmerDashboard() {
                 <div className="font-display mt-0.5 text-[20px] font-black text-emerald-950 tabular">
                   ৳ {num(chosen.netBigha, s.lang)}
                 </div>
-                <div className="text-[11px] text-emerald-700 font-semibold">{T('প্রতি বিঘা', 'per bigha')}</div>
+                <div className="text-[12px] text-emerald-700 font-semibold">{T('প্রতি বিঘা', 'per bigha')}</div>
               </div>
 
               <div className="rounded-2xl border border-primary-200 bg-primary-50/70 p-3.5 text-center min-w-[130px]">
@@ -748,7 +748,7 @@ export default function SimpleFarmerDashboard() {
                 <div className="font-display mt-0.5 text-[20px] font-black text-primary-950 tabular">
                   {num(chosen.yieldMaunds, s.lang, { dp: 1 })} {T('মণ', 'maund')}
                 </div>
-                <div className="text-[11px] text-primary-700 font-semibold">{T('মোট জমিতে', 'total yield')}</div>
+                <div className="text-[12px] text-primary-700 font-semibold">{T('মোট জমিতে', 'total yield')}</div>
               </div>
             </div>
           </div>
@@ -794,7 +794,7 @@ export default function SimpleFarmerDashboard() {
               <Sparkles size={18} />
             </span>
             <div>
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-bold text-amber-900">
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-0.5 text-[12px] font-bold text-amber-900">
                 <span>{T('নাসা স্পেস অ্যাপস ২০২৬ মূল চ্যালেঞ্জ', 'NASA Space Apps 2026 Core Challenge')}</span>
               </div>
               <h2 className="text-[20px] sm:text-[23px] font-black text-ink">
@@ -854,7 +854,7 @@ export default function SimpleFarmerDashboard() {
                       </div>
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className={`rounded-full px-2.5 py-0.5 text-[11px] border ${strat.badgeColor}`}>
+                          <span className={`rounded-full px-2.5 py-0.5 text-[12px] border ${strat.badgeColor}`}>
                             {strat.tag}
                           </span>
                         </div>
@@ -913,28 +913,28 @@ export default function SimpleFarmerDashboard() {
                   <div className="mt-3.5 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
                     {/* 1. Soil Organic Matter */}
                     <div className="rounded-2xl border border-border bg-white p-3 text-center shadow-2xs">
-                      <div className="text-[11px] font-bold text-muted flex items-center justify-center gap-1">
+                      <div className="text-[12px] font-bold text-muted flex items-center justify-center gap-1">
                         <Sprout size={13} className="text-emerald-700" />
                         <span>{T('১০ বছরে মাটির জৈব পদার্থ', '10-Yr Soil Carbon')}</span>
                       </div>
                       <div className={`font-display text-[18px] font-black mt-0.5 ${strat.s.dSoc >= 0 ? 'text-emerald-700' : 'text-amber-800'}`}>
                         {strat.s.dSoc >= 0 ? '+' : ''}{num(strat.s.dSoc, s.lang, { dp: 1 })}%
                       </div>
-                      <div className="text-[10.5px] font-semibold text-muted">
+                      <div className="text-[12px] font-semibold text-muted">
                         {strat.id === 'habit' ? T('বর্তমান অবস্থা', 'Baseline') : `${dSoc >= 0 ? '+' : ''}${num(dSoc, s.lang, { dp: 1 })}% ${T('সাশ্রয়ী বৃদ্ধি', 'gain')}`}
                       </div>
                     </div>
 
                     {/* 2. Water Saved */}
                     <div className="rounded-2xl border border-border bg-white p-3 text-center shadow-2xs">
-                      <div className="text-[11px] font-bold text-muted flex items-center justify-center gap-1">
+                      <div className="text-[12px] font-bold text-muted flex items-center justify-center gap-1">
                         <Droplets size={13} className="text-sky-700" />
                         <span>{T('বার্ষিক সেচের পানি', 'Annual Irrigation')}</span>
                       </div>
                       <div className="font-display text-[18px] font-black mt-0.5 text-sky-950">
                         {num(Math.round(strat.s.waterMm * WATER_M3_PER_MM_BIGHA), s.lang)} {T('ঘনমিটার/বিঘা', 'm³/bigha')}
                       </div>
-                      <div className="text-[10.5px] font-semibold text-sky-800">
+                      <div className="text-[12px] font-semibold text-sky-800">
                         {strat.id === 'habit'
                           ? T('বর্তমান পানির খরচ', 'Baseline use')
                           : dWater > 0
@@ -945,14 +945,14 @@ export default function SimpleFarmerDashboard() {
 
                     {/* 3. Profit */}
                     <div className="rounded-2xl border border-border bg-white p-3 text-center shadow-2xs">
-                      <div className="text-[11px] font-bold text-muted flex items-center justify-center gap-1">
+                      <div className="text-[12px] font-bold text-muted flex items-center justify-center gap-1">
                         <Coins size={13} className="text-amber-700" />
                         <span>{T('বার্ষিক মোট লাভ', 'Annual Profit')}</span>
                       </div>
                       <div className="font-display text-[18px] font-black mt-0.5 text-ink">
                         ৳ {num(Math.round(strat.s.money), s.lang)}
                       </div>
-                      <div className="text-[10.5px] font-semibold text-emerald-800">
+                      <div className="text-[12px] font-semibold text-emerald-800">
                         {strat.id === 'habit'
                           ? T('বর্তমান লাভ', 'Baseline profit')
                           : dMoney > 0
@@ -963,14 +963,14 @@ export default function SimpleFarmerDashboard() {
 
                     {/* 4. Weather Risk */}
                     <div className="rounded-2xl border border-border bg-white p-3 text-center shadow-2xs">
-                      <div className="text-[11px] font-bold text-muted flex items-center justify-center gap-1">
+                      <div className="text-[12px] font-bold text-muted flex items-center justify-center gap-1">
                         <Flame size={13} className="text-amber-600" />
                         <span>{T('আবহাওয়ার ঝুঁকি', 'Weather Risk')}</span>
                       </div>
                       <div className="font-display text-[18px] font-black mt-0.5 text-ink">
                         {num(riskPct, s.lang)}%
                       </div>
-                      <div className="text-[10.5px] font-semibold text-muted">
+                      <div className="text-[12px] font-semibold text-muted">
                         {T('১৩ মৌসুমে সীমা অতিক্রম', 'Seasons crossing limits')}
                       </div>
                     </div>
@@ -1118,7 +1118,7 @@ export default function SimpleFarmerDashboard() {
           <div className="rounded-2xl border border-amber-200 bg-amber-50/60 p-4 space-y-2 shadow-2xs">
             <div className="flex items-center justify-between">
               <span className="text-[20px]">🍂</span>
-              <span className="rounded-full bg-amber-200 px-2.5 py-0.5 text-[10.5px] font-bold text-amber-950">
+              <span className="rounded-full bg-amber-200 px-2.5 py-0.5 text-[12px] font-bold text-amber-950">
                 {T('চৈত্র–বৈশাখ / কার্তিক', 'Fallow Months')}
               </span>
             </div>
@@ -1131,7 +1131,7 @@ export default function SimpleFarmerDashboard() {
                 'Landsat/MODIS shows bare soil surface exceeds 42°C; moisture evaporates rapidly and early nor’wester rains wash topsoil away.'
               )}
             </p>
-            <div className="rounded-xl bg-white/80 p-2 text-[11.5px] font-bold text-emerald-800">
+            <div className="rounded-xl bg-white/80 p-2 text-[12px] font-bold text-emerald-800">
               {T('💡 সমাধান: মুগ ডাল বা ধইঞ্চা কভার ক্রপ লাগালে শিকড় আর্দ্রতা ধরে রাখে।', '💡 Fix: Legume cover crops keep living roots and conserve moisture.')}
             </div>
           </div>
@@ -1140,7 +1140,7 @@ export default function SimpleFarmerDashboard() {
           <div className="rounded-2xl border border-red-200 bg-red-50/60 p-4 space-y-2 shadow-2xs">
             <div className="flex items-center justify-between">
               <span className="text-[20px]">🔥</span>
-              <span className="rounded-full bg-red-200 px-2.5 py-0.5 text-[10.5px] font-bold text-red-950">
+              <span className="rounded-full bg-red-200 px-2.5 py-0.5 text-[12px] font-bold text-red-950">
                 {T('চৈত্র মাসে ফুল ফোটা', 'Flowering Period')}
               </span>
             </div>
@@ -1153,7 +1153,7 @@ export default function SimpleFarmerDashboard() {
                 'NASA POWER & ECOSTRESS show >35°C for 3 consecutive days during anthesis causes pollen sterility and 30-40% yield loss.'
               )}
             </p>
-            <div className="rounded-xl bg-white/80 p-2 text-[11.5px] font-bold text-red-800">
+            <div className="rounded-xl bg-white/80 p-2 text-[12px] font-bold text-red-800">
               {T('💡 সমাধান: জমিতে সেচের পানি ধরে রেখে ঠান্ডা রাখা অথবা সরিষা/গম চক্র।', '💡 Fix: Maintain standing water to cool canopy or shift to mustard/wheat.')}
             </div>
           </div>
@@ -1162,7 +1162,7 @@ export default function SimpleFarmerDashboard() {
           <div className="rounded-2xl border border-sky-200 bg-sky-50/60 p-4 space-y-2 shadow-2xs">
             <div className="flex items-center justify-between">
               <span className="text-[20px]">🌊</span>
-              <span className="rounded-full bg-sky-200 px-2.5 py-0.5 text-[10.5px] font-bold text-sky-950">
+              <span className="rounded-full bg-sky-200 px-2.5 py-0.5 text-[12px] font-bold text-sky-950">
                 {T('আষাঢ়–শ্রাবণ রোপণ', 'Transplanting Window')}
               </span>
             </div>
@@ -1175,7 +1175,7 @@ export default function SimpleFarmerDashboard() {
                 'GPM IMERG rain anomalies cause planting delays; SRTM DEM identifies low hollows at risk of sudden flood submergence.'
               )}
             </p>
-            <div className="rounded-xl bg-white/80 p-2 text-[11.5px] font-bold text-sky-800">
+            <div className="rounded-xl bg-white/80 p-2 text-[12px] font-bold text-sky-800">
               {T('💡 সমাধান: রোপণ রাডার সংকেত মেনে চলা ও সুব-১ বন্যা-সহনশীল জাত ব্যবহার।', '💡 Fix: Follow radar onset dates and plant Sub-1 submergence-tolerant rice.')}
             </div>
           </div>
@@ -1234,7 +1234,7 @@ export default function SimpleFarmerDashboard() {
                   <div className="font-display mt-1 text-[24px] font-black tabular">
                     {num(item.kg, s.lang)} {T('কেজি', 'kg')}
                   </div>
-                  <div className="mt-1 text-[10.5px] font-semibold opacity-75">
+                  <div className="mt-1 text-[12px] font-semibold opacity-75">
                     {T('শেষ চাষে প্রয়োগ', 'Apply at final ploughing')}
                   </div>
                 </div>
@@ -1314,7 +1314,7 @@ export default function SimpleFarmerDashboard() {
               <ShieldCheck size={26} />
             </div>
             <div className="space-y-1">
-              <div className="inline-flex items-center gap-1.5 text-[11.5px] font-bold uppercase tracking-wider text-emerald-800">
+              <div className="inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-wider text-emerald-800">
                 <span>{T('নাসার মানবিক সহায়তা নীতি', 'NASA Human Judgment Principle')}</span>
               </div>
               <h3 className="text-[17px] sm:text-[18px] font-black text-ink">

@@ -58,7 +58,7 @@ export function BackButton({ className = '' }) {
   const back = () => ((window.history.state?.idx ?? 0) > 0 ? navigate(-1) : navigate('/'));
   return (
     <button type="button" onClick={back} aria-label={T('আগের পাতায় ফিরে যান', 'Go back to the previous page')}
-      className={`group inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full border border-border bg-white px-3 text-[14px] font-semibold text-ink/80 shadow-2xs transition-all duration-200 hover:border-primary-300 hover:bg-primary-50 hover:text-ink hover:scale-105 active:scale-95 ${className}`}>
+      className={`group inline-flex h-11 min-w-11 justify-center shrink-0 items-center gap-1.5 rounded-full border border-border bg-white px-3 text-[14px] font-semibold text-ink/80 shadow-2xs transition-all duration-200 hover:border-primary-300 hover:bg-primary-50 hover:text-ink hover:scale-105 active:scale-95 ${className}`}>
       <ArrowLeft size={17} className="transition-transform duration-200 group-hover:-translate-x-0.5" /><span className="hidden sm:inline">{T('ফিরে যান', 'Back')}</span>
     </button>
   );
@@ -69,7 +69,7 @@ export function DataStatusChips({ dark = false }) {
   const real = (active ?? clim).prov.status === 'REAL'; // the climate of the farmer's or officer's own upazila
   const soilReal = soilData.provenance.status === 'REAL';
   const open = () => dispatch({ type: 'set', patch: { dataInfo: true } });
-  const base = 'chip !px-2.5 !py-1 cursor-pointer';
+  const base = 'chip !text-[12px] !px-2.5 !py-1 cursor-pointer';
   return (
     <div className="flex flex-wrap items-center gap-1.5">
       <button

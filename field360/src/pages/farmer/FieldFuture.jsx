@@ -38,7 +38,7 @@ import {
 import { BIGHA_HA } from '../../engine/crops';
 
 const GREEN = '#2f6e2f', GOLD = '#b8761b', SLATE = '#6b7a72', TEAL = '#2f8a8f', MUTED = '#5d6a63', GRID = '#eef0ec';
-const tick = { fontSize: 11, fill: MUTED };
+const tick = { fontSize: 12, fill: MUTED };
 const SEASON_NAMES = [{ bn: 'রবি', en: 'Rabi' }, { bn: 'খরিফ-১', en: 'Kharif-1' }, { bn: 'আমন', en: 'Aman' }];
 const SCEN = { ssp245: { bn: 'মাঝারি পথ (SSP2-4.5)', en: 'Middle road (SSP2-4.5)' }, ssp585: { bn: 'বেশি নিঃসরণ (SSP5-8.5)', en: 'High emissions (SSP5-8.5)' } };
 // Rounded first, so a tiny change reads 0, not −0.
@@ -114,7 +114,7 @@ function FeatureCatalog({ T, L }) {
             <span className="text-[14px] font-bold text-primary-950">
               {T('পাতার ১৯টি বৈজ্ঞানিক মডেল ও ফিচার সূচি', 'Index of all 19 scientific models & features on this page')}
             </span>
-            <span className="ml-2 rounded-full bg-primary-100 px-2 py-0.5 text-[11px] font-extrabold text-primary-800">
+            <span className="ml-2 rounded-full bg-primary-100 px-2 py-0.5 text-[12px] font-extrabold text-primary-800">
               {T('১৯টি ফিচার', '19 Features')}
             </span>
           </div>
@@ -143,7 +143,7 @@ function FeatureCatalog({ T, L }) {
                     className="w-full text-left flex items-center justify-between gap-1.5 rounded-lg px-2 py-1 text-[12px] font-semibold text-ink/85 hover:bg-primary-100 hover:text-primary-950 transition-all cursor-pointer"
                   >
                     <span className="truncate">{it.name}</span>
-                    <span className="shrink-0 rounded bg-black/[0.05] px-1 py-0.2 text-[9.5px] font-mono font-bold text-muted">
+                    <span className="shrink-0 rounded bg-black/[0.05] px-1 py-0.2 text-[12px] font-mono font-bold text-muted">
                       {it.tag}
                     </span>
                   </button>
@@ -546,7 +546,7 @@ function Compare({ ff, ownE, second, sumOf, ctx, rotName }) {
           <thead>
             <tr className="text-left">
               <th className="sticky left-0 z-[1] bg-white py-2 pr-2 font-semibold text-muted sm:static sm:bg-transparent" />
-              {list.map((c) => <th key={c.id} className="px-2 py-2 align-bottom"><div className="font-bold" style={{ color: c.tone }}>{c.name}</div><div className="mt-0.5 whitespace-pre-line text-[11.5px] font-normal leading-4 text-muted">{rotName(c.e.rot)}</div></th>)}
+              {list.map((c) => <th key={c.id} className="px-2 py-2 align-bottom"><div className="font-bold" style={{ color: c.tone }}>{c.name}</div><div className="mt-0.5 whitespace-pre-line text-[12px] font-normal leading-4 text-muted">{rotName(c.e.rot)}</div></th>)}
             </tr>
           </thead>
           <tbody>
@@ -756,7 +756,7 @@ function Robust({ ff, ownE, base, scen, rotName, onEdit }) {
               {rows.map((x) => (
                 <tr key={keyOf(x.rot)} className={`border-t border-border ${x === top ? 'bg-primary-50/60' : ''}`}>
                   <td className="py-2 pr-2">
-                    <div className="flex flex-wrap items-center gap-1">{tag(x.rot).map(([l, c]) => <span key={l} className="rounded-full px-1.5 py-0.5 text-[11px] font-bold text-white" style={{ background: c }}>{l}</span>)}</div>
+                    <div className="flex flex-wrap items-center gap-1">{tag(x.rot).map(([l, c]) => <span key={l} className="rounded-full px-1.5 py-0.5 text-[12px] font-bold text-white" style={{ background: c }}>{l}</span>)}</div>
                     <div className="mt-0.5 max-w-[320px] text-[12.5px] leading-5">{rotName(x.rot, { short: true })}</div>
                   </td>
                   <td className="px-2 py-2">
@@ -822,7 +822,7 @@ function Builder({ ctx, rot, setRot, e, sumOf, best }) {
   const reasonText = (k) => (k.reason === 'window' ? T('বোনার সময় পেরিয়ে যায়', 'Past its sowing window') : k.reason === 'aman' ? T('আমনের আগে উঠবে না', 'Not off before the Aman') : '');
   const chip = (on, disabled, label, onClick, title) => (
     <button key={label} type="button" disabled={disabled} title={title} onClick={onClick}
-      className={`min-h-9 rounded-full border px-3 py-1.5 text-[13.5px] font-semibold transition ${on ? 'border-primary-700 bg-primary-700 text-white' : disabled ? 'cursor-not-allowed border-dashed border-border bg-transparent text-muted/60 line-through' : 'border-border bg-white hover:border-primary-300 hover:bg-primary-50'}`}>{label}</button>
+      className={`min-h-9 rounded-full border px-3 py-1.5 text-[13.5px] font-semibold transition ${on ? 'border-primary-700 bg-primary-700 text-white' : disabled ? 'cursor-not-allowed border-dashed border-border bg-transparent text-muted line-through' : 'border-border bg-white hover:border-primary-300 hover:bg-primary-50'}`}>{label}</button>
   );
   return (
     <Card id="ff-build" className="mt-5 scroll-mt-40 p-4 sm:p-5">
@@ -877,7 +877,7 @@ const PRINCIPLES = {
   carbon: { bn: 'জৈব পদার্থ বাড়ানো', en: 'Building organic matter' },
 };
 function Mini({ label, value, sub, tone = 'text-ink' }) {
-  return <div className="rounded-xl border border-border bg-white px-3 py-2"><div className="text-[12px] font-semibold text-muted">{label}</div><div className={`font-display text-[20px] font-bold tabular ${tone}`}>{value}</div><div className="text-[11.5px] text-muted">{sub}</div></div>;
+  return <div className="rounded-xl border border-border bg-white px-3 py-2"><div className="text-[12px] font-semibold text-muted">{label}</div><div className={`font-display text-[20px] font-bold tabular ${tone}`}>{value}</div><div className="text-[12px] text-muted">{sub}</div></div>;
 }
 
 // ───────── charts: organic matter over ten years, and every rotation on money against soil ─────────
@@ -933,7 +933,7 @@ function Charts({ ff, ownE, rowsOf, sumOf, ctx, rotName, w }) {
                 <XAxis type="number" dataKey="x" tick={tick} tickLine={false} tickFormatter={(v) => `৳${num(v, lang)}`} name="profit" />
                 <YAxis type="number" dataKey="y" tick={tick} tickLine={false} axisLine={false} width={40} tickFormatter={(v) => `${num(v, lang)}%`} />
                 <ZAxis range={[22, 22]} />
-                <ReferenceLine y={0} stroke={MUTED} strokeDasharray="4 3" label={{ value: T('মাটি যেমন ছিল', 'Soil as it is'), position: 'insideTopLeft', fontSize: 11, fill: MUTED }} />
+                <ReferenceLine y={0} stroke={MUTED} strokeDasharray="4 3" label={{ value: T('মাটি যেমন ছিল', 'Soil as it is'), position: 'insideTopLeft', fontSize: 12, fill: MUTED }} />
                 <Tooltip content={tip} cursor={{ strokeDasharray: '3 3' }} />
                 <Scatter data={pts} fill="#9fb3a6" fillOpacity={0.45} isAnimationActive={false} />
                 {marks.map((m) => <Scatter key={m[0].label} data={m} fill={m[0].c} shape={(p) => <circle cx={p.cx} cy={p.cy} r={7} fill={m[0].c} stroke="#fff" strokeWidth={2} />} />)}

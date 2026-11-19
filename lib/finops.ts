@@ -266,7 +266,22 @@ export interface AitCalculationInput {
   contractType: FreelanceContractType;
   hasPsr: boolean; // Proof of Submission of Return (রিটার্ন জমার প্রমাণক)
   hasTin: boolean; // 12-digit e-TIN
+  /** The base TDS rate printed on the deductor's certificate or challan. The built-in defaults are common rates
+   * reported by tax guides, not verified against an official NBR schedule, so the user should enter their own. */
+  ratePct?: number;
 }
+
+/** Sources behind the AIT statements (checked 2026-11-19). No NBR document could be read to confirm them
+ * (NBR PDFs use legacy Bangla fonts and refused automated download), so every item below is "secondary":
+ * official-body statements reported by the press or a Big-Four firm. The local service rates have no source: unverified. */
+export const AIT_SOURCES = [
+  { label: "Bangladesh Bank: no source tax may be deducted from IT freelancing remittances (TBS report)", url: "https://www.tbsnews.net/economy/banking/no-source-tax-can-be-deducted-it-freelancing-sector-cenbank-710314", checked: "2026-11-19", confidence: "secondary" },
+  { label: "Income Tax Act 2023, Sixth Schedule (Part 1): IT-enabled services/freelancing income exemption (Daily Star explainer)", url: "https://online-d11.thedailystar.net/business/news/foreign-remittance-income-freelancing-or-remote-work-tax-free-or-taxable-4084906", checked: "2026-11-19", confidence: "secondary" },
+  { label: "Income Tax Act 2023 full text (NBR; legacy-font PDF, not machine-readable, so not checked line by line)", url: "https://nbr.gov.bd/uploads/acts/Income_tax_act_2023.pdf", checked: "2026-11-19", confidence: "official-unread" },
+  { label: "KPMG: tax deducted at a 50% higher rate when the payee has no Proof of Submission of Return", url: "https://assets.kpmg.com/content/dam/kpmg/bd/pdf/TaxUpdate/Salient_features_of_Finance_Ordinance_June_2025.pdf", checked: "2026-11-19", confidence: "secondary" },
+] as const;
+/** Common base rates reported by tax guides; NOT verified against the official schedule (user should override). */
+export const AIT_DEFAULT_RATES_UNVERIFIED = { local_corporate_it: 5, local_corporate_consulting: 10 } as const;
 
 export interface AitCalculationResult {
   grossBdt: number;
@@ -281,6 +296,8 @@ export interface AitCalculationResult {
   incentiveAmountBdt: number;
   lawReference: string;
   adviceBn: string;
+  /** false when the base rate is the unverified default rather than the user's own certificate rate. */
+  rateFromUser: boolean;
 }
 
 /**
@@ -303,6 +320,7 @@ export function calculateFreelancerAIT(input: AitCalculationInput): AitCalculati
       incentiveAmountBdt: 0,
       lawReference: "আয়কর আইন ২০২৩",
       adviceBn: "ইনভয়েসের টাকার পরিমাণ দিন।",
+      rateFromUser: false,
     };
   }
 
@@ -319,8 +337,9 @@ export function calculateFreelancerAIT(input: AitCalculationInput): AitCalculati
       isTaxExempt: true,
       incentiveEligible: true,
       incentiveAmountBdt,
-      lawReference: "আয়কর আইন ২০২৩ এর ৭৬ ধারা ও ৬ষ্ঠ তফসিল (অংশ ক, অনুচ্ছেদ ২১); বাংলাদেশ ব্যাংক এফই সার্কুলার",
+      lawReference: "আয়কর আইন ২০২৩, ষষ্ঠ তফসিল (অংশ ১): আইটি ফ্রিল্যান্সিং আয় করমুক্ত; বাংলাদেশ ব্যাংক: এই রেমিট্যান্স থেকে উৎসে কর কাটা যাবে না। মেয়াদ ও শর্ত প্রতি বাজেটে বদলাতে পারে — এনবিআর বা কর আইনজীবীর কাছে যাচাই করুন।",
       adviceBn: "বৈধ ব্যাংকিং চ্যানেলে রেমিট্যান্স আনলে এবং পিআরসি (PRC) সংগ্রহ করলে কোনো উৎসে কর নেই এবং ২.৫% সরকারি নগদ প্রণোদনা পাবেন।",
+      rateFromUser: false,
     };
   }
 
@@ -337,12 +356,14 @@ export function calculateFreelancerAIT(input: AitCalculationInput): AitCalculati
       incentiveEligible: false,
       incentiveAmountBdt: 0,
       lawReference: "আয়কর আইন ২০২৩ — ব্যক্তি পর্যায়ের প্রত্যক্ষ কর",
-      adviceBn: "ব্যক্তিগত ক্লায়েন্ট উৎসে কর কাটে না। বার্ষিক মোট আয় করমুক্ত সীমা (৳৩,৫০,০০০) অতিক্রম করলে বার্ষিক রিটার্নে স্বনির্ধারিত কর প্রদান করতে হবে।",
+      adviceBn: "ব্যক্তিগত ক্লায়েন্ট সাধারণত উৎসে কর কাটে না। বার্ষিক মোট আয় করমুক্ত সীমা ছাড়ালে বার্ষিক রিটার্নে নিজে কর দিতে হবে — চলতি বছরের সীমা এনবিআর-এর সাইটে দেখে নিন।",
+      rateFromUser: false,
     };
   }
 
   const isConsulting = input.contractType === "local_corporate_consulting";
-  const baseRatePct = isConsulting ? 10 : 5;
+  const userRate = typeof input.ratePct === "number" && Number.isFinite(input.ratePct) && input.ratePct >= 0 && input.ratePct <= 30 ? input.ratePct : null;
+  const baseRatePct = userRate ?? AIT_DEFAULT_RATES_UNVERIFIED[isConsulting ? "local_corporate_consulting" : "local_corporate_it"];
   const psrPenaltyApplied = !input.hasPsr;
   const effectiveRatePct = psrPenaltyApplied ? baseRatePct * 1.5 : baseRatePct;
 
@@ -350,12 +371,15 @@ export function calculateFreelancerAIT(input: AitCalculationInput): AitCalculati
   const netReceivableBdt = grossBdt - aitAmountBdt;
 
   const lawReference = psrPenaltyApplied
-    ? "আয়কর আইন ২০২৩ এর সেকশন ৫২/৫২এএ এবং ১২৪ ধারা (রিটার্ন জমার প্রমাণক না থাকলে ৫০% অতিরিক্ত কর)"
-    : "আয়কর আইন ২০২৩ এর সেকশন ৫২/৫২এএ (স্বাভাবিক উৎসে কর হার)";
+    ? "আয়কর আইন ২০২৩: রিটার্ন জমার প্রমাণক (PSR) না থাকলে উৎসে কর ৫০% বেশি হারে কাটা হয়"
+    : "আয়কর আইন ২০২৩: সেবার বিপরীতে উৎসে কর (হার উৎসে কর বিধিমালা অনুযায়ী)";
 
   const adviceBn = psrPenaltyApplied
     ? `ট্যাক্স রিটার্ন জমার প্রমাণক (PSR) জমা না দেওয়ায় ৫০% অতিরিক্ত উৎসে কর (${effectiveRatePct}%) কর্তন হবে। পিএসআর জমা দিলে কর কমবে ${baseRatePct}%-এ।`
-    : `পিএসআর জমা থাকায় প্রযোজ্য স্বাভাবিক ${baseRatePct}% উৎসে কর কর্তন হবে। কর্তনকারী প্রতিষ্ঠান থেকে সেকশন ৫৩ চালান বা প্রত্যয়নপত্র সংগ্রহ করুন।`;
+    : `পিএসআর জমা থাকায় ${baseRatePct}% উৎসে কর কর্তন ধরা হয়েছে। কর্তনকারী প্রতিষ্ঠান থেকে উৎসে কর কর্তনের প্রত্যয়নপত্র বা চালান সংগ্রহ করুন।`;
+  const rateNote = userRate === null
+    ? ` (${baseRatePct}% একটি সাধারণ হার, সরকারি তফসিলে যাচাই করা নয় — আপনার প্রত্যয়নপত্রের হার বসান।)`
+    : "";
 
   return {
     grossBdt,
@@ -369,6 +393,7 @@ export function calculateFreelancerAIT(input: AitCalculationInput): AitCalculati
     incentiveEligible: false,
     incentiveAmountBdt: 0,
     lawReference,
-    adviceBn,
+    adviceBn: adviceBn + rateNote,
+    rateFromUser: userRate !== null,
   };
 }

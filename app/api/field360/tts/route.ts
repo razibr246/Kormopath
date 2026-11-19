@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
+import { checkRateLimitShared, rateLimitResponse } from "@/lib/rateLimit";
 import { Tracer } from "@/lib/trace";
 import { TTS_MODELS, geminiAvailable, interact, outputAudio } from "@/lib/gemini";
 
@@ -21,7 +21,7 @@ const STYLE = {
 };
 
 export async function POST(req: Request) {
-  const rl = checkRateLimit(req, { limit: 30, windowMs: 60_000, bucket: "field360-tts" });
+  const rl = await checkRateLimitShared(req, { limit: 30, windowMs: 60_000, bucket: "field360-tts" });
   if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
   const p = Body.safeParse(await req.json().catch(() => null));
   if (!p.success) return NextResponse.json({ error: "text missing or too long" }, { status: 400 });

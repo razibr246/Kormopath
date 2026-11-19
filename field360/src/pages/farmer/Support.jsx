@@ -159,7 +159,7 @@ export default function Support() {
               }`}
             >
               <span>{cTab.label}</span>
-              <span className={`rounded-full px-1.5 py-0.2 text-[11px] font-bold ${cat === cTab.id ? 'bg-white/25 text-white' : 'bg-black/5 text-muted'}`}>
+              <span className={`rounded-full px-1.5 py-0.2 text-[12px] font-bold ${cat === cTab.id ? 'bg-white/25 text-white' : 'bg-black/5 text-muted'}`}>
                 {num(cTab.count, lang)}
               </span>
             </button>

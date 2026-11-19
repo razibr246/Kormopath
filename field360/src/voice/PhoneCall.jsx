@@ -78,7 +78,7 @@ export default function PhoneCall({ v }) {
       <div className="relative overflow-hidden rounded-[24px] bg-[#101828] p-5 text-white shadow-[var(--shadow-card)] sm:p-6" aria-live="polite">
         <div className="flex items-center justify-between gap-3">
           <span className={`flex items-center gap-2 text-[13px] text-white/70 ${s.lang === 'bn' ? 'font-semibold' : 'font-mono tracking-wider'}`}><span className={`h-2.5 w-2.5 rounded-full ${state.dot}`} />{state.label}</span>
-          <span className="flex items-center gap-2 text-[12.5px] text-white/60"><LogoGlyph size={22} inverse />{T('মাঠের সহকারী', 'Field assistant')}</span>
+          <span className="flex items-center gap-2 text-[12.5px] text-white/80"><LogoGlyph size={22} inverse />{T('মাঠের সহকারী', 'Field assistant')}</span>
         </div>
         <div className="mt-4 text-center">
           <div className={`text-[44px] font-bold leading-none text-emerald-400 tabular sm:text-[52px] ${live ? 'font-mono' : 'font-display'}`}>{live ? (s.lang === 'bn' ? bnDigits(clock) : clock) : T('কল করুন', 'Call')}</div>
@@ -87,7 +87,7 @@ export default function PhoneCall({ v }) {
               : v.interim ? <span className="text-red-200">“{v.interim}…”</span>
                 : last ? <span>{last.text.length > 220 ? `${last.text.slice(0, 219)}…` : last.text}</span> : null}
           </p>
-          {live && lastUser && !v.interim && <p className="mt-1 text-[12.5px] text-white/50">{T('আপনি', 'You')}: “{lastUser.text}”</p>}
+          {live && lastUser && !v.interim && <p className="mt-1 text-[12.5px] text-white/80">{T('আপনি', 'You')}: “{lastUser.text}”</p>}
         </div>
         <div className="mt-4 flex h-6 items-end justify-center gap-1" aria-hidden="true">
           {Array.from({ length: 13 }, (_, i) => (
@@ -120,7 +120,7 @@ export default function PhoneCall({ v }) {
               aria-label={`${k}${KEY_MENU[k] ? `: ${L(KEY_MENU[k])}` : ''}`}
               className={`flex h-[64px] flex-col items-center justify-center rounded-2xl border text-center transition active:scale-95 sm:h-[72px] ${pressed === k ? 'scale-95' : ''} ${live && activeKey(k) ? 'border-emerald-700 bg-emerald-600 text-white hover:bg-emerald-700' : 'border-border bg-canvas text-ink hover:bg-white'}`}>
               <span className="text-[22px] font-bold leading-none">{s.lang === 'bn' && typeof k === 'number' ? bnDigits(k) : k}</span>
-              <span className={`mt-1 text-[10.5px] font-semibold leading-none ${live && activeKey(k) ? 'text-white/80' : 'text-muted'}`}>{confirm && (k === 1 || k === 2) ? (k === 1 ? T('হ্যাঁ', 'Yes') : T('না', 'No')) : KEY_MENU[k] ? L(KEY_MENU[k]) : LETTERS[k]}</span>
+              <span className={`mt-1 text-[12px] font-semibold leading-none ${live && activeKey(k) ? 'text-white/80' : 'text-muted'}`}>{confirm && (k === 1 || k === 2) ? (k === 1 ? T('হ্যাঁ', 'Yes') : T('না', 'No')) : KEY_MENU[k] ? L(KEY_MENU[k]) : LETTERS[k]}</span>
             </button>
           ))}
         </div>

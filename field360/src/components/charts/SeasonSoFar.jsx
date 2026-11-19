@@ -76,7 +76,7 @@ export default function SeasonSoFar({ clim = godagariClim, lat = clim.prov.lat, 
         </div>
         <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-semibold ${st.live ? 'bg-primary-50 text-primary-800' : 'bg-clay-50 text-clay-700'}`}>
           {st.live ? <><span className="h-1.5 w-1.5 rounded-full bg-primary-500" />{T('লাইভ · নাসা POWER', 'Live · NASA POWER')}</> : <><WifiOff size={13} />{T(`সংরক্ষিত তথ্য · ${day(r.end)} পর্যন্ত`, `Saved data · up to ${day(r.end)}`)}</>}
-          <button type="button" onClick={load} disabled={st.loading} className="-my-2 -mr-1.5 ml-0.5 grid h-8 w-8 place-items-center rounded-full hover:bg-black/5 disabled:opacity-50" aria-label={T('আবার আনুন', 'Reload')}><RefreshCw size={12} className={st.loading ? 'animate-spin' : ''} /></button>
+          <button type="button" onClick={load} disabled={st.loading} className="-my-2 -mr-1.5 ml-0.5 grid h-11 w-11 place-items-center rounded-full hover:bg-black/5 disabled:opacity-50" aria-label={T('আবার আনুন', 'Reload')}><RefreshCw size={12} className={st.loading ? 'animate-spin' : ''} /></button>
         </span>
       </div>
 
@@ -103,14 +103,14 @@ export default function SeasonSoFar({ clim = godagariClim, lat = clim.prov.lat, 
       <div>
         <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label={T('জমা বৃষ্টি: এ বছর বনাম আগের বছরগুলো', 'Rain so far: this year against past years')}>
           {ticks.map((t) => (
-            <g key={t}><line x1={PL} x2={W} y1={y(t)} y2={y(t)} stroke="#e7ece4" /><text x={PL - 6} y={y(t) + 4} textAnchor="end" fontSize="10.5" fill="#566a5e">{num(t, lang)}</text></g>
+            <g key={t}><line x1={PL} x2={W} y1={y(t)} y2={y(t)} stroke="#e7ece4" /><text x={PL - 6} y={y(t) + 4} textAnchor="end" fontSize="12" fill="#566a5e">{num(t, lang)}</text></g>
           ))}
           <path d={area} fill="#c9cfc6" opacity=".45" />
           <path d={path((b) => b.mid)} fill="none" stroke="#8a9a8f" strokeWidth="1.5" strokeDasharray="4 4" />
           <path className="line-draw" d={r.now.cum.map((v, k) => `${k ? 'L' : 'M'}${x(k).toFixed(1)},${y(v).toFixed(1)}`).join('')} fill="none" stroke="#237479" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" pathLength="1" />
           <circle cx={x(DAYS - 1)} cy={y(rain)} r="4" fill="#237479" stroke="#fff" strokeWidth="2" />
           {dayTicks.map((k, i) => (
-            <text key={k} x={x(k)} y={H - 6} textAnchor={i === 0 ? 'start' : i === dayTicks.length - 1 ? 'end' : 'middle'} fontSize="10.5" fill="#566a5e">{day(addDays(r.from, k))}</text>
+            <text key={k} x={x(k)} y={H - 6} textAnchor={i === 0 ? 'start' : i === dayTicks.length - 1 ? 'end' : 'middle'} fontSize="12" fill="#566a5e">{day(addDays(r.from, k))}</text>
           ))}
         </svg>
         <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-[12.5px] text-muted">

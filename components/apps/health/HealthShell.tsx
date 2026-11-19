@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useActiveTabIntoView } from "@/components/layout/useActiveTabIntoView";
 import { Ambulance, Bot, CalendarCheck, HeartPulse, Hospital, Pill, ShieldCheck, Stethoscope } from "lucide-react";
 import { Phone } from "lucide-react";
 import { AppHeader } from "@/components/layout/AppHeader";
@@ -23,6 +24,7 @@ export const HEALTH_NAV = [
 export function HealthShell({ children }: { children: React.ReactNode }) {
   const path = usePathname() ?? "/mediscan";
   const active = (href: string) => (href === "/mediscan" ? path === "/mediscan" : path.startsWith(href));
+  const tabBar = useActiveTabIntoView<HTMLDivElement>(path);
   return (
     <div className="min-h-screen bg-paper text-slate-900 antialiased">
       <AppHeader taglineEn="Prescriptions, doctors and emergency care"
@@ -37,13 +39,13 @@ export function HealthShell({ children }: { children: React.ReactNode }) {
       {/* Always-visible emergency strip: no account, no payment, never behind a step. */}
       <div className="border-b border-red-200 bg-red-50 print:hidden" data-testid="health-emergency-strip">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2 text-[13px] text-red-900 sm:px-6">
-          <span className="inline-flex items-center gap-1.5 font-bold"><Phone size={14} aria-hidden /> জরুরি অবস্থায়: <a href="tel:999" className="underline">999</a> (জাতীয় জরুরি সেবা — অ্যাম্বুলেন্স, পুলিশ, ফায়ার)</span>
+          <span className="inline-flex items-center gap-1.5 font-bold"><Phone size={14} aria-hidden /> জরুরি অবস্থায়: <a href="tel:999" className="font-bold underline">999</a> (জাতীয় জরুরি সেবা — অ্যাম্বুলেন্স, পুলিশ, ফায়ার)</span>
           <span>স্বাস্থ্য পরামর্শ: <a href="tel:16263" className="font-semibold underline">16263</a> (স্বাস্থ্য বাতায়ন)</span>
         </div>
       </div>
 
       <nav aria-label="স্বাস্থ্যসেবার অংশ" className="border-b border-slate-200 print:hidden" data-testid="health-nav">
-        <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-4 py-2 sm:px-6 [scrollbar-width:none]">
+        <div ref={tabBar} className="kp-tabbar mx-auto flex max-w-7xl gap-2 overflow-x-auto px-4 py-2 sm:px-6 [scrollbar-width:none]">
           {HEALTH_NAV.map((n) => {
             const on = active(n.href);
             return (

@@ -78,7 +78,7 @@ export function ExamDayStrategyView() {
                   <span className="font-extrabold text-[14.5px] text-indigo-950">
                     {strat.phaseBn}
                   </span>
-                  <span className="rounded-full bg-indigo-100 px-2.5 py-0.5 text-[11.5px] font-bold text-indigo-800">
+                  <span className="rounded-full bg-indigo-100 px-2.5 py-0.5 text-[12px] font-bold text-indigo-800">
                     {strat.minuteRange}
                   </span>
                 </div>
@@ -121,7 +121,7 @@ export function ExamDayStrategyView() {
                       eliminatedOptions === opt
                         ? "bg-indigo-900 text-white shadow-2xs"
                         : "bg-white border border-slate-300 text-slate-700 hover:bg-slate-100"
-                    }`}
+                    } min-h-[44px] min-w-[44px]`}
                   >
                     {opt === 0 ? "০টি (অন্ধ অনুমান)" : opt === 1 ? "১টি বাদ" : "২টি বাদ (৫০/৫০)"}
                   </button>
@@ -130,7 +130,7 @@ export function ExamDayStrategyView() {
 
               <div className="pt-2 border-t border-slate-200 flex items-center justify-between">
                 <div>
-                  <span className="text-[11.5px] font-bold text-slate-500 block">গাণিতিক প্রত্যাশিত মান (Expected Value)</span>
+                  <span className="text-[12px] font-bold text-slate-500 block">গাণিতিক প্রত্যাশিত মান (Expected Value)</span>
                   <div
                     className={`text-[20px] font-black ${
                       expectedValue > 0 ? "text-emerald-700" : expectedValue === 0 ? "text-slate-600" : "text-red-700"
@@ -142,7 +142,7 @@ export function ExamDayStrategyView() {
 
                 <div className="text-right">
                   <span
-                    className={`inline-block px-2.5 py-1 rounded-md text-[11.5px] font-bold ${
+                    className={`inline-block px-2.5 py-1 rounded-md text-[12px] font-bold ${
                       expectedValue > 0
                         ? "bg-emerald-100 text-emerald-900"
                         : "bg-amber-100 text-amber-900"
@@ -176,7 +176,7 @@ export function ExamDayStrategyView() {
             <select
               value={selectedCalcUni}
               onChange={(e) => setSelectedCalcUni(e.target.value)}
-              className="w-full min-h-[42px] rounded-xl border border-slate-300 bg-white px-3 text-[14px] font-semibold text-slate-800"
+              className="w-full min-h-[42px] rounded-xl border border-slate-300 bg-white px-3 text-[14px] font-semibold text-slate-800 min-h-[44px]"
             >
               {CALCULATOR_POLICIES.map((p) => (
                 <option key={p.university} value={p.university}>
@@ -271,12 +271,12 @@ export function ExamDayStrategyView() {
                         {item.itemBn}
                       </span>
                       {item.mandatory && (
-                        <span className="rounded bg-rose-100 px-1.5 py-0.2 text-[10px] font-black text-rose-800">
+                        <span className="rounded bg-rose-100 px-1.5 py-0.2 text-[12px] font-black text-rose-800">
                           আবশ্যক
                         </span>
                       )}
                     </div>
-                    <p className="text-[11.5px] text-slate-500">{item.noteBn}</p>
+                    <p className="text-[12px] text-slate-500">{item.noteBn}</p>
                   </div>
                 </div>
               );

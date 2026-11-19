@@ -209,7 +209,7 @@ export default function Home() {
               </span>
             </div>
             <p className="text-[13px] text-muted mb-3">
-              {lang === "bn" ? "তিনটি নমুনা প্রার্থী দিয়ে চার ধাপ একবারে চলে। এরা উদাহরণ, বাস্তব মানুষ নন।" : "Run all four steps at once with a sample candidate. These are examples, not real people."}
+              {lang === "bn" ? "নমুনা প্রার্থী দিয়ে ১, ৩ ও ৪ নম্বর ধাপ একবারে চলে। ২ নম্বর ধাপ সরাসরি পরীক্ষা: সেটা কোনো অটোপাইলট আপনার হয়ে দিতে পারে না। এরা উদাহরণ, বাস্তব মানুষ নন।" : "Runs steps 1, 3 and 4 at once with a sample candidate. Step 2 is a live exam no autopilot can take for you. These are examples, not real people."}
             </p>
             <ul className="space-y-2.5">
               {PERSONAS.map((p) => (
@@ -349,6 +349,10 @@ export default function Home() {
                       setAssisted(true);
                       setCode(challenge.reference);
                       local("Examiner", "show-reference", "Reference fix displayed; passport flagged as assisted", 0, "warn");
+                    }}
+                    onAssisted={() => {
+                      if (!assisted) local("Examiner", "model-answer", "Model viva answer auto-filled; passport flagged as assisted", 0, "warn");
+                      setAssisted(true);
                     }}
                     grades={grades}
                     grading={grading}
@@ -494,27 +498,27 @@ export default function Home() {
               <tbody className="divide-y divide-line">
                 <tr>
                   <td className="py-3 px-4 font-semibold">Platform Fee Cut</td>
-                  <td className="py-3 px-4 text-leak font-mono font-bold">-20% (Fiverr) / -10% (Upwork)</td>
+                  <td className="py-3 px-4 text-leak font-mono font-bold">-20% (Fiverr) / 0–15% (Upwork)</td>
                   <td className="py-3 px-4 text-kept font-mono font-bold">0% Direct Retainer</td>
-                  <td className="py-3 px-4 text-muted">Saves ৳24,000 on every $1,000 invoice</td>
+                  <td className="py-3 px-4 text-muted">Step 4 shows the taka difference for your own invoice and today&apos;s rate</td>
                 </tr>
                 <tr>
                   <td className="py-3 px-4 font-semibold">Government Incentive</td>
                   <td className="py-3 px-4 text-muted">0% (Ineligible on Payoneer/MFS)</td>
                   <td className="py-3 px-4 text-kept font-bold">+2.5% Bangladesh Bank Export Cash</td>
-                  <td className="py-3 px-4 text-muted">Additional ৳3,000 on $1,000 banking remittance</td>
+                  <td className="py-3 px-4 text-muted">2.5% of the amount, claimed through your bank (Bangladesh Bank FY2026-27 circular)</td>
                 </tr>
                 <tr>
                   <td className="py-3 px-4 font-semibold">July-Style Internet Blackout</td>
                   <td className="py-3 px-4 text-leak">Account de-ranking, order cancellation, loss of badge</td>
                   <td className="py-3 px-4 text-kept font-bold">Clause 4: 48h Legal Buffer + UPS SLA</td>
-                  <td className="py-3 px-4 text-muted">Zero late penalty or cancellation rights during grid failure</td>
+                  <td className="py-3 px-4 text-muted">Deadlines extend by the outage + 48 h, once the client signs the clause</td>
                 </tr>
                 <tr>
                   <td className="py-3 px-4 font-semibold">NBR Income Tax Exemption</td>
                   <td className="py-3 px-4 text-muted">Difficult to substantiate with platform screenshots</td>
                   <td className="py-3 px-4 text-kept font-bold">1-Click NBR ITES Bank Ledger (.CSV)</td>
-                  <td className="py-3 px-4 text-muted">100% tax-exempt IT income through 30 June 2027</td>
+                  <td className="py-3 px-4 text-muted">IT/ITES income earned 1 Jul 2024 – 30 Jun 2027 is exempt if fully received by bank (reported)</td>
                 </tr>
                 <tr>
                   <td className="py-3 px-4 font-semibold">Skill Credibility</td>
@@ -735,7 +739,7 @@ export default function Home() {
                   FinOps &amp; Remittance Track
                 </span>
                 <p className="text-[13px] text-muted mt-2 leading-relaxed">
-                  Marketplace fee audit comparing Fiverr (-20%) vs Upwork (-10%) vs direct wire (+2.5% Bangladesh Bank cash incentive).
+                  Marketplace fee audit comparing Fiverr (-20%) vs Upwork (variable 0–15%) vs direct wire (+2.5% Bangladesh Bank cash incentive).
                 </p>
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   <span className="text-[10px] font-semibold bg-white border border-line px-2 py-0.5 rounded text-ink/80">Fiverr 20% Audit</span>
@@ -816,7 +820,7 @@ export default function Home() {
                 <ChevronDown size={18} className="text-muted group-open:rotate-180 transition-transform" />
               </summary>
               <p className="mt-3 text-[14px] text-muted leading-relaxed">
-                During the July 2024 national internet blackout, over 20%–30% of Bangladeshi freelancers suffered account bans, order cancellations, and severe rating penalties on Fiverr and Upwork. Clause 4 (Infrastructure Force-Majeure &amp; Asynchronous Delivery Buffer) creates a 48-hour delivery buffer during nationwide internet shutdowns or telecom failures and pairs it with a logged UPS hardware buffer (BDT 8,000–15,000) and secondary 4G mobile hotspot SLA, legally eliminating penalties and termination rights from foreign clients.
+                During the July 2024 national internet shutdown, freelancers in Bangladesh could not deliver work or answer clients for days. Clause 4 (Infrastructure Force-Majeure &amp; Asynchronous Delivery Buffer) is a fixed template clause: if both sides sign it, deadlines extend by the length of a nationwide internet shutdown or telecom failure plus a 48-hour buffer. It is a drafting aid, not legal advice; how it is enforced depends on the contract and the client.
               </p>
             </details>
 
@@ -836,7 +840,7 @@ export default function Home() {
                 <ChevronDown size={18} className="text-muted group-open:rotate-180 transition-transform" />
               </summary>
               <p className="mt-3 text-[14px] text-muted leading-relaxed">
-                Under the Finance Act 2024 (Section 48), income from Information Technology Enabled Services (ITES) earned between 1 July 2024 and 30 June 2027 is 100% exempt from income tax in Bangladesh if received through formal banking channels. KormoPath Treasurer provides an income ledger with receipt OCR verification that exports an audited CSV ledger ready for submission to your tax advisor and bank.
+                Under the Finance Act 2024 (as reported; check the current Finance Act), income from Information Technology Enabled Services (ITES) earned between 1 July 2024 and 30 June 2027 is 100% exempt from income tax in Bangladesh if received through formal banking channels. KormoPath Treasurer provides an income ledger with receipt reading that exports a CSV you can give your tax advisor and bank.
               </p>
             </details>
           </div>

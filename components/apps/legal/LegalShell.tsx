@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useActiveTabIntoView } from "@/components/layout/useActiveTabIntoView";
 import { Bot, ClipboardList, Handshake, Home, Phone, Scale, ScrollText, Users } from "lucide-react";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { AppFooter } from "@/components/layout/AppFooter";
@@ -44,11 +45,12 @@ export function HelpStrip() {
 export function LegalShell({ children }: { children: React.ReactNode }) {
   const path = usePathname() ?? "/legal";
   const active = (href: string) => (href === "/legal" ? path === "/legal" : path.startsWith(href));
+  const tabBar = useActiveTabIntoView<HTMLDivElement>(path);
   return (
     <div className="lg-root min-h-screen bg-paper">
       <AppHeader appId="legal" href="/legal" name="আইনি সহায়তা" taglineBn="বিনামূল্যে আইনি সাহায্যের পথ" taglineEn="Your path to free legal aid" icon={<Scale size={22} />} accent="from-indigo-500 to-amber-500" />
       <nav aria-label="আইনি সহায়তার অংশ" className="lg-nav" data-testid="legal-nav">
-        <div className="mx-auto flex max-w-6xl gap-2 overflow-x-auto px-4 py-2 sm:px-6 [scrollbar-width:none]">
+        <div ref={tabBar} className="kp-tabbar mx-auto flex max-w-6xl gap-2 overflow-x-auto px-4 py-2 sm:px-6 [scrollbar-width:none]">
           {LEGAL_NAV.map((n) => (
             <Link key={n.href} href={n.href} aria-current={active(n.href) ? "page" : undefined} className={`lg-tab ${active(n.href) ? "lg-tab-on" : ""}`}>
               <n.icon size={16} aria-hidden /> {n.bn}

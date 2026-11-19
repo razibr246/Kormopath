@@ -3,7 +3,7 @@ import { z } from "zod";
 import { Tracer } from "@/lib/trace";
 import { structured, llmAvailable, modelName } from "@/lib/llm";
 import { ExtractionSchema, EXTRACT_SYSTEM, ruleExtract, groundSkills, incomeGrounded, valuate, CheckedSkill } from "@/lib/audit";
-import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
+import { checkRateLimitShared, rateLimitResponse } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -49,7 +49,7 @@ async function githubSkills(user: string, tracer: Tracer): Promise<CheckedSkill[
 }
 
 export async function POST(req: Request) {
-  const rl = checkRateLimit(req, { limit: 30, windowMs: 60_000, bucket: "audit" });
+  const rl = await checkRateLimitShared(req, { limit: 30, windowMs: 60_000, bucket: "audit" });
   if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
 
   const tracer = new Tracer("Auditor");

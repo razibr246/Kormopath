@@ -171,7 +171,7 @@ export default function AdmitBuddyPage() {
           <div className="min-w-[250px] rounded-2xl border border-slate-200/80 bg-slate-50/90 backdrop-blur-md p-4 text-[13px] shadow-xs">
             <div className="flex items-center justify-between">
               <strong className="text-slate-900">{profile.name || "আপনার প্রোফাইল"}</strong>
-              <button onClick={() => setEditingProfile(!editingProfile)} className="text-[12px] font-bold text-indigo-700 hover:text-indigo-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 rounded">{editingProfile ? "বন্ধ" : "এডিট"}</button>
+              <button onClick={() => setEditingProfile(!editingProfile)} className="text-[12px] font-bold text-indigo-700 hover:text-indigo-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 rounded min-h-[44px] min-w-[44px]">{editingProfile ? "বন্ধ" : "এডিট"}</button>
             </div>
             <p className="text-slate-600">SSC {profile.sscGpa.toFixed(2)} · HSC {profile.hscGpa.toFixed(2)} · {profile.group}</p>
             <p className="text-slate-600">বাজেট: ৳{profile.maxBudgetPerSemester.toLocaleString("en-IN")}/সেমিস্টার</p>
@@ -187,7 +187,7 @@ export default function AdmitBuddyPage() {
 
         <nav className="flex gap-1.5 overflow-x-auto scrollbar-none rounded-xl border border-slate-200/80 bg-white/80 backdrop-blur-md p-1.5 shadow-xs" role="tablist" aria-label="AdmitBuddy">
           {TABS.map((t) => (
-            <button key={t.id} role="tab" aria-selected={tab === t.id} onClick={() => switchTab(t.id)} className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3.5 py-2 text-[13px] font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 transition-all ${tab === t.id ? "bg-indigo-600 text-white shadow-xs" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"}`}>
+            <button key={t.id} role="tab" aria-selected={tab === t.id} onClick={() => switchTab(t.id)} className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3.5 py-2 text-[13px] font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 transition-all ${tab === t.id ? "bg-indigo-600 text-white shadow-xs" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"} min-h-[44px] min-w-[44px]`}>
               {t.icon} {t.label}
             </button>
           ))}
@@ -204,7 +204,7 @@ export default function AdmitBuddyPage() {
                     onClick={() => setFilter(id)}
                     className={`rounded-lg border px-2.5 py-1 text-[12px] font-semibold transition-colors ${
                       filter === id ? "border-indigo-600 bg-indigo-50 text-indigo-800" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-                    }`}
+                    } min-h-[44px] min-w-[44px]`}
                   >
                     {l}
                   </button>
@@ -213,21 +213,21 @@ export default function AdmitBuddyPage() {
 
               {/* Real-time search bar */}
               <div className="relative w-full sm:w-72">
-                <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden />
+                <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" aria-hidden />
                 <input
                   type="search"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="নাম, কোড, বিষয় (যেমন CSE) বা এলাকা..."
                   aria-label="বিশ্ববিদ্যালয় অনুসন্ধান"
-                  className="w-full rounded-xl border border-slate-200 bg-white py-1.5 pl-9 pr-8 text-[13px] outline-none transition-all focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600"
+                  className="w-full rounded-xl border border-slate-200 bg-white py-1.5 pl-9 pr-8 text-[13px] outline-none transition-all focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 min-h-[44px]"
                 />
                 {searchQuery && (
                   <button
                     type="button"
                     onClick={() => setSearchQuery("")}
                     aria-label="অনুসন্ধান মুছুন"
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-slate-500 hover:bg-slate-100 hover:text-slate-600 min-h-[44px] min-w-[44px]"
                   >
                     ✕
                   </button>
@@ -251,7 +251,7 @@ export default function AdmitBuddyPage() {
                   <article key={u.id} className={`flex flex-col rounded-2xl border bg-white p-4 ${saved ? "border-indigo-400 ring-1 ring-indigo-200" : isCompared ? "border-blue-400 ring-1 ring-blue-200" : "border-slate-200"}`}>
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <span className="text-[11px] font-bold uppercase text-slate-500">{u.type === "public" ? "সরকারি" : u.type === "private" ? "বেসরকারি" : "আন্তর্জাতিক"} · {u.location}</span>
+                        <span className="text-[12px] font-bold uppercase text-slate-500">{u.type === "public" ? "সরকারি" : u.type === "private" ? "বেসরকারি" : "আন্তর্জাতিক"} · {u.location}</span>
                         <h3 className="text-[16px] font-bold leading-snug">{u.shortName} — {u.name}</h3>
                       </div>
                       <div className="flex items-center gap-1">
@@ -259,21 +259,21 @@ export default function AdmitBuddyPage() {
                           type="button"
                           onClick={() => toggleCompare(u.id)}
                           aria-label={`${u.shortName} তুলনা করুন`}
-                          className={`rounded-lg px-2 py-1 text-[11px] font-bold border transition-all ${
+                          className={`rounded-lg px-2 py-1 text-[12px] font-bold border transition-all ${
                             isCompared
                               ? "border-blue-600 bg-blue-50 text-blue-800"
                               : "border-slate-200 text-slate-500 hover:border-slate-300"
-                          }`}
+                          } min-h-[44px] min-w-[44px]`}
                         >
                           <Scale size={12} className="inline mr-1" />
                           {isCompared ? "তুলনায়" : "তুলনা"}
                         </button>
-                        <button onClick={() => toggleShortlist(u.id)} aria-pressed={saved} aria-label={saved ? `${u.shortName} শর্টলিস্ট থেকে সরান` : `${u.shortName} শর্টলিস্টে রাখুন`} className={`rounded-lg p-1.5 ${saved ? "text-indigo-700" : "text-slate-400 hover:text-indigo-700"}`}>
+                        <button onClick={() => toggleShortlist(u.id)} aria-pressed={saved} aria-label={saved ? `${u.shortName} শর্টলিস্ট থেকে সরান` : `${u.shortName} শর্টলিস্টে রাখুন`} className={`rounded-lg p-1.5 ${saved ? "text-indigo-700" : "text-slate-500 hover:text-indigo-700"} min-h-[44px] min-w-[44px]`}>
                           {saved ? <BookmarkCheck size={20} /> : <Bookmark size={20} />}
                         </button>
                       </div>
                     </div>
-                    <div className="mt-2 flex flex-wrap gap-1.5 text-[11px] font-bold">
+                    <div className="mt-2 flex flex-wrap gap-1.5 text-[12px] font-bold">
                       <span className="rounded bg-indigo-100 px-1.5 py-0.5 text-indigo-800">ফিট {m.matchScore}</span>
                       <span className={`rounded px-1.5 py-0.5 ${m.category === "Safety" ? "bg-emerald-100 text-emerald-800" : m.category === "Match" ? "bg-sky-100 text-sky-800" : "bg-amber-100 text-amber-900"}`}>{m.category}</span>
                       <span className={`rounded px-1.5 py-0.5 ${m.eligibility === "meets" ? "bg-emerald-50 text-emerald-800" : "bg-red-50 text-red-800"}`}>{m.eligibility === "meets" ? "আনুমানিক GPA শর্ত পূরণ" : "GPA শর্তের নিচে হতে পারে"}</span>
@@ -285,7 +285,7 @@ export default function AdmitBuddyPage() {
                       <span className={m.isClosed ? "font-bold text-red-700" : m.daysLeft !== null ? "font-bold text-indigo-800" : "text-slate-500"}>
                         {m.isClosed ? "আপনার দেওয়া আবেদনের শেষ তারিখ পার হয়েছে" : m.daysLeft !== null ? `${m.nextDeadline!.label}: ${m.daysLeft} দিন বাকি` : "তারিখ যোগ করা হয়নি"}
                       </span>
-                      <a href={u.website} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-semibold text-indigo-700 underline">অফিসিয়াল সাইট <ExternalLink size={12} aria-hidden /></a>
+                      <a href={u.website} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-semibold text-indigo-700 underline min-h-[44px] min-w-[44px]">অফিসিয়াল সাইট <ExternalLink size={12} aria-hidden /></a>
                     </div>
                   </article>
                 );
@@ -304,14 +304,14 @@ export default function AdmitBuddyPage() {
               type="button"
               disabled={comparedUnis.length < 2}
               onClick={() => setShowCompareModal(true)}
-              className="rounded-xl bg-blue-700 px-4 py-1.5 text-[13px] font-bold text-white hover:bg-blue-800 disabled:opacity-40"
+              className="rounded-xl bg-blue-700 px-4 py-1.5 text-[13px] font-bold text-white hover:bg-blue-800 disabled:opacity-40 min-h-[44px] min-w-[44px]"
             >
               তুলনা দেখুন
             </button>
             <button
               type="button"
               onClick={() => setComparedUnis([])}
-              className="text-[12px] text-slate-400 hover:text-slate-600"
+              className="text-[12px] text-slate-500 hover:text-slate-600 min-h-[44px] min-w-[44px]"
             >
               ✕
             </button>
@@ -365,7 +365,7 @@ export default function AdmitBuddyPage() {
             <ul className="space-y-3">
               {OFFICIAL_RESOURCES.map((r) => (
                 <li key={r.url} className="rounded-xl border border-slate-200 p-3 text-[13px]">
-                  <a href={r.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-bold text-indigo-700 underline">{r.label} <ExternalLink size={12} aria-hidden /></a>
+                  <a href={r.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-bold text-indigo-700 underline min-h-[44px] min-w-[44px]">{r.label} <ExternalLink size={12} aria-hidden /></a>
                   <p className="mt-0.5 text-slate-600">{r.note}</p>
                   <span className="mt-1 inline-block"><SourceTag confidence="reported" label="সংবাদ/অফিসিয়াল পোর্টাল" checked={r.checked} /></span>
                 </li>
@@ -388,18 +388,18 @@ function ProfileForm({ profile, setProfile, onDone }: { profile: StudentProfile;
   const gpaInput = (key: "sscGpa" | "hscGpa", label: string) => (
     <label className="text-[12px] font-bold text-slate-600">
       {label}
-      <input type="number" min={0} max={5} step={0.01} value={profile[key]} onChange={(e) => setProfile({ ...profile, [key]: Math.min(5, Math.max(0, Number(e.target.value) || 0)) })} className="mt-1 block w-full rounded-lg border border-slate-200 px-2 py-1.5 text-[15px] font-bold" />
+      <input type="number" min={0} max={5} step={0.01} value={profile[key]} onChange={(e) => setProfile({ ...profile, [key]: Math.min(5, Math.max(0, Number(e.target.value) || 0)) })} className="mt-1 block w-full rounded-lg border border-slate-200 px-2 py-1.5 text-[15px] font-bold min-h-[44px]" />
     </label>
   );
   return (
     <section aria-labelledby="pf-h" className="space-y-4 rounded-2xl border-2 border-indigo-200 bg-white p-5">
-      <button type="button" onClick={() => { setProfile({ ...profile, name: "Nabila (example)", sscGpa: 5, hscGpa: 4.83, group: "Science", maxBudgetPerSemester: 90000, preferredLocations: ["Dhaka"], interests: ["CSE"] }); onDone(); }} className="float-right rounded-lg border border-indigo-300 bg-indigo-50 px-3 py-1.5 text-[12px] font-bold text-indigo-800 hover:bg-indigo-100" data-testid="example-profile">
-        উদাহরণ প্রোফাইল · Try an example
+      <button type="button" onClick={() => { setProfile({ ...profile, name: "Nabila (example)", sscGpa: 5, hscGpa: 4.83, group: "Science", maxBudgetPerSemester: 90000, preferredLocations: ["Dhaka"], interests: ["CSE"] }); onDone(); }} className="float-right inline-flex min-h-[44px] flex-col items-center justify-center rounded-lg border border-indigo-300 bg-indigo-50 px-3 py-1 text-[13px] font-bold leading-tight text-indigo-800 hover:bg-indigo-100 min-w-[44px]" data-testid="example-profile">
+        উদাহরণ দেখুন <span lang="en" className="text-[12px] font-semibold">Try an example</span>
       </button>
       <h2 id="pf-h" className="text-[17px] font-bold">আপনার তথ্য</h2>
       <div className="grid gap-3 sm:grid-cols-4">
         <label className="text-[12px] font-bold text-slate-600 sm:col-span-2">নাম (ঐচ্ছিক, SOP-এ ব্যবহার হবে)
-          <input value={profile.name} maxLength={60} onChange={(e) => setProfile({ ...profile, name: e.target.value })} className="mt-1 block w-full rounded-lg border border-slate-200 px-2 py-1.5 text-[14px]" />
+          <input value={profile.name} maxLength={60} onChange={(e) => setProfile({ ...profile, name: e.target.value })} className="mt-1 block w-full rounded-lg border border-slate-200 px-2 py-1.5 text-[14px] min-h-[44px]" />
         </label>
         {gpaInput("sscGpa", "SSC GPA (৫ এর মধ্যে)")}
         {gpaInput("hscGpa", "HSC GPA (৫ এর মধ্যে)")}
@@ -407,29 +407,29 @@ function ProfileForm({ profile, setProfile, onDone }: { profile: StudentProfile;
           <legend className="text-[12px] font-bold text-slate-600">বিভাগ</legend>
           <div className="mt-1 flex gap-2">
             {(["Science", "Commerce", "Humanities"] as const).map((g) => (
-              <button key={g} type="button" aria-pressed={profile.group === g} onClick={() => setProfile({ ...profile, group: g })} className={`flex-1 rounded-lg border px-2 py-1.5 text-[13px] font-semibold ${profile.group === g ? "border-indigo-600 bg-indigo-50 text-indigo-800" : "border-slate-200"}`}>
+              <button key={g} type="button" aria-pressed={profile.group === g} onClick={() => setProfile({ ...profile, group: g })} className={`flex-1 rounded-lg border px-2 py-1.5 text-[13px] font-semibold ${profile.group === g ? "border-indigo-600 bg-indigo-50 text-indigo-800" : "border-slate-200"} min-h-[44px] min-w-[44px]`}>
                 {g === "Science" ? "বিজ্ঞান" : g === "Commerce" ? "ব্যবসায়" : "মানবিক"}
               </button>
             ))}
           </div>
         </fieldset>
         <label className="text-[12px] font-bold text-slate-600 sm:col-span-2">প্রতি সেমিস্টারে সর্বোচ্চ বাজেট: ৳{profile.maxBudgetPerSemester.toLocaleString("en-IN")}
-          <input type="range" min={5000} max={250000} step={5000} value={profile.maxBudgetPerSemester} onChange={(e) => setProfile({ ...profile, maxBudgetPerSemester: Number(e.target.value) })} className="mt-2 w-full accent-indigo-600" />
+          <input type="range" min={5000} max={250000} step={5000} value={profile.maxBudgetPerSemester} onChange={(e) => setProfile({ ...profile, maxBudgetPerSemester: Number(e.target.value) })} className="mt-2 w-full accent-indigo-600 min-h-[44px]" />
         </label>
       </div>
       <fieldset>
         <legend className="text-[12px] font-bold text-slate-600">পছন্দের এলাকা (খালি রাখলে সব)</legend>
         <div className="mt-1 flex flex-wrap gap-1.5">
-          {LOCATIONS.map((l) => <button key={l} type="button" aria-pressed={profile.preferredLocations.includes(l)} onClick={() => setProfile({ ...profile, preferredLocations: toggle(profile.preferredLocations, l) })} className={`rounded-lg border px-2.5 py-1 text-[12px] ${profile.preferredLocations.includes(l) ? "border-indigo-600 bg-indigo-50 font-bold text-indigo-800" : "border-slate-200"}`}>{l}</button>)}
+          {LOCATIONS.map((l) => <button key={l} type="button" aria-pressed={profile.preferredLocations.includes(l)} onClick={() => setProfile({ ...profile, preferredLocations: toggle(profile.preferredLocations, l) })} className={`rounded-lg border px-2.5 py-1 text-[12px] ${profile.preferredLocations.includes(l) ? "border-indigo-600 bg-indigo-50 font-bold text-indigo-800" : "border-slate-200"} min-h-[44px] min-w-[44px]`}>{l}</button>)}
         </div>
       </fieldset>
       <fieldset>
         <legend className="text-[12px] font-bold text-slate-600">আগ্রহের বিষয়</legend>
         <div className="mt-1 flex flex-wrap gap-1.5">
-          {PROGRAMS.map((p) => <button key={p} type="button" aria-pressed={profile.interests.includes(p)} onClick={() => setProfile({ ...profile, interests: toggle(profile.interests, p) })} className={`rounded-lg border px-2.5 py-1 text-[12px] ${profile.interests.includes(p) ? "border-indigo-600 bg-indigo-50 font-bold text-indigo-800" : "border-slate-200"}`}>{p}</button>)}
+          {PROGRAMS.map((p) => <button key={p} type="button" aria-pressed={profile.interests.includes(p)} onClick={() => setProfile({ ...profile, interests: toggle(profile.interests, p) })} className={`rounded-lg border px-2.5 py-1 text-[12px] ${profile.interests.includes(p) ? "border-indigo-600 bg-indigo-50 font-bold text-indigo-800" : "border-slate-200"} min-h-[44px] min-w-[44px]`}>{p}</button>)}
         </div>
       </fieldset>
-      <button onClick={onDone} className="rounded-xl bg-indigo-600 px-5 py-2 text-[14px] font-bold text-white">সংরক্ষণ করে ম্যাচ দেখুন</button>
+      <button onClick={onDone} className="rounded-xl bg-indigo-600 px-5 py-2 text-[14px] font-bold text-white min-h-[44px] min-w-[44px]">সংরক্ষণ করে ম্যাচ দেখুন</button>
     </section>
   );
 }
@@ -461,7 +461,7 @@ function ApplicationTracker({
       <section className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center">
         <p className="text-[15px] font-semibold">এখনো কোনো বিশ্ববিদ্যালয় শর্টলিস্ট করা হয়নি।</p>
         <p className="mt-1 text-[13px] text-slate-500">“বিশ্ববিদ্যালয় খুঁজুন” থেকে বুকমার্ক আইকনে চাপ দিন।</p>
-        <button onClick={goDiscover} className="mt-3 rounded-lg bg-indigo-600 px-4 py-2 text-[13px] font-bold text-white">বিশ্ববিদ্যালয় খুঁজুন</button>
+        <button onClick={goDiscover} className="mt-3 rounded-lg bg-indigo-600 px-4 py-2 text-[13px] font-bold text-white min-h-[44px] min-w-[44px]">বিশ্ববিদ্যালয় খুঁজুন</button>
       </section>
     );
   }
@@ -481,14 +481,14 @@ function ApplicationTracker({
                   "text/markdown;charset=utf-8"
                 )
               }
-              className="inline-flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-[12px] font-bold text-indigo-800 hover:bg-indigo-100"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-[12px] font-bold text-indigo-800 hover:bg-indigo-100 min-h-[44px] min-w-[44px]"
             >
               <FileText size={14} aria-hidden /> রোডম্যাপ ডাউনলোড (.md)
             </button>
             <button
               disabled={!tasks.some((t) => t.dueDate)}
               onClick={() => downloadText("admitbuddy-deadlines.ics", toIcs(tasks, new Date().toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z"), "text/calendar;charset=utf-8")}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-[12px] font-bold disabled:opacity-40"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-[12px] font-bold disabled:opacity-40 min-h-[44px] min-w-[44px]"
             >
               <Download size={14} aria-hidden /> ক্যালেন্ডারে নিন (.ics)
             </button>
@@ -500,11 +500,11 @@ function ApplicationTracker({
             const days = t.dueDate ? Math.round((Date.parse(t.dueDate) - Date.parse(today)) / 86_400_000) : null;
             return (
               <li key={t.id} className="flex items-start gap-3 py-2.5">
-                <button onClick={() => setDoneTasks((p) => (p.includes(t.id) ? p.filter((x) => x !== t.id) : [...p, t.id]))} aria-pressed={t.isDone} aria-label={t.isDone ? "অসম্পূর্ণ করুন" : "সম্পন্ন করুন"} className="mt-0.5 text-indigo-600">
+                <button onClick={() => setDoneTasks((p) => (p.includes(t.id) ? p.filter((x) => x !== t.id) : [...p, t.id]))} aria-pressed={t.isDone} aria-label={t.isDone ? "অসম্পূর্ণ করুন" : "সম্পন্ন করুন"} className="mt-0.5 text-indigo-600 min-h-[44px] min-w-[44px]">
                   {t.isDone ? <CheckCircle2 size={19} /> : <Circle size={19} />}
                 </button>
                 <div className="min-w-0 flex-1">
-                  <p className={`text-[14px] ${t.isDone ? "text-slate-400 line-through" : "font-semibold"}`}>{t.title}</p>
+                  <p className={`text-[14px] ${t.isDone ? "text-slate-500 line-through" : "font-semibold"}`}>{t.title}</p>
                   <p className="text-[12px] text-slate-500">
                     {t.dueDate ? <>তারিখ: <strong className={days !== null && days < 0 ? "text-red-700" : days !== null && days <= 7 ? "text-amber-700" : ""}>{t.dueDate}</strong>{days !== null && (days < 0 ? ` (${-days} দিন আগে পার হয়েছে)` : ` (${days} দিন বাকি)`)} · উৎস: {t.sourceNote ?? "—"}</> : "তারিখ এখনো জানা নেই"}
                   </p>
@@ -528,34 +528,34 @@ function ApplicationTracker({
           <h3 className="flex items-center gap-1.5 text-[14px] font-bold"><CalendarPlus size={16} aria-hidden /> সার্কুলার থেকে তারিখ যোগ করুন</h3>
           <div className="grid gap-2 sm:grid-cols-2">
             <label className="text-[12px] font-bold text-slate-600">বিশ্ববিদ্যালয়
-              <select value={form.universityId ?? ""} onChange={(e) => setForm({ ...form, universityId: e.target.value })} className="mt-1 block w-full rounded border border-slate-200 bg-white px-2 py-1.5 text-[13px] font-normal">
+              <select value={form.universityId ?? ""} onChange={(e) => setForm({ ...form, universityId: e.target.value })} className="mt-1 block w-full rounded border border-slate-200 bg-white px-2 py-1.5 text-[13px] font-normal min-h-[44px]">
                 {uniOptions.map((u) => <option key={u.id} value={u.id}>{u.shortName}</option>)}
               </select>
             </label>
             <label className="text-[12px] font-bold text-slate-600">ধরন
-              <select value={form.kind} onChange={(e) => { const k = e.target.value as UserDeadline["kind"]; setForm({ ...form, kind: k, label: k === "application" ? "আবেদনের শেষ তারিখ" : k === "exam" ? "ভর্তি পরীক্ষা" : "" }); }} className="mt-1 block w-full rounded border border-slate-200 bg-white px-2 py-1.5 text-[13px] font-normal">
+              <select value={form.kind} onChange={(e) => { const k = e.target.value as UserDeadline["kind"]; setForm({ ...form, kind: k, label: k === "application" ? "আবেদনের শেষ তারিখ" : k === "exam" ? "ভর্তি পরীক্ষা" : "" }); }} className="mt-1 block w-full rounded border border-slate-200 bg-white px-2 py-1.5 text-[13px] font-normal min-h-[44px]">
                 <option value="application">আবেদনের শেষ তারিখ</option><option value="exam">ভর্তি পরীক্ষা</option><option value="other">অন্যান্য (ফল, ভাইভা, ভর্তি)</option>
               </select>
             </label>
             <label className="text-[12px] font-bold text-slate-600">তারিখ
-              <input type="date" value={form.date ?? ""} onChange={(e) => setForm({ ...form, date: e.target.value })} className="mt-1 block w-full rounded border border-slate-200 px-2 py-1.5 text-[13px] font-normal" />
+              <input type="date" value={form.date ?? ""} onChange={(e) => setForm({ ...form, date: e.target.value })} className="mt-1 block w-full rounded border border-slate-200 px-2 py-1.5 text-[13px] font-normal min-h-[44px]" />
             </label>
             <label className="text-[12px] font-bold text-slate-600">বিবরণ
-              <input value={form.label ?? ""} maxLength={60} onChange={(e) => setForm({ ...form, label: e.target.value })} className="mt-1 block w-full rounded border border-slate-200 px-2 py-1.5 text-[13px] font-normal" />
+              <input value={form.label ?? ""} maxLength={60} onChange={(e) => setForm({ ...form, label: e.target.value })} className="mt-1 block w-full rounded border border-slate-200 px-2 py-1.5 text-[13px] font-normal min-h-[44px]" />
             </label>
             <label className="text-[12px] font-bold text-slate-600 sm:col-span-2">কোথা থেকে পেয়েছেন (উৎস)
-              <input value={form.sourceNote ?? ""} maxLength={120} onChange={(e) => setForm({ ...form, sourceNote: e.target.value })} placeholder="যেমন: gstadmission.ac.bd সার্কুলার, ৩ ডিসেম্বর প্রকাশিত" className="mt-1 block w-full rounded border border-slate-200 px-2 py-1.5 text-[13px] font-normal" />
+              <input value={form.sourceNote ?? ""} maxLength={120} onChange={(e) => setForm({ ...form, sourceNote: e.target.value })} placeholder="যেমন: gstadmission.ac.bd সার্কুলার, ৩ ডিসেম্বর প্রকাশিত" className="mt-1 block w-full rounded border border-slate-200 px-2 py-1.5 text-[13px] font-normal min-h-[44px]" />
             </label>
           </div>
           {err && <p role="alert" className="text-[12px] text-red-700">{err}</p>}
-          <button type="submit" className="rounded-lg bg-indigo-600 px-4 py-1.5 text-[13px] font-bold text-white">যোগ করুন</button>
+          <button type="submit" className="rounded-lg bg-indigo-600 px-4 py-1.5 text-[13px] font-bold text-white min-h-[44px] min-w-[44px]">যোগ করুন</button>
         </form>
         {userDeadlines.length > 0 && (
           <ul className="space-y-1 text-[12px]">
             {userDeadlines.map((d, i) => (
               <li key={i} className="flex items-center justify-between gap-2 rounded bg-slate-50 px-2 py-1">
-                <span>{UNIVERSITIES.find((u) => u.id === d.universityId)?.shortName}: {d.label} — {d.date} <span className="text-slate-400">({d.sourceNote})</span></span>
-                <button onClick={() => setUserDeadlines((p) => p.filter((_, j) => j !== i))} aria-label="তারিখ মুছুন" className="p-1 text-slate-400 hover:text-red-600"><Trash2 size={13} /></button>
+                <span>{UNIVERSITIES.find((u) => u.id === d.universityId)?.shortName}: {d.label} — {d.date} <span className="text-slate-500">({d.sourceNote})</span></span>
+                <button onClick={() => setUserDeadlines((p) => p.filter((_, j) => j !== i))} aria-label="তারিখ মুছুন" className="p-1 text-slate-500 hover:text-red-600 min-h-[44px] min-w-[44px]"><Trash2 size={13} /></button>
               </li>
             ))}
           </ul>
@@ -570,13 +570,13 @@ function ApplicationTracker({
         </section>
         <section className="rounded-2xl border border-slate-200 bg-white p-5">
           <h2 className="text-[16px] font-bold">কাগজপত্র প্রস্তুত ({docs.length}/{DOCUMENT_CHECKLIST.length})</h2>
-          <p className="mt-1 text-[11px] text-slate-500">সাধারণ তালিকা — প্রতিটি সার্কুলারে নির্দিষ্ট শর্ত (ছবির মাপ ইত্যাদি) দেখুন।</p>
+          <p className="mt-1 text-[12px] text-slate-500">সাধারণ তালিকা — প্রতিটি সার্কুলারে নির্দিষ্ট শর্ত (ছবির মাপ ইত্যাদি) দেখুন।</p>
           <ul className="mt-2 space-y-1.5">
             {DOCUMENT_CHECKLIST.map((d) => (
               <li key={d.id}>
-                <label className="flex items-start gap-2 text-[13px]">
+                <label className="flex items-start gap-2 text-[13px] min-h-[44px]">
                   <input type="checkbox" checked={docs.includes(d.id)} onChange={() => setDocs((p) => (p.includes(d.id) ? p.filter((x) => x !== d.id) : [...p, d.id]))} className="mt-0.5 h-4 w-4 accent-indigo-600" />
-                  <span className={docs.includes(d.id) ? "text-slate-400 line-through" : ""}>{d.label}</span>
+                  <span className={docs.includes(d.id) ? "text-slate-500 line-through" : ""}>{d.label}</span>
                 </label>
               </li>
             ))}
@@ -602,27 +602,27 @@ function SopStudio({ profile }: { profile: StudentProfile }) {
         <p className="text-[12px] text-slate-500">টেমপ্লেট শুধু শুরু করার জন্য। নিজের অভিজ্ঞতা, নির্দিষ্ট উদাহরণ ও সংখ্যা দিয়ে নিজের ভাষায় লিখুন — অনেক প্রতিষ্ঠান টেমপ্লেটের মতো লেখা সহজে চিনতে পারে।</p>
         <div className="grid gap-2 sm:grid-cols-3">
           <label className="text-[12px] font-bold text-slate-600">বিশ্ববিদ্যালয়
-            <select value={uniId} onChange={(e) => { setUniId(e.target.value); setProgram(UNIVERSITIES.find((x) => x.id === e.target.value)!.programs[0]); }} className="mt-1 block w-full rounded border border-slate-200 bg-white px-2 py-1.5 text-[13px] font-normal">
+            <select value={uniId} onChange={(e) => { setUniId(e.target.value); setProgram(UNIVERSITIES.find((x) => x.id === e.target.value)!.programs[0]); }} className="mt-1 block w-full rounded border border-slate-200 bg-white px-2 py-1.5 text-[13px] font-normal min-h-[44px]">
               {UNIVERSITIES.map((x) => <option key={x.id} value={x.id}>{x.shortName}</option>)}
             </select>
           </label>
           <label className="text-[12px] font-bold text-slate-600">বিষয়
-            <select value={program} onChange={(e) => setProgram(e.target.value)} className="mt-1 block w-full rounded border border-slate-200 bg-white px-2 py-1.5 text-[13px] font-normal">
+            <select value={program} onChange={(e) => setProgram(e.target.value)} className="mt-1 block w-full rounded border border-slate-200 bg-white px-2 py-1.5 text-[13px] font-normal min-h-[44px]">
               {u.programs.map((p) => <option key={p}>{p}</option>)}
             </select>
           </label>
           <label className="text-[12px] font-bold text-slate-600">ধরন
-            <select value={tone} onChange={(e) => setTone(e.target.value as typeof tone)} className="mt-1 block w-full rounded border border-slate-200 bg-white px-2 py-1.5 text-[13px] font-normal">
+            <select value={tone} onChange={(e) => setTone(e.target.value as typeof tone)} className="mt-1 block w-full rounded border border-slate-200 bg-white px-2 py-1.5 text-[13px] font-normal min-h-[44px]">
               <option value="sincere">আনুষ্ঠানিক</option><option value="storytelling">গল্পের ভঙ্গিতে</option><option value="ambitious">উচ্চাকাঙ্ক্ষী</option>
             </select>
           </label>
         </div>
         <div className="flex gap-2">
-          <button onClick={() => { if (!draft.trim() || window.confirm("বর্তমান খসড়ার জায়গায় নতুন টেমপ্লেট বসাবেন?")) setDraft(generateSopDraft({ studentName: profile.name || "", university: u, program, profile, tone })); }} className="rounded-lg bg-indigo-600 px-4 py-2 text-[13px] font-bold text-white">টেমপ্লেট বসান</button>
-          {draft && <button onClick={() => { navigator.clipboard?.writeText(draft); setCopied(true); setTimeout(() => setCopied(false), 1500); }} className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-2 text-[13px] font-bold"><Copy size={14} aria-hidden /> {copied ? "কপি হয়েছে" : "কপি"}</button>}
+          <button onClick={() => { if (!draft.trim() || window.confirm("বর্তমান খসড়ার জায়গায় নতুন টেমপ্লেট বসাবেন?")) setDraft(generateSopDraft({ studentName: profile.name || "", university: u, program, profile, tone })); }} className="rounded-lg bg-indigo-600 px-4 py-2 text-[13px] font-bold text-white min-h-[44px] min-w-[44px]">টেমপ্লেট বসান</button>
+          {draft && <button onClick={() => { navigator.clipboard?.writeText(draft); setCopied(true); setTimeout(() => setCopied(false), 1500); }} className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-2 text-[13px] font-bold min-h-[44px] min-w-[44px]"><Copy size={14} aria-hidden /> {copied ? "কপি হয়েছে" : "কপি"}</button>}
         </div>
         <label htmlFor="sop" className="sr-only">SOP</label>
-        <textarea id="sop" rows={16} value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="এখানে আপনার SOP লিখুন বা টেমপ্লেট বসিয়ে নিজের মতো বদলান…" className="w-full rounded-xl border border-slate-200 p-3 text-[14px] leading-relaxed outline-none focus:border-indigo-600" />
+        <textarea id="sop" rows={16} value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="এখানে আপনার SOP লিখুন বা টেমপ্লেট বসিয়ে নিজের মতো বদলান…" className="w-full rounded-xl border border-slate-200 p-3 text-[14px] leading-relaxed outline-none focus:border-indigo-600 min-h-[44px]" />
       </div>
       <aside className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5">
         <h2 className="text-[16px] font-bold">লেখার বিশ্লেষণ</h2>
@@ -638,7 +638,7 @@ function SopStudio({ profile }: { profile: StudentProfile }) {
             <p className="text-[12px]"><strong>যা আছে:</strong> {a.keyThemes.join(", ") || "—"}</p>
             {!a.keyThemes.includes("Concrete experience") && <p className="rounded-lg bg-amber-50 p-2 text-[12px] text-amber-900">নিজের করা একটি নির্দিষ্ট কাজ বা প্রজেক্টের কথা যোগ করুন।</p>}
             {a.genericPhrases.length > 0 && <p className="rounded-lg bg-amber-50 p-2 text-[12px] text-amber-900">টেমপ্লেটের মতো শোনায়, নিজের ভাষায় বদলান: {a.genericPhrases.map((g) => `“${g}”`).join(", ")}</p>}
-            <p className="text-[11px] text-slate-500"><Info size={12} className="mr-1 inline" aria-hidden />এটি স্বয়ংক্রিয় পাঠযোগ্যতা মাপ, লেখার মানের রায় নয়।</p>
+            <p className="text-[12px] text-slate-500"><Info size={12} className="mr-1 inline" aria-hidden />এটি স্বয়ংক্রিয় পাঠযোগ্যতা মাপ, লেখার মানের রায় নয়।</p>
           </>
         )}
       </aside>
@@ -665,12 +665,12 @@ function Counselor({ matches }: { matches: ReturnType<typeof calculateMatches> }
         ))}
       </div>
       <div className="flex flex-wrap gap-1.5">
-        {["BUET সম্পর্কে বলুন", "বৃত্তি ও ওয়েভার", "আমার তারিখগুলো", "GST গুচ্ছ"].map((s) => <button key={s} onClick={() => send(s)} className="rounded-lg border border-slate-200 px-2.5 py-1 text-[12px]">{s}</button>)}
+        {["BUET সম্পর্কে বলুন", "বৃত্তি ও ওয়েভার", "আমার তারিখগুলো", "GST গুচ্ছ"].map((s) => <button key={s} onClick={() => send(s)} className="rounded-lg border border-slate-200 px-2.5 py-1 text-[12px] min-h-[44px] min-w-[44px]">{s}</button>)}
       </div>
       <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); send(input); }}>
         <label htmlFor="ask" className="sr-only">প্রশ্ন</label>
-        <input id="ask" value={input} onChange={(e) => setInput(e.target.value)} placeholder="আপনার প্রশ্ন…" className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-[14px] outline-none focus:border-indigo-600" />
-        <button type="submit" aria-label="পাঠান" className="rounded-xl bg-indigo-600 px-4 text-white"><Send size={16} /></button>
+        <input id="ask" value={input} onChange={(e) => setInput(e.target.value)} placeholder="আপনার প্রশ্ন…" className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-[14px] outline-none focus:border-indigo-600 min-h-[44px]" />
+        <button type="submit" aria-label="পাঠান" className="rounded-xl bg-indigo-600 px-4 text-white min-h-[44px] min-w-[44px]"><Send size={16} /></button>
       </form>
     </section>
   );
@@ -694,9 +694,9 @@ function StatusBoard({ shortlist, statuses, setStatuses, today }: {
         <h2 id="pipe-h" className="text-[17px] font-bold">আবেদনের অবস্থা</h2>
         <p className="text-[12px] text-slate-500">চলমান {pipe.active} · শেষ {pipe.finished}</p>
       </div>
-      <ol className="flex flex-wrap gap-1.5 text-[11px]" aria-label="ধাপ অনুযায়ী সংখ্যা">
+      <ol className="flex flex-wrap gap-1.5 text-[12px]" aria-label="ধাপ অনুযায়ী সংখ্যা">
         {APPLICATION_STAGES.map((s) => (
-          <li key={s.id} className={`rounded-full px-2.5 py-1 font-bold ${pipe.counts[s.id] ? "bg-indigo-100 text-indigo-900" : "bg-slate-100 text-slate-400"}`}>{s.label} {pipe.counts[s.id]}</li>
+          <li key={s.id} className={`rounded-full px-2.5 py-1 font-bold ${pipe.counts[s.id] ? "bg-indigo-100 text-indigo-900" : "bg-slate-100 text-slate-500"}`}>{s.label} {pipe.counts[s.id]}</li>
         ))}
       </ol>
       <ul className="divide-y divide-slate-100">
@@ -711,19 +711,19 @@ function StatusBoard({ shortlist, statuses, setStatuses, today }: {
                 defaultValue={status.note}
                 onBlur={(e) => e.target.value !== status.note && update(u.id, { note: e.target.value.slice(0, 200) })}
                 placeholder="নোট: রোল নম্বর, ট্রানজেকশন আইডি…"
-                className="mt-1 w-full rounded border border-slate-200 px-2 py-1 text-[12px]"
+                className="mt-1 w-full rounded border border-slate-200 px-2 py-1 text-[12px] min-h-[44px]"
               />
             </div>
             <div className="flex flex-col items-start gap-1 sm:items-end">
-              <select aria-label={`${u.shortName} আবেদনের ধাপ`} value={status.stage} onChange={(e) => update(u.id, { stage: e.target.value as ApplicationStage })} className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-[13px] font-semibold">
+              <select aria-label={`${u.shortName} আবেদনের ধাপ`} value={status.stage} onChange={(e) => update(u.id, { stage: e.target.value as ApplicationStage })} className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-[13px] font-semibold min-h-[44px]">
                 {APPLICATION_STAGES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
               </select>
-              {status.updatedAt && <span className="text-[10px] text-slate-400">হালনাগাদ {status.updatedAt}</span>}
+              {status.updatedAt && <span className="text-[12px] text-slate-500">হালনাগাদ {status.updatedAt}</span>}
             </div>
           </li>
         ))}
       </ul>
-      <p className="text-[11px] text-slate-500">ধাপগুলো আপনি নিজে বদলান — অ্যাপ কোনো বিশ্ববিদ্যালয়ের সাইট থেকে অবস্থা আনে না। সব তথ্য এই ডিভাইসে থাকে।</p>
+      <p className="text-[12px] text-slate-500">ধাপগুলো আপনি নিজে বদলান — অ্যাপ কোনো বিশ্ববিদ্যালয়ের সাইট থেকে অবস্থা আনে না। সব তথ্য এই ডিভাইসে থাকে।</p>
     </section>
   );
 }
@@ -749,7 +749,7 @@ function UniversityComparisonModal({
           <button
             onClick={onClose}
             aria-label="বন্ধ করুন"
-            className="rounded-full p-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700"
+            className="rounded-full p-1.5 text-slate-500 hover:bg-slate-200 hover:text-slate-700 min-h-[44px] min-w-[44px]"
           >
             <X size={18} />
           </button>
@@ -763,7 +763,7 @@ function UniversityComparisonModal({
                 {comparison.universities.map((u) => (
                   <th key={u.id} className="p-3 font-extrabold text-indigo-900 text-[15px]">
                     {u.shortName}
-                    <span className="block text-[11px] font-normal text-slate-500">{u.name}</span>
+                    <span className="block text-[12px] font-normal text-slate-500">{u.name}</span>
                   </th>
                 ))}
               </tr>
@@ -786,7 +786,7 @@ function UniversityComparisonModal({
         <div className="border-t border-slate-200 px-6 py-3 bg-slate-50 text-right">
           <button
             onClick={onClose}
-            className="rounded-xl bg-slate-900 px-5 py-2 text-[13px] font-bold text-white hover:bg-slate-800"
+            className="rounded-xl bg-slate-900 px-5 py-2 text-[13px] font-bold text-white hover:bg-slate-800 min-h-[44px] min-w-[44px]"
           >
             বন্ধ করুন
           </button>
@@ -850,7 +850,7 @@ function UnitEligibilityMatrixView({
               filterGroup === id
                 ? "border-blue-600 bg-blue-50 text-blue-800"
                 : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-            }`}
+            } min-h-[44px] min-w-[44px]`}
           >
             {label}
           </button>
@@ -868,11 +868,11 @@ function UnitEligibilityMatrixView({
             <div className="space-y-2">
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <span className="text-[11px] font-bold uppercase text-slate-500">{unit.clusterNameBn}</span>
+                  <span className="text-[12px] font-bold uppercase text-slate-500">{unit.clusterNameBn}</span>
                   <h3 className="text-[16px] font-bold leading-snug text-slate-900">{unit.unitNameBn}</h3>
                 </div>
                 <span
-                  className={`rounded-md px-2 py-0.5 text-[11px] font-extrabold ${
+                  className={`rounded-md px-2 py-0.5 text-[12px] font-extrabold ${
                     isEligible ? "bg-emerald-100 text-emerald-800" : "bg-rose-100 text-rose-800"
                   }`}
                 >
@@ -890,19 +890,19 @@ function UnitEligibilityMatrixView({
               </div>
 
               {unit.subjectPrerequisitesBn.length > 0 && (
-                <div className="rounded-lg bg-amber-50/80 p-2 text-[11.5px] text-amber-950 border border-amber-200/50">
+                <div className="rounded-lg bg-amber-50/80 p-2 text-[12px] text-amber-950 border border-amber-200/50">
                   ⚠️ <strong>শর্ত:</strong> {unit.subjectPrerequisitesBn.join("; ")}
                 </div>
               )}
 
               {!isEligible && reasonsBn.length > 0 && (
-                <div className="rounded-lg bg-rose-50 p-2 text-[11.5px] text-rose-900 border border-rose-200">
+                <div className="rounded-lg bg-rose-50 p-2 text-[12px] text-rose-900 border border-rose-200">
                   {reasonsBn.join(" ")}
                 </div>
               )}
             </div>
 
-            <div className="mt-3 pt-2.5 border-t border-slate-100 text-[11px] text-slate-500">
+            <div className="mt-3 pt-2.5 border-t border-slate-100 text-[12px] text-slate-500">
               {unit.notesBn}
             </div>
           </article>
@@ -957,7 +957,7 @@ function ScholarshipHubView({
               category === id
                 ? "border-indigo-600 bg-indigo-50 text-indigo-800"
                 : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-            }`}
+            } min-h-[44px] min-w-[44px]`}
           >
             {label}
           </button>
@@ -973,13 +973,13 @@ function ScholarshipHubView({
             <div className="space-y-2">
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-700 block">
+                  <span className="text-[12px] font-bold uppercase tracking-wider text-indigo-700 block">
                     {s.category === "domestic" ? "বাংলাদেশ সরকার / বেসরকারি" : "আন্তর্জাতিক ফুল স্কলারশিপ"}
                   </span>
                   <h3 className="text-[16.5px] font-bold text-slate-900 leading-snug">{s.nameBn}</h3>
                   <span className="text-[12px] text-slate-500">{s.nameEn}</span>
                 </div>
-                <span className="rounded-lg bg-indigo-50 px-2 py-0.5 text-[11px] font-bold text-indigo-900 shrink-0">
+                <span className="rounded-lg bg-indigo-50 px-2 py-0.5 text-[12px] font-bold text-indigo-900 shrink-0">
                   {s.targetLevelBn}
                 </span>
               </div>
@@ -996,12 +996,12 @@ function ScholarshipHubView({
             </div>
 
             <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-[11px] text-slate-400">অফিসিয়াল সার্কুলার প্রযোজ্য</span>
+              <span className="text-[12px] text-slate-500">অফিসিয়াল সার্কুলার প্রযোজ্য</span>
               <a
                 href={s.officialUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 font-bold text-indigo-700 underline text-[12.5px]"
+                className="inline-flex items-center gap-1 font-bold text-indigo-700 underline text-[12.5px] min-h-[44px] min-w-[44px]"
               >
                 অফিসিয়াল পোর্টাল <ExternalLink size={13} aria-hidden />
               </a>

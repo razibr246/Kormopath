@@ -83,7 +83,7 @@ export default function FarmerAvatar({ id, size = 48, className = '', flag, fall
         {c.hat === 'scarf' && <path d="M19.4 28 C18 15 25 10.8 32 10.8 C39 10.8 46 15 44.6 28 C42.8 20.5 38 17.6 32 17.6 C26 17.6 21.2 20.5 19.4 28 Z" fill={c.hatColor} />}
         {c.hat === 'hijab' && <path d="M22.4 22 C25 16 39 16 41.6 22" fill="none" stroke={dark(c.hatColor, 0.8)} strokeWidth="1" opacity=".6" />}
       </svg>
-      {flag && <span className="absolute bottom-0.5 right-0.5 grid place-items-center rounded-md bg-white/90 px-0.5 text-[11px] leading-none shadow-sm">{flag}</span>}
+      {flag && <span className="absolute bottom-0.5 right-0.5 grid place-items-center rounded-md bg-white/90 px-0.5 text-[12px] leading-none shadow-sm">{flag}</span>}
     </span>
   );
 }

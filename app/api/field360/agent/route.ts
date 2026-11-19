@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { Tracer } from "@/lib/trace";
 import { structured } from "@/lib/llm";
-import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
+import { checkRateLimitShared, rateLimitResponse } from "@/lib/rateLimit";
 import { checkReply, retryNote, type ReplyCheck } from "@/field360/src/engine/replyCheck";
 
 export const runtime = "nodejs";
@@ -36,7 +36,7 @@ const SYSTEM = (role: string, abroad: boolean) => (abroad
 Return ONLY JSON: {"reply":"...","proposals":[{"action":"...","text":"...","target":"..."}]}`);
 
 export async function POST(req: Request) {
-  const rl = checkRateLimit(req, { limit: 30, windowMs: 60_000, bucket: "field360-agent" });
+  const rl = await checkRateLimitShared(req, { limit: 30, windowMs: 60_000, bucket: "field360-agent" });
   if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
   const tracer = new Tracer("ChakraAgent");
   const p = Body.safeParse(await req.json().catch(() => ({})));

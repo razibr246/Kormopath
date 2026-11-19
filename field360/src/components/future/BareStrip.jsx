@@ -25,11 +25,11 @@ export default function BareStrip({ ctx, rot }) {
               <span style={{ height: `${(m.straw / m.total) * 100}%` }} className="bg-amber-300" />
               <span style={{ height: `${(m.bare / m.total) * 100}%` }} className="bg-red-400" />
             </div>
-            <div className="mt-0.5 truncate text-center text-[9.5px] leading-3 text-muted">{names[m.m - 1].slice(0, lang === 'bn' ? 3 : 1)}</div>
+            <div className="mt-0.5 truncate text-center text-[12px] leading-3 text-muted">{names[m.m - 1].slice(0, lang === 'bn' ? 3 : 1)}</div>
           </div>
         ))}
       </div>
-      <div className="mt-1 flex flex-wrap gap-x-2.5 text-[11px] text-muted">
+      <div className="mt-1 flex flex-wrap gap-x-2.5 text-[12px] text-muted">
         <span><i className="mr-1 inline-block h-2 w-2 rounded-sm bg-primary-500" />{T('ফসল', 'crop')}</span>
         <span><i className="mr-1 inline-block h-2 w-2 rounded-sm bg-amber-300" />{T('খড়ে ঢাকা', 'straw')}</span>
         <span><i className="mr-1 inline-block h-2 w-2 rounded-sm bg-red-400" />{T('খালি', 'bare')}</span>

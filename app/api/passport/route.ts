@@ -2,13 +2,13 @@ import { NextResponse } from "next/server";
 import { Tracer } from "@/lib/trace";
 import { PassportSchema, issue, check, usingDevSecret, signingConfigured } from "@/lib/passport";
 
-import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
+import { checkRateLimitShared, rateLimitResponse } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   if (!signingConfigured()) return NextResponse.json({ error: "Passport signing is unavailable until PASSPORT_SECRET is configured with at least 32 random characters." }, { status: 503 });
-  const rl = checkRateLimit(req, { limit: 10, bucket: "passport-issue" });
+  const rl = await checkRateLimitShared(req, { limit: 10, bucket: "passport-issue" });
   if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
   const tracer = new Tracer("Verifier");
   const p = PassportSchema.safeParse(await req.json().catch(() => ({})));

@@ -61,11 +61,11 @@ export default function SeasonRibbon({ dark = false, compact = false, showToday 
     { key: 'rabi', label: T('রবি', 'Rabi'), sub: T(`এবার · ${num(daysBetween(chosen.t0, chosen.hw.end), 'bn')} দিন`, `this crop · ${daysBetween(chosen.t0, chosen.hw.end)} days`),
       name: L(chosen.crop.name), from: chosen.t0, to: chosen.hw.end, harvestFrom: chosen.hw.start, icon: Sprout, dot: '#3f7f39',
       note: T(`ফসল তোলা ${fmtBangla(chosen.hw.start, 'bn')} থেকে`, `Harvest from ${fmtDate(chosen.hw.start, 'en')}`),
-      cls: dark ? 'bg-primary-300 text-primary-950' : 'bg-gradient-to-b from-primary-500 to-primary-700 text-white shadow-[inset_0_1px_0_rgba(255,255,255,.25),0_6px_14px_-8px_rgba(36,90,40,.7)]' },
+      cls: dark ? 'bg-primary-300 text-primary-950' : 'bg-gradient-to-b from-primary-600 to-primary-800 text-white shadow-[inset_0_1px_0_rgba(255,255,255,.25),0_6px_14px_-8px_rgba(36,90,40,.7)]' },
     r.best && { key: 'next', label: T('খরিফ-১', 'Kharif-1'), sub: T(`পরের ফসল · ${num(r.best.crop.days, 'bn')} দিন`, `next crop · ${r.best.crop.days} days`),
       name: L(r.best.crop.name), from: nextStart, to: nextEnd, gapFrom: chosen.hw.end, icon: ArrowRight, dot: '#3d7f8a',
       note: T(`রবি তোলার পর ${num(daysBetween(chosen.hw.end, nextStart), 'bn')} দিন জমি তৈরি`, `${daysBetween(chosen.hw.end, nextStart)} days to ready the land after the Rabi harvest`),
-      cls: dark ? 'bg-sky-200 text-sky-900' : 'bg-gradient-to-b from-[#4a8a96] to-[#33707b] text-white shadow-[inset_0_1px_0_rgba(255,255,255,.25),0_6px_14px_-8px_rgba(40,90,100,.7)]' },
+      cls: dark ? 'bg-sky-200 text-sky-900' : 'bg-gradient-to-b from-[#3b7681] to-[#2b616b] text-white shadow-[inset_0_1px_0_rgba(255,255,255,.25),0_6px_14px_-8px_rgba(40,90,100,.7)]' },
     { key: 'aman', label: T('খরিফ-২', 'Kharif-2'), sub: T('বর্ষা · প্রচলিত', 'monsoon · as usual'), name: T('রোপা আমন', 'T. Aman rice'), from: amanStart, to: END, open: true, icon: CloudRain, dot: '#8dbe78',
       note: T('উপজেলায় সাধারণত এই সময়ে রোপণ শুরু (সেন্টিনেল-১ রাডার)', 'When transplanting usually starts in the upazila (Sentinel-1 radar)'),
       cls: dark ? 'bg-gradient-to-r from-white/30 to-white/0 text-white' : 'bg-gradient-to-r from-primary-200 to-primary-100/0 text-primary-900' },
@@ -84,7 +84,7 @@ export default function SeasonRibbon({ dark = false, compact = false, showToday 
 
   return (
     <div className="hide-scrollbar -mx-1 overflow-x-auto px-1 pt-1" role="group" aria-label={T(`মৌসুমের পরিকল্পনা: ${chosen.crop.name.bn} ${fmtBangla(chosen.t0, 'bn')} থেকে ${fmtBangla(chosen.hw.end, 'bn')}`, `Season plan: ${chosen.crop.name.en} from ${fmtDate(chosen.t0, 'en')} to ${fmtDate(chosen.hw.end, 'en')}`)}>
-      {!compact && <p className={`sticky left-0 mb-1 text-[11.5px] sm:hidden ${quiet}`}>{T('ডানে-বাঁয়ে সরিয়ে পুরো বছর দেখুন →', 'Swipe sideways for the whole year →')}</p>}
+      {!compact && <p className={`sticky left-0 mb-1 text-[12px] sm:hidden ${quiet}`}>{T('ডানে-বাঁয়ে সরিয়ে পুরো বছর দেখুন →', 'Swipe sideways for the whole year →')}</p>}
       <div className={`flex gap-3 ${compact ? 'min-w-[560px]' : 'min-w-[860px]'}`}>
         {/* Label column, row heights matched to the timeline */}
         <div className={`${gutter} shrink-0`}>
@@ -95,7 +95,7 @@ export default function SeasonRibbon({ dark = false, compact = false, showToday 
             {rows.map((row) => (
               <div key={row.key} className={`flex flex-col ${activityExpanded(row.key) ? 'h-[380px] justify-start pt-2' : 'h-10 justify-center'} leading-tight`}>
                 <span className={`inline-flex items-center gap-1.5 text-[13px] font-semibold ${ink}`}><i className="h-2 w-2 shrink-0 rounded-full" style={{ background: row.dot }} />{row.label}</span>
-                {!compact && <span className={`text-[11.5px] ${quiet}`}>{row.sub}</span>}
+                {!compact && <span className={`text-[12px] ${quiet}`}>{row.sub}</span>}
               </div>
             ))}
           </div>
@@ -109,7 +109,7 @@ export default function SeasonRibbon({ dark = false, compact = false, showToday 
           )}
           {inRange && (
             <div className="relative h-6">
-              <span className={`absolute top-0 inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-semibold shadow-sm ${tp < 5 ? '-translate-x-[3px]' : tp > 95 ? '-translate-x-full' : '-translate-x-1/2'} ${dark ? 'bg-paddy-300 text-primary-950' : 'bg-paddy-700 text-white'}`} style={{ left: `${tp}%` }}>
+              <span className={`absolute top-0 inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-[12px] font-semibold shadow-sm ${tp < 5 ? '-translate-x-[3px]' : tp > 95 ? '-translate-x-full' : '-translate-x-1/2'} ${dark ? 'bg-paddy-300 text-primary-950' : 'bg-paddy-700 text-white'}`} style={{ left: `${tp}%` }}>
                 <span className="relative flex h-1.5 w-1.5"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/70" /><span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-white" /></span>
                 {T(`আজ · ${fmtBangla(today, 'bn')} ${bnDigits(banglaDate(today).year)}`, `Today · ${fmtDate(today, 'en')} (${fmtBangla(today, 'en')})`)}
               </span>
@@ -122,15 +122,15 @@ export default function SeasonRibbon({ dark = false, compact = false, showToday 
           {ritu && (
             <div className="relative flex h-6 gap-1 pb-1" aria-label={T('ঋতু', 'Seasons')}>
               {RITUS.map(({ k, n }) => (
-                <div key={k} style={{ flexGrow: n, flexBasis: 0 }} className={`flex items-center justify-center rounded-md text-[11.5px] font-semibold ${dark ? 'bg-white/10 text-white/80' : 'bg-primary-50 text-primary-800'}`}>{T(RITU[k][0], RITU[k][1])}</div>
+                <div key={k} style={{ flexGrow: n, flexBasis: 0 }} className={`flex items-center justify-center rounded-md text-[12px] font-semibold ${dark ? 'bg-white/10 text-white/80' : 'bg-primary-50 text-primary-800'}`}>{T(RITU[k][0], RITU[k][1])}</div>
               ))}
             </div>
           )}
           <div className={`relative flex ${head} border-b ${grid}`}>
             {MONTHS.map((mo, i) => (
               <div key={mo.m} className={`flex-1 border-l ${grid} ${i === 0 ? 'border-l-0' : ''} pl-1.5 pt-0.5`}>
-                <div className={`font-display text-[13px] font-semibold ${i === cur && inRange ? (dark ? 'text-paddy-300' : 'text-paddy-700') : ink}`}>{lang === 'bn' ? BN_MONTHS[mo.m] : BN_MONTHS_EN[mo.m]}{mo.m === 0 && !compact && <span className={`ml-1 text-[10.5px] font-medium ${quiet}`}>{T(bnDigits(banglaDate(mo.start).year), banglaDate(mo.start).year)}</span>}</div>
-                {!compact && <div className={`text-[11px] ${quiet}`}>{fmtDate(mo.start, lang)}</div>}
+                <div className={`font-display text-[13px] font-semibold ${i === cur && inRange ? (dark ? 'text-paddy-300' : 'text-paddy-700') : ink}`}>{lang === 'bn' ? BN_MONTHS[mo.m] : BN_MONTHS_EN[mo.m]}{mo.m === 0 && !compact && <span className={`ml-1 text-[12px] font-medium ${quiet}`}>{T(bnDigits(banglaDate(mo.start).year), banglaDate(mo.start).year)}</span>}</div>
+                {!compact && <div className={`text-[12px] ${quiet}`}>{fmtDate(mo.start, lang)}</div>}
               </div>
             ))}
           </div>
@@ -156,9 +156,9 @@ export default function SeasonRibbon({ dark = false, compact = false, showToday 
                     {!row.open && today > row.from && today < row.to && <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 left-0 bg-white/15" style={{ width: `${((today - row.from) / (row.to - row.from)) * 100}%` }} />}
                     <row.icon size={14} className="relative z-[1] shrink-0 opacity-90" aria-hidden="true" />
                     <span className="relative z-[1] truncate">{row.name}</span>
-                    {roomy && !compact && <span className={`relative z-[1] truncate text-[11.5px] font-normal ${row.open ? 'text-primary-800/80' : 'opacity-85'}`}>{dates}</span>}
+                    {roomy && !compact && <span className={`relative z-[1] truncate text-[12px] font-normal ${row.open ? 'text-primary-900' : ''}`}>{dates}</span>}
                     {hw > 0 && (
-                      <span className="absolute inset-y-1 right-1 flex items-center justify-center rounded-lg bg-paddy-300 text-[11px] font-semibold text-primary-950 shadow-[inset_0_1px_0_rgba(255,255,255,.5)]" style={{ width: `${hw}%` }} aria-hidden="true">
+                      <span className="absolute inset-y-1 right-1 flex items-center justify-center rounded-lg bg-paddy-300 text-[12px] font-semibold text-primary-950 shadow-[inset_0_1px_0_rgba(255,255,255,.5)]" style={{ width: `${hw}%` }} aria-hidden="true">
                         {hw > 14 && !compact && T('তোলা', 'harvest')}
                       </span>
                     )}
@@ -183,7 +183,7 @@ export default function SeasonRibbon({ dark = false, compact = false, showToday 
                     </div>
                   )}
                   {!roomy && !compact && (
-                    <span className={`absolute top-5 -translate-y-1/2 whitespace-nowrap text-[11.5px] ${quiet}`} style={left + width > 72 ? { right: `${100 - left + 1}%` } : { left: `${left + width + 1}%` }}>{dates}</span>
+                    <span className={`absolute top-5 -translate-y-1/2 whitespace-nowrap text-[12px] ${quiet}`} style={left + width > 72 ? { right: `${100 - left + 1}%` } : { left: `${left + width + 1}%` }}>{dates}</span>
                   )}
                   {/* Where the animation's date falls on this crop's bar (only on the bar: the scene card sits below it). */}
                   {activityExpanded(row.key) && animatedDates[row.key] != null && animatedDates[row.key] >= row.from && animatedDates[row.key] <= row.to && (
@@ -205,9 +205,9 @@ export default function SeasonRibbon({ dark = false, compact = false, showToday 
 
       {!compact && (
         <div className={`mt-4 flex flex-wrap gap-2 text-[12.5px] ${dark ? 'text-white/85' : 'text-ink/80'}`}>
-          <button type="button" onMouseEnter={() => setHover('rabi')} onMouseLeave={() => setHover(null)} onClick={() => toggle('rabi')} className={`inline-flex touch-manipulation items-center gap-1.5 rounded-full px-3 py-1.5 transition ${hover === 'rabi' ? (dark ? 'bg-white/20' : 'bg-primary-100') : dark ? 'bg-white/10' : 'bg-black/[.04]'}`}><Sprout size={14} className={dark ? 'text-primary-300' : 'text-primary-600'} />{T(`লাগানো ${fmtBangla(chosen.t0, 'bn')} (${fmtDate(chosen.t0, 'bn')})`, `Plant ${fmtDate(chosen.t0, 'en')} (${fmtBangla(chosen.t0, 'en')})`)}</button>
-          <button type="button" onMouseEnter={() => setHover('rabi')} onMouseLeave={() => setHover(null)} onClick={() => toggle('rabi')} className={`inline-flex touch-manipulation items-center gap-1.5 rounded-full px-3 py-1.5 transition ${dark ? 'bg-white/10' : 'bg-black/[.04]'}`}><Wheat size={14} className="text-paddy-700" />{T(`ফসল তোলা ${fmtBangla(chosen.hw.start, 'bn')} – ${fmtBangla(chosen.hw.end, 'bn')}`, `Harvest ${fmtDate(chosen.hw.start, 'en')} – ${fmtDate(chosen.hw.end, 'en')}`)}</button>
-          {r.best && <button type="button" onMouseEnter={() => setHover('next')} onMouseLeave={() => setHover(null)} onClick={() => toggle('next')} className={`inline-flex touch-manipulation items-center gap-1.5 rounded-full px-3 py-1.5 transition ${hover === 'next' ? (dark ? 'bg-white/20' : 'bg-sky-100') : dark ? 'bg-white/10' : 'bg-black/[.04]'}`}><ArrowRight size={14} className="text-[#33707b]" />{T(`তারপর ${L(r.best.crop.name)}, ${fmtBangla(nextStart, 'bn')}`, `Then ${L(r.best.crop.name)}, ${fmtDate(nextStart, 'en')}`)}</button>}
+          <button type="button" onMouseEnter={() => setHover('rabi')} onMouseLeave={() => setHover(null)} onClick={() => toggle('rabi')} className={`inline-flex min-h-[44px] touch-manipulation items-center gap-1.5 rounded-full px-3 py-1.5 transition ${hover === 'rabi' ? (dark ? 'bg-white/20' : 'bg-primary-100') : dark ? 'bg-white/10' : 'bg-black/[.04]'}`}><Sprout size={14} className={dark ? 'text-primary-300' : 'text-primary-600'} />{T(`লাগানো ${fmtBangla(chosen.t0, 'bn')} (${fmtDate(chosen.t0, 'bn')})`, `Plant ${fmtDate(chosen.t0, 'en')} (${fmtBangla(chosen.t0, 'en')})`)}</button>
+          <button type="button" onMouseEnter={() => setHover('rabi')} onMouseLeave={() => setHover(null)} onClick={() => toggle('rabi')} className={`inline-flex min-h-[44px] touch-manipulation items-center gap-1.5 rounded-full px-3 py-1.5 transition ${dark ? 'bg-white/10' : 'bg-black/[.04]'}`}><Wheat size={14} className="text-paddy-700" />{T(`ফসল তোলা ${fmtBangla(chosen.hw.start, 'bn')} – ${fmtBangla(chosen.hw.end, 'bn')}`, `Harvest ${fmtDate(chosen.hw.start, 'en')} – ${fmtDate(chosen.hw.end, 'en')}`)}</button>
+          {r.best && <button type="button" onMouseEnter={() => setHover('next')} onMouseLeave={() => setHover(null)} onClick={() => toggle('next')} className={`inline-flex min-h-[44px] touch-manipulation items-center gap-1.5 rounded-full px-3 py-1.5 transition ${hover === 'next' ? (dark ? 'bg-white/20' : 'bg-sky-100') : dark ? 'bg-white/10' : 'bg-black/[.04]'}`}><ArrowRight size={14} className="text-[#33707b]" />{T(`তারপর ${L(r.best.crop.name)}, ${fmtBangla(nextStart, 'bn')}`, `Then ${L(r.best.crop.name)}, ${fmtDate(nextStart, 'en')}`)}</button>}
         </div>
       )}
     </div>

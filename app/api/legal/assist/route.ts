@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { Tracer } from "@/lib/trace";
 import { structured } from "@/lib/llm";
-import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
+import { checkRateLimitShared, rateLimitResponse } from "@/lib/rateLimit";
 import { HELPLINES, LAWS, NOT_LEGAL_ADVICE_BN, NOT_LEGAL_ADVICE_EN } from "@/lib/legal/data";
 import { PROBLEM_CATEGORIES } from "@/lib/legal/taxonomy";
 import { classifySeverity } from "@/lib/legal/severity";
@@ -44,7 +44,7 @@ Rules (an automatic checker rejects any answer that breaks them):
 Return ONLY JSON: {"answer":"...","helplines":[ids from ${HELPLINE_IDS.join("|")}],"laws":[ids from ${LAW_IDS.join("|")}],"next":"apply"|"mediation"|"call"|"none"}`;
 
 export async function POST(req: Request) {
-  const rl = checkRateLimit(req, { limit: 30, windowMs: 60_000, bucket: "legal-assist" });
+  const rl = await checkRateLimitShared(req, { limit: 30, windowMs: 60_000, bucket: "legal-assist" });
   if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
   const tracer = new Tracer("LegalAssistant");
   const p = Body.safeParse(await req.json().catch(() => ({})));

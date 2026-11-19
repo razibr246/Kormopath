@@ -25,7 +25,7 @@ function MoneyInput({ id, value, onChange, label }: { id: string; value: number;
         <span className="text-slate-500">৳</span>
         <input id={id} inputMode="decimal" value={text} aria-invalid={bad}
           onChange={(e) => { setText(e.target.value); const p = parseTakaInput(e.target.value); if (p !== null) onChange(p); }}
-          className="min-w-0 flex-1 bg-transparent py-2.5 font-mono text-[15px] outline-none" />
+          className="min-w-0 flex-1 bg-transparent py-2.5 font-mono text-[15px] outline-none min-h-[44px]" />
       </span>
     </label>
   );
@@ -64,7 +64,7 @@ export function ZakatHub() {
             "Enter your assets, gold, silver and debts; you type today's gold and silver rate yourself from BAJUS or your jeweller. Everything is worked out on this phone and sent nowhere.",
           )}</p>
         </div>
-        <button type="button" onClick={() => setLang(bn ? "en" : "bn")} className="kp-chip !h-8 !rounded-full !text-[12px] font-semibold" aria-label={bn ? "Switch to English" : "বাংলায় দেখুন"}>{bn ? "EN" : "বাং"}</button>
+        <button type="button" onClick={() => setLang(bn ? "en" : "bn")} className="kp-chip !h-11 !rounded-full !text-[12px] font-semibold !min-w-[44px]" aria-label={bn ? "Switch to English" : "বাংলায় দেখুন"}>{bn ? "EN" : "বাং"}</button>
       </div>
 
       {/* 1. Cash-like assets and debts */}
@@ -86,19 +86,19 @@ export function ZakatHub() {
             return (
               <li key={h.id} data-testid="zk-holding" className="grid gap-2 rounded-xl border border-slate-200 p-3 sm:grid-cols-[1fr_1fr_1fr_1fr_auto] sm:items-end">
                 <label className="text-[13px] font-semibold text-slate-700">{T("ধাতু", "Metal")}
-                  <select value={h.metal} onChange={(e) => setHolding(h.id, { metal: e.target.value as Metal })} className={`${fieldCls} mt-1`}><option value="gold">{metalName("gold")}</option><option value="silver">{metalName("silver")}</option></select>
+                  <select value={h.metal} onChange={(e) => setHolding(h.id, { metal: e.target.value as Metal })} className={`${fieldCls} mt-1 min-h-[44px]`}><option value="gold">{metalName("gold")}</option><option value="silver">{metalName("silver")}</option></select>
                 </label>
                 <label className="text-[13px] font-semibold text-slate-700">{T("মান", "Purity")}
-                  <select value={h.purity} onChange={(e) => setHolding(h.id, { purity: e.target.value as Purity })} className={`${fieldCls} mt-1`}>{PURITIES.map((p) => <option key={p} value={p}>{bn ? PURITY_LABEL[p].bn : PURITY_LABEL[p].en}</option>)}</select>
+                  <select value={h.purity} onChange={(e) => setHolding(h.id, { purity: e.target.value as Purity })} className={`${fieldCls} mt-1 min-h-[44px]`}>{PURITIES.map((p) => <option key={p} value={p}>{bn ? PURITY_LABEL[p].bn : PURITY_LABEL[p].en}</option>)}</select>
                 </label>
                 <label className="text-[13px] font-semibold text-slate-700">{T("ওজন", "Weight")}
                   <WeightInput value={h.weightMilli} onChange={(w) => setHolding(h.id, { weightMilli: w })} />
                 </label>
                 <label className="text-[13px] font-semibold text-slate-700">{T("একক", "Unit")}
-                  <select value={h.unit} onChange={(e) => setHolding(h.id, { unit: e.target.value as WeightUnit })} className={`${fieldCls} mt-1`}><option value="bhori">{unitName("bhori")}</option><option value="gram">{unitName("gram")}</option></select>
+                  <select value={h.unit} onChange={(e) => setHolding(h.id, { unit: e.target.value as WeightUnit })} className={`${fieldCls} mt-1 min-h-[44px]`}><option value="bhori">{unitName("bhori")}</option><option value="gram">{unitName("gram")}</option></select>
                 </label>
-                <button type="button" onClick={() => up({ holdings: s.holdings.filter((x) => x.id !== h.id) })} className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-300 px-3 text-red-700" aria-label={T("মুছুন", "Remove")}><Trash2 size={17} /></button>
-                <label className="flex items-center gap-2 text-[14px] sm:col-span-3">
+                <button type="button" onClick={() => up({ holdings: s.holdings.filter((x) => x.id !== h.id) })} className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-300 px-3 text-red-700 min-w-[44px]" aria-label={T("মুছুন", "Remove")}><Trash2 size={17} /></button>
+                <label className="flex items-center gap-2 text-[14px] sm:col-span-3 min-h-[44px]">
                   <input type="checkbox" checked={h.worn} onChange={(e) => setHolding(h.id, { worn: e.target.checked })} className="h-5 w-5" /> {T("নিয়মিত পরা গয়না", "Jewellery worn regularly")}
                 </label>
                 <p className="text-[13.5px] text-slate-700 sm:col-span-2 sm:text-right">
@@ -108,8 +108,8 @@ export function ZakatHub() {
             );
           })}
         </ul>
-        <button type="button" data-testid="zk-add-holding" onClick={() => up({ holdings: [...s.holdings, { id: uid(), metal: "gold", purity: "22K", unit: "bhori", weightMilli: 0, worn: true, note: "" }] })} className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 text-[14.5px] font-semibold"><Plus size={17} aria-hidden /> {T("সোনা বা রুপা যোগ করুন", "Add gold or silver")}</button>
-        <label className="flex items-start gap-2 rounded-xl bg-slate-50 p-3 text-[14px] text-slate-800">
+        <button type="button" data-testid="zk-add-holding" onClick={() => up({ holdings: [...s.holdings, { id: uid(), metal: "gold", purity: "22K", unit: "bhori", weightMilli: 0, worn: true, note: "" }] })} className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 text-[14.5px] font-semibold min-w-[44px]"><Plus size={17} aria-hidden /> {T("সোনা বা রুপা যোগ করুন", "Add gold or silver")}</button>
+        <label className="flex items-start gap-2 rounded-xl bg-slate-50 p-3 text-[14px] text-slate-800 min-h-[44px]">
           <input type="checkbox" checked={s.includeWorn} onChange={(e) => up({ includeWorn: e.target.checked })} className="mt-0.5 h-5 w-5" />
           <span>{T("নিয়মিত পরা গয়নাও হিসাবে ধরুন। এ বিষয়ে মাযহাবগুলোর মত ভিন্ন; আপনার আলেমের মত অনুযায়ী বেছে নিন।", "Count jewellery worn regularly too. The schools of law differ on this; choose as your own scholar advises.")}</span>
         </label>
@@ -134,10 +134,10 @@ export function ZakatHub() {
             );
           })}
           <label className="block text-[13.5px] font-semibold text-slate-700">{T("দাম দেখার তারিখ", "Date of these rates")}
-            <input type="date" value={s.rateDate} max={today || undefined} onChange={(e) => up({ rateDate: e.target.value })} className={`${fieldCls} mt-1`} />
+            <input type="date" value={s.rateDate} max={today || undefined} onChange={(e) => up({ rateDate: e.target.value })} className={`${fieldCls} mt-1 min-h-[44px]`} />
           </label>
           <label className="block text-[13.5px] font-semibold text-slate-700">{T("কোথা থেকে", "Source")}
-            <input value={s.rateSource} maxLength={120} placeholder={T("যেমন: বাজুস, বা দোকানের নাম", "e.g. BAJUS, or the shop's name")} onChange={(e) => up({ rateSource: e.target.value })} className={`${fieldCls} mt-1`} />
+            <input value={s.rateSource} maxLength={120} placeholder={T("যেমন: বাজুস, বা দোকানের নাম", "e.g. BAJUS, or the shop's name")} onChange={(e) => up({ rateSource: e.target.value })} className={`${fieldCls} mt-1 min-h-[44px]`} />
           </label>
         </div>
       </fieldset>
@@ -147,7 +147,7 @@ export function ZakatHub() {
         <legend className="mb-2 text-[15.5px] font-bold text-slate-900">{T("নিসাব ও হাওল", "Nisab and hawl")}</legend>
         <div className="space-y-2">
           {(["silver", "gold"] as Metal[]).map((m) => (
-            <label key={m} className={`flex cursor-pointer items-start gap-2 rounded-xl border p-3 text-[14px] ${s.basis === m ? "border-emerald-500 bg-emerald-50" : "border-slate-200"}`}>
+            <label key={m} className={`flex cursor-pointer items-start gap-2 rounded-xl border p-3 text-[14px] ${s.basis === m ? "border-emerald-500 bg-emerald-50" : "border-slate-200"} min-h-[44px]`}>
               <input type="radio" name="zk-basis" checked={s.basis === m} onChange={() => up({ basis: m })} className="mt-0.5 h-5 w-5" />
               <span>{m === "silver"
                 ? T(`রুপার নিসাব: ${N(NISAB_SILVER_MG / 1000)} গ্রাম রুপার দাম। এটি নিচের সীমা; অনেক আলেম সতর্কতার জন্য এটি ধরতে বলেন।`, `Silver nisab: the value of ${NISAB_SILVER_MG / 1000} g of silver. It is the lower threshold; many scholars advise it for caution.`)
@@ -155,12 +155,12 @@ export function ZakatHub() {
             </label>
           ))}
           <label className="block text-[13.5px] font-semibold text-slate-700">{T("নিসাবে কোন মানের দাম ধরবেন", "Purity used for the nisab rate")}
-            <select value={s.nisabPurity} onChange={(e) => up({ nisabPurity: e.target.value as Purity })} className={`${fieldCls} mt-1`}>{PURITIES.map((p) => <option key={p} value={p}>{bn ? PURITY_LABEL[p].bn : PURITY_LABEL[p].en}</option>)}</select>
+            <select value={s.nisabPurity} onChange={(e) => up({ nisabPurity: e.target.value as Purity })} className={`${fieldCls} mt-1 min-h-[44px]`}>{PURITIES.map((p) => <option key={p} value={p}>{bn ? PURITY_LABEL[p].bn : PURITY_LABEL[p].en}</option>)}</select>
           </label>
         </div>
         <div>
           <label className="block text-[13.5px] font-semibold text-slate-700">{T("নিসাব পূর্ণ হওয়ার দিন (হাওলের শুরু)", "Day your wealth first reached nisab (hawl start)")}
-            <input type="date" value={s.hawlStart} max={today || undefined} onChange={(e) => up({ hawlStart: e.target.value })} className={`${fieldCls} mt-1`} />
+            <input type="date" value={s.hawlStart} max={today || undefined} onChange={(e) => up({ hawlStart: e.target.value })} className={`${fieldCls} mt-1 min-h-[44px]`} />
           </label>
           {hawl && <p className="mt-2 text-[14px] text-slate-800" data-testid="zk-hawl">{T(`পরের হাওল পূর্ণ হবে আনুমানিক ${N(hawl.date)} (আরও প্রায় ${N(hawl.daysLeft)} দিন)। চাঁদের হিসাবে প্রায় ${N(LUNAR_YEAR_DAYS_APPROX)} দিনে এক বছর ধরা; সঠিক তারিখ হিজরি ক্যালেন্ডার দেখে নিন।`, `Your next hawl completes around ${hawl.date} (about ${hawl.daysLeft} days). A lunar year is taken as about ${LUNAR_YEAR_DAYS_APPROX} days; check the Hijri calendar for the exact date.`)}</p>}
         </div>
@@ -196,32 +196,32 @@ export function ZakatHub() {
             return (
               <li key={x.id} data-testid="zk-saving" className="grid gap-2 rounded-xl border border-slate-200 p-3 sm:grid-cols-3">
                 <label className="text-[13px] font-semibold text-slate-700">{T("ধরন", "Type")}
-                  <select value={x.kind} onChange={(e) => setSaving(x.id, { kind: e.target.value as SavingsKind })} className={`${fieldCls} mt-1`}>
+                  <select value={x.kind} onChange={(e) => setSaving(x.id, { kind: e.target.value as SavingsKind })} className={`${fieldCls} mt-1 min-h-[44px]`}>
                     <option value="dps">{T("ডিপিএস", "DPS")}</option><option value="sanchaypatra">{T("সঞ্চয়পত্র", "Sanchaypatra")}</option><option value="fdr">{T("এফডিআর", "FDR")}</option><option value="other">{T("অন্যান্য", "Other")}</option>
                   </select>
                 </label>
                 <label className="text-[13px] font-semibold text-slate-700">{T("নাম", "Name")}
-                  <input value={x.name} maxLength={60} onChange={(e) => setSaving(x.id, { name: e.target.value })} className={`${fieldCls} mt-1`} />
+                  <input value={x.name} maxLength={60} onChange={(e) => setSaving(x.id, { name: e.target.value })} className={`${fieldCls} mt-1 min-h-[44px]`} />
                 </label>
                 <MoneyInput id={`zk-sp-${x.id}`} label={T("জমা/মূল টাকা", "Principal")} value={x.principalPoisha} onChange={(p) => setSaving(x.id, { principalPoisha: p })} />
                 <label className="text-[13px] font-semibold text-slate-700">{T("বার্ষিক হার (%)", "Yearly rate (%)")}
-                  <input inputMode="decimal" defaultValue={x.rateBps ? String(x.rateBps / 100) : ""} onChange={(e) => { const p = parseTakaInput(e.target.value); if (p !== null) setSaving(x.id, { rateBps: Math.min(10_000, p) }); }} className={`${fieldCls} mt-1 font-mono`} />
+                  <input inputMode="decimal" defaultValue={x.rateBps ? String(x.rateBps / 100) : ""} onChange={(e) => { const p = parseTakaInput(e.target.value); if (p !== null) setSaving(x.id, { rateBps: Math.min(10_000, p) }); }} className={`${fieldCls} mt-1 font-mono min-h-[44px]`} />
                 </label>
                 <label className="text-[13px] font-semibold text-slate-700">{T("শুরু", "Start")}
-                  <input type="date" value={x.startDate} onChange={(e) => setSaving(x.id, { startDate: e.target.value })} className={`${fieldCls} mt-1`} />
+                  <input type="date" value={x.startDate} onChange={(e) => setSaving(x.id, { startDate: e.target.value })} className={`${fieldCls} mt-1 min-h-[44px]`} />
                 </label>
                 <label className="text-[13px] font-semibold text-slate-700">{T("মেয়াদ শেষ", "Maturity")}
-                  <input type="date" value={x.maturityDate} onChange={(e) => setSaving(x.id, { maturityDate: e.target.value })} className={`${fieldCls} mt-1`} />
+                  <input type="date" value={x.maturityDate} onChange={(e) => setSaving(x.id, { maturityDate: e.target.value })} className={`${fieldCls} mt-1 min-h-[44px]`} />
                 </label>
                 <div className="flex items-center justify-between gap-2 sm:col-span-3">
                   <p className="text-[14px] text-slate-800">{est ? T(`আনুমানিক মেয়াদ শেষে ${tk(est.totalPoisha)} (মুনাফা ${tk(est.profitPoisha)})`, `Estimated at maturity ${tk(est.totalPoisha)} (profit ${tk(est.profitPoisha)})`) : T("টাকা, হার আর দুটি তারিখ দিলে আনুমানিক হিসাব দেখাবে।", "Enter amount, rate and both dates to see an estimate.")}</p>
-                  <button type="button" onClick={() => up({ savings: s.savings.filter((y) => y.id !== x.id) })} className="inline-flex h-10 items-center rounded-xl border border-slate-300 px-3 text-red-700" aria-label={T("মুছুন", "Remove")}><Trash2 size={16} /></button>
+                  <button type="button" onClick={() => up({ savings: s.savings.filter((y) => y.id !== x.id) })} className="inline-flex h-11 items-center rounded-xl border border-slate-300 px-3 text-red-700 min-w-[44px]" aria-label={T("মুছুন", "Remove")}><Trash2 size={16} /></button>
                 </div>
               </li>
             );
           })}
         </ul>
-        <button type="button" onClick={() => up({ savings: [...s.savings, { id: uid(), kind: "dps", name: "", principalPoisha: 0, rateBps: 0, startDate: "", maturityDate: "" }] })} className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 text-[14.5px] font-semibold"><Plus size={17} aria-hidden /> {T("ডিপিএস বা সঞ্চয়পত্র যোগ করুন", "Add DPS or Sanchaypatra")}</button>
+        <button type="button" onClick={() => up({ savings: [...s.savings, { id: uid(), kind: "dps", name: "", principalPoisha: 0, rateBps: 0, startDate: "", maturityDate: "" }] })} className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 text-[14.5px] font-semibold min-w-[44px]"><Plus size={17} aria-hidden /> {T("ডিপিএস বা সঞ্চয়পত্র যোগ করুন", "Add DPS or Sanchaypatra")}</button>
       </fieldset>
 
       <div className="flex flex-wrap gap-2 border-t border-slate-200 pt-3">
@@ -237,6 +237,6 @@ function WeightInput({ value, onChange }: { value: number; onChange: (w: number)
   return (
     <input inputMode="decimal" value={text} aria-invalid={parseWeightInput(text) === null}
       onChange={(e) => { setText(e.target.value); const w = parseWeightInput(e.target.value); if (w !== null) onChange(w); }}
-      className={`${fieldCls} mt-1 font-mono`} />
+      className={`${fieldCls} mt-1 font-mono min-h-[44px]`} />
   );
 }

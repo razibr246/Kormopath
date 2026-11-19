@@ -398,7 +398,7 @@ export function BazarList({
               </span>
               {T("বাজারের তালিকা ও লাইভ স্টোর শপিং", "Bazar List & Live Store Shopping")}
             </h2>
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-200">
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[12px] font-bold text-emerald-800 border border-emerald-200">
               <Sparkles size={11} aria-hidden /> Daraz · Rokomari · Chaldal
             </span>
           </div>
@@ -418,7 +418,7 @@ export function BazarList({
               marketMode
                 ? "bg-emerald-700 text-white shadow-xs"
                 : "border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
-            }`}
+            } min-h-[44px] min-w-[44px]`}
             title={T("বাজারে থাকা অবস্থায় সহজ বড় ইন্টারফেস", "Big touch targets for use at market")}
           >
             <Smartphone size={14} aria-hidden />
@@ -428,7 +428,7 @@ export function BazarList({
           <button
             type="button"
             onClick={() => setShowMemoModal(true)}
-            className="inline-flex min-h-[34px] items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 text-[12px] font-bold text-slate-700 hover:bg-slate-100"
+            className="inline-flex min-h-[34px] items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 text-[12px] font-bold text-slate-700 hover:bg-slate-100 min-h-[44px] min-w-[44px]"
             title={T("বাজারের মেমো স্লিপ দেখুন ও প্রিন্ট করুন", "View and print bazar memo slip")}
           >
             <Printer size={13} aria-hidden />
@@ -438,7 +438,7 @@ export function BazarList({
           <button
             type="button"
             onClick={() => setShowShareModal(true)}
-            className="inline-flex min-h-[34px] items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 text-[12px] font-bold text-slate-700 hover:bg-slate-100"
+            className="inline-flex min-h-[34px] items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 text-[12px] font-bold text-slate-700 hover:bg-slate-100 min-h-[44px] min-w-[44px]"
             title={T("হোয়াটসঅ্যাপ বা এসএমএসে ফর্দ পাঠান", "Share bazar list via WhatsApp/SMS")}
           >
             <Share2 size={13} aria-hidden />
@@ -448,7 +448,7 @@ export function BazarList({
           <button
             type="button"
             onClick={() => setLang(bn ? "en" : "bn")}
-            className="kp-chip !h-8.5 !rounded-full !text-[12px] font-semibold"
+            className="kp-chip !h-11 !rounded-full !text-[12px] font-semibold !min-w-[44px]"
             aria-label={bn ? "Switch to English" : "বাংলায় দেখুন"}
           >
             {bn ? "EN" : "বাং"}
@@ -461,14 +461,14 @@ export function BazarList({
         <div className="flex items-center justify-between sm:justify-start gap-2">
           <span className="font-semibold text-slate-600">{T("বাজারের বাজেট লক্ষ্য:", "Trip Budget:")}</span>
           <div className="relative flex items-center">
-            <span className="absolute left-2 text-[12px] font-bold text-slate-400">৳</span>
+            <span className="absolute left-2 text-[12px] font-bold text-slate-500">৳</span>
             <input
               type="text"
               inputMode="numeric"
               placeholder={T("বাজেট লিখুন", "e.g. 1500")}
               value={targetBudgetInput}
               onChange={(e) => setTargetBudgetInput(e.target.value)}
-              className="w-28 rounded-lg border border-slate-300 bg-white py-1 pl-5 pr-2 text-[13px] font-semibold text-slate-800 outline-none focus:border-emerald-600"
+              className="w-28 rounded-lg border border-slate-300 bg-white py-1 pl-5 pr-2 text-[13px] font-semibold text-slate-800 outline-none focus:border-emerald-600 min-h-[44px]"
             />
           </div>
         </div>
@@ -480,7 +480,7 @@ export function BazarList({
           </span>
           {targetBudgetPoisha > 0 && (
             <span
-              className={`text-[11.5px] font-bold px-1.5 py-0.5 rounded ${
+              className={`text-[12px] font-bold px-1.5 py-0.5 rounded ${
                 total > targetBudgetPoisha
                   ? "bg-red-100 text-red-700"
                   : "bg-emerald-100 text-emerald-800"
@@ -501,7 +501,7 @@ export function BazarList({
             )}
           </span>
           {waiting > 0 && (
-            <span className="inline-flex items-center gap-1 rounded bg-amber-100 px-1.5 py-0.5 text-[11px] font-bold text-amber-900">
+            <span className="inline-flex items-center gap-1 rounded bg-amber-100 px-1.5 py-0.5 text-[12px] font-bold text-amber-900">
               <AlertCircle size={11} aria-hidden />
               {T(`${bnNum(waiting)}টির দাম বাকি`, `${waiting} need price`)}
             </span>
@@ -522,7 +522,7 @@ export function BazarList({
             showVoiceAssistant
               ? "bg-slate-900 text-white"
               : "border border-emerald-300 bg-emerald-50 text-emerald-900 hover:bg-emerald-100"
-          }`}
+          } min-h-[44px] min-w-[44px]`}
         >
           <Mic size={15} className={isListening ? "animate-pulse text-red-500" : ""} aria-hidden />
           {T("ভয়েস বা দ্রুত ফর্দ ইনপুট", "Voice / Fast Batch Add")}
@@ -539,7 +539,7 @@ export function BazarList({
             showPresetDrawer
               ? "bg-slate-900 text-white"
               : "border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100"
-          }`}
+          } min-h-[44px] min-w-[44px]`}
         >
           <ShoppingBag size={15} aria-hidden />
           {T("🧺 রেডিমেড ফর্দ", "Ready Baskets")}
@@ -556,7 +556,7 @@ export function BazarList({
             showCatalog
               ? "bg-slate-900 text-white"
               : "border border-sky-300 bg-sky-50 text-sky-900 hover:bg-sky-100"
-          }`}
+          } min-h-[44px] min-w-[44px]`}
         >
           <Store size={15} aria-hidden />
           {T("জনপ্রিয় স্টোর ক্যাটালগ", "Store Catalog Browser")}
@@ -570,7 +570,7 @@ export function BazarList({
             setLiveSearchError("");
             setShowLiveSearchModal(true);
           }}
-          className="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl border border-purple-300 bg-purple-50 px-3.5 text-[13px] font-bold text-purple-900 hover:bg-purple-100 transition-colors"
+          className="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl border border-purple-300 bg-purple-50 px-3.5 text-[13px] font-bold text-purple-900 hover:bg-purple-100 transition-colors min-h-[44px] min-w-[44px]"
         >
           <Sparkles size={15} className="text-purple-600" aria-hidden />
           {T("🔍 লাইভ পণ্যের দর খুঁজুন", "Live Price Finder")}
@@ -605,7 +605,7 @@ export function BazarList({
                 isListening
                   ? "bg-red-600 text-white animate-pulse"
                   : "bg-emerald-700 text-white hover:bg-emerald-800"
-              }`}
+              } min-h-[44px] min-w-[44px]`}
             >
               {isListening ? <MicOff size={15} aria-hidden /> : <Mic size={15} aria-hidden />}
               {isListening ? T("শুনছি... (থামতে চাপুন)", "Listening... (Tap to stop)") : T("মাইকে বলুন", "Speak in Bangla")}
@@ -620,7 +620,7 @@ export function BazarList({
               "এখানে ফর্দ টাইপ করুন বা পেস্ট করুন... (কমা বা 'আর' দিয়ে আলাদা করুন)",
               "Type or paste items here (separated by commas or 'and')..."
             )}
-            className="w-full rounded-xl border border-emerald-300 bg-white p-3 text-[14px] text-slate-800 outline-none focus:border-emerald-600"
+            className="w-full rounded-xl border border-emerald-300 bg-white p-3 text-[14px] text-slate-800 outline-none focus:border-emerald-600 min-h-[44px]"
           />
 
           {voiceError && <p className="text-[12px] font-semibold text-red-600">{voiceError}</p>}
@@ -647,7 +647,7 @@ export function BazarList({
                     <span className="font-mono text-emerald-800 font-semibold">
                       {bn ? bnNum(p.qty) : p.qty} {p.unit}
                     </span>
-                    <span className="text-[10px] text-slate-500 uppercase">({p.category})</span>
+                    <span className="text-[12px] text-slate-500 uppercase">({p.category})</span>
                   </span>
                 ))}
               </div>
@@ -656,7 +656,7 @@ export function BazarList({
                 <button
                   type="button"
                   onClick={confirmBatchAdd}
-                  className="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl bg-emerald-700 px-4 text-[13px] font-bold text-white hover:bg-emerald-800"
+                  className="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl bg-emerald-700 px-4 text-[13px] font-bold text-white hover:bg-emerald-800 min-h-[44px] min-w-[44px]"
                 >
                   <CheckCircle2 size={15} aria-hidden />
                   {T("নিশ্চিত করে ফর্দে যোগ করুন", "Confirm & Add to List")}
@@ -684,13 +684,13 @@ export function BazarList({
               </p>
             </div>
             <div className="relative">
-              <Search size={14} className="absolute left-2.5 top-2.5 text-slate-400" aria-hidden />
+              <Search size={14} className="absolute left-2.5 top-2.5 text-slate-500" aria-hidden />
               <input
                 type="text"
                 placeholder={T("পণ্য খুঁজুন...", "Filter catalog...")}
                 value={catalogSearch}
                 onChange={(e) => setCatalogSearch(e.target.value)}
-                className="w-48 rounded-xl border border-slate-200 bg-white py-1.5 pl-8 pr-3 text-[13px] text-slate-800 outline-none focus:border-sky-600"
+                className="w-48 rounded-xl border border-slate-200 bg-white py-1.5 pl-8 pr-3 text-[13px] text-slate-800 outline-none focus:border-sky-600 min-h-[44px]"
               />
             </div>
           </div>
@@ -708,7 +708,7 @@ export function BazarList({
                     catalogCategory === tab.id
                       ? "bg-sky-800 text-white"
                       : "bg-white text-slate-700 hover:bg-sky-100 border border-slate-200"
-                  }`}
+                  } min-h-[44px] min-w-[44px]`}
                 >
                   <TabIcon size={13} aria-hidden />
                   {bn ? tab.labelBn : tab.labelEn}
@@ -729,11 +729,11 @@ export function BazarList({
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-[13px] font-bold text-slate-900">{bn ? item.nameBn : item.nameEn}</p>
                     <div className="flex items-center gap-1.5 mt-0.5">
-                      <span className="font-mono text-[11px] text-slate-500">
+                      <span className="font-mono text-[12px] text-slate-500">
                         {bn ? bnNum(item.defaultQty) : item.defaultQty} {item.unit}
                       </span>
                       <span
-                        className={`rounded px-1.5 py-0.2 text-[10px] font-bold uppercase tracking-wider ${
+                        className={`rounded px-1.5 py-0.2 text-[12px] font-bold uppercase tracking-wider ${
                           item.primaryStore === "rokomari"
                             ? "bg-emerald-100 text-emerald-800"
                             : item.primaryStore === "daraz"
@@ -754,14 +754,14 @@ export function BazarList({
                       target="_blank"
                       rel="noopener noreferrer"
                       title={T(`${storeMeta.name}-এ লাইভ দাম দেখুন`, `View live price on ${storeMeta.name}`)}
-                      className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                      className="grid h-11 w-11 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                     >
                       <ExternalLink size={13} aria-hidden />
                     </a>
                     <button
                       type="button"
                       onClick={() => add(bn ? item.nameBn : item.nameEn, item.defaultQty, item.unit, item.category)}
-                      className="inline-flex h-8 items-center gap-1 rounded-lg bg-emerald-700 px-2.5 text-[12px] font-bold text-white hover:bg-emerald-800"
+                      className="inline-flex h-11 items-center gap-1 rounded-lg bg-emerald-700 px-2.5 text-[12px] font-bold text-white hover:bg-emerald-800 min-w-[44px]"
                     >
                       <Plus size={13} aria-hidden />
                       {T("ফর্দে নিন", "Add")}
@@ -793,7 +793,7 @@ export function BazarList({
             <button
               type="button"
               onClick={() => setShowPresetDrawer(false)}
-              className="text-[12px] font-bold text-amber-900 hover:underline"
+              className="text-[12px] font-bold text-amber-900 hover:underline min-h-[44px] min-w-[44px]"
             >
               {T("বন্ধ করুন ✕", "Close ✕")}
             </button>
@@ -811,10 +811,10 @@ export function BazarList({
                       {bn ? basket.nameBn : basket.nameEn}
                     </h5>
                     <div className="flex items-center gap-1.5 mt-0.5">
-                      <span className="rounded bg-amber-100 px-1.5 py-0.2 text-[10.5px] font-bold text-amber-800">
+                      <span className="rounded bg-amber-100 px-1.5 py-0.2 text-[12px] font-bold text-amber-800">
                         {bn ? basket.tagBn : basket.tagEn}
                       </span>
-                      <span className="text-[11px] text-slate-500 font-medium">
+                      <span className="text-[12px] text-slate-500 font-medium">
                         {bn ? `${bnNum(basket.items.length)}টি পণ্য` : `${basket.items.length} items`}
                       </span>
                     </div>
@@ -822,7 +822,7 @@ export function BazarList({
                   <button
                     type="button"
                     onClick={() => addPresetBasket(basket)}
-                    className="inline-flex h-8 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[12px] font-bold text-white hover:bg-emerald-800 shrink-0"
+                    className="inline-flex h-11 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[12px] font-bold text-white hover:bg-emerald-800 shrink-0 min-w-[44px]"
                   >
                     <Plus size={13} aria-hidden />
                     {T("সব যোগ", "Add All")}
@@ -833,7 +833,7 @@ export function BazarList({
                   {basket.items.map((item, idx) => (
                     <span
                       key={idx}
-                      className="inline-flex items-center gap-1 rounded-md bg-slate-50 border border-slate-200 px-2 py-0.5 text-[11px] text-slate-700"
+                      className="inline-flex items-center gap-1 rounded-md bg-slate-50 border border-slate-200 px-2 py-0.5 text-[12px] text-slate-700"
                     >
                       <span className="font-semibold text-slate-800">{bn ? item.nameBn : item.nameEn}</span>
                       <span className="font-mono text-emerald-800 font-bold">
@@ -856,7 +856,7 @@ export function BazarList({
             type="button"
             data-testid="bazar-chip"
             onClick={() => add(bn ? q.bn : q.en, 1, q.unit)}
-            className="inline-flex min-h-[36px] items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-3 text-[12.5px] font-semibold text-slate-800 hover:border-emerald-400 hover:bg-emerald-50 transition-colors"
+            className="inline-flex min-h-[36px] items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-3 text-[12.5px] font-semibold text-slate-800 hover:border-emerald-400 hover:bg-emerald-50 transition-colors min-h-[44px] min-w-[44px]"
           >
             <Plus size={12} aria-hidden /> {bn ? q.bn : q.en}
           </button>
@@ -882,7 +882,7 @@ export function BazarList({
             maxLength={60}
             onChange={(e) => setName(e.target.value)}
             placeholder={T("যেমন: মিনিকেট চাল বা Casio ক্যালকুলেটর", "e.g. Miniket Rice or Casio Calculator")}
-            className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-[14px] font-normal outline-none focus:border-emerald-600"
+            className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-[14px] font-normal outline-none focus:border-emerald-600 min-h-[44px]"
           />
         </label>
         <label className="w-20 text-[12px] font-semibold text-slate-600">
@@ -892,7 +892,7 @@ export function BazarList({
             inputMode="decimal"
             value={qty}
             onChange={(e) => setQty(e.target.value)}
-            className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-[14px] font-normal outline-none focus:border-emerald-600"
+            className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-[14px] font-normal outline-none focus:border-emerald-600 min-h-[44px]"
           />
         </label>
         <label className="text-[12px] font-semibold text-slate-600">
@@ -901,7 +901,7 @@ export function BazarList({
             id="bazar-unit"
             value={unit}
             onChange={(e) => setUnit(e.target.value as BazarUnit)}
-            className="mt-1 block rounded-xl border border-slate-200 bg-white px-2 py-2 text-[14px] font-normal"
+            className="mt-1 block rounded-xl border border-slate-200 bg-white px-2 py-2 text-[14px] font-normal min-h-[44px]"
           >
             {BAZAR_UNITS.map((u) => (
               <option key={u.id} value={u.id}>
@@ -913,7 +913,7 @@ export function BazarList({
         <button
           type="submit"
           data-testid="bazar-add"
-          className="inline-flex min-h-[42px] items-center gap-1 rounded-xl bg-slate-900 px-4 text-[14px] font-bold text-white disabled:opacity-50"
+          className="inline-flex min-h-[42px] items-center gap-1 rounded-xl bg-slate-900 px-4 text-[14px] font-bold text-white disabled:opacity-50 min-h-[44px] min-w-[44px]"
           disabled={!name.trim()}
         >
           <Plus size={16} aria-hidden /> {T("যোগ", "Add")}
@@ -951,7 +951,7 @@ export function BazarList({
                 } ${marketMode ? "py-4 text-[16px]" : ""}`}
               >
                 {/* Checkbox and item info */}
-                <label className="flex min-h-[40px] min-w-0 flex-1 cursor-pointer items-center gap-3">
+                <label className="flex min-h-[40px] min-w-0 flex-1 cursor-pointer items-center gap-3 min-h-[44px]">
                   <input
                     type="checkbox"
                     checked={i.checked}
@@ -968,7 +968,7 @@ export function BazarList({
                         {i.name}
                       </span>
                       {categoryMeta && (
-                        <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600 uppercase">
+                        <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[12px] font-semibold text-slate-600 uppercase">
                           {bn ? categoryMeta.labelBn : categoryMeta.labelEn}
                         </span>
                       )}
@@ -992,7 +992,7 @@ export function BazarList({
                       placeholder="0.00"
                       className={`w-24 rounded border px-2 py-1 text-[14px] font-semibold outline-none focus:border-emerald-600 ${
                         i.pricePoisha === null ? "border-amber-400 bg-amber-50" : "border-slate-200"
-                      }`}
+                      } min-h-[44px]`}
                     />
                   </label>
                 )}
@@ -1004,7 +1004,7 @@ export function BazarList({
                     type="button"
                     onClick={() => executeLiveSearch(i.name)}
                     aria-label={T(`AI দিয়ে ${i.name}-এর লাইভ দাম খুঁজুন`, `Search live prices for ${i.name}`)}
-                    className="inline-flex min-h-8 items-center gap-1 rounded-lg border border-purple-200 bg-purple-50 px-2 text-[11px] font-bold text-purple-800 transition-colors hover:border-purple-400 hover:bg-purple-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-600"
+                    className="inline-flex min-h-8 items-center gap-1 rounded-lg border border-purple-200 bg-purple-50 px-2 text-[12px] font-bold text-purple-800 transition-colors hover:border-purple-400 hover:bg-purple-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-600 min-h-[44px] min-w-[44px]"
                     title={T("দারাজ ও রকমারি সহ ওয়েবে লাইভ দর খুঁজুন", "Find live prices on Daraz/Rokomari via AI")}
                   >
                     <Sparkles size={11} className="text-purple-600" aria-hidden />
@@ -1017,7 +1017,7 @@ export function BazarList({
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={T(`দারাজে ${i.name} খুঁজুন`, `Search Daraz for ${i.name}`)}
-                    className="inline-flex min-h-8 items-center gap-1 rounded-lg border border-sky-200 bg-sky-50 px-2 text-[11px] font-bold text-sky-800 transition-colors hover:border-sky-400 hover:bg-sky-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600"
+                    className="inline-flex min-h-8 items-center gap-1 rounded-lg border border-sky-200 bg-sky-50 px-2 text-[12px] font-bold text-sky-800 transition-colors hover:border-sky-400 hover:bg-sky-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600 min-h-[44px] min-w-[44px]"
                   >
                     Daraz <ExternalLink size={10} aria-hidden />
                   </a>
@@ -1028,7 +1028,7 @@ export function BazarList({
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={T(`রকমারিতে ${i.name} খুঁজুন`, `Search Rokomari for ${i.name}`)}
-                    className="inline-flex min-h-8 items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2 text-[11px] font-bold text-emerald-800 transition-colors hover:border-emerald-400 hover:bg-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
+                    className="inline-flex min-h-8 items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2 text-[12px] font-bold text-emerald-800 transition-colors hover:border-emerald-400 hover:bg-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 min-h-[44px] min-w-[44px]"
                   >
                     Rokomari <ExternalLink size={10} aria-hidden />
                   </a>
@@ -1039,7 +1039,7 @@ export function BazarList({
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={T(`চালডালে ${i.name} খুঁজুন`, `Search Chaldal for ${i.name}`)}
-                    className="inline-flex min-h-8 items-center gap-1 rounded-lg border border-rose-200 bg-rose-50 px-2 text-[11px] font-bold text-rose-800 transition-colors hover:border-rose-400 hover:bg-rose-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-600"
+                    className="inline-flex min-h-8 items-center gap-1 rounded-lg border border-rose-200 bg-rose-50 px-2 text-[12px] font-bold text-rose-800 transition-colors hover:border-rose-400 hover:bg-rose-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-600 min-h-[44px] min-w-[44px]"
                   >
                     Chaldal <ExternalLink size={10} aria-hidden />
                   </a>
@@ -1050,7 +1050,7 @@ export function BazarList({
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={T(`স্বপ্নে ${i.name} খুঁজুন`, `Search Shwapno for ${i.name}`)}
-                    className="inline-flex min-h-8 items-center gap-1 rounded-lg border border-amber-200 bg-amber-50 px-2 text-[11px] font-bold text-amber-800 transition-colors hover:border-amber-400 hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600"
+                    className="inline-flex min-h-8 items-center gap-1 rounded-lg border border-amber-200 bg-amber-50 px-2 text-[12px] font-bold text-amber-800 transition-colors hover:border-amber-400 hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 min-h-[44px] min-w-[44px]"
                   >
                     Shwapno <ExternalLink size={10} aria-hidden />
                   </a>
@@ -1060,7 +1060,7 @@ export function BazarList({
                   type="button"
                   onClick={() => remove(i.id)}
                   aria-label={T(`${i.name} মুছুন`, `Remove ${i.name}`)}
-                  className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-700"
+                  className="grid h-11 w-11 place-items-center rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-700"
                 >
                   <Trash2 size={15} aria-hidden />
                 </button>
@@ -1088,7 +1088,7 @@ export function BazarList({
           data-testid="bazar-finish"
           onClick={finish}
           disabled={!ready || !today}
-          className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-emerald-700 px-5 text-[14px] font-bold text-white shadow-xs hover:bg-emerald-800 disabled:opacity-50 transition-colors"
+          className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-emerald-700 px-5 text-[14px] font-bold text-white shadow-xs hover:bg-emerald-800 disabled:opacity-50 transition-colors min-w-[44px]"
         >
           <Check size={16} aria-hidden />
           {T("বাজার শেষ — খরচ খাতায় নিন", "Finish Trip — Add to Ledger")}
@@ -1114,7 +1114,7 @@ export function BazarList({
               <button
                 type="button"
                 onClick={() => setShowShareModal(false)}
-                className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                className="rounded-lg p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-700 min-h-[44px] min-w-[44px]"
               >
                 ✕
               </button>
@@ -1128,7 +1128,7 @@ export function BazarList({
               <button
                 type="button"
                 onClick={copyShareText}
-                className="inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 text-[12.5px] font-bold text-slate-800 hover:bg-slate-100"
+                className="inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 text-[12.5px] font-bold text-slate-800 hover:bg-slate-100 min-h-[44px] min-w-[44px]"
               >
                 <Copy size={14} aria-hidden />
                 {T("কপি করুন", "Copy")}
@@ -1138,14 +1138,14 @@ export function BazarList({
                 href={whatsappBazarHref(shareText)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-xl bg-emerald-600 text-[12.5px] font-bold text-white hover:bg-emerald-700"
+                className="inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-xl bg-emerald-600 text-[12.5px] font-bold text-white hover:bg-emerald-700 min-h-[44px] min-w-[44px]"
               >
                 WhatsApp
               </a>
 
               <a
                 href={smsBazarHref(shareText)}
-                className="inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-xl bg-sky-700 text-[12.5px] font-bold text-white hover:bg-sky-800"
+                className="inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-xl bg-sky-700 text-[12.5px] font-bold text-white hover:bg-sky-800 min-h-[44px] min-w-[44px]"
               >
                 SMS
               </a>
@@ -1175,7 +1175,7 @@ export function BazarList({
               <button
                 type="button"
                 onClick={() => setShowLiveSearchModal(false)}
-                className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                className="rounded-lg p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-700 min-h-[44px] min-w-[44px]"
               >
                 <X size={18} aria-hidden />
               </button>
@@ -1195,12 +1195,12 @@ export function BazarList({
                 maxLength={120}
                 onChange={(e) => setLiveSearchQuery(e.target.value)}
                 placeholder={T("যেমন: মিনিকেট চাল, Casio ক্যালকুলেটর, সয়াবিন তেল...", "e.g. Miniket Rice, Casio fx-991EX...")}
-                className="flex-1 rounded-xl border border-slate-300 px-3.5 py-2 text-[14px] text-slate-900 outline-none focus:border-purple-600 focus:ring-1 focus:ring-purple-600"
+                className="flex-1 rounded-xl border border-slate-300 px-3.5 py-2 text-[14px] text-slate-900 outline-none focus:border-purple-600 focus:ring-1 focus:ring-purple-600 min-h-[44px]"
               />
               <button
                 type="submit"
                 disabled={liveSearching || liveSearchQuery.trim().length < 2}
-                className="inline-flex min-h-[42px] items-center gap-1.5 rounded-xl bg-purple-700 px-4 text-[13px] font-bold text-white hover:bg-purple-800 disabled:opacity-50 transition-colors"
+                className="inline-flex min-h-[42px] items-center gap-1.5 rounded-xl bg-purple-700 px-4 text-[13px] font-bold text-white hover:bg-purple-800 disabled:opacity-50 transition-colors min-h-[44px] min-w-[44px]"
               >
                 <Search size={15} aria-hidden />
                 {liveSearching ? T("খোঁজা হচ্ছে...", "Searching...") : T("খুঁজুন", "Search")}
@@ -1209,7 +1209,7 @@ export function BazarList({
 
             {/* Direct Instant Search Links */}
             <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 space-y-2">
-              <span className="text-[11.5px] font-semibold text-slate-600">
+              <span className="text-[12px] font-semibold text-slate-600">
                 {T("স্টোরে সরাসরি বর্তমান অফার দেখুন:", "Direct Store Catalogs:")}
               </span>
               <div className="flex flex-wrap gap-1.5">
@@ -1217,7 +1217,7 @@ export function BazarList({
                   href={storeSearchUrl("daraz", liveSearchQuery || "gadget")}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 rounded-lg border border-sky-300 bg-white px-2.5 py-1 text-[11.5px] font-bold text-sky-800 hover:bg-sky-50"
+                  className="inline-flex items-center gap-1 rounded-lg border border-sky-300 bg-white px-2.5 py-1 text-[12px] font-bold text-sky-800 hover:bg-sky-50 min-h-[44px] min-w-[44px]"
                 >
                   দারাজ (Daraz) <ExternalLink size={10} aria-hidden />
                 </a>
@@ -1225,7 +1225,7 @@ export function BazarList({
                   href={storeSearchUrl("rokomari", liveSearchQuery || "book")}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 rounded-lg border border-emerald-300 bg-white px-2.5 py-1 text-[11.5px] font-bold text-emerald-800 hover:bg-emerald-50"
+                  className="inline-flex items-center gap-1 rounded-lg border border-emerald-300 bg-white px-2.5 py-1 text-[12px] font-bold text-emerald-800 hover:bg-emerald-50 min-h-[44px] min-w-[44px]"
                 >
                   রকমারি (Rokomari) <ExternalLink size={10} aria-hidden />
                 </a>
@@ -1233,7 +1233,7 @@ export function BazarList({
                   href={storeSearchUrl("chaldal", liveSearchQuery || "grocery")}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 rounded-lg border border-rose-300 bg-white px-2.5 py-1 text-[11.5px] font-bold text-rose-800 hover:bg-rose-50"
+                  className="inline-flex items-center gap-1 rounded-lg border border-rose-300 bg-white px-2.5 py-1 text-[12px] font-bold text-rose-800 hover:bg-rose-50 min-h-[44px] min-w-[44px]"
                 >
                   চালডাল (Chaldal) <ExternalLink size={10} aria-hidden />
                 </a>
@@ -1241,7 +1241,7 @@ export function BazarList({
                   href={storeSearchUrl("shwapno", liveSearchQuery || "shwapno")}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 rounded-lg border border-amber-300 bg-white px-2.5 py-1 text-[11.5px] font-bold text-amber-800 hover:bg-amber-50"
+                  className="inline-flex items-center gap-1 rounded-lg border border-amber-300 bg-white px-2.5 py-1 text-[12px] font-bold text-amber-800 hover:bg-amber-50 min-h-[44px] min-w-[44px]"
                 >
                   স্বপ্ন (Shwapno) <ExternalLink size={10} aria-hidden />
                 </a>
@@ -1249,7 +1249,7 @@ export function BazarList({
                   href={TCB_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 rounded-lg border border-indigo-300 bg-white px-2.5 py-1 text-[11.5px] font-bold text-indigo-800 hover:bg-indigo-50"
+                  className="inline-flex items-center gap-1 rounded-lg border border-indigo-300 bg-white px-2.5 py-1 text-[12px] font-bold text-indigo-800 hover:bg-indigo-50 min-h-[44px] min-w-[44px]"
                 >
                   টিসিবি দৈনিক দর <ExternalLink size={10} aria-hidden />
                 </a>
@@ -1260,7 +1260,7 @@ export function BazarList({
             {liveSearchError && (
               <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-[12.5px] text-red-800">
                 <p className="font-semibold">{liveSearchError}</p>
-                <p className="mt-1 text-[11px] text-red-700">
+                <p className="mt-1 text-[12px] text-red-700">
                   {T(
                     "সার্ভারে লাইভ এআই কী না থাকলেও উপরের দারাজ, রকমারি বা চালডাল বাটনে ক্লিক করে সরাসরি অফিসিয়াল পেজে দর দেখতে পারবেন।",
                     "Even without AI search quota, tap any store button above to inspect live offers directly on their site."
@@ -1278,7 +1278,7 @@ export function BazarList({
 
                 {liveSearchResult.sources.length > 0 && (
                   <div className="border-t border-purple-100 pt-2.5">
-                    <span className="text-[11px] font-bold text-purple-900 block mb-1.5">
+                    <span className="text-[12px] font-bold text-purple-900 block mb-1.5">
                       {T("যাচাইকৃত অনলাইন সোর্স:", "Verified Online Sources:")}
                     </span>
                     <div className="flex flex-wrap gap-1.5">
@@ -1288,7 +1288,7 @@ export function BazarList({
                           href={s.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-medium text-purple-900 hover:border-purple-300"
+                          className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[12px] font-medium text-purple-900 hover:border-purple-300 min-h-[44px] min-w-[44px]"
                         >
                           <span className="max-w-[200px] truncate">{s.title || s.url}</span>
                           <ExternalLink size={10} aria-hidden />
@@ -1299,7 +1299,7 @@ export function BazarList({
                 )}
 
                 <div className="border-t border-purple-100 pt-3 flex justify-between items-center">
-                  <span className="text-[11px] text-slate-500">
+                  <span className="text-[12px] text-slate-500">
                     {T("দারাজ/রকমারিতে দাম বদলাতে পারে। কেনার আগে মিলিয়ে নিন।", "Prices fluctuate on Daraz/Rokomari. Verify before purchase.")}
                   </span>
                   <button
@@ -1309,7 +1309,7 @@ export function BazarList({
                       setShowLiveSearchModal(false);
                       flash(T(`'${liveSearchResult.query}' ফর্দে যোগ হয়েছে!`, `Added '${liveSearchResult.query}' to list!`));
                     }}
-                    className="inline-flex h-8 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[12px] font-bold text-white hover:bg-emerald-800"
+                    className="inline-flex h-11 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[12px] font-bold text-white hover:bg-emerald-800 min-w-[44px]"
                   >
                     <Plus size={13} aria-hidden />
                     {T("ফর্দে যোগ করুন", "Add to Bazar List")}
@@ -1333,7 +1333,7 @@ export function BazarList({
               <button
                 type="button"
                 onClick={() => setShowMemoModal(false)}
-                className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                className="rounded-lg p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-700 min-h-[44px] min-w-[44px]"
               >
                 <X size={18} aria-hidden />
               </button>
@@ -1347,7 +1347,7 @@ export function BazarList({
               <button
                 type="button"
                 onClick={copyMemoText}
-                className="inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 text-[12.5px] font-bold text-slate-800 hover:bg-slate-100"
+                className="inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 text-[12.5px] font-bold text-slate-800 hover:bg-slate-100 min-h-[44px] min-w-[44px]"
               >
                 <Copy size={14} aria-hidden />
                 {T("কপি করুন", "Copy")}
@@ -1359,7 +1359,7 @@ export function BazarList({
                   downloadText(`bazar-memo-${today}.txt`, memoText);
                   flash(T("মেমো টেক্সট ডাউনলোড হয়েছে!", "Memo downloaded!"));
                 }}
-                className="inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 text-[12.5px] font-bold text-slate-800 hover:bg-slate-100"
+                className="inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 text-[12.5px] font-bold text-slate-800 hover:bg-slate-100 min-h-[44px] min-w-[44px]"
               >
                 <Download size={14} aria-hidden />
                 {T("টেক্সট ফাইল", "Download")}
@@ -1370,7 +1370,7 @@ export function BazarList({
                 onClick={() => {
                   if (typeof window !== "undefined") window.print();
                 }}
-                className="inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-xl bg-emerald-700 text-[12.5px] font-bold text-white hover:bg-emerald-800"
+                className="inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-xl bg-emerald-700 text-[12.5px] font-bold text-white hover:bg-emerald-800 min-h-[44px] min-w-[44px]"
               >
                 <Printer size={14} aria-hidden />
                 {T("প্রিন্ট স্লিপ", "Print Slip")}
@@ -1399,7 +1399,7 @@ export function BazarList({
         ) : (
           <div className="mt-2 overflow-x-auto">
             <table className="w-full min-w-[32rem] text-left text-[13px]" data-testid="bazar-stats">
-              <thead className="text-[11.5px] uppercase tracking-wide text-slate-500 border-b border-slate-100">
+              <thead className="text-[12px] uppercase tracking-wide text-slate-500 border-b border-slate-100">
                 <tr>
                   <th className="py-2 pr-2">{T("পণ্য", "Item")}</th>
                   <th className="pr-2">{T("শেষ কেনা দর", "Last Paid")}</th>
@@ -1421,7 +1421,7 @@ export function BazarList({
                       </td>
                       <td className="font-mono">
                         {s.changePct === null ? (
-                          <span className="text-slate-400">—</span>
+                          <span className="text-slate-500">—</span>
                         ) : (
                           <span
                             className={`inline-flex items-center gap-1 font-bold ${

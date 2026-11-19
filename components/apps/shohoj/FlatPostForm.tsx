@@ -310,7 +310,7 @@ export function FlatPostForm({ onAddListing, onDone }: FlatPostFormProps) {
 
         {/* Bills Included */}
         <div className="flex flex-wrap items-center gap-4 rounded-xl bg-slate-50 p-3.5 border border-slate-200">
-          <label className="flex items-center gap-2 cursor-pointer text-[14px] font-bold text-slate-800">
+          <label className="flex items-center gap-2 cursor-pointer text-[14px] font-bold text-slate-800 min-h-[44px]">
             <input
               type="checkbox"
               checked={billsIncluded}
@@ -327,7 +327,7 @@ export function FlatPostForm({ onAddListing, onDone }: FlatPostFormProps) {
                 value={estimatedBillsTaka}
                 onChange={(e) => setEstimatedBillsTaka(e.target.value)}
                 placeholder="যেমন: ১৫০০"
-                className="w-28 min-h-[36px] rounded-lg border border-slate-300 bg-white px-2.5 text-[13.5px] font-mono"
+                className="w-28 min-h-[36px] rounded-lg border border-slate-300 bg-white px-2.5 text-[13.5px] font-mono min-h-[44px]"
               />
             </div>
           )}
@@ -340,7 +340,7 @@ export function FlatPostForm({ onAddListing, onDone }: FlatPostFormProps) {
             <select
               value={washroomType}
               onChange={(e) => setWashroomType(e.target.value as WashroomType)}
-              className="w-full min-h-[40px] rounded-xl border border-slate-300 px-3 text-[14px]"
+              className="w-full min-h-[40px] rounded-xl border border-slate-300 px-3 text-[14px] min-h-[44px]"
             >
               <option value="common">কমন বাথরুম</option>
               <option value="attached">অ্যাটাচড বাথরুম</option>
@@ -352,7 +352,7 @@ export function FlatPostForm({ onAddListing, onDone }: FlatPostFormProps) {
             <select
               value={balcony ? "yes" : "no"}
               onChange={(e) => setBalcony(e.target.value === "yes")}
-              className="w-full min-h-[40px] rounded-xl border border-slate-300 px-3 text-[14px]"
+              className="w-full min-h-[40px] rounded-xl border border-slate-300 px-3 text-[14px] min-h-[44px]"
             >
               <option value="no">বারান্দা নেই</option>
               <option value="yes">বারান্দা আছে</option>
@@ -367,7 +367,7 @@ export function FlatPostForm({ onAddListing, onDone }: FlatPostFormProps) {
               max="30"
               value={floor}
               onChange={(e) => setFloor(e.target.value)}
-              className="w-full min-h-[40px] rounded-xl border border-slate-300 px-3 text-[14px]"
+              className="w-full min-h-[40px] rounded-xl border border-slate-300 px-3 text-[14px] min-h-[44px]"
             />
           </div>
 
@@ -383,7 +383,7 @@ export function FlatPostForm({ onAddListing, onDone }: FlatPostFormProps) {
               onChange={(e) =>
                 type === "mess_seat" ? setSeatCount(e.target.value) : setRoomCount(e.target.value)
               }
-              className="w-full min-h-[40px] rounded-xl border border-slate-300 px-3 text-[14px]"
+              className="w-full min-h-[40px] rounded-xl border border-slate-300 px-3 text-[14px] min-h-[44px]"
             />
           </div>
         </div>
@@ -403,7 +403,7 @@ export function FlatPostForm({ onAddListing, onDone }: FlatPostFormProps) {
                     active
                       ? "border-emerald-500 bg-emerald-50 text-emerald-950 font-bold"
                       : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-                  }`}
+                  } min-h-[44px] min-w-[44px]`}
                 >
                   <div
                     className={`grid h-4 w-4 shrink-0 place-items-center rounded border ${

@@ -101,8 +101,8 @@ export default function ActCard() {
             <li key={c.k}>
               <button type="button" onClick={() => setDone((x) => ({ ...x, [c.k]: !on }))} aria-pressed={on}
                 className="flex min-h-[44px] w-full items-start gap-2.5 rounded-xl px-2 py-1.5 text-left text-[14px] leading-6 hover:bg-canvas">
-                <I size={19} className={`mt-0.5 shrink-0 ${on ? 'text-primary-700' : 'text-ink/40'}`} />
-                <span className={on ? 'text-ink/50 line-through' : 'text-ink/85'}>{L(c)}</span>
+                <I size={19} className={`mt-0.5 shrink-0 ${on ? 'text-primary-700' : 'text-ink/75'}`} />
+                <span className={on ? 'text-ink/75 line-through' : 'text-ink/85'}>{L(c)}</span>
               </button>
             </li>
           );
@@ -136,7 +136,7 @@ export default function ActCard() {
                 <li key={idx} className="rounded-xl bg-canvas p-2.5 text-[13px] border border-border/70">
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-bold text-primary-900">{T(p.phaseBn, p.phaseEn)}</span>
-                    <span className="rounded-md bg-primary-100 px-2 py-0.5 text-[11px] font-bold text-primary-800">
+                    <span className="rounded-md bg-primary-100 px-2 py-0.5 text-[12px] font-bold text-primary-800">
                       {T(p.tagBn, p.tagEn)}
                     </span>
                   </div>
@@ -187,7 +187,7 @@ export default function ActCard() {
                   <div className="font-bold text-primary-950">{T('গণপ্রজাতন্ত্রী বাংলাদেশ সরকার · কৃষি সম্প্রসারণ অধিদপ্তর (DAE)', 'Govt. of Bangladesh · Department of Agricultural Extension')}</div>
                   <div className="text-[12px] text-primary-800/80">{T('প্রকল্প: মাঠসাথী · নাসা আর্থ অবজারভেশন ডিসিশন সাপোর্ট সিস্টেম', 'MaathSathi · NASA Earth Observation Decision Support')}</div>
                 </div>
-                <span className="rounded-lg bg-primary-700 px-2.5 py-1 text-[11px] font-bold text-white uppercase tracking-wider">
+                <span className="rounded-lg bg-primary-700 px-2.5 py-1 text-[12px] font-bold text-white uppercase tracking-wider">
                   VERIFIED
                 </span>
               </div>

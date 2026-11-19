@@ -227,7 +227,7 @@ export function MinimizedWindowPill({
         {kind === 'verdict' ? <Gavel size={15} className="text-amber-300 shrink-0" /> : <Sparkles size={15} className="text-emerald-300 shrink-0" />}
         <span className="max-w-[170px] truncate">{title}</span>
         {count > 0 && (
-          <span className="rounded-full bg-amber-400 px-1.5 py-0.5 text-[11px] font-extrabold text-primary-950">
+          <span className="rounded-full bg-amber-400 px-1.5 py-0.5 text-[12px] font-extrabold text-primary-950">
             {T(num(count, s.lang), String(count))}
           </span>
         )}

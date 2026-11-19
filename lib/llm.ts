@@ -3,9 +3,13 @@ import { createHash } from "crypto";
 import { z } from "zod";
 import { Tracer } from "./trace";
 import { TEXT_MODELS, geminiAvailable, interact, outputText, type InputPart } from "./gemini";
+import { LruCache, runStructured, type StructuredResult } from "./structuredCore";
 
 const MODEL = TEXT_MODELS[0];
-const cache = new Map<string, unknown>(); // per-instance cache: identical requests never hit the API twice
+// Per-instance cache, so identical requests never hit the API twice. Bounded (LRU) so a long-lived server instance
+// cannot grow it without limit. Sensitive routes pass cache: false and are never stored.
+export const LLM_CACHE_MAX = 500;
+const cache = new LruCache<StructuredResult<unknown>>(LLM_CACHE_MAX);
 
 export const llmAvailable = () => geminiAvailable();
 export const modelName = () => MODEL;
@@ -38,11 +42,6 @@ async function callWithRetry(tracer: Tracer, system: string, prompt: string, fil
   return { raw, model: res.model };
 }
 
-function parseJson(text: string): unknown {
-  const cleaned = text.trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "");
-  return JSON.parse(cleaned);
-}
-
 /**
  * Ask the model for JSON, validate it with Zod, and if it fails, send the validation
  * errors back and ask for a corrected object once. Returns null if no valid output,
@@ -63,38 +62,17 @@ export async function structured<S extends z.ZodTypeAny>(
     return null;
   }
   const key = createHash("sha256").update(system + prompt + (file?.base64 ?? "")).digest("hex");
-  if (useCache && cache.has(key)) {
-    tracer.log(MODEL, "Served from cache (identical request seen before)", "ok");
-    return cache.get(key) as { data: z.infer<S>; raw: string; model: string };
-  }
-
-  let lastErr = "";
-  for (let attempt = 1; attempt <= 2; attempt++) {
-    const p = attempt === 1 ? prompt : `${prompt}\n\nYour previous answer failed validation:\n${lastErr}\nReturn corrected JSON only.`;
-    const t0 = performance.now();
-    const res = await callWithRetry(tracer, system, p, file);
-    if (!res) return null;
-    const raw = res.raw;
-    tracer.log(res.model, `Attempt ${attempt}: ${raw.length} chars returned`, "ok", Math.round(performance.now() - t0));
-    const t1 = performance.now();
-    let parsed: unknown;
-    try {
-      parsed = parseJson(raw);
-    } catch {
-      lastErr = "Output was not valid JSON.";
-      tracer.log("zod", "Not valid JSON, asking model to repair", "warn", Math.round(performance.now() - t1));
-      continue;
-    }
-    const v = schema.safeParse(parsed);
-    if (v.success) {
-      tracer.log("zod", "Schema validated", "ok", Math.round(performance.now() - t1));
-      const out = { data: v.data, raw, model: res.model };
-      if (useCache) cache.set(key, out);
-      return out;
-    }
-    lastErr = v.error.issues.slice(0, 6).map((i) => `${i.path.join(".")}: ${i.message}`).join("; ");
-    tracer.log("zod", `Schema failed (${v.error.issues.length} issues), asking model to repair`, "warn", Math.round(performance.now() - t1));
-  }
-  tracer.log("zod", "Model output still invalid after repair, falling back", "fallback");
-  return null;
+  return runStructured<z.infer<S>>({
+    prompt,
+    key,
+    cache: useCache ? (cache as LruCache<StructuredResult<z.infer<S>>>) : null,
+    cacheLabel: MODEL,
+    call: (p) => callWithRetry(tracer, system, p, file),
+    validate: (value) => {
+      const v = schema.safeParse(value);
+      return v.success ? { success: true, data: v.data } : { success: false, issues: v.error.issues.map((i) => ({ path: i.path, message: i.message })) };
+    },
+    log: (tool, detail, status, ms) => tracer.log(tool, detail, status, ms),
+    now: () => performance.now(),
+  });
 }

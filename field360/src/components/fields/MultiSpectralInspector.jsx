@@ -127,7 +127,7 @@ export default function MultiSpectralInspector({ parcel }) {
                 <span className="text-[12.5px] font-bold text-ink">{L(comp.name)}</span>
                 {isSelected && <CheckCircle2 size={14} className="text-violet-700" />}
               </div>
-              <span className="mt-1 text-[11px] text-muted line-clamp-1">{lang === 'bn' ? comp.bands : comp.bandsEn}</span>
+              <span className="mt-1 text-[12px] text-muted line-clamp-1">{lang === 'bn' ? comp.bands : comp.bandsEn}</span>
             </button>
           );
         })}
@@ -151,7 +151,7 @@ export default function MultiSpectralInspector({ parcel }) {
             <Activity size={15} className="text-violet-700" />
             {T('জমির বর্ণালী প্রতিফলন বক্ররেখা', 'Parcel Spectral Reflectance Signature')}
           </div>
-          <div className="flex items-center gap-3 text-[11.5px]">
+          <div className="flex items-center gap-3 text-[12px]">
             <span className="flex items-center gap-1 text-emerald-700 font-semibold">
               <span className="h-2 w-2 rounded-full bg-emerald-600" />
               {T('সতেজ সবুজ ফসল', 'Healthy Crop')}
@@ -183,10 +183,10 @@ export default function MultiSpectralInspector({ parcel }) {
             ))}
 
             {/* Y Axis Labels (Reflectance 0% to 60%) */}
-            <text x="32" y="24" textAnchor="end" fontSize="9" fill="#94a3b8">{num(60, lang)}%</text>
-            <text x="32" y="64" textAnchor="end" fontSize="9" fill="#94a3b8">{num(40, lang)}%</text>
-            <text x="32" y="104" textAnchor="end" fontSize="9" fill="#94a3b8">{num(20, lang)}%</text>
-            <text x="32" y="144" textAnchor="end" fontSize="9" fill="#94a3b8">{num(0, lang)}%</text>
+            <text x="32" y="24" textAnchor="end" fontSize="12" fill="#94a3b8">{num(60, lang)}%</text>
+            <text x="32" y="64" textAnchor="end" fontSize="12" fill="#94a3b8">{num(40, lang)}%</text>
+            <text x="32" y="104" textAnchor="end" fontSize="12" fill="#94a3b8">{num(20, lang)}%</text>
+            <text x="32" y="144" textAnchor="end" fontSize="12" fill="#94a3b8">{num(0, lang)}%</text>
 
             {/* Spectral Points & Curve for Crop (Green) */}
             <path
@@ -233,7 +233,7 @@ export default function MultiSpectralInspector({ parcel }) {
               return (
                 <g key={b.band}>
                   <circle cx={x} cy={y} r="3.5" fill="#16a34a" stroke="#ffffff" strokeWidth="1" />
-                  <text x={x} y="152" textAnchor="middle" fontSize="8.5" fill="#64748b" fontWeight="600">
+                  <text x={x} y="152" textAnchor="middle" fontSize="12" fill="#64748b" fontWeight="600">
                     {b.band}
                   </text>
                   <text x={x} y="160" textAnchor="middle" fontSize="7" fill="#94a3b8">
@@ -245,7 +245,7 @@ export default function MultiSpectralInspector({ parcel }) {
           </svg>
         </div>
 
-        <div className="mt-2 text-[11px] text-muted text-center">
+        <div className="mt-2 text-[12px] text-muted text-center">
           {T(
             'তরঙ্গদৈর্ঘ্য (ন্যানোমিটার): দৃশ্যমান নীল (৪৯০ ন্যানোমিটার) ও লাল (৬৬৫ ন্যানোমিটার) শোষণ করে উদ্ভিদ ক্লোরোফিল তৈরি করে, আর নিয়ার-ইনফ্রারেড (B8: ৮৪২ ন্যানোমিটার) জোরালোভাবে প্রতিফলিত করে।',
             'Wavelength (nm): Healthy plants absorb Blue (490 nm) & Red (665 nm) for photosynthesis while intensely scattering Near-Infrared (B8: 842 nm).'

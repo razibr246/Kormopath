@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
+import { checkRateLimitShared, rateLimitResponse } from "@/lib/rateLimit";
 import { Tracer } from "@/lib/trace";
 import { geminiAvailable, groundedSearch, SEARCH_ERROR_BN } from "@/lib/gemini";
 
@@ -13,7 +13,7 @@ const Body = z.object({
 });
 
 export async function POST(req: Request) {
-  const rl = checkRateLimit(req, { limit: 8, windowMs: 60_000, bucket: "opportunities" });
+  const rl = await checkRateLimitShared(req, { limit: 8, windowMs: 60_000, bucket: "opportunities" });
   if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "একটি পথ বেছে ২–১৮০ অক্ষরের খোঁজ লিখুন।" }, { status: 400 });

@@ -126,7 +126,7 @@ export default function StepClimate() {
                     className={`lift rounded-xl border p-3 text-left transition-all duration-200 active:scale-[0.98] cursor-pointer ${on ? 'border-primary-600 bg-primary-50/90 ring-2 ring-primary-200/80 shadow-xs' : 'border-border bg-white hover:border-primary-300 hover:shadow-2xs'}`}>
                     <div className="flex items-start justify-between gap-2">
                       <span className="text-[13.5px] leading-snug text-ink/80">{L(INDICATORS[id])}</span>
-                      {forMe(id) && <span className="shrink-0 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-800 ring-1 ring-amber-200">{T('আপনার ফসল', 'Your crop')}</span>}
+                      {forMe(id) && <span className="shrink-0 rounded-full bg-amber-50 px-2 py-0.5 text-[12px] font-semibold text-amber-800 ring-1 ring-amber-200">{T('আপনার ফসল', 'Your crop')}</span>}
                     </div>
                     <div className="mt-1 flex flex-wrap items-baseline gap-x-1.5">
                       <span className="text-[13px] text-muted">{fmtVal(a.then, id)}</span>
@@ -161,8 +161,8 @@ export default function StepClimate() {
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={data} margin={{ top: 6, right: 6, left: -14, bottom: 0 }}>
                 <CartesianGrid vertical={false} stroke="#e7ede4" />
-                <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#566a5e' }} interval={2} tickLine={false} axisLine={{ stroke: '#cdd8ca' }} />
-                <YAxis tick={{ fontSize: 11, fill: '#566a5e' }} tickLine={false} axisLine={false} tickFormatter={tickFmt} domain={x.def.date ? ['dataMin - 5', 'dataMax + 5'] : [0, 'auto']} width={x.def.date ? 62 : 44} />
+                <XAxis dataKey="label" tick={{ fontSize: 12, fill: '#566a5e' }} interval={2} tickLine={false} axisLine={{ stroke: '#cdd8ca' }} />
+                <YAxis tick={{ fontSize: 12, fill: '#566a5e' }} tickLine={false} axisLine={false} tickFormatter={tickFmt} domain={x.def.date ? ['dataMin - 5', 'dataMax + 5'] : [0, 'auto']} width={x.def.date ? 62 : 44} />
                 <Tooltip cursor={{ fill: 'rgba(0,0,0,.04)' }} contentStyle={{ borderRadius: 12, fontSize: 13 }}
                   labelFormatter={(l, p) => (p?.[0] ? T(`${season(p[0].payload.y, 'bn')} মৌসুম`, `Season ${season(p[0].payload.y, 'en')}`) : l)}
                   formatter={(val, k) => [k === 'trend' ? `${fmtVal(val)}` : `${fmtVal(val)} ${x.def.date ? '' : L(x.def.unit)}`, k === 'trend' ? T('প্রবণতা', 'Trend') : T('এই মৌসুম', 'This season')]} />
@@ -255,8 +255,8 @@ function BiasStrip({ bias, lang, T }) {
               <div className="absolute inset-x-0 top-1/2 border-t border-border" />
               <div className="absolute inset-x-[18%] rounded-sm" style={{ background: b > 0 ? '#c8463d' : '#237479', height: `${(Math.abs(b) / max) * 50}%`, ...(b > 0 ? { bottom: '50%' } : { top: '50%' }) }} />
             </div>
-            <span className="text-[10.5px] tabular text-ink/80">{b > 0 ? '+' : ''}{num(b, lang, { dp: 1 })}</span>
-            <span className="text-[10px] text-muted">{(lang === 'bn' ? MONTHS_BN : MONTHS_EN)[m]}</span>
+            <span className="text-[12px] tabular text-ink/80">{b > 0 ? '+' : ''}{num(b, lang, { dp: 1 })}</span>
+            <span className="text-[12px] text-muted">{(lang === 'bn' ? MONTHS_BN : MONTHS_EN)[m]}</span>
           </div>
         ))}
       </div>

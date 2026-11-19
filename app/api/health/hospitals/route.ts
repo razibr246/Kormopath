@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
+import { checkRateLimitShared, rateLimitResponse } from "@/lib/rateLimit";
 import { Tracer } from "@/lib/trace";
 import { BD_BOUNDS, MAX_RADIUS_KM, OSM_COPYRIGHT, OVERPASS_POLICY, cacheKey, overpassQuery, parseOverpass, type Place } from "@/lib/health/hospitals";
 
@@ -53,7 +53,7 @@ async function fetchOverpass(tracer: Tracer, query: string): Promise<{ json: unk
 }
 
 export async function GET(req: Request) {
-  const rl = checkRateLimit(req, { limit: 20, windowMs: 60_000, bucket: "health-hospitals" });
+  const rl = await checkRateLimitShared(req, { limit: 20, windowMs: 60_000, bucket: "health-hospitals" });
   if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
 
   const sp = new URL(req.url).searchParams;

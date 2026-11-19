@@ -429,7 +429,7 @@ export default function CropDoctor() {
                         <span>{T('ক্ষত/নেক্রোটিক দাগ:', 'Necrotic Spots:')} <b>{num(spectralStats.necroticPct, lang)}%</b></span>
                       </span>
                     </div>
-                    <div className="mt-1 text-[11px] text-muted">
+                    <div className="mt-1 text-[12px] text-muted">
                       {T('সেন্টিনেল-২ এমএসআই ও নাসা এগ্রো-স্পেকট্রোমিটার ফলস-কালার ক্যালিব্রেশন', 'Sentinel-2 MSI & NASA agro-spectrometer false-colour calibration')}
                     </div>
                   </div>
@@ -484,7 +484,7 @@ export default function CropDoctor() {
                 <Sparkles size={14} className="text-primary-700" />
                 {T('নমুনা ছবি দিয়ে ফর্মটি দেখে নিন:', 'Try the form with a sample illustration:')}
               </span>
-              <span className="text-[11.5px] text-muted">{T('এক ক্লিকে যাচাই', 'One-tap check')}</span>
+              <span className="text-[12px] text-muted">{T('এক ক্লিকে যাচাই', 'One-tap check')}</span>
             </div>
             <div className="mt-2.5 grid grid-cols-2 gap-2 sm:grid-cols-3">
               {CROP_SAMPLES.map((smp) => {
@@ -509,8 +509,8 @@ export default function CropDoctor() {
                       )}
                     </div>
                     <span className="mt-1.5 line-clamp-1 text-[12.5px] font-bold text-ink">{L(smp.name)}</span>
-                    <span className="line-clamp-1 text-[11px] text-muted">{L(smp.desc)}</span>
-                    <span className="mt-0.5 text-[10.5px] font-medium text-amber-800">{T('নমুনা আঁকা ছবি', 'Illustration, not a field photo')}</span>
+                    <span className="line-clamp-1 text-[12px] text-muted">{L(smp.desc)}</span>
+                    <span className="mt-0.5 text-[12px] font-medium text-amber-800">{T('নমুনা আঁকা ছবি', 'Illustration, not a field photo')}</span>
                   </button>
                 );
               })}
@@ -539,19 +539,19 @@ export default function CropDoctor() {
             </div>
             <div data-tour="doc-context" className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
               <div className="lift rounded-xl border border-border/70 bg-white/85 p-2.5 shadow-2xs transition-all hover:border-primary-300">
-                <span className="flex items-center gap-1.5 text-[11px] font-semibold text-muted"><Sprout size={13} className="text-primary-700" />{T('বয়স ও স্তর', 'Stage')}</span>
+                <span className="flex items-center gap-1.5 text-[12px] font-semibold text-muted"><Sprout size={13} className="text-primary-700" />{T('বয়স ও স্তর', 'Stage')}</span>
                 <span className="mt-1 block truncate font-display font-bold tabular text-ink">{crop !== chosen.crop.id ? '—' : daysAfter >= 0 ? T(`${bnDigits(daysAfter)} দিন`, `Day ${daysAfter}`) : T('লাগানো হয়নি', 'Not sown yet')}</span>
               </div>
               <div className="lift rounded-xl border border-border/70 bg-white/85 p-2.5 shadow-2xs transition-all hover:border-amber-300">
-                <span className="flex items-center gap-1.5 text-[11px] font-semibold text-muted"><CloudSun size={13} className="text-amber-600" />{T('৭ দিনের বৃষ্টি', 'Rain, 7 days')}</span>
+                <span className="flex items-center gap-1.5 text-[12px] font-semibold text-muted"><CloudSun size={13} className="text-amber-600" />{T('৭ দিনের বৃষ্টি', 'Rain, 7 days')}</span>
                 <span className="mt-1 block truncate font-display font-bold tabular text-ink">{w && w.rain7 != null ? T(`${num(Math.round(w.rain7), 'bn')} মিমি`, `${Math.round(w.rain7)} mm`) : T('পাওয়া যায়নি', 'Not available')}</span>
               </div>
               <div className="lift rounded-xl border border-border/70 bg-white/85 p-2.5 shadow-2xs transition-all hover:border-sky-300">
-                <span className="flex items-center gap-1.5 text-[11px] font-semibold text-muted"><Satellite size={13} className="text-sky-700" />{T('উপগ্রহে সবুজ', 'Satellite green')}</span>
+                <span className="flex items-center gap-1.5 text-[12px] font-semibold text-muted"><Satellite size={13} className="text-sky-700" />{T('উপগ্রহে সবুজ', 'Satellite green')}</span>
                 <span className="mt-1 block truncate font-display font-bold tabular text-ink">{sat ? num(sat.last.ndvi, lang, { dp: 2 }) : T('পাওয়া যায়নি', 'Not available')}</span>
               </div>
               <div className="lift rounded-xl border border-border/70 bg-white/85 p-2.5 shadow-2xs transition-all hover:border-clay-300">
-                <span className="flex items-center gap-1.5 text-[11px] font-semibold text-muted"><Layers size={13} className="text-clay-500" />{T('মাটি pH', 'Soil pH')}</span>
+                <span className="flex items-center gap-1.5 text-[12px] font-semibold text-muted"><Layers size={13} className="text-clay-500" />{T('মাটি pH', 'Soil pH')}</span>
                 <span className="mt-1 block truncate font-display font-bold tabular text-ink">{context.soil ? num(soil.ph, lang, { dp: 1 }) : T('পাওয়া যায়নি', 'Not available')}</span>
               </div>
             </div>
@@ -688,7 +688,7 @@ export default function CropDoctor() {
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-2">
-                                <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-bold ${badgeBg}`}>
+                                <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[12px] font-bold ${badgeBg}`}>
                                   {i === 0 ? T('শীর্ষ মিল', 'Top Match') : `#${num(i + 1, lang)}`}
                                 </span>
                                 <h4 className={`text-[15.5px] leading-snug ${i === 0 ? 'font-bold text-ink' : 'font-semibold text-ink/90'}`}>
@@ -698,7 +698,7 @@ export default function CropDoctor() {
                             </div>
                             <div className="shrink-0 text-right">
                               {pct == null ? (
-                                <span className="rounded-md bg-canvas px-2 py-0.5 text-[11.5px] font-semibold text-muted">
+                                <span className="rounded-md bg-canvas px-2 py-0.5 text-[12px] font-semibold text-muted">
                                   {T('শুধু লেখা মেলেছে', 'Text match only')}
                                 </span>
                               ) : (
@@ -791,7 +791,7 @@ export default function CropDoctor() {
                     </ul>
                   </div>
                 )}
-                <p className="mt-3 text-[11.5px] text-muted">
+                <p className="mt-3 text-[12px] text-muted">
                   {st.offlineFallback
                     ? T(`অফলাইন ${rep.on_device_pixel_check ? 'রঙের হিসাব' : 'লক্ষণ-তথ্য'}, ${clockText(st.at, 'bn')}। এটি রোগ নির্ণয় নয়।`, `Offline ${rep.on_device_pixel_check ? 'colour check' : 'symptom reference'}, ${clockText(st.at, 'en')}. This is not a diagnosis.`)
                     : T(`AI ডাক্তারের উত্তর, ${clockText(st.at, 'bn')}। AI ভুল করতে পারে, তাই জমিতে গিয়ে মিলিয়ে দেখুন।`, `The AI doctor’s answer, ${clockText(st.at, 'en')}. AI can be wrong, so check it in the field.`)}

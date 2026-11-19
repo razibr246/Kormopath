@@ -2,7 +2,7 @@
 // turn, lights up one part at a time with a soft window over the dimmed page (clicks still pass through, so the farmer
 // can try things as they go) and says what it is, how it helps and what to try. A chapter list jumps anywhere; → ←
 // and Esc work from the keyboard. Start it with startFarmerTour() (the compass button in the farmer header) or from
-// the invitation on the farmer's home page the first time. Where it was is kept in this browser.
+// (KormoPath: no automatic invitation; the header guide button offers it.) Where it was is kept in this browser.
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, ChevronDown, Compass, HeartHandshake, MousePointerClick, X, GripHorizontal } from 'lucide-react';
@@ -15,6 +15,8 @@ import { STORAGE_PREFIX } from '../../config/brand';
 
 const KEY = `${STORAGE_PREFIX}.farmerTour`;
 const SEEN = `${STORAGE_PREFIX}.farmerTourSeen`;
+/** True once the farmer has opened or closed the guide on this device. */
+export const farmerTourSeen = () => { try { return !!localStorage.getItem(SEEN); } catch { return true; } };
 export const startFarmerTour = (at = 0) => window.dispatchEvent(new CustomEvent('fs-farmer-tour', { detail: at }));
 
 const visible = (el) => { const r = el.getBoundingClientRect(); return r.width > 2 && r.height > 2 && getComputedStyle(el).visibility !== 'hidden'; };
@@ -35,7 +37,9 @@ export default function FarmerTour() {
   const [k, setK] = useState(() => { try { const v = localStorage.getItem(KEY); return v == null ? null : Math.min(+v, STEPS.length - 1); } catch { return null; } });
   const [rect, setRect] = useState(null);
   const [menu, setMenu] = useState(false);
-  const [invite, setInvite] = useState(() => { try { return !localStorage.getItem(SEEN); } catch { return false; } });
+  // KormoPath: never open the guide by itself on first load (it covered the page a farmer came to use).
+  // The header's guide button offers it instead (see FarmerLayout, which labels it for first-time visitors).
+  const [invite, setInvite] = useState(false);
   const [chooser, setChooser] = useState(false);
   const [autoMode, setAutoMode] = useState(false);
   const [quickMode, setQuickMode] = useState(false);
@@ -189,7 +193,7 @@ export default function FarmerTour() {
             : 'cursor-grab shadow-[0_18px_44px_-14px_rgba(0,0,0,.5)] hover:shadow-[0_22px_50px_-12px_rgba(0,0,0,.55)]'
         }`}>
         <div className="flex items-center justify-between border-b border-black/[.06] px-4 py-1.5 select-none bg-black/[.02]">
-          <div className="flex items-center gap-1.5 text-[11px] font-medium text-ink/40">
+          <div className="flex items-center gap-1.5 text-[12px] font-medium text-ink/75">
             <GripHorizontal size={14} className="text-primary-700/60" />
             <span className="hidden sm:inline">{T('মাউস দিয়ে টেনে যে কোনো স্থানে সরান', 'Drag anywhere to move')}</span>
           </div>
@@ -197,7 +201,7 @@ export default function FarmerTour() {
             <button
               type="button"
               onClick={resetPos}
-              className="text-[11px] font-semibold text-primary-700 hover:text-primary-900 transition underline underline-offset-2 cursor-pointer"
+              className="text-[12px] font-semibold text-primary-700 hover:text-primary-900 transition underline underline-offset-2 cursor-pointer"
               title={T('মূল অবস্থানে ফিরিয়ে আনুন', 'Reset position to default')}
             >
               {T('মাঝখানে আনুন', 'Reset position')}
@@ -217,7 +221,7 @@ export default function FarmerTour() {
                 {CHAPTERS.map((c, i) => (
                   <li key={c.key}><button type="button" role="menuitem" onClick={() => selectChapter(c.key)}
                     className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-[14px] font-semibold ${i === ch ? 'bg-primary-50 text-primary-800' : 'text-ink/80 hover:bg-black/5'}`}>
-                    <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full text-[11.5px] font-bold ${i < ch ? 'bg-primary-600 text-white' : i === ch ? 'bg-primary-800 text-white' : 'bg-black/[.06] text-ink/60'}`}>{n(i + 1)}</span>{L(c)}
+                    <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full text-[12px] font-bold ${i < ch ? 'bg-primary-600 text-white' : i === ch ? 'bg-primary-800 text-white' : 'bg-black/[.06] text-ink/75'}`}>{n(i + 1)}</span>{L(c)}
                   </button></li>
                 ))}
               </ol>

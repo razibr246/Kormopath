@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { forecastHours } from "@/lib/weather";
 import { DISTRICTS, sprayWindow } from "@/lib/haatbazar";
-import { checkRateLimit, rateLimitResponse } from "@/lib/rateLimit";
+import { checkRateLimitShared, rateLimitResponse } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 
@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 // non-commercial purposes — a commercial deployment needs an Open-Meteo plan or self-hosting.
 
 export async function GET(req: Request) {
-  const rl = checkRateLimit(req, { limit: 60, windowMs: 60_000, bucket: "weather" });
+  const rl = await checkRateLimitShared(req, { limit: 60, windowMs: 60_000, bucket: "weather" });
   if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds);
 
   const id = new URL(req.url).searchParams.get("d") ?? "";

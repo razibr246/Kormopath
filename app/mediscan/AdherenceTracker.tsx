@@ -28,7 +28,7 @@ const STATUS_STYLE: Record<DayCell["status"], string> = {
   covered: "bg-emerald-500 text-white border-emerald-600",
   partial: "bg-amber-200 text-amber-950 border-amber-400",
   missed: "bg-white text-red-700 border-red-300",
-  "not-scheduled": "bg-slate-100 text-slate-400 border-slate-200",
+  "not-scheduled": "bg-slate-100 text-slate-500 border-slate-200",
   today: "bg-sky-50 text-sky-900 border-sky-500 border-2",
   future: "bg-slate-50 text-slate-300 border-slate-100",
 };
@@ -199,7 +199,7 @@ export function AdherenceTracker({ lines }: { lines: ParsedLine[] }) {
         </div>
         <div role="group" aria-label={t("ভাষা", "Language")} className="inline-flex shrink-0 rounded-lg border border-slate-200 p-0.5 text-[12px] font-bold">
           {(["bn", "en"] as const).map((l) => (
-            <button key={l} type="button" aria-pressed={lang === l} onClick={() => setLang(l)} className={`rounded-md px-2.5 py-1 ${lang === l ? "bg-emerald-700 text-white" : "text-slate-600"}`}>{l === "bn" ? "বাংলা" : "English"}</button>
+            <button key={l} type="button" aria-pressed={lang === l} onClick={() => setLang(l)} className={`rounded-md px-2.5 py-1 ${lang === l ? "bg-emerald-700 text-white" : "text-slate-600"} min-h-[44px] min-w-[44px]`}>{l === "bn" ? "বাংলা" : "English"}</button>
           ))}
         </div>
       </div>
@@ -224,7 +224,7 @@ export function AdherenceTracker({ lines }: { lines: ParsedLine[] }) {
               "গত কয়েক দিনে কিছু ডোজ বাদ পড়েছে বলে দেখা যাচ্ছে। আপনার ডাক্তার বা ফার্মাসিস্টের সাথে কথা বলুন — ওষুধ খেতে কোনো অসুবিধা হলে তাঁরা সাহায্য করতে পারেন। নিজে থেকে ডোজ বদলাবেন না।",
               "Some doses seem to have been missed recently. Talk to your doctor or pharmacist; they can help if something makes the medicine hard to take. Do not change a dose on your own.",
             )}
-            <span className="mt-1 block text-[11px] text-sky-900/80">{t("৮০% সীমা: PQA ও CMS-এর ব্যবহৃত মানদণ্ড। এটি রোগ নির্ণয় নয়।", "80% threshold: the standard used by PQA and CMS. This is not a diagnosis.")}</span>
+            <span className="mt-1 block text-[12px] text-sky-900/80">{t("৮০% সীমা: PQA ও CMS-এর ব্যবহৃত মানদণ্ড। এটি রোগ নির্ণয় নয়।", "80% threshold: the standard used by PQA and CMS. This is not a diagnosis.")}</span>
           </p>
         </div>
       )}
@@ -243,14 +243,14 @@ export function AdherenceTracker({ lines }: { lines: ParsedLine[] }) {
                   aria-label={`${fmtDate(c.date)}: ${statusLabel(c)}`}
                   title={`${c.date}: ${statusLabel(c)}`}
                   data-status={c.status}
-                  className={`flex h-9 w-full items-center justify-center rounded-md border font-mono text-[10px] ${STATUS_STYLE[c.status]} ${day === c.date ? "ring-2 ring-slate-900 ring-offset-1" : ""}`}
+                  className={`flex h-11 w-full items-center justify-center rounded-md border font-mono text-[12px] ${STATUS_STYLE[c.status]} ${day === c.date ? "ring-2 ring-slate-900 ring-offset-1" : ""}`}
                 >
                   {c.status === "covered" ? <Check size={13} aria-hidden /> : num(Number(c.date.slice(8)))}
                 </button>
               </li>
             ))}
           </ol>
-          <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-slate-600">
+          <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[12px] text-slate-600">
             <li className="flex items-center gap-1"><span className="h-3 w-3 rounded-sm bg-emerald-500" aria-hidden /> {t("সব ডোজ", "All doses")}</li>
             <li className="flex items-center gap-1"><span className="h-3 w-3 rounded-sm border border-amber-400 bg-amber-200" aria-hidden /> {t("কিছু ডোজ", "Some doses")}</li>
             <li className="flex items-center gap-1"><span className="h-3 w-3 rounded-sm border border-red-300 bg-white" aria-hidden /> {t("টিক নেই", "None ticked")}</li>
@@ -264,7 +264,7 @@ export function AdherenceTracker({ lines }: { lines: ParsedLine[] }) {
         <div className="space-y-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h3 className="text-[14px] font-bold">{day === today ? t("আজকের ডোজ", "Today's doses") : t(`${fmtDate(day)} তারিখের ডোজ (ঠিক করছেন)`, `Doses on ${fmtDate(day)} (correcting)`)}</h3>
-            {day !== today && <button type="button" onClick={() => setSelected(null)} className="text-[12px] font-semibold text-sky-700 underline">{t("আজকে ফিরুন", "Back to today")}</button>}
+            {day !== today && <button type="button" onClick={() => setSelected(null)} className="text-[12px] font-semibold text-sky-700 underline min-h-[44px] min-w-[44px]">{t("আজকে ফিরুন", "Back to today")}</button>}
           </div>
           {dayMeds.length === 0 ? (
             <p className="text-[12px] text-slate-500">{t("এই দিনে কোনো ওষুধ নির্ধারিত নেই।", "No medicine scheduled on this day.")}</p>
@@ -282,7 +282,7 @@ export function AdherenceTracker({ lines }: { lines: ParsedLine[] }) {
                           type="button"
                           aria-pressed={on}
                           onClick={() => setLog((prev) => toggleDose(prev, m.id, day, i))}
-                          className={`inline-flex min-h-11 items-center gap-1.5 rounded-xl border px-3 text-[14px] font-bold ${on ? "border-emerald-600 bg-emerald-600 text-white" : "border-slate-300 bg-white text-slate-800"}`}
+                          className={`inline-flex min-h-11 items-center gap-1.5 rounded-xl border px-3 text-[14px] font-bold ${on ? "border-emerald-600 bg-emerald-600 text-white" : "border-slate-300 bg-white text-slate-800"} min-w-[44px]`}
                         >
                           {on ? <Check size={16} aria-hidden /> : <span className="h-4 w-4 rounded border-2 border-slate-400" aria-hidden />}
                           {num(time)}
@@ -308,14 +308,14 @@ export function AdherenceTracker({ lines }: { lines: ParsedLine[] }) {
               <li key={r.medId} className="flex items-start justify-between gap-2 p-3">
                 <div className="min-w-0">
                   <span className="block truncate font-semibold">{m.name}</span>
-                  <span className="text-[11px] text-slate-500">
+                  <span className="text-[12px] text-slate-500">
                     {t(`দিনে ${bnDigits(m.times.length)} বার`, `${m.times.length}× a day`)} · {fmtDate(m.startDate)} – {m.endDate ? fmtDate(m.endDate) : t("শেষ তারিখ নেই", "no end date")}
                     {" · "}PDC {pct === null ? "—" : `${num(pct)}%`} · {t(`বাদ ${bnDigits(r.missedDoses)}`, `missed ${r.missedDoses}`)}
                   </span>
                 </div>
                 <div className="flex shrink-0 gap-1">
-                  <button type="button" onClick={() => edit(m)} aria-label={t(`${m.name} সম্পাদনা`, `Edit ${m.name}`)} className="grid h-9 w-9 place-items-center rounded-lg text-slate-500 hover:bg-slate-100"><Pencil size={15} /></button>
-                  <button type="button" onClick={() => remove(m)} aria-label={t(`${m.name} মুছুন`, `Remove ${m.name}`)} className="grid h-9 w-9 place-items-center rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-600"><Trash2 size={15} /></button>
+                  <button type="button" onClick={() => edit(m)} aria-label={t(`${m.name} সম্পাদনা`, `Edit ${m.name}`)} className="grid h-11 w-11 place-items-center rounded-lg text-slate-500 hover:bg-slate-100"><Pencil size={15} /></button>
+                  <button type="button" onClick={() => remove(m)} aria-label={t(`${m.name} মুছুন`, `Remove ${m.name}`)} className="grid h-11 w-11 place-items-center rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-600"><Trash2 size={15} /></button>
                 </div>
               </li>
             );
@@ -327,13 +327,13 @@ export function AdherenceTracker({ lines }: { lines: ParsedLine[] }) {
       {!draft ? (
         <div className="flex flex-wrap gap-2">
           {meds.length < MAX_MEDICINES && (
-            <button type="button" onClick={startAdd} className="inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-emerald-700 px-4 text-[14px] font-bold text-white hover:bg-emerald-800"><Plus size={16} aria-hidden /> {t("ওষুধের সময়সূচি যোগ করুন", "Add a medicine schedule")}</button>
+            <button type="button" onClick={startAdd} className="inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-emerald-700 px-4 text-[14px] font-bold text-white hover:bg-emerald-800 min-w-[44px]"><Plus size={16} aria-hidden /> {t("ওষুধের সময়সূচি যোগ করুন", "Add a medicine schedule")}</button>
           )}
           {meds.length > 0 && (
             <button
               type="button"
               onClick={() => downloadText("mediscan-adherence-reminders.ics", adherenceToIcs(meds, { stamp: new Date().toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z" }), "text/calendar;charset=utf-8")}
-              className="inline-flex min-h-11 items-center gap-1.5 rounded-xl border border-sky-700 px-4 text-[14px] font-bold text-sky-800 hover:bg-sky-50"
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-xl border border-sky-700 px-4 text-[14px] font-bold text-sky-800 hover:bg-sky-50 min-w-[44px]"
             >
               <CalendarDays size={16} aria-hidden /> {t("দৈনিক রিমাইন্ডার (.ics)", "Daily reminders (.ics)")}
             </button>
@@ -343,14 +343,14 @@ export function AdherenceTracker({ lines }: { lines: ParsedLine[] }) {
         <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-3" data-testid="adh-form">
           <div className="flex items-center justify-between">
             <h3 className="text-[14px] font-bold">{editingId ? t("সময়সূচি সম্পাদনা", "Edit schedule") : t("নতুন সময়সূচি", "New schedule")}</h3>
-            <button type="button" onClick={() => { setDraft(null); setEditingId(null); }} aria-label={t("বাতিল", "Cancel")} className="grid h-9 w-9 place-items-center rounded-lg text-slate-500 hover:bg-white"><X size={16} /></button>
+            <button type="button" onClick={() => { setDraft(null); setEditingId(null); }} aria-label={t("বাতিল", "Cancel")} className="grid h-11 w-11 place-items-center rounded-lg text-slate-500 hover:bg-white"><X size={16} /></button>
           </div>
 
           {!reviewing ? (
             <>
               {!editingId && prefillable.length > 0 && (
                 <label className="block text-[12px] font-bold text-slate-700">{t("উপরের প্রেসক্রিপশন থেকে নিন (ঐচ্ছিক)", "Fill from the prescription above (optional)")}
-                  <select defaultValue="" onChange={(e) => e.target.value !== "" && prefillFrom(Number(e.target.value))} className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-2 py-2 text-[13px] font-normal">
+                  <select defaultValue="" onChange={(e) => e.target.value !== "" && prefillFrom(Number(e.target.value))} className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-2 py-2 text-[13px] font-normal min-h-[44px]">
                     <option value="">{t("একটি লাইন বেছে নিন", "Choose a line")}</option>
                     {prefillable.map((p) => <option key={p.i} value={p.i}>{p.label}</option>)}
                   </select>
@@ -358,10 +358,10 @@ export function AdherenceTracker({ lines }: { lines: ParsedLine[] }) {
                 </label>
               )}
               <label className="block text-[12px] font-bold text-slate-700">{t("ওষুধের নাম (প্রেসক্রিপশনে যেমন লেখা)", "Medicine name (as written on the prescription)")}
-                <input value={draft.name} maxLength={80} onChange={(e) => setDraft({ ...draft, name: e.target.value })} className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-2 py-2 text-[14px] font-normal" />
+                <input value={draft.name} maxLength={80} onChange={(e) => setDraft({ ...draft, name: e.target.value })} className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-2 py-2 text-[14px] font-normal min-h-[44px]" />
               </label>
               <label className="block text-[12px] font-bold text-slate-700">{t("প্রতিবার কতটুকু (প্রেসক্রিপশনে যেমন লেখা, ঐচ্ছিক)", "Amount each time (as written, optional)")}
-                <input value={draft.amountNote} maxLength={40} onChange={(e) => setDraft({ ...draft, amountNote: e.target.value })} placeholder={t("যেমন: ১টি", "e.g. 1 tablet")} className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-2 py-2 text-[14px] font-normal" />
+                <input value={draft.amountNote} maxLength={40} onChange={(e) => setDraft({ ...draft, amountNote: e.target.value })} placeholder={t("যেমন: ১টি", "e.g. 1 tablet")} className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-2 py-2 text-[14px] font-normal min-h-[44px]" />
               </label>
               <fieldset>
                 <legend className="text-[12px] font-bold text-slate-700">{t("দিনে কয়বার (প্রেসক্রিপশন অনুযায়ী)", "Times a day (from the prescription)")}</legend>
@@ -374,16 +374,16 @@ export function AdherenceTracker({ lines }: { lines: ParsedLine[] }) {
               <div className="grid grid-cols-2 gap-2">
                 {draft.times.map((time, i) => (
                   <label key={i} className="block text-[12px] font-bold text-slate-700">{t(`ডোজ ${bnDigits(i + 1)}-এর রিমাইন্ডার সময়`, `Dose ${i + 1} reminder time`)}
-                    <input type="time" value={time} onChange={(e) => setDraft({ ...draft, times: draft.times.map((x, j) => (j === i ? e.target.value : x)) })} className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-2 py-2 text-[14px] font-normal" />
+                    <input type="time" value={time} onChange={(e) => setDraft({ ...draft, times: draft.times.map((x, j) => (j === i ? e.target.value : x)) })} className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-2 py-2 text-[14px] font-normal min-h-[44px]" />
                   </label>
                 ))}
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <label className="block text-[12px] font-bold text-slate-700">{t("শুরুর তারিখ", "Start date")}
-                  <input type="date" value={draft.startDate} onChange={(e) => setDraft({ ...draft, startDate: e.target.value })} className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-2 py-2 text-[14px] font-normal" />
+                  <input type="date" value={draft.startDate} onChange={(e) => setDraft({ ...draft, startDate: e.target.value })} className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-2 py-2 text-[14px] font-normal min-h-[44px]" />
                 </label>
                 <label className="block text-[12px] font-bold text-slate-700">{t("শেষের তারিখ (লেখা থাকলে)", "End date (if written)")}
-                  <input type="date" value={draft.endDate} min={draft.startDate} onChange={(e) => setDraft({ ...draft, endDate: e.target.value })} className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-2 py-2 text-[14px] font-normal" />
+                  <input type="date" value={draft.endDate} min={draft.startDate} onChange={(e) => setDraft({ ...draft, endDate: e.target.value })} className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-2 py-2 text-[14px] font-normal min-h-[44px]" />
                 </label>
               </div>
               {errors.length > 0 && (
@@ -395,24 +395,24 @@ export function AdherenceTracker({ lines }: { lines: ParsedLine[] }) {
             <div className="space-y-3">
               <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 rounded-lg bg-white p-3 text-[13px]">
                 <dt className="font-bold text-slate-500">{t("ওষুধ", "Medicine")}</dt><dd>{draft.name}</dd>
-                <dt className="font-bold text-slate-500">{t("প্রতিবার", "Each time")}</dt><dd>{draft.amountNote || <span className="text-slate-400">{t("লেখা হয়নি", "not entered")}</span>}</dd>
+                <dt className="font-bold text-slate-500">{t("প্রতিবার", "Each time")}</dt><dd>{draft.amountNote || <span className="text-slate-500">{t("লেখা হয়নি", "not entered")}</span>}</dd>
                 <dt className="font-bold text-slate-500">{t("দিনে", "Per day")}</dt><dd>{t(`${bnDigits(draft.times.length)} বার`, `${draft.times.length} times`)} — {draft.times.map(num).join(", ")}</dd>
                 <dt className="font-bold text-slate-500">{t("তারিখ", "Dates")}</dt><dd>{draft.startDate} → {draft.endDate || t("শেষ তারিখ নেই", "no end date")}</dd>
               </dl>
-              <label className="flex items-start gap-2 text-[13px] leading-relaxed">
+              <label className="flex items-start gap-2 text-[13px] leading-relaxed min-h-[44px]">
                 <input type="checkbox" checked={checked} onChange={(e) => setChecked(e.target.checked)} className="mt-1 h-4 w-4 accent-emerald-700" />
                 <span>{t("আমি আমার প্রেসক্রিপশনের সাথে মিলিয়ে দেখেছি; এটি ডাক্তার যেভাবে লিখেছেন সেভাবেই আছে।", "I have checked this against my prescription; it matches what the doctor wrote.")}</span>
               </label>
               <div className="flex gap-2">
-                <button type="button" onClick={() => setReviewing(false)} className="min-h-11 flex-1 rounded-xl border border-slate-300 bg-white px-3 text-[14px] font-bold">{t("ঠিক করুন", "Edit")}</button>
-                <button type="button" disabled={!checked} onClick={confirmSave} className="min-h-11 flex-1 rounded-xl bg-emerald-700 px-3 text-[14px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-40">{t("নিশ্চিত করে সংরক্ষণ", "Confirm and save")}</button>
+                <button type="button" onClick={() => setReviewing(false)} className="min-h-11 flex-1 rounded-xl border border-slate-300 bg-white px-3 text-[14px] font-bold min-w-[44px]">{t("ঠিক করুন", "Edit")}</button>
+                <button type="button" disabled={!checked} onClick={confirmSave} className="min-h-11 flex-1 rounded-xl bg-emerald-700 px-3 text-[14px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-40 min-w-[44px]">{t("নিশ্চিত করে সংরক্ষণ", "Confirm and save")}</button>
               </div>
             </div>
           )}
         </div>
       )}
 
-      <p className="text-[11px] leading-relaxed text-slate-500">
+      <p className="text-[12px] leading-relaxed text-slate-500">
         {t(
           "PDC (Proportion of Days Covered): গত ৩০টি পুরো দিনের মধ্যে কত দিন সব ডোজ টিক দেওয়া হয়েছে। শুরুর আগের দিন, শেষের পরের দিন ও আজকের চলমান দিন গোনা হয় না। সব তথ্য শুধু এই ডিভাইসে থাকে।",
           "PDC (Proportion of Days Covered): of the last 30 full days, how many had every dose ticked. Days before the start, after the end and today (still in progress) are not counted. Everything stays on this device.",
@@ -425,7 +425,7 @@ export function AdherenceTracker({ lines }: { lines: ParsedLine[] }) {
 function Stat({ label, value, icon, testId }: { label: string; value: string; icon?: ReactNode; testId?: string }) {
   return (
     <div className="rounded-xl bg-slate-50 p-3">
-      <span className="block text-[11px] font-bold text-slate-500">{label}</span>
+      <span className="block text-[12px] font-bold text-slate-500">{label}</span>
       <span className="mt-0.5 flex items-center gap-1 font-mono text-[20px] font-bold text-slate-900" data-testid={testId}>{icon}{value}</span>
     </div>
   );

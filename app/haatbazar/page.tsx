@@ -95,7 +95,7 @@ export default function HaatBazarPage() {
 
       <div className="border-b border-green-200 bg-green-50">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2 text-[13px] text-green-950 sm:px-6">
-          <a href="tel:16123" className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-green-800 px-4 font-bold text-white shadow-sm hover:bg-green-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2">
+          <a href="tel:16123" className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-green-800 px-4 font-bold text-white shadow-sm hover:bg-green-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 min-w-[44px]">
             <Phone size={15} aria-hidden /> কৃষি কল সেন্টার: <span className="font-mono">16123</span>
           </a>
           <span>রোগ, সার ও ওষুধের পরামর্শ: উপজেলা কৃষি অফিস বা উপসহকারী কৃষি কর্মকর্তা</span>
@@ -147,7 +147,7 @@ export default function HaatBazarPage() {
                 const now = season?.id === s.id;
                 return (
                   <li key={s.id} className={`relative rounded-2xl border p-3 text-[13px] transition-colors ${now ? "border-lime-500 bg-lime-50 shadow-sm" : "border-stone-200 bg-white"}`}>
-                    {now && <span className="absolute -top-2 right-3 rounded-full bg-lime-600 px-2 py-0.5 text-[10px] font-bold text-white">এখন</span>}
+                    {now && <span className="absolute -top-2 right-3 rounded-full bg-lime-600 px-2 py-0.5 text-[12px] font-bold text-white">এখন</span>}
                     <strong className="block text-[14px]">{s.nameBn}</strong>
                     <span className="block text-[12px] text-stone-500">{s.monthsBn}</span>
                     <span className="mt-1 block text-stone-700">{s.cropsBn}</span>
@@ -157,13 +157,13 @@ export default function HaatBazarPage() {
             </ol>
             <div className="overflow-x-auto rounded-2xl border border-stone-200">
               <table className="w-full text-left text-[13px]">
-                <thead className="bg-stone-50 text-[11px] text-stone-500"><tr><th className="px-3 py-2">ধান</th><th className="py-2">রোপণ/বপন</th><th className="py-2 pr-3">কাটা</th></tr></thead>
+                <thead className="bg-stone-50 text-[12px] text-stone-500"><tr><th className="px-3 py-2">ধান</th><th className="py-2">রোপণ/বপন</th><th className="py-2 pr-3">কাটা</th></tr></thead>
                 <tbody className="divide-y divide-stone-100">
                   {RICE_SEASONS.map((r) => <tr key={r.nameBn}><td className="px-3 py-2 font-semibold">{r.nameBn}</td><td>{r.plantBn}</td><td className="pr-3">{r.harvestBn}</td></tr>)}
                 </tbody>
               </table>
             </div>
-            <p className="text-[11px] text-stone-500">মৌসুমের সীমা উৎসভেদে কিছুটা আলাদা; এলাকা ও জাত অনুযায়ী সময় বদলায়। <SourceTag confidence="reported" label="Banglapedia: Crop" url="https://en.banglapedia.org/index.php/Crop" checked="2026-11-05" /></p>
+            <p className="text-[12px] text-stone-500">মৌসুমের সীমা উৎসভেদে কিছুটা আলাদা; এলাকা ও জাত অনুযায়ী সময় বদলায়। <SourceTag confidence="reported" label="Banglapedia: Crop" url="https://en.banglapedia.org/index.php/Crop" checked="2026-11-05" /></p>
           </section>
         </div>
 
@@ -253,7 +253,7 @@ function TripHero({ trip, result: r, touched, season, spray }: {
               </span>
             )}
             {spray && (
-              <a href="#wx-h" className={`inline-flex min-h-[40px] items-center gap-1.5 rounded-full border px-3 ${spray.ok ? "border-green-300 bg-white/85 text-green-900" : "border-amber-300 bg-amber-50/90 text-amber-950"}`}>
+              <a href="#wx-h" className={`inline-flex min-h-[40px] items-center gap-1.5 rounded-full border px-3 ${spray.ok ? "border-green-300 bg-white/85 text-green-900" : "border-amber-300 bg-amber-50/90 text-amber-950"} min-h-[44px] min-w-[44px]`}>
                 <SprayCan size={14} aria-hidden /> {spray.ok ? "স্প্রে: আবহাওয়া ঠিক আছে" : "স্প্রে: এখন অপেক্ষা করুন"}
               </a>
             )}
@@ -268,7 +268,7 @@ function TripHero({ trip, result: r, touched, season, spray }: {
           <div className="hb-verdict p-4 sm:p-5" data-good={good} aria-live="polite">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="text-[12px] font-bold text-stone-600">{good ? "মোকামে নিলে বাড়তি থাকে" : "মোকামে নিলে কম থাকে"}</span>
-              {!touched ? <SourceTag confidence="example" label="নিজের সংখ্যা বসান" /> : <span className="text-[11px] font-semibold text-stone-500">আপনার দেওয়া সংখ্যায়</span>}
+              {!touched ? <SourceTag confidence="example" label="নিজের সংখ্যা বসান" /> : <span className="text-[12px] font-semibold text-stone-500">আপনার দেওয়া সংখ্যায়</span>}
             </div>
             <p className={`hb-figure mt-2 text-[44px] font-extrabold sm:text-[56px] ${good ? "text-green-800" : "text-amber-700"}`} aria-hidden="true">
               {shown >= 0 ? "+" : "−"}৳{r0(Math.abs(shown))}
@@ -280,7 +280,7 @@ function TripHero({ trip, result: r, touched, season, spray }: {
             <p className="mt-2 text-[13px] text-stone-600">
               লাভ পেতে আড়তে অন্তত <strong className="font-mono text-stone-900">৳{Number.isFinite(r.breakEvenDistantPrice) ? r.breakEvenDistantPrice.toFixed(2) : "—"}/কেজি</strong> পাইকারি দাম লাগবে।
             </p>
-            <a href="#trip-h" className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 rounded-xl bg-stone-900 px-4 text-[14px] font-bold text-white hover:bg-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2">
+            <a href="#trip-h" className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 rounded-xl bg-stone-900 px-4 text-[14px] font-bold text-white hover:bg-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 min-w-[44px]">
               <ArrowDown size={16} aria-hidden /> নিজের সংখ্যা বসান
             </a>
           </div>
@@ -289,7 +289,7 @@ function TripHero({ trip, result: r, touched, season, spray }: {
         <figure className="hb-verdict p-4 sm:p-5">
           <figcaption className="flex items-center justify-between gap-2">
             <span className="text-[14px] font-bold">টাকাটা কোথায় যায়</span>
-            <span className="text-[11px] text-stone-500">{r0(trip.quantityKg)} কেজি · {(trip.quantityKg / KG_PER_MAUND).toFixed(1)} মণ</span>
+            <span className="text-[12px] text-stone-500">{r0(trip.quantityKg)} কেজি · {(trip.quantityKg / KG_PER_MAUND).toFixed(1)} মণ</span>
           </figcaption>
           <ol className="mt-3 space-y-2 text-[12.5px]">
             {steps.map((s, i) => {
@@ -319,7 +319,7 @@ function TripHero({ trip, result: r, touched, season, spray }: {
             <span className="inline-block h-3.5 w-0.5 bg-stone-800" aria-hidden="true" />
             দাগটি: হাটেই সব বেচলে <strong className="font-mono text-stone-900">৳{r0(r.localRevenue)}</strong>
           </p>
-          <p className="mt-1 text-[11px] text-stone-500">শুধু আপনার দেওয়া সংখ্যার হিসাব। পৌঁছানোর দিনে দাম বদলে যেতে পারে — লাভের নিশ্চয়তা নয়।</p>
+          <p className="mt-1 text-[12px] text-stone-500">শুধু আপনার দেওয়া সংখ্যার হিসাব। পৌঁছানোর দিনে দাম বদলে যেতে পারে — লাভের নিশ্চয়তা নয়।</p>
         </figure>
       </div>
     </section>
@@ -365,10 +365,10 @@ function TripCalculator({
     <label className="text-[12.5px] font-bold text-stone-700">
       {label}
       <span className="mt-1 flex min-h-[44px] items-center rounded-xl border border-stone-200 bg-white transition-shadow focus-within:border-green-700 focus-within:ring-2 focus-within:ring-green-600/30">
-        <input type="number" min={0} step={step} value={v[k]} onChange={set(k)} className="w-full min-w-0 rounded-xl bg-transparent px-3 py-2 font-mono text-[16px] font-bold text-stone-900 outline-none" />
-        <span className="shrink-0 pr-3 text-[11px] font-normal text-stone-500">{suffix}</span>
+        <input type="number" min={0} step={step} value={v[k]} onChange={set(k)} className="w-full min-w-0 rounded-xl bg-transparent px-3 py-2 font-mono text-[16px] font-bold text-stone-900 outline-none min-h-[44px]" />
+        <span className="shrink-0 pr-3 text-[12px] font-normal text-stone-500">{suffix}</span>
       </span>
-      {hint && <span className="mt-1 block text-[11px] font-normal text-stone-500">{hint}</span>}
+      {hint && <span className="mt-1 block text-[12px] font-normal text-stone-500">{hint}</span>}
     </label>
   );
 
@@ -383,7 +383,7 @@ function TripCalculator({
             <Sparkles size={14} className="text-amber-600" aria-hidden />
             ১ ক্লিকে ফসলের নমুনা মান বসান:
           </span>
-          <span className="text-[11px] text-stone-500">পরিবর্তনযোগ্য সাধারণ বেঞ্চমার্ক</span>
+          <span className="text-[12px] text-stone-500">পরিবর্তনযোগ্য সাধারণ বেঞ্চমার্ক</span>
         </div>
         <div className="mt-2 flex flex-wrap gap-1.5">
           {CROP_PRESETS.map((cp) => {
@@ -409,7 +409,7 @@ function TripCalculator({
                   on
                     ? "border-green-700 bg-green-50 font-bold text-green-950 shadow-2xs ring-1 ring-green-600/30"
                     : "border-line bg-white text-stone-700 hover:bg-stone-50"
-                }`}
+                } min-h-[44px] min-w-[44px]`}
               >
                 {cp.nameBn}
               </button>
@@ -424,7 +424,7 @@ function TripCalculator({
       </div>
 
       {/* Quick Corridor Selection */}
-      <div className="flex flex-wrap items-center gap-1.5 text-[11.5px]">
+      <div className="flex flex-wrap items-center gap-1.5 text-[12px]">
         <span className="font-bold text-stone-600">মহাসড়ক রুট প্রিসেট:</span>
         {TRANSIT_CORRIDORS.map((c) => (
           <button
@@ -437,7 +437,7 @@ function TripCalculator({
                 otherCosts: c.tollBridgesBn.length > 0 ? 500 : 300,
               });
             }}
-            className="rounded-lg border border-line bg-white px-2 py-0.5 text-stone-700 hover:border-emerald-600 hover:bg-emerald-50/60"
+            className="rounded-lg border border-line bg-white px-2 py-0.5 text-stone-700 hover:border-emerald-600 hover:bg-emerald-50/60 min-h-[44px] min-w-[44px]"
           >
             {c.nameBn.split(" ")[0]} ({c.distanceKm} কিমি)
           </button>
@@ -468,16 +468,16 @@ function TripCalculator({
         <div className="rounded-xl border border-line bg-white p-3 text-[12.5px]">
           <strong className="block text-[13px] text-stone-800">১. স্থানীয় হাটে বিক্রি করলে</strong>
           <p className="mt-1 font-mono text-[16px] font-bold text-stone-900">৳{r0(localNetTaka)}</p>
-          <span className="text-[11px] text-stone-500">৳{v.localPricePerKg}/কেজি · ৳{r0(v.localPricePerKg * KG_PER_MAUND)}/মণ</span>
-          <p className="mt-1.5 text-[11px] text-emerald-800">✓ শূন্য পরিবহন ঝুঁকি, নগদে তাৎক্ষণিক খালাস</p>
+          <span className="text-[12px] text-stone-500">৳{v.localPricePerKg}/কেজি · ৳{r0(v.localPricePerKg * KG_PER_MAUND)}/মণ</span>
+          <p className="mt-1.5 text-[12px] text-emerald-800">✓ শূন্য পরিবহন ঝুঁকি, নগদে তাৎক্ষণিক খালাস</p>
         </div>
         <div className={`rounded-xl border p-3 text-[12.5px] ${distantResult.worthIt ? "border-green-300 bg-green-50/70" : "border-amber-300 bg-amber-50/70"}`}>
           <strong className="block text-[13px] text-stone-800">২. মোকামে ট্রাকে পাঠালে</strong>
           <p className={`mt-1 font-mono text-[16px] font-extrabold ${distantResult.worthIt ? "text-green-800" : "text-amber-800"}`}>
             ৳{r0(distantResult.distantNet)}
           </p>
-          <span className="text-[11px] text-stone-600">সব খরচ বাদে নিট দর: ৳{(distantResult.distantNet / v.quantityKg).toFixed(1)}/কেজি</span>
-          <p className="mt-1.5 text-[11px] font-bold">
+          <span className="text-[12px] text-stone-600">সব খরচ বাদে নিট দর: ৳{(distantResult.distantNet / v.quantityKg).toFixed(1)}/কেজি</span>
+          <p className="mt-1.5 text-[12px] font-bold">
             {distantResult.worthIt
               ? `✓ হাটের চেয়ে প্রায় ৳${r0(distantResult.extraVsLocal)} বেশি থাকে`
               : `⚠ হাটের চেয়ে ৳${r0(-distantResult.extraVsLocal)} কম থাকে (লোকসান)`}
@@ -488,8 +488,8 @@ function TripCalculator({
       {(wholesaleNotes.length > 0 || localNotes.length > 0) && (
         <div className="flex flex-wrap gap-2 text-[12px]">
           <span className="self-center text-stone-500">আপনার নোট থেকে:</span>
-          {localNotes.map((n) => <button key={n.id} onClick={() => setV({ ...v, localPricePerKg: n.pricePerKg })} className="min-h-[40px] rounded-full border border-stone-200 bg-stone-50 px-3 hover:bg-white">হাট: {CROPS.find((c) => c.id === n.cropId)?.nameBn} ৳{n.pricePerKg} ({n.date})</button>)}
-          {wholesaleNotes.map((n) => <button key={n.id} onClick={() => setV({ ...v, distantPricePerKg: n.pricePerKg })} className="min-h-[40px] rounded-full border border-stone-200 bg-stone-50 px-3 hover:bg-white">{n.market}: ৳{n.pricePerKg} ({n.date})</button>)}
+          {localNotes.map((n) => <button key={n.id} onClick={() => setV({ ...v, localPricePerKg: n.pricePerKg })} className="min-h-[40px] rounded-full border border-stone-200 bg-stone-50 px-3 hover:bg-white min-h-[44px] min-w-[44px]">হাট: {CROPS.find((c) => c.id === n.cropId)?.nameBn} ৳{n.pricePerKg} ({n.date})</button>)}
+          {wholesaleNotes.map((n) => <button key={n.id} onClick={() => setV({ ...v, distantPricePerKg: n.pricePerKg })} className="min-h-[40px] rounded-full border border-stone-200 bg-stone-50 px-3 hover:bg-white min-h-[44px] min-w-[44px]">{n.market}: ৳{n.pricePerKg} ({n.date})</button>)}
         </div>
       )}
       <p className="rounded-xl bg-amber-50/80 px-3 py-2 text-[12px] text-amber-950">দূরের দামে <strong>খুচরা নয়, পাইকারি</strong> দাম বসান — কৃষক আড়তে খুচরা দাম পান না।</p>
@@ -501,7 +501,7 @@ function TripCalculator({
             <h3 className="flex items-center gap-1.5 text-[15px] font-bold text-stone-900"><TrendingUp size={16} aria-hidden /> পৌঁছানোর আগে দর বদলালে?</h3>
             <p className="text-[12px] text-stone-600">মোকামে পাইকারি দর ১৫% পর্যন্ত কমলে বা বাড়লে হাটের তুলনায় কত থাকে।</p>
           </div>
-          <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${activePoint.worthIt ? "bg-green-100 text-green-800" : "bg-amber-100 text-amber-800"}`}>
+          <span className={`rounded-full px-2.5 py-1 text-[12px] font-bold ${activePoint.worthIt ? "bg-green-100 text-green-800" : "bg-amber-100 text-amber-800"}`}>
             {sensitivityDelta > 0 ? `+${sensitivityDelta}%` : `${sensitivityDelta}%`} দর তারতম্য
           </span>
         </div>
@@ -522,7 +522,7 @@ function TripCalculator({
                   type="button"
                   onClick={() => setSensitivityDelta(pt.deltaPct)}
                   aria-pressed={on}
-                  className={`grid min-h-[40px] w-full grid-cols-[3.4rem_minmax(0,1fr)_5.6rem] items-center gap-2 rounded-xl px-2 text-left text-[12px] transition-colors ${on ? "bg-white shadow-sm ring-1 ring-green-600/40" : "hover:bg-white/70"}`}
+                  className={`grid min-h-[40px] w-full grid-cols-[3.4rem_minmax(0,1fr)_5.6rem] items-center gap-2 rounded-xl px-2 text-left text-[12px] transition-colors ${on ? "bg-white shadow-sm ring-1 ring-green-600/40" : "hover:bg-white/70"} min-h-[44px]`}
                 >
                   <span className="font-mono font-bold">{pt.deltaPct > 0 ? `+${pt.deltaPct}%` : `${pt.deltaPct}%`}</span>
                   <span className="relative h-3.5" aria-hidden="true">
@@ -548,8 +548,8 @@ function TripCalculator({
       <div className="rounded-2xl border border-stone-200 p-4">
         <h3 className="flex items-center gap-1.5 text-[15px] font-bold"><Users size={16} aria-hidden /> একসাথে ট্রাক ভাড়া — কে কত দেবেন</h3>
         <div className="mt-2 grid gap-3 sm:grid-cols-[10rem_minmax(0,1fr)]">
-          <label className="text-[12.5px] font-bold text-stone-700">মোট ভাড়া (৳)<input type="number" min={0} value={fare} onChange={(e) => setFare(Math.max(0, Number(e.target.value) || 0))} className="hb-input mt-1 font-mono font-bold" /></label>
-          <label className="text-[12.5px] font-bold text-stone-700">প্রত্যেকের মণ (কমা দিয়ে)<input value={farmers} onChange={(e) => setFarmers(e.target.value)} className="hb-input mt-1 font-mono" /></label>
+          <label className="text-[12.5px] font-bold text-stone-700">মোট ভাড়া (৳)<input type="number" min={0} value={fare} onChange={(e) => setFare(Math.max(0, Number(e.target.value) || 0))} className="hb-input mt-1 font-mono font-bold min-h-[44px]" /></label>
+          <label className="text-[12.5px] font-bold text-stone-700">প্রত্যেকের মণ (কমা দিয়ে)<input value={farmers} onChange={(e) => setFarmers(e.target.value)} className="hb-input mt-1 font-mono min-h-[44px]" /></label>
         </div>
         {loads.length > 0 && (
           <ul className="mt-3 flex flex-wrap gap-2 text-[13px]">
@@ -632,9 +632,9 @@ function WeatherPanel({ district, setDistrict, onSpray }: { district: string; se
             </div>
           </div>
           <dl className="grid grid-cols-3 gap-2 text-[12px]">
-            <div className="rounded-2xl bg-sky-50 p-3"><dt className="flex items-center gap-1 text-sky-900"><CloudRain size={14} aria-hidden /> ২৪ ঘণ্টায় বৃষ্টি</dt><dd className="mt-1 font-mono text-[15px] font-bold">{maxRain}%</dd><dd className="font-mono text-[11px] text-stone-600">{totalRain.toFixed(1)} মিমি</dd></div>
+            <div className="rounded-2xl bg-sky-50 p-3"><dt className="flex items-center gap-1 text-sky-900"><CloudRain size={14} aria-hidden /> ২৪ ঘণ্টায় বৃষ্টি</dt><dd className="mt-1 font-mono text-[15px] font-bold">{maxRain}%</dd><dd className="font-mono text-[12px] text-stone-600">{totalRain.toFixed(1)} মিমি</dd></div>
             <div className="rounded-2xl bg-orange-50 p-3"><dt className="flex items-center gap-1 text-orange-900"><Thermometer size={14} aria-hidden /> তাপমাত্রা</dt><dd className="mt-1 font-mono text-[15px] font-bold">{Math.round(Math.min(...temps))}–{Math.round(Math.max(...temps))}°C</dd></div>
-            <div className="rounded-2xl bg-stone-100 p-3"><dt className="flex items-center gap-1 text-stone-700"><Wind size={14} aria-hidden /> সর্বোচ্চ বাতাস</dt><dd className="mt-1 font-mono text-[15px] font-bold">{Math.round(Math.max(...day.map((x) => x.windKmh)))}</dd><dd className="text-[11px] text-stone-600">কিমি/ঘণ্টা</dd></div>
+            <div className="rounded-2xl bg-stone-100 p-3"><dt className="flex items-center gap-1 text-stone-700"><Wind size={14} aria-hidden /> সর্বোচ্চ বাতাস</dt><dd className="mt-1 font-mono text-[15px] font-bold">{Math.round(Math.max(...day.map((x) => x.windKmh)))}</dd><dd className="text-[12px] text-stone-600">কিমি/ঘণ্টা</dd></div>
           </dl>
           <div>
             <div className="flex h-20 items-end gap-[3px] rounded-2xl bg-gradient-to-b from-sky-50/0 to-sky-50 px-1 pt-2" role="img" aria-label={`আগামী ২৪ ঘণ্টায় বৃষ্টির সম্ভাবনা, সর্বোচ্চ ${maxRain}%`}>
@@ -642,10 +642,10 @@ function WeatherPanel({ district, setDistrict, onSpray }: { district: string; se
                 <div key={x.time} title={`${x.time.slice(11, 16)} — ${x.precipProbability}%`} className="hb-rain-bar flex-1 rounded-t bg-sky-500/80" style={{ height: `${Math.max(4, x.precipProbability)}%`, ["--i" as string]: i } as React.CSSProperties} />
               ))}
             </div>
-            <div className="mt-1 flex justify-between text-[10.5px] text-stone-600"><span className="font-mono">{h[0]?.time.slice(11, 16)}</span><span>বৃষ্টির সম্ভাবনা, প্রতি ঘণ্টা</span><span className="font-mono">{h[Math.min(23, h.length - 1)]?.time.slice(11, 16)}</span></div>
+            <div className="mt-1 flex justify-between text-[12px] text-stone-600"><span className="font-mono">{h[0]?.time.slice(11, 16)}</span><span>বৃষ্টির সম্ভাবনা, প্রতি ঘণ্টা</span><span className="font-mono">{h[Math.min(23, h.length - 1)]?.time.slice(11, 16)}</span></div>
           </div>
           <FarmReminder districtName={DISTRICTS.find((d) => d.id === district)?.nameBn ?? ""} />
-          <p className="text-[11px] text-stone-500">
+          <p className="text-[12px] text-stone-500">
             <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer" className="underline">Weather data by Open-Meteo.com</a> (CC BY 4.0) · আনা হয়েছে {new Date(data.fetchedAt).toLocaleString("en-GB", { timeZone: "Asia/Dhaka" })} · জেলা শহরের পূর্বাভাস; আপনার গ্রামে ভিন্ন হতে পারে। দুর্যোগ সতর্কবার্তার জন্য বাংলাদেশ আবহাওয়া অধিদপ্তর (BMD) দেখুন।
           </p>
         </>
@@ -662,12 +662,12 @@ function FarmReminder({ districtName }: { districtName: string }) {
   return (
     <div className="grid gap-2 rounded-2xl border border-stone-200 bg-stone-50/70 p-3 text-[13px] sm:grid-cols-[1fr_1fr_auto] sm:items-end">
       <label className="flex flex-col gap-1 font-semibold">কাজ
-        <select value={work} onChange={(e) => setWork(e.target.value)} className="hb-input">
+        <select value={work} onChange={(e) => setWork(e.target.value)} className="hb-input min-h-[44px]">
           {["স্প্রে", "সেচ", "সার দেওয়া", "বীজ বোনা", "ফসল কাটা"].map((w) => <option key={w}>{w}</option>)}
         </select>
       </label>
       <label className="flex flex-col gap-1 font-semibold">কবে
-        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="hb-input" />
+        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="hb-input min-h-[44px]" />
       </label>
       <button
         type="button"
@@ -678,7 +678,7 @@ function FarmReminder({ districtName }: { districtName: string }) {
           title: `${work}: ${districtName}`,
           description: "সেদিন সকালে হাটবাজারে আবহাওয়া আবার দেখুন (বৃষ্টি ও বাতাস)। পণ্যের লেবেলের নির্দেশনা মানুন; প্রশ্ন থাকলে কৃষি কল সেন্টার ১৬১২৩।",
         }], "HaatBazar"), "text/calendar;charset=utf-8")}
-        className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-green-700 px-4 font-bold text-white hover:bg-green-800 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
+        className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-green-700 px-4 font-bold text-white hover:bg-green-800 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 min-w-[44px]"
       >
         <CalendarDays size={15} aria-hidden /> ক্যালেন্ডারে মনে করিয়ে দিন
       </button>
@@ -725,12 +725,12 @@ function PriceNotebook({ notes, setNotes, today }: { notes: StoredNote[]; setNot
               <button
                 type="button"
                 onClick={exportCsv}
-                className="inline-flex min-h-[38px] items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 text-[12px] font-bold text-stone-800 shadow-2xs hover:bg-stone-50"
+                className="inline-flex min-h-[38px] items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 text-[12px] font-bold text-stone-800 shadow-2xs hover:bg-stone-50 min-h-[44px] min-w-[44px]"
               >
                 <FileDown size={14} aria-hidden /> CSV ডাউনলোড ({notes.length})
               </button>
             )}
-            <a href="http://www.dam.gov.bd/" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[38px] items-center gap-1 rounded-full border border-green-200 bg-green-50 px-3 text-[12px] font-semibold text-green-900 hover:bg-green-100">
+            <a href="http://www.dam.gov.bd/" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[38px] items-center gap-1 rounded-full border border-green-200 bg-green-50 px-3 text-[12px] font-semibold text-green-900 hover:bg-green-100 min-h-[44px] min-w-[44px]">
               সরকারি দৈনিক বাজারদর: DAM <ExternalLink size={12} aria-hidden />
             </a>
           </div>
@@ -746,13 +746,13 @@ function PriceNotebook({ notes, setNotes, today }: { notes: StoredNote[]; setNot
           setPrice("");
         }}
       >
-        <label className="text-[12px] font-bold text-stone-700">ফসল<select value={cropId} onChange={(e) => setCropId(e.target.value)} className="hb-input mt-1">{CROPS.map((c) => <option key={c.id} value={c.id}>{c.nameBn}</option>)}</select></label>
-        <label className="text-[12px] font-bold text-stone-700">হাট/মোকাম<input value={market} onChange={(e) => setMarket(e.target.value)} placeholder="যেমন: মহাস্থান হাট" className="hb-input mt-1" /></label>
-        <label className="text-[12px] font-bold text-stone-700">ধরন<select value={kind} onChange={(e) => setKind(e.target.value as PriceNote["kind"])} className="hb-input mt-1">{Object.entries(KIND_BN).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></label>
-        <label className="text-[12px] font-bold text-stone-700">দাম (৳/কেজি)<input inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value.replace(/[^0-9.]/g, ""))} className="hb-input mt-1 font-mono" /></label>
-        <label className="text-[12px] font-bold text-stone-700">কোথা থেকে জেনেছেন<input value={heardFrom} onChange={(e) => setHeardFrom(e.target.value)} className="hb-input mt-1" /></label>
-        <label className="text-[12px] font-bold text-stone-700">তারিখ<input type="date" value={date} max={today || undefined} onChange={(e) => setDate(e.target.value)} className="hb-input mt-1" /></label>
-        <button type="submit" disabled={!valid} className="col-span-2 min-h-[44px] self-end rounded-xl bg-green-800 px-4 text-[14px] font-bold text-white hover:bg-green-900 disabled:opacity-40 sm:col-span-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2">যোগ করুন</button>
+        <label className="text-[12px] font-bold text-stone-700">ফসল<select value={cropId} onChange={(e) => setCropId(e.target.value)} className="hb-input mt-1 min-h-[44px]">{CROPS.map((c) => <option key={c.id} value={c.id}>{c.nameBn}</option>)}</select></label>
+        <label className="text-[12px] font-bold text-stone-700">হাট/মোকাম<input value={market} onChange={(e) => setMarket(e.target.value)} placeholder="যেমন: মহাস্থান হাট" className="hb-input mt-1 min-h-[44px]" /></label>
+        <label className="text-[12px] font-bold text-stone-700">ধরন<select value={kind} onChange={(e) => setKind(e.target.value as PriceNote["kind"])} className="hb-input mt-1 min-h-[44px]">{Object.entries(KIND_BN).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></label>
+        <label className="text-[12px] font-bold text-stone-700">দাম (৳/কেজি)<input inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value.replace(/[^0-9.]/g, ""))} className="hb-input mt-1 font-mono min-h-[44px]" /></label>
+        <label className="text-[12px] font-bold text-stone-700">কোথা থেকে জেনেছেন<input value={heardFrom} onChange={(e) => setHeardFrom(e.target.value)} className="hb-input mt-1 min-h-[44px]" /></label>
+        <label className="text-[12px] font-bold text-stone-700">তারিখ<input type="date" value={date} max={today || undefined} onChange={(e) => setDate(e.target.value)} className="hb-input mt-1 min-h-[44px]" /></label>
+        <button type="submit" disabled={!valid} className="col-span-2 min-h-[44px] self-end rounded-xl bg-green-800 px-4 text-[14px] font-bold text-white hover:bg-green-900 disabled:opacity-40 sm:col-span-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 min-w-[44px]">যোগ করুন</button>
       </form>
 
       {/* Filter by Crop */}
@@ -764,7 +764,7 @@ function PriceNotebook({ notes, setNotes, today }: { notes: StoredNote[]; setNot
             onClick={() => setFilterCrop("all")}
             className={`rounded-full px-3 py-1 font-semibold transition-colors ${
               filterCrop === "all" ? "bg-stone-900 text-white" : "border border-line bg-white text-stone-700 hover:bg-stone-50"
-            }`}
+            } min-h-[44px] min-w-[44px]`}
           >
             সব ফসল ({notes.length})
           </button>
@@ -778,7 +778,7 @@ function PriceNotebook({ notes, setNotes, today }: { notes: StoredNote[]; setNot
                 onClick={() => setFilterCrop(cid)}
                 className={`rounded-full px-3 py-1 font-semibold transition-colors ${
                   filterCrop === cid ? "bg-green-800 text-white" : "border border-line bg-white text-stone-700 hover:bg-stone-50"
-                }`}
+                } min-h-[44px] min-w-[44px]`}
               >
                 {cName} ({count})
               </button>
@@ -803,12 +803,12 @@ function PriceNotebook({ notes, setNotes, today }: { notes: StoredNote[]; setNot
                 <div className="min-w-0 text-[13px]">
                   <p className="font-bold text-stone-900">{CROPS.find((c) => c.id === n.cropId)?.nameBn ?? n.cropId} · {n.market}</p>
                   <p className="mt-1 flex flex-wrap items-baseline gap-x-2">
-                    <strong className="font-mono text-[18px] text-stone-900">৳{n.pricePerKg}</strong><span className="text-[11px]">/কেজি</span>
+                    <strong className="font-mono text-[18px] text-stone-900">৳{n.pricePerKg}</strong><span className="text-[12px]">/কেজি</span>
                     <span className="font-mono text-[12px]">৳{r0(n.pricePerKg * KG_PER_MAUND)}/মণ</span>
                   </p>
-                  <p className="mt-1 text-[11.5px]">{KIND_BN[n.kind]} · {n.heardFrom} · {n.date}{stale && <span className="ml-1 rounded bg-amber-100 px-1 text-[10px] font-bold text-amber-800">{age} দিন পুরনো</span>}</p>
+                  <p className="mt-1 text-[12px]">{KIND_BN[n.kind]} · {n.heardFrom} · {n.date}{stale && <span className="ml-1 rounded bg-amber-100 px-1 text-[12px] font-bold text-amber-800">{age} দিন পুরনো</span>}</p>
                 </div>
-                <button onClick={() => setNotes((p) => p.filter((x) => x.id !== n.id))} aria-label="মুছুন" className="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-stone-400 hover:bg-red-50 hover:text-red-600"><Trash2 size={16} /></button>
+                <button onClick={() => setNotes((p) => p.filter((x) => x.id !== n.id))} aria-label="মুছুন" className="grid h-11 w-11 shrink-0 place-items-center rounded-xl text-stone-400 hover:bg-red-50 hover:text-red-600"><Trash2 size={16} /></button>
               </li>
             );
           })}
@@ -857,7 +857,7 @@ function DiseaseReference() {
       type="button"
       onClick={() => setViewMode(mode)}
       aria-pressed={viewMode === mode}
-      className={`inline-flex min-h-[44px] items-center gap-1.5 rounded-xl px-3.5 text-[13px] font-bold transition-colors ${viewMode === mode ? "bg-green-800 text-white shadow-sm" : "bg-stone-100 text-stone-700 hover:bg-stone-200"}`}
+      className={`inline-flex min-h-[44px] items-center gap-1.5 rounded-xl px-3.5 text-[13px] font-bold transition-colors ${viewMode === mode ? "bg-green-800 text-white shadow-sm" : "bg-stone-100 text-stone-700 hover:bg-stone-200"} min-w-[44px]`}
     >
       {icon} {label}
     </button>
@@ -870,7 +870,7 @@ function DiseaseReference() {
           {tab("doctor", <Stethoscope size={15} aria-hidden />, "ফসল ডাক্তার (Crop Doctor)")}
           {tab("catalog", <Bug size={15} aria-hidden />, "১২টি রোগের ক্যাটালগ")}
         </div>
-        <a href="tel:16123" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl bg-lime-100 px-3 text-[13px] font-bold text-green-900 hover:bg-lime-200">
+        <a href="tel:16123" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl bg-lime-100 px-3 text-[13px] font-bold text-green-900 hover:bg-lime-200 min-w-[44px]">
           <PhoneCall size={14} aria-hidden /> ১৬১২৩
         </a>
       </div>
@@ -886,7 +886,7 @@ function DiseaseReference() {
                   type="button"
                   aria-pressed={selectedCrop === c.id}
                   onClick={() => { setSelectedCrop(c.id); setActiveSymptoms([]); }}
-                  className={`min-h-[44px] rounded-xl border px-3.5 text-[13px] font-semibold transition-colors ${selectedCrop === c.id ? "border-green-700 bg-green-50 font-bold text-green-900" : "border-stone-200 text-stone-700 hover:bg-stone-50"}`}
+                  className={`min-h-[44px] rounded-xl border px-3.5 text-[13px] font-semibold transition-colors ${selectedCrop === c.id ? "border-green-700 bg-green-50 font-bold text-green-900" : "border-stone-200 text-stone-700 hover:bg-stone-50"} min-w-[44px]`}
                 >
                   {c.label}
                 </button>
@@ -904,12 +904,13 @@ function DiseaseReference() {
                     type="text"
                     value={symptomSearch}
                     onChange={(e) => setSymptomSearch(e.target.value)}
+                    aria-label="লক্ষণ দিয়ে তালিকা ছাঁকুন"
                     placeholder="লক্ষণ ফিল্টার..."
-                    className="rounded-lg border border-stone-200 bg-white py-1 pl-7 pr-2 text-[11.5px] text-stone-800 placeholder-stone-400 focus:border-green-600 focus:outline-none"
+                    className="rounded-lg border border-stone-200 bg-white py-1 pl-7 pr-2 text-[12px] text-stone-800 placeholder-stone-400 focus:border-green-600 focus:outline-none min-h-[44px]"
                   />
                 </div>
                 {activeSymptoms.length > 0 && (
-                  <button type="button" onClick={() => setActiveSymptoms([])} className="min-h-[32px] px-1 text-[11.5px] font-semibold text-red-700 hover:underline">সব মুছুন</button>
+                  <button type="button" onClick={() => setActiveSymptoms([])} className="min-h-[32px] px-1 text-[12px] font-semibold text-red-700 hover:underline min-h-[44px] min-w-[44px]">সব মুছুন</button>
                 )}
               </div>
             </div>
@@ -922,7 +923,7 @@ function DiseaseReference() {
                     type="button"
                     aria-pressed={on}
                     onClick={() => toggleSymptom(tag)}
-                    className={`min-h-[40px] rounded-full px-3.5 text-[13px] font-medium transition-colors ${on ? "bg-green-700 font-bold text-white shadow-sm" : "bg-stone-100 text-stone-800 hover:bg-stone-200"}`}
+                    className={`min-h-[40px] rounded-full px-3.5 text-[13px] font-medium transition-colors ${on ? "bg-green-700 font-bold text-white shadow-sm" : "bg-stone-100 text-stone-800 hover:bg-stone-200"} min-h-[44px] min-w-[44px]`}
                   >
                     {on ? "✓ " : "+ "}{tag}
                   </button>
@@ -931,8 +932,8 @@ function DiseaseReference() {
             </div>
             <form onSubmit={handleAddCustom} className="mt-2 flex gap-2">
               <label className="sr-only" htmlFor="custom-symptom">অন্য লক্ষণ</label>
-              <input id="custom-symptom" type="text" value={customSymptom} onChange={(e) => setCustomSymptom(e.target.value)} placeholder="অন্য কোনো লক্ষণ থাকলে লিখুন..." className="hb-input flex-1" />
-              <button type="submit" disabled={!customSymptom.trim()} className="min-h-[44px] rounded-xl bg-stone-100 px-4 text-[13px] font-bold text-stone-800 hover:bg-stone-200 disabled:opacity-40">যোগ</button>
+              <input id="custom-symptom" type="text" value={customSymptom} onChange={(e) => setCustomSymptom(e.target.value)} placeholder="অন্য কোনো লক্ষণ থাকলে লিখুন..." className="hb-input flex-1 min-h-[44px]" />
+              <button type="submit" disabled={!customSymptom.trim()} className="min-h-[44px] rounded-xl bg-stone-100 px-4 text-[13px] font-bold text-stone-800 hover:bg-stone-200 disabled:opacity-40 min-w-[44px]">যোগ</button>
             </form>
           </div>
 
@@ -946,7 +947,7 @@ function DiseaseReference() {
                 <span className="inline-flex items-center gap-1.5 text-[15px] font-extrabold text-green-950">
                   <CheckCircle2 size={17} className="text-green-700" aria-hidden /> সম্ভাব্য রোগ: {diagnostic.topMatch.disease.diseaseNameBn}
                 </span>
-                <span className="rounded-full bg-green-200/90 px-2.5 py-1 text-[11px] font-bold text-green-900">{diagnostic.topMatch.matchScore}% লক্ষণ মিল</span>
+                <span className="rounded-full bg-green-200/90 px-2.5 py-1 text-[12px] font-bold text-green-900">{diagnostic.topMatch.matchScore}% লক্ষণ মিল</span>
               </div>
               <p className="text-[13px] text-stone-800"><strong>স্বাভাবিক লক্ষণ:</strong> {diagnostic.topMatch.disease.symptomsBn}</p>
               <p className="text-[12.5px] text-stone-700"><strong>আবহাওয়া অনুকূল হলে বাড়ে:</strong> {diagnostic.topMatch.disease.favouredByBn}</p>
@@ -965,7 +966,7 @@ function DiseaseReference() {
             <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-[13px] text-amber-950">
               <p className="font-bold">সরাসরি কোনো নির্দিষ্ট রোগের সাথে পুরোপুরি মেলেনি।</p>
               <p className="mt-1">ভুল চিকিৎসার ঝুঁকি এড়াতে আক্রান্ত পাতার নমুনা নিয়ে নিকটস্থ উপজেলা কৃষি অফিস বা উপসহকারী কৃষি কর্মকর্তার কাছে যান। অথবা সরাসরি কল করুন:</p>
-              <a href="tel:16123" className="mt-2 inline-flex min-h-[44px] items-center gap-1.5 rounded-xl bg-green-800 px-4 text-[13px] font-bold text-white shadow-sm">
+              <a href="tel:16123" className="mt-2 inline-flex min-h-[44px] items-center gap-1.5 rounded-xl bg-green-800 px-4 text-[13px] font-bold text-white shadow-sm min-w-[44px]">
                 <PhoneCall size={14} aria-hidden /> কৃষি কল সেন্টার ১৬১২৩-এ কল করুন
               </a>
             </div>
@@ -980,7 +981,7 @@ function DiseaseReference() {
                 role="tab"
                 aria-selected={x.id === catalogId}
                 onClick={() => setCatalogId(x.id)}
-                className={`min-h-[40px] rounded-xl border px-3 text-[12.5px] font-semibold ${x.id === catalogId ? "border-green-700 bg-green-50 text-green-900" : "border-stone-200 text-stone-700 hover:bg-stone-50"}`}
+                className={`min-h-[40px] rounded-xl border px-3 text-[12.5px] font-semibold ${x.id === catalogId ? "border-green-700 bg-green-50 text-green-900" : "border-stone-200 text-stone-700 hover:bg-stone-50"} min-h-[44px] min-w-[44px]`}
               >
                 {x.cropNameBn}: {x.diseaseNameBn}
               </button>

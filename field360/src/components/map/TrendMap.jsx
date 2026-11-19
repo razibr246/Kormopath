@@ -399,7 +399,7 @@ export default function TrendMap() {
       {/* 1. Header & NASA Mission Telemetry HUD */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/70 pb-3.5">
         <div className="flex flex-wrap items-center gap-2.5">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-950 px-3 py-1 text-[11.5px] font-bold tracking-wider text-emerald-400 shadow-sm uppercase">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-950 px-3 py-1 text-[12px] font-bold tracking-wider text-emerald-400 shadow-sm uppercase">
             <Satellite size={13} className="text-emerald-400 animate-pulse" />
             NASA EARTH OBSERVATION · 2001–2024
           </span>
@@ -449,7 +449,7 @@ export default function TrendMap() {
               >
                 <Icon size={16} className={isAct ? 'text-primary-700' : 'text-muted'} />
                 <span>{x.src}</span>
-                <span className={`hidden sm:inline-block text-[11px] font-normal px-2 py-0.5 rounded-full ${isAct ? 'bg-primary-100 text-primary-800' : 'bg-black/5 text-muted'}`}>
+                <span className={`hidden sm:inline-block text-[12px] font-normal px-2 py-0.5 rounded-full ${isAct ? 'bg-primary-100 text-primary-800' : 'bg-black/5 text-muted'}`}>
                   {L(SENSOR_SPECS[k]?.badge)}
                 </span>
               </button>
@@ -465,7 +465,7 @@ export default function TrendMap() {
       </div>
 
       {/* 3. Sensor Telemetry Specs Strip */}
-      <div className="mt-2.5 grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11.5px] bg-white/70 backdrop-blur-xs rounded-xl p-2.5 border border-border/60">
+      <div className="mt-2.5 grid grid-cols-2 sm:grid-cols-4 gap-2 text-[12px] bg-white/70 backdrop-blur-xs rounded-xl p-2.5 border border-border/60">
         <div className="flex items-center gap-1.5 min-w-0">
           <Satellite size={13} className="text-primary-700 shrink-0" />
           <span className="text-muted truncate">{T('কক্ষপথ:', 'Orbit:')}</span>
@@ -491,7 +491,7 @@ export default function TrendMap() {
       {/* 4. Real-time Regional Telemetry KPI Cards for Active Year */}
       <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5">
         <div className="rounded-2xl border border-border/70 bg-white/90 p-2.5 shadow-2xs">
-          <p className="text-[11px] font-semibold text-muted flex items-center justify-between">
+          <p className="text-[12px] font-semibold text-muted flex items-center justify-between">
             <span>{T('আঞ্চলিক গড় বিচ্যুতি', 'Regional Net Anomaly')}</span>
             <span className="tabular text-primary-700 font-bold">{T(bnDigits(year), year)}</span>
           </p>
@@ -499,9 +499,9 @@ export default function TrendMap() {
             <span style={{ color: trendColor(yearStats.avg, layer.span) }}>
               {fmt(yearStats.avg)}
             </span>
-            <span className="text-[11.5px] font-normal text-muted">{L(layer.unit)}</span>
+            <span className="text-[12px] font-normal text-muted">{L(layer.unit)}</span>
           </p>
-          <p className="text-[10.5px] text-muted truncate">
+          <p className="text-[12px] text-muted truncate">
             {yearStats.avg < -1
               ? T('আঞ্চলিক পানি হ্রাস / চাপ', 'Net regional drying')
               : yearStats.avg > 1
@@ -511,7 +511,7 @@ export default function TrendMap() {
         </div>
 
         <div className="rounded-2xl border border-amber-200/80 bg-amber-50/40 p-2.5 shadow-2xs">
-          <p className="text-[11px] font-semibold text-amber-900 flex items-center justify-between">
+          <p className="text-[12px] font-semibold text-amber-900 flex items-center justify-between">
             <span className="flex items-center gap-1">
               <TrendingDown size={12} className="text-red-600" />
               {T('তীব্র সংকট এলাকা', 'Critical Deficit Hotspot')}
@@ -520,13 +520,13 @@ export default function TrendMap() {
           <p className="mt-1 text-[15px] sm:text-[16px] font-extrabold text-ink truncate">
             {yearStats.min ? name(yearStats.min.id) : '–'}
           </p>
-          <p className="text-[11px] font-bold text-red-700 tabular">
+          <p className="text-[12px] font-bold text-red-700 tabular">
             {yearStats.min ? `${fmt(yearStats.min.v)} ${L(layer.unit)}` : '–'}
           </p>
         </div>
 
         <div className="rounded-2xl border border-sky-200/80 bg-sky-50/40 p-2.5 shadow-2xs">
-          <p className="text-[11px] font-semibold text-sky-900 flex items-center justify-between">
+          <p className="text-[12px] font-semibold text-sky-900 flex items-center justify-between">
             <span className="flex items-center gap-1">
               <TrendingUp size={12} className="text-emerald-600" />
               {T('সর্বোচ্চ সমৃদ্ধ এলাকা', 'Top Surplus Area')}
@@ -535,21 +535,21 @@ export default function TrendMap() {
           <p className="mt-1 text-[15px] sm:text-[16px] font-extrabold text-ink truncate">
             {yearStats.max ? name(yearStats.max.id) : '–'}
           </p>
-          <p className="text-[11px] font-bold text-emerald-700 tabular">
+          <p className="text-[12px] font-bold text-emerald-700 tabular">
             {yearStats.max ? `${fmt(yearStats.max.v)} ${L(layer.unit)}` : '–'}
           </p>
         </div>
 
         <div className="rounded-2xl border border-border/70 bg-white/90 p-2.5 shadow-2xs">
-          <p className="text-[11px] font-semibold text-muted flex items-center justify-between">
+          <p className="text-[12px] font-semibold text-muted flex items-center justify-between">
             <span>{T('আঞ্চলিক ব্যবধান', 'Regional Spread')}</span>
             <Activity size={12} className="text-primary-700" />
           </p>
           <p className="mt-1 flex items-baseline gap-1 text-[17px] sm:text-[19px] font-extrabold tabular text-ink">
             <span>{num(yearStats.spread, s.lang, { dp: 1 })}</span>
-            <span className="text-[11.5px] font-normal text-muted">{L(layer.unit)}</span>
+            <span className="text-[12px] font-normal text-muted">{L(layer.unit)}</span>
           </p>
-          <p className="text-[10.5px] text-muted truncate">
+          <p className="text-[12px] text-muted truncate">
             {T('সর্বোচ্চ ও সর্বনিম্ন স্থানের পার্থক্য', 'Max to min anomaly gap')}
           </p>
         </div>
@@ -641,7 +641,7 @@ export default function TrendMap() {
                       <p className="tabular text-primary-800 font-semibold mt-0.5">
                         {fmt(val(id))} {L(layer.unit)}
                       </p>
-                      <p className="text-[10px] text-muted">{subName(id)}</p>
+                      <p className="text-[12px] text-muted">{subName(id)}</p>
                     </div>
                   </Tooltip>
                 </Marker>
@@ -654,7 +654,7 @@ export default function TrendMap() {
             <div key={year} className="trend-year-in font-display text-[44px] sm:text-[56px] font-bold leading-none tracking-tight text-white tabular" style={{ textShadow: '0 2px 18px rgba(0,0,0,.55)' }}>
               {num(year, s.lang).replace(/,/g, '')}
             </div>
-            <div className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-black/45 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
+            <div className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-black/45 px-2.5 py-1 text-[12px] font-semibold text-white backdrop-blur-sm">
               <Satellite size={12} />
               {layer.src} · {hasField && showField ? L(FIELD_NOTE) : T('এ বছরের ছবি নেই, শুধু বিন্দু', 'No field this year, points only')}
             </div>
@@ -662,7 +662,7 @@ export default function TrendMap() {
 
           {/* Field on/off and strength */}
           {fieldYears.length > 0 && (
-            <div className="absolute right-20 top-3.5 z-[500] flex items-center gap-2 rounded-full bg-white/90 px-2.5 py-1.5 text-[11px] font-semibold text-ink shadow-md backdrop-blur-sm">
+            <div className="absolute right-20 top-3.5 z-[500] flex items-center gap-2 rounded-full bg-white/90 px-2.5 py-1.5 text-[12px] font-semibold text-ink shadow-md backdrop-blur-sm">
               <button type="button" onClick={() => setShowField((v) => !v)} aria-pressed={showField}
                 className={`rounded-full px-2 py-0.5 transition ${showField ? 'bg-primary-700 text-white' : 'bg-black/5 text-muted'}`}>
                 {T('উপগ্রহের ক্ষেত্র', 'Satellite field')}
@@ -679,7 +679,7 @@ export default function TrendMap() {
             <div className="pointer-events-auto absolute bottom-3 left-3 right-16 sm:right-auto sm:max-w-xs z-[550] rounded-2xl border border-primary-900/20 bg-white/95 p-3.5 shadow-xl backdrop-blur-md animate-fadeIn">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-primary-700">
+                  <span className="inline-flex items-center gap-1 text-[12px] font-bold text-primary-700">
                     <MapPin size={12} />
                     {T('নির্বাচিত অঞ্চল টেলিমেট্রি', 'Selected Region Telemetry')}
                   </span>
@@ -687,7 +687,7 @@ export default function TrendMap() {
                     <span>{flag(selectedId)}</span>
                     <span className="truncate">{name(selectedId)}</span>
                   </h4>
-                  <p className="text-[11.5px] text-muted truncate">{subName(selectedId)}</p>
+                  <p className="text-[12px] text-muted truncate">{subName(selectedId)}</p>
                 </div>
                 <button
                   type="button"
@@ -709,7 +709,7 @@ export default function TrendMap() {
 
               {/* 2003-2024 Historical Sparkline */}
               <div className="mt-2.5">
-                <div className="flex items-center justify-between text-[10.5px] text-muted mb-1">
+                <div className="flex items-center justify-between text-[12px] text-muted mb-1">
                   <span>{T('ঐতিহাসিক ধারা (২০০১-২৪)', 'Historical Trajectory')}</span>
                   <span className="tabular font-medium">
                     {fmt(selectedTrajectory.min)} → {fmt(selectedTrajectory.max)}
@@ -761,13 +761,13 @@ export default function TrendMap() {
               <Activity size={15} className="text-primary-700" />
               {T('আঞ্চলিক র্যাঙ্কিং', 'Regional Telemetry')}
             </span>
-            <span className="text-[11.5px] font-semibold text-muted tabular">
+            <span className="text-[12px] font-semibold text-muted tabular">
               {T(`${bnDigits(year)} সাল`, `${year}`)}
             </span>
           </div>
 
           {/* Filter Pills */}
-          <div className="mt-2 flex items-center gap-1 text-[11.5px]">
+          <div className="mt-2 flex items-center gap-1 text-[12px]">
             <button
               type="button"
               onClick={() => setFilterMode('all')}
@@ -798,7 +798,7 @@ export default function TrendMap() {
           </div>
 
           {/* Sort Toggles */}
-          <div className="mt-2 flex items-center justify-between gap-1 text-[11px] border-y border-border/50 py-1.5">
+          <div className="mt-2 flex items-center justify-between gap-1 text-[12px] border-y border-border/50 py-1.5">
             <span className="text-muted flex items-center gap-1">
               <ArrowUpDown size={11} />
               {T('ক্রমানুসার:', 'Sort:')}
@@ -867,7 +867,7 @@ export default function TrendMap() {
                   >
                     <div className="flex items-center justify-between gap-1.5">
                       <span className="flex min-w-0 items-center gap-1.5">
-                        <span className="text-[10px] font-bold text-muted w-4 shrink-0">
+                        <span className="text-[12px] font-bold text-muted w-4 shrink-0">
                           #{s.lang === 'bn' ? bnDigits(rankIdx + 1) : rankIdx + 1}
                         </span>
                         <span className="text-[13px]">{flag(id)}</span>
@@ -879,7 +879,7 @@ export default function TrendMap() {
                       <div className="flex items-center gap-1.5 shrink-0">
                         {delta != null && (
                           <span
-                            className={`text-[10px] font-semibold tabular ${
+                            className={`text-[12px] font-semibold tabular ${
                               delta > 0.1
                                 ? 'text-emerald-700'
                                 : delta < -0.1
@@ -999,7 +999,7 @@ export default function TrendMap() {
             </button>
 
             {/* Speed Selector */}
-            <div className="hidden sm:flex items-center gap-0.5 rounded-xl bg-black/[0.04] p-1 text-[11px] font-bold">
+            <div className="hidden sm:flex items-center gap-0.5 rounded-xl bg-black/[0.04] p-1 text-[12px] font-bold">
               {[0.5, 1, 2].map((spd) => (
                 <button
                   key={spd}
@@ -1043,7 +1043,7 @@ export default function TrendMap() {
               <span className="block font-display text-[24px] sm:text-[28px] font-extrabold tracking-tight text-primary-950 tabular leading-none">
                 {T(`${bnDigits(year)} সাল`, `${year}`)}
               </span>
-              <span className="block text-[11px] font-semibold text-primary-700 mt-0.5">
+              <span className="block text-[12px] font-semibold text-primary-700 mt-0.5">
                 {T('রবি শুষ্ক মৌসুম', 'Rabi Dry Season')}
               </span>
             </div>
@@ -1087,14 +1087,14 @@ export default function TrendMap() {
               left: `${(i / (Math.max(1, data.years.length - 1))) * 100}%`,
             }}
           >
-            <div className="h-7 w-7 rounded-full bg-primary-800 text-white shadow-lg ring-2 ring-white grid place-items-center font-bold text-[10px]">
+            <div className="h-7 w-7 rounded-full bg-primary-800 text-white shadow-lg ring-2 ring-white grid place-items-center font-bold text-[12px]">
               ●
             </div>
           </div>
         </div>
 
         {/* Year Milestone Quick-Jump Chips */}
-        <div className="mt-2.5 flex flex-wrap items-center justify-between gap-1.5 text-[11px] text-muted">
+        <div className="mt-2.5 flex flex-wrap items-center justify-between gap-1.5 text-[12px] text-muted">
           <span>{T('গুরুত্বপূর্ণ জলবায়ু বছর:', 'Landmark Years:')}</span>
           <div className="flex flex-wrap items-center gap-1">
             {[2004, 2007, 2010, 2015, 2020, 2022, 2024].map((y) => {
@@ -1130,7 +1130,7 @@ export default function TrendMap() {
             <span className="h-3 w-3 rounded-full" style={{ background: trendColor(-layer.span, layer.span) }} />
             {T(`তীব্র ঘাটতি / খরা (−${num(layer.span, s.lang)} ${L(layer.unit)})`, `Critical Deficit (−${layer.span} ${L(layer.unit)})`)}
           </span>
-          <span className="text-muted text-[11px]">
+          <span className="text-muted text-[12px]">
             {T('০ = স্বাভাবিক রেফারেন্স গড়', '0 = Baseline Normal')}
           </span>
           <span className="flex items-center gap-1.5 text-emerald-900">
@@ -1148,7 +1148,7 @@ export default function TrendMap() {
           <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-ink/70" />
         </div>
 
-        <p className="mt-2 text-[11px] text-muted text-center leading-relaxed">
+        <p className="mt-2 text-[12px] text-muted text-center leading-relaxed">
           {T(
             'নাসা আর্থ সায়েন্স ডিভিশনের ওপেন ডেটা (NASA GIBS) থেকে সংগৃহীত। প্রতিটি উপজেলার দীর্ঘমেয়াদী গড় ধরে পরিবর্তন হিসাব করা হয়েছে।',
             'Collected from NASA Earth Science Division Open Data (NASA GIBS). Calculated relative to each location’s long-term baseline.'

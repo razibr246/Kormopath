@@ -5,6 +5,10 @@ import { BadgeCheck, ShieldX, ArrowRight, ShieldCheck, Lock } from "lucide-react
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
+export const metadata = {
+  title: "পাসপোর্ট যাচাই — দক্ষতার প্রমাণ",
+  description: "Check a KormoPath skill passport: whether its signature is valid and what it proves.",
+};
 
 export default async function Verify({ searchParams }: { searchParams: Promise<{ t?: string }> }) {
   const { t = "" } = await searchParams;

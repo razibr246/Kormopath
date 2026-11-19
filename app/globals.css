@@ -802,7 +802,7 @@ button.kp-chip:hover, a.kp-chip:hover { border-color: rgba(201, 144, 65, 0.72); 
 .kp-btn-primary:hover, .kp-btn-sun:hover, .kp-btn-ghost:hover { transform: translateY(-1px); }
 .kp-btn-lg { min-height: 52px; padding: 0 24px; border-radius: 16px; font-size: 16px; }
 
-.kp-eyebrow { font: 700 11.5px/1.2 var(--font-mono); letter-spacing: .16em; text-transform: uppercase; color: #a8432b; }
+.kp-eyebrow { font: 700 12px/1.2 var(--font-mono); letter-spacing: .16em; text-transform: uppercase; color: #a8432b; }
 .kp-footer { border-top: 1px solid var(--color-line); background: linear-gradient(180deg, rgba(255, 253, 249, 0.6), rgba(244, 234, 219, 0.7)); }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1139,3 +1139,38 @@ button.kp-chip:hover, a.kp-chip:hover { border-color: rgba(201, 144, 65, 0.72); 
   .kp-orb, .kp-orb-dots i { animation: none !important; }
 }
 .kp-orb-blob { opacity: .72; }
+
+/* ---- Package C: shared chrome usability ---------------------------------------------------- */
+/* Buddy's closed launcher fades while the page scrolls, so it never sits on top of what someone is reading. */
+.buddy-root { transition: opacity 200ms ease, transform 200ms ease; }
+.buddy-root.buddy-scrolling { opacity: 0; transform: translateY(12px); pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .buddy-root { transition: none; } }
+/* Room at the end of every page so the floating launcher never covers the last button or link. */
+@media (max-width: 1023px) { body { padding-bottom: calc(80px + env(safe-area-inset-bottom)); } }
+
+/* Touch targets: shared chrome controls are at least 44 × 44 px on touch screens (WCAG 2.5.5 / Apple HIG). */
+@media (pointer: coarse) {
+  .kp-chip, .kp-icon-btn { min-height: 44px; min-width: 44px; }
+  .kp-nav-wrap a:not(.skip-link), .kp-nav-wrap button, .kp-tabbar a, .kp-tabbar button, footer a { min-height: 44px; }
+  .kp-nav-wrap button, .kp-nav-wrap a:not(.skip-link) { min-width: 44px; }
+  a[href^="tel:"] { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; padding-inline: 4px; }
+}
+/* Visible focus everywhere, including components that set outline: none. */
+a:focus-visible, button:focus-visible, [role="tab"]:focus-visible, summary:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--color-focus-ring, #0e6b4f) !important; outline-offset: 2px;
+}
+
+/* Tab and section bars scroll sideways on small screens; the active tab is scrolled into view by script. */
+.kp-tabbar { scroll-padding-inline: 16px; scrollbar-width: none; }
+.kp-tabbar::-webkit-scrollbar { display: none; }
+
+/* App header below 400px: the app name is never cut off. The subtitle and switcher label give way first. */
+@media (max-width: 399px) {
+  .kp-app-tagline { display: none; }
+  .kp-app-name { white-space: normal; overflow: visible; text-overflow: clip; font-size: 17px; line-height: 1.15; }
+  .kp-switcher-label { display: none; }
+  /* If a page adds header actions, they move to a second row instead of squeezing the name. */
+  .kp-nav:has(.kp-app-brand) { flex-wrap: wrap; row-gap: 6px; }
+  .kp-app-brand { flex: 1 0 auto; max-width: 100%; }
+  .kp-app-actions { margin-left: auto; }
+}

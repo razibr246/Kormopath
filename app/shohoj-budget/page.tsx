@@ -7,6 +7,7 @@ import {
   Smartphone, ShoppingBasket, HandCoins, UtensilsCrossed, Gem, NotebookPen,
 } from "lucide-react";
 import { AppHeader } from "@/components/layout/AppHeader";
+import { useActiveTabIntoView } from "@/components/layout/useActiveTabIntoView";
 import { AppFooter } from "@/components/layout/AppFooter";
 import { RentPocketsPanel } from "@/components/apps/RentPocketsPanel";
 import { WalletsPanel } from "@/components/apps/shohoj/WalletsPanel";
@@ -107,6 +108,7 @@ export default function ShohojBudgetPage() {
   const [sms, setSms] = useState("");
   const [draft, setDraft] = useState<Draft | null>(null);
   const [view, setView] = useState<View>("ledger");
+  const tabBar = useActiveTabIntoView<HTMLDivElement>(view); // keep the open section's tab visible on phones
   useEffect(() => {
     const sync = () => setView(viewFromHash(window.location.hash));
     sync();
@@ -409,10 +411,10 @@ export default function ShohojBudgetPage() {
       />
 
       <nav aria-label="সংসারের অংশ" className="border-b border-slate-200 bg-[#f7faf8]/95" data-testid="shongshar-nav">
-        <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-4 py-2 sm:px-6 [scrollbar-width:none]">
+        <div ref={tabBar} className="kp-tabbar mx-auto flex max-w-7xl gap-2 overflow-x-auto px-4 py-2 sm:px-6 [scrollbar-width:none]">
           {VIEWS.map((v) => (
             <button key={v.id} type="button" onClick={() => openView(v.id)} aria-current={view === v.id ? "page" : undefined} data-view={v.id}
-              className={`inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-[14px] font-semibold transition-colors ${view === v.id ? "border-emerald-700 bg-emerald-700 text-white" : "border-slate-200 bg-white text-slate-700 hover:border-emerald-400"}`}>
+              className={`inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-[14px] font-semibold transition-colors ${view === v.id ? "border-emerald-700 bg-emerald-700 text-white" : "border-slate-200 bg-white text-slate-700 hover:border-emerald-400"} min-w-[44px]`}>
               <v.icon size={16} aria-hidden /> {v.bn}
             </button>
           ))}
@@ -421,31 +423,14 @@ export default function ShohojBudgetPage() {
 
       <main id="main" className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 motion-safe:animate-rise-in">
         {view === "ledger" ? (<>
-        <section aria-labelledby="product-search-title" className="space-y-3 rounded-2xl border border-emerald-200/80 bg-white/80 backdrop-blur-md p-5 sm:p-6 shadow-xs hover:shadow-md transition-all">
-          <div>
-            <h1 id="product-search-title" className="flex items-center gap-2 text-[20px] font-extrabold text-slate-900"><Search size={21} className="text-emerald-700" aria-hidden /> পণ্যের দাম ও তথ্য খুঁজুন</h1>
-            <p className="mt-1 text-[13px] text-slate-600">পণ্যের নাম বা মডেল লিখুন। AI ওয়েবে খুঁজে পাওয়া অফার, দাম এবং পণ্যের ভালো-মন্দ দিক উৎসসহ সাজিয়ে দেবে।</p>
-          </div>
-          <form onSubmit={searchProduct} className="flex flex-col gap-2 sm:flex-row">
-            <label htmlFor="product-query" className="sr-only">কোন পণ্য খুঁজবেন</label>
-            <input id="product-query" value={productQuery} maxLength={160} onChange={(event) => setProductQuery(event.target.value)} placeholder="যেমন: Redmi Note 14 8/256 GB" className="min-w-0 flex-1 rounded-xl border border-slate-200 px-4 py-3 text-[14px] outline-none focus:border-emerald-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600" />
-            <button type="submit" disabled={productSearching || productQuery.trim().length < 2} className="min-h-[44px] inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 text-[14px] font-bold text-white hover:bg-emerald-800 disabled:cursor-wait disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 transition-all"><Search size={16} aria-hidden />{productSearching ? "ওয়েবে খোঁজা হচ্ছে…" : "দাম তুলনা করুন"}</button>
-          </form>
-          <p className="text-[11px] leading-relaxed text-slate-500">দারাজসহ ওয়েবে পাওয়া সাইট থেকে তথ্য আসতে পারে, তবে সব দোকান বা পুরো ইন্টারনেট কভার হয় না। দাম/স্টক বদলাতে পারে; কেনার আগে বিক্রেতার সাইটে যাচাই করুন।</p>
-          {productSearchError && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-[13px] text-red-800">{productSearchError}</p>}
-          {productSearch && <div aria-live="polite" className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
-            <div className="whitespace-pre-wrap text-[13px] leading-relaxed text-slate-800">{productSearch.answer}</div>
-            {productSearch.sources.length > 0 ? <div className="border-t border-slate-200 pt-3"><h2 className="mb-2 text-[12px] font-bold text-slate-600">খোঁজার উৎস · কেনার আগে মিলিয়ে দেখুন</h2><ul className="flex flex-wrap gap-2">{productSearch.sources.map((source) => <li key={source.url}><a href={source.url} target="_blank" rel="noopener noreferrer" className="inline-flex max-w-full items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-emerald-800 hover:border-emerald-400"><span className="max-w-56 truncate">{source.title}</span><ExternalLink size={12} aria-hidden /></a></li>)}</ul></div> : <p className="border-t border-slate-200 pt-2 text-[11px] text-amber-800">সার্চের নির্দিষ্ট উৎস-লিংক পাওয়া যায়নি, তাই ফলাফলের দাম যাচাই করা যাচ্ছে না।</p>}
-            <p className="text-[11px] text-slate-500">AI সারাংশে ভুল থাকতে পারে। তালিকার সর্বনিম্ন দাম নিশ্চিত বা সম্পূর্ণ নয়; ডেলিভারি চার্জ, ওয়ারেন্টি, পণ্যের অবস্থা ও বিক্রেতা যাচাই করুন।</p>
-          </div>}
-        </section>
+        <h1 className="sr-only">সহজ বাজেট · এই মাসের সংসারের হিসাব</h1>
         {migratedCount > 0 && (
           <div role="status" className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-sky-200 bg-sky-50 p-3 text-[13px] text-sky-900">
             <span>
               <Info size={15} className="mr-1 inline" aria-hidden />
               পুরনো ভার্সনের {migratedCount}টি এন্ট্রি নতুন খাতায় আনা হয়েছে। আসল তারিখ জানা না থাকায় আজকের তারিখ বসানো হয়েছে — প্রয়োজনে এডিট করুন।
             </span>
-            <button onClick={() => { removeStored("shohoj_expenses"); setMigratedCount(0); }} className="rounded-lg border border-sky-300 bg-white px-2.5 py-1 font-semibold hover:bg-sky-100">
+            <button onClick={() => { removeStored("shohoj_expenses"); setMigratedCount(0); }} className="rounded-lg border border-sky-300 bg-white px-2.5 py-1 font-semibold hover:bg-sky-100 min-h-[44px] min-w-[44px]">
               পুরনো কপি মুছুন
             </button>
           </div>
@@ -461,7 +446,7 @@ export default function ShohojBudgetPage() {
           <div className="rounded-2xl border border-slate-200 bg-white p-4 md:col-span-2">
             <div className="flex items-center justify-between gap-2">
               <label className="text-[12px] font-bold uppercase tracking-wide text-slate-500" htmlFor="month">মাস</label>
-              <select id="month" value={month} onChange={(e) => setMonth(e.target.value)} className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-[13px] font-semibold">
+              <select id="month" value={month} onChange={(e) => setMonth(e.target.value)} className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-[13px] font-semibold min-h-[44px]">
                 {months.map((m) => <option key={m} value={m}>{m}</option>)}
               </select>
             </div>
@@ -471,13 +456,13 @@ export default function ShohojBudgetPage() {
                 <strong className="text-[30px] font-extrabold tracking-tight text-slate-900">{tk(summary.expensePoisha)}</strong>
                 <span className="ml-1 text-[13px] text-slate-500">/ বাজেট {tk(budgetPoisha)}</span>
               </div>
-              <label className="text-right text-[11px] text-slate-500">
+              <label className="text-right text-[12px] text-slate-500">
                 মাসিক বাজেট (৳)
                 <input
                   type="number" min={0} step={500} inputMode="numeric"
                   value={budgetPoisha / 100}
                   onChange={(e) => setBudgetPoisha(toPoisha(Math.max(0, Number(e.target.value) || 0)))}
-                  className="mt-0.5 block w-28 rounded-lg border border-slate-200 px-2 py-1 text-right text-[14px] font-bold text-slate-800"
+                  className="mt-0.5 block w-28 rounded-lg border border-slate-200 px-2 py-1 text-right text-[14px] font-bold text-slate-800 min-h-[44px]"
                 />
               </label>
             </div>
@@ -492,10 +477,10 @@ export default function ShohojBudgetPage() {
           <div className="rounded-2xl border border-slate-200 bg-white p-4">
             <span className="block text-[12px] text-slate-500">{isCurrentMonth ? "আজ থেকে প্রতিদিন খরচ করা যাবে" : "মাস শেষে অবশিষ্ট"}</span>
             <strong className="text-[24px] font-extrabold text-emerald-700">{isCurrentMonth ? tk(pace.safePerDayPoisha) : tk(Math.max(0, pace.remainingPoisha))}</strong>
-            {isCurrentMonth && <span className="block text-[11px] text-slate-500">অবশিষ্ট বাজেট ÷ বাকি {pace.daysLeftIncludingToday} দিন (আজসহ)</span>}
+            {isCurrentMonth && <span className="block text-[12px] text-slate-500">অবশিষ্ট বাজেট ÷ বাকি {pace.daysLeftIncludingToday} দিন (আজসহ)</span>}
             {isCurrentMonth && summary.expensePoisha > 0 && (
-              <p className="mt-2 text-[11px] text-slate-600">
-                এই গতিতে চললে মাস শেষে মোট খরচ প্রায় <strong>{tk(pace.projectedPoisha)}</strong> হতে পারে। <span className="text-slate-400">(সরল অনুমান, নিশ্চয়তা নয়)</span>
+              <p className="mt-2 text-[12px] text-slate-600">
+                এই গতিতে চললে মাস শেষে মোট খরচ প্রায় <strong>{tk(pace.projectedPoisha)}</strong> হতে পারে। <span className="text-slate-500">(সরল অনুমান, নিশ্চয়তা নয়)</span>
               </p>
             )}
           </div>
@@ -515,7 +500,7 @@ export default function ShohojBudgetPage() {
             <button
               onClick={() => downloadText(`shohoj-budget-${month}.csv`, toCsv(monthTxs))}
               disabled={!monthTxs.length}
-              className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-200 px-2 py-1.5 text-[12px] font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+              className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-200 px-2 py-1.5 text-[12px] font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-40 min-h-[44px]"
             >
               <Download size={14} aria-hidden /> এই মাসের CSV
             </button>
@@ -530,7 +515,7 @@ export default function ShohojBudgetPage() {
                 <h2 id="entry-h" className="text-[18px] font-bold">বলুন বা লিখুন</h2>
                 <div className="flex items-center gap-1 rounded-lg bg-slate-100 p-0.5 text-[12px]" role="group" aria-label="ভয়েসের ভাষা">
                   {(["bn-BD", "en-US"] as const).map((l) => (
-                    <button key={l} onClick={() => setVoiceLang(l)} aria-pressed={voiceLang === l} className={`rounded-md px-2 py-1 font-semibold ${voiceLang === l ? "bg-white shadow-xs" : "text-slate-500"}`}>
+                    <button key={l} onClick={() => setVoiceLang(l)} aria-pressed={voiceLang === l} className={`rounded-md px-2 py-1 font-semibold ${voiceLang === l ? "bg-white shadow-xs" : "text-slate-500"} min-h-[44px] min-w-[44px]`}>
                       {l === "bn-BD" ? "বাংলা" : "English"}
                     </button>
                   ))}
@@ -549,7 +534,7 @@ export default function ShohojBudgetPage() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="যেমন: আজকে বাজারে ১২০০ টাকা খরচ করেছি"
-                  className="flex-1 rounded-xl border border-slate-200 px-4 py-3 text-[15px] outline-none focus:border-emerald-600"
+                  className="flex-1 rounded-xl border border-slate-200 px-4 py-3 text-[15px] outline-none focus:border-emerald-600 min-h-[44px]"
                 />
                 <div className="flex gap-2">
                   <button
@@ -557,23 +542,23 @@ export default function ShohojBudgetPage() {
                     onClick={toggleVoice}
                     disabled={voiceSupported === false}
                     aria-pressed={recording}
-                    className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl px-4 py-3 text-[14px] font-bold text-white sm:flex-none ${recording ? "bg-red-600" : "bg-emerald-600 hover:bg-emerald-700"} disabled:bg-slate-300`}
+                    className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl px-4 py-3 text-[14px] font-bold text-white sm:flex-none ${recording ? "bg-red-600" : "bg-emerald-600 hover:bg-emerald-700"} disabled:bg-slate-300 min-h-[44px] min-w-[44px]`}
                   >
                     {recording ? <MicOff size={18} aria-hidden /> : <Mic size={18} aria-hidden />}
                     {recording ? "থামান" : "ভয়েস"}
                   </button>
-                  <button type="submit" className="flex-1 rounded-xl bg-slate-900 px-4 py-3 text-[14px] font-bold text-white hover:bg-slate-800 sm:flex-none">
+                  <button type="submit" className="flex-1 rounded-xl bg-slate-900 px-4 py-3 text-[14px] font-bold text-white hover:bg-slate-800 sm:flex-none min-h-[44px] min-w-[44px]">
                     বুঝে নিন
                   </button>
                 </div>
               </form>
               {recording && <p role="status" className="text-[13px] font-semibold text-red-700">শুনছি… কথা শেষ হলে থামবে।</p>}
               {voiceError && <p role="alert" className="text-[13px] text-red-700">{voiceError}</p>}
-              <p className="text-[11px] leading-relaxed text-slate-500">
+              <p className="text-[12px] leading-relaxed text-slate-500">
                 ভয়েস ব্রাউজারের স্পিচ সার্ভিস ব্যবহার করে (Chrome-এ অডিও Google-এর সার্ভারে প্রক্রিয়া হয়)। আমরা অডিও সংরক্ষণ করি না। যা বুঝেছি তা আগে দেখাব — আপনি নিশ্চিত না করলে কিছুই সংরক্ষণ হবে না।
               </p>
               <div className="flex flex-wrap items-center gap-1.5">
-                <span className="text-[11px] font-bold text-slate-500">দ্রুত যোগ:</span>
+                <span className="text-[12px] font-bold text-slate-500">দ্রুত যোগ:</span>
                 {[
                   { bn: "+৳৫০", val: 50 },
                   { bn: "+৳১০০", val: 100 },
@@ -584,7 +569,7 @@ export default function ShohojBudgetPage() {
                     key={q.val}
                     type="button"
                     onClick={() => handleQuickAmount(q.val)}
-                    className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[12px] font-semibold text-slate-700 shadow-sm hover:border-emerald-500 hover:bg-emerald-50"
+                    className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[12px] font-semibold text-slate-700 shadow-sm hover:border-emerald-500 hover:bg-emerald-50 min-h-[44px] min-w-[44px]"
                   >
                     {q.bn}
                   </button>
@@ -592,7 +577,7 @@ export default function ShohojBudgetPage() {
               </div>
               <div className="flex flex-wrap gap-1.5">
                 {EXAMPLES.map((ex) => (
-                  <button key={ex} onClick={() => { setInput(ex); openDraftFromText(ex, "text"); playClick(); }} className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-[12px] text-slate-700 hover:border-emerald-500">
+                  <button key={ex} onClick={() => { setInput(ex); openDraftFromText(ex, "text"); playClick(); }} className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-[12px] text-slate-700 hover:border-emerald-500 min-h-[44px] min-w-[44px]">
                     {ex}
                   </button>
                 ))}
@@ -611,7 +596,7 @@ export default function ShohojBudgetPage() {
                       </p>
                     )}
                   </div>
-                  <button onClick={() => setDraft(null)} aria-label="বাতিল" className="rounded-lg p-1 text-slate-500 hover:bg-white"><X size={18} /></button>
+                  <button onClick={() => setDraft(null)} aria-label="বাতিল" className="rounded-lg p-1 text-slate-500 hover:bg-white min-h-[44px] min-w-[44px]"><X size={18} /></button>
                 </div>
                 {draft.issues.length > 0 && (
                   <ul className="space-y-1 rounded-lg border border-amber-300 bg-amber-50 p-2.5 text-[12px] text-amber-900">
@@ -633,7 +618,7 @@ export default function ShohojBudgetPage() {
                           type="button"
                           aria-pressed={draft.type === t}
                           onClick={() => setDraft({ ...draft, type: t, categoryId: categoryById(draft.categoryId).type === t ? draft.categoryId : t === "income" ? "other_income" : "other" })}
-                          className={`flex-1 rounded-lg border px-3 py-2 text-[13px] font-bold ${draft.type === t ? (t === "expense" ? "border-red-400 bg-red-50 text-red-800" : "border-emerald-500 bg-emerald-100 text-emerald-800") : "border-slate-200 bg-white text-slate-600"}`}
+                          className={`flex-1 rounded-lg border px-3 py-2 text-[13px] font-bold ${draft.type === t ? (t === "expense" ? "border-red-400 bg-red-50 text-red-800" : "border-emerald-500 bg-emerald-100 text-emerald-800") : "border-slate-200 bg-white text-slate-600"} min-h-[44px] min-w-[44px]`}
                         >
                           {t === "expense" ? "খরচ" : "আয়"}
                         </button>
@@ -649,7 +634,7 @@ export default function ShohojBudgetPage() {
                         value={draft.amount}
                         onChange={(e) => setDraft({ ...draft, amount: e.target.value.replace(/[^0-9.,০-৯]/g, "").replace(/[০-৯]/g, (d) => String("০১২৩৪৫৬৭৮৯".indexOf(d))) })}
                         aria-invalid={draftAmountPoisha <= 0}
-                        className={`mt-1 block w-full rounded-lg border px-3 py-2 text-[18px] font-extrabold ${draftAmountPoisha > 0 ? "border-slate-200" : "border-red-400 bg-red-50"}`}
+                        className={`mt-1 block w-full rounded-lg border px-3 py-2 text-[18px] font-extrabold ${draftAmountPoisha > 0 ? "border-slate-200" : "border-red-400 bg-red-50"} min-h-[44px]`}
                       />
                     </label>
                     <div className="flex flex-wrap gap-1">
@@ -663,7 +648,7 @@ export default function ShohojBudgetPage() {
                             const next = Math.round((cur + val) * 100) / 100;
                             setDraft({ ...draft, amount: String(next) });
                           }}
-                          className="rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-bold text-slate-700 hover:border-emerald-500 hover:bg-emerald-50"
+                          className="rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[12px] font-bold text-slate-700 hover:border-emerald-500 hover:bg-emerald-50 min-h-[44px] min-w-[44px]"
                         >
                           +৳{val}
                         </button>
@@ -674,7 +659,7 @@ export default function ShohojBudgetPage() {
                           playClick();
                           setDraft({ ...draft, amount: "" });
                         }}
-                        className="rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-bold text-slate-500 hover:bg-slate-100"
+                        className="rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[12px] font-bold text-slate-500 hover:bg-slate-100 min-h-[44px] min-w-[44px]"
                         title="পরিমাণ মুছুন"
                       >
                         C
@@ -683,23 +668,23 @@ export default function ShohojBudgetPage() {
                   </div>
                   <label className="text-[12px] font-bold text-slate-600">
                     তারিখ
-                    <input type="date" value={draft.date} max="2100-12-31" onChange={(e) => setDraft({ ...draft, date: e.target.value })} className="mt-1 block w-full rounded-lg border border-slate-200 px-3 py-2 text-[14px]" />
+                    <input type="date" value={draft.date} max="2100-12-31" onChange={(e) => setDraft({ ...draft, date: e.target.value })} className="mt-1 block w-full rounded-lg border border-slate-200 px-3 py-2 text-[14px] min-h-[44px]" />
                   </label>
                   <label className="text-[12px] font-bold text-slate-600">
                     খাত
-                    <select value={draft.categoryId} onChange={(e) => setDraft({ ...draft, categoryId: e.target.value as CategoryId })} className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-[14px]">
+                    <select value={draft.categoryId} onChange={(e) => setDraft({ ...draft, categoryId: e.target.value as CategoryId })} className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-[14px] min-h-[44px]">
                       {CATEGORIES.filter((c) => c.type === draft.type).map((c) => <option key={c.id} value={c.id}>{c.bn} ({c.en})</option>)}
                     </select>
                   </label>
                   <label className="text-[12px] font-bold text-slate-600">
                     মাধ্যম
-                    <select value={draft.method} onChange={(e) => setDraft({ ...draft, method: e.target.value as Method })} className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-[14px]">
+                    <select value={draft.method} onChange={(e) => setDraft({ ...draft, method: e.target.value as Method })} className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-[14px] min-h-[44px]">
                       {METHODS.map((m) => <option key={m} value={m}>{m}</option>)}
                     </select>
                   </label>
                   <label className="text-[12px] font-bold text-slate-600 sm:col-span-2">
                     নোট
-                    <input value={draft.note} maxLength={300} onChange={(e) => setDraft({ ...draft, note: e.target.value })} className="mt-1 block w-full rounded-lg border border-slate-200 px-3 py-2 text-[14px]" />
+                    <input value={draft.note} maxLength={300} onChange={(e) => setDraft({ ...draft, note: e.target.value })} className="mt-1 block w-full rounded-lg border border-slate-200 px-3 py-2 text-[14px] min-h-[44px]" />
                   </label>
 
                   {/* MFS Cash-out fee auto-calc helper */}
@@ -734,7 +719,7 @@ export default function ShohojBudgetPage() {
                           <button
                             type="button"
                             onClick={handleAddFee}
-                            className="rounded-lg bg-sky-600 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-sky-700"
+                            className="rounded-lg bg-sky-600 px-2.5 py-1 text-[12px] font-bold text-white hover:bg-sky-700 min-h-[44px] min-w-[44px]"
                           >
                             ফি যোগ করুন (+৳{feeTaka.toFixed(2)})
                           </button>
@@ -744,13 +729,13 @@ export default function ShohojBudgetPage() {
                   })()}
                 </div>
                 {draft.matched.length > 0 && (
-                  <p className="text-[11px] text-slate-500">যে শব্দ দেখে অনুমান করেছি: {draft.matched.map((m) => `"${m}"`).join(", ")}</p>
+                  <p className="text-[12px] text-slate-500">যে শব্দ দেখে অনুমান করেছি: {draft.matched.map((m) => `"${m}"`).join(", ")}</p>
                 )}
                 <div className="flex gap-2">
-                  <button onClick={confirmDraft} disabled={!draftValid} className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-3 text-[14px] font-bold text-white hover:bg-emerald-700 disabled:bg-slate-300">
+                  <button onClick={confirmDraft} disabled={!draftValid} className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-3 text-[14px] font-bold text-white hover:bg-emerald-700 disabled:bg-slate-300 min-h-[44px] min-w-[44px]">
                     <Check size={18} aria-hidden /> {draft.editingId ? "সংশোধন সংরক্ষণ" : `নিশ্চিত করুন${draftAmountPoisha > 0 ? ` · ${tk(draftAmountPoisha)}` : ""}`}
                   </button>
-                  <button onClick={() => setDraft(null)} className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-[14px] font-bold text-slate-700">বাতিল</button>
+                  <button onClick={() => setDraft(null)} className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-[14px] font-bold text-slate-700 min-h-[44px] min-w-[44px]">বাতিল</button>
                 </div>
               </section>
             )}
@@ -763,18 +748,18 @@ export default function ShohojBudgetPage() {
               {lastDeleted && (
                 <div role="status" className="mb-3 flex items-center justify-between rounded-lg bg-slate-900 px-3 py-2 text-[13px] text-white">
                   <span>মুছে ফেলা হয়েছে: {categoryById(lastDeleted.categoryId).bn} {tk(lastDeleted.amountPoisha)}</span>
-                  <button onClick={() => { setTxs((p) => [lastDeleted, ...p]); setLastDeleted(null); }} className="inline-flex items-center gap-1 font-bold text-emerald-300"><Undo2 size={14} aria-hidden /> ফিরিয়ে আনুন</button>
+                  <button onClick={() => { setTxs((p) => [lastDeleted, ...p]); setLastDeleted(null); }} className="inline-flex items-center gap-1 font-bold text-emerald-300 min-h-[44px] min-w-[44px]"><Undo2 size={14} aria-hidden /> ফিরিয়ে আনুন</button>
                 </div>
               )}
               {!txState.ready ? (
-                <p className="py-6 text-center text-[13px] text-slate-400">লোড হচ্ছে…</p>
+                <p className="py-6 text-center text-[13px] text-slate-500">লোড হচ্ছে…</p>
               ) : monthTxs.length === 0 ? (
                 <div className="py-8 text-center text-[13px] text-slate-500">
                   <p className="font-semibold text-slate-700">এই মাসে এখনো কোনো লেনদেন নেই।</p>
                   <p className="mt-1">উপরে বলুন বা লিখুন, অথবা নিচে বিকাশ/নগদ/ব্যাংকের এসএমএস পেস্ট করুন।</p>
                   {txs.length === 0 && (
-                    <button onClick={() => setTxs(exampleMonth(today))} className="mt-4 rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-[12px] font-bold text-emerald-800 hover:bg-emerald-100" data-testid="load-example">
-                      উদাহরণ মাস দেখুন · Load example data
+                    <button onClick={() => setTxs(exampleMonth(today))} className="mt-4 inline-flex min-h-[44px] flex-col items-center justify-center rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-1 text-[13px] font-bold leading-tight text-emerald-800 hover:bg-emerald-100 min-w-[44px]" data-testid="load-example">
+                      উদাহরণ দেখুন <span lang="en" className="text-[12px] font-semibold">Try an example</span>
                     </button>
                   )}
                 </div>
@@ -783,7 +768,7 @@ export default function ShohojBudgetPage() {
                 {txs.some((t) => t.id.startsWith("ex-")) && (
                   <p className="mb-2 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-amber-50 px-3 py-2 text-[12px] text-amber-900">
                     <span>“উদাহরণ” লেখা লেনদেনগুলো নমুনা, আপনার আসল হিসাব নয়। · Example entries, not real data.</span>
-                    <button onClick={() => setTxs((p) => p.filter((t) => !t.id.startsWith("ex-")))} className="font-bold underline">উদাহরণ মুছুন</button>
+                    <button onClick={() => setTxs((p) => p.filter((t) => !t.id.startsWith("ex-")))} className="font-bold underline min-h-[44px] min-w-[44px]">উদাহরণ মুছুন</button>
                   </p>
                 )}
                 <ul className="divide-y divide-slate-100">
@@ -793,14 +778,14 @@ export default function ShohojBudgetPage() {
                         <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-1.5">
                             <strong className="text-[14px]">{categoryById(t.categoryId).bn}</strong>
-                            <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-mono text-slate-600">{t.method}</span>
-                            {t.source === "migrated" && <span className="rounded bg-sky-100 px-1.5 py-0.5 text-[10px] text-sky-800">পুরনো ডেটা</span>}
-                            {unusual.has(t.id) && <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-800">সাধারণের চেয়ে অনেক বেশি</span>}
+                            <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[12px] font-mono text-slate-600">{t.method}</span>
+                            {t.source === "migrated" && <span className="rounded bg-sky-100 px-1.5 py-0.5 text-[12px] text-sky-800">পুরনো ডেটা</span>}
+                            {unusual.has(t.id) && <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[12px] font-bold text-amber-800">সাধারণের চেয়ে অনেক বেশি</span>}
                           </div>
                           <p className="truncate text-[12px] text-slate-500">{t.note.replace(/\s*\[R:[^\]]+\]/, "")}{t.trxId ? ` · TrxID ${t.trxId}` : ""}</p>
-                          <span className="text-[11px] text-slate-400">{t.date}</span>
+                          <span className="text-[12px] text-slate-500">{t.date}</span>
                           {showHistory === t.id && (
-                            <ul className="mt-1 space-y-0.5 rounded bg-slate-50 p-2 text-[11px] text-slate-600">
+                            <ul className="mt-1 space-y-0.5 rounded bg-slate-50 p-2 text-[12px] text-slate-600">
                               {t.history.map((h, i) => <li key={i}>{new Date(h.at).toLocaleString("en-GB")}: {h.change}</li>)}
                             </ul>
                           )}
@@ -809,9 +794,9 @@ export default function ShohojBudgetPage() {
                           <span className={`font-mono text-[15px] font-bold ${t.type === "income" ? "text-emerald-700" : "text-slate-900"}`}>
                             {t.type === "income" ? "+" : "−"}{tk(t.amountPoisha)}
                           </span>
-                          <button onClick={() => setShowHistory(showHistory === t.id ? null : t.id)} className="rounded p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700" aria-label="পরিবর্তনের ইতিহাস"><Info size={15} /></button>
-                          <button onClick={() => editTx(t)} className="rounded p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700" aria-label="সংশোধন"><Pencil size={15} /></button>
-                          <button onClick={() => deleteTx(t)} className="rounded p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600" aria-label="মুছুন"><Trash2 size={15} /></button>
+                          <button onClick={() => setShowHistory(showHistory === t.id ? null : t.id)} className="rounded p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-700 min-h-[44px] min-w-[44px]" aria-label="পরিবর্তনের ইতিহাস"><Info size={15} /></button>
+                          <button onClick={() => editTx(t)} className="rounded p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-700 min-h-[44px] min-w-[44px]" aria-label="সংশোধন"><Pencil size={15} /></button>
+                          <button onClick={() => deleteTx(t)} className="rounded p-1.5 text-slate-500 hover:bg-red-50 hover:text-red-600 min-h-[44px] min-w-[44px]" aria-label="মুছুন"><Trash2 size={15} /></button>
                         </div>
                       </div>
                     </li>
@@ -847,11 +832,11 @@ export default function ShohojBudgetPage() {
               <h2 id="sms-h" className="flex items-center gap-1.5 text-[16px] font-bold"><MessageSquareText size={17} aria-hidden /> এসএমএস থেকে যোগ করুন</h2>
               <p className="text-[12px] text-slate-500">বিকাশ, নগদ, রকেট বা ব্যাংকের এসএমএস পেস্ট করুন। আয়/খরচ, পরিমাণ ও TrxID বের করে নিশ্চিত করতে দেখাব। এসএমএস এই ডিভাইসের বাইরে যায় না।</p>
               <label htmlFor="sms" className="sr-only">এসএমএস</label>
-              <textarea id="sms" rows={2} value={sms} onChange={(e) => setSms(e.target.value)} placeholder="Payment Tk 450.00 to Pizza Guy successful. TrxID 8A91BC" className="w-full rounded-xl border border-slate-200 px-3 py-2 font-mono text-[12px] outline-none focus:border-emerald-600" />
+              <textarea id="sms" rows={2} value={sms} onChange={(e) => setSms(e.target.value)} placeholder="Payment Tk 450.00 to Pizza Guy successful. TrxID 8A91BC" className="w-full rounded-xl border border-slate-200 px-3 py-2 font-mono text-[12px] outline-none focus:border-emerald-600 min-h-[44px]" />
               <div className="flex flex-wrap gap-1.5">
-                <button onClick={() => openDraftFromSms(sms)} disabled={!sms.trim()} className="rounded-lg bg-slate-900 px-3 py-1.5 text-[12px] font-bold text-white disabled:opacity-40">এসএমএস পড়ুন</button>
-                <button onClick={() => openDraftFromSms("bKash Payment Tk 350.00 to Chillox Banani successful. TrxID 9K810A")} className="rounded-lg bg-slate-100 px-2 py-1 font-mono text-[11px] text-slate-700">নমুনা: খরচ</button>
-                <button onClick={() => openDraftFromSms("You have received Tk 5,000.00 from 01700000000. TrxID ABC123 bKash")} className="rounded-lg bg-slate-100 px-2 py-1 font-mono text-[11px] text-slate-700">নমুনা: আয়</button>
+                <button onClick={() => openDraftFromSms(sms)} disabled={!sms.trim()} className="rounded-lg bg-slate-900 px-3 py-1.5 text-[12px] font-bold text-white disabled:opacity-40 min-h-[44px] min-w-[44px]">এসএমএস পড়ুন</button>
+                <button onClick={() => openDraftFromSms("bKash Payment Tk 350.00 to Chillox Banani successful. TrxID 9K810A")} className="rounded-lg bg-slate-100 px-2 py-1 font-mono text-[12px] text-slate-700 min-h-[44px] min-w-[44px]">নমুনা: খরচ</button>
+                <button onClick={() => openDraftFromSms("You have received Tk 5,000.00 from 01700000000. TrxID ABC123 bKash")} className="rounded-lg bg-slate-100 px-2 py-1 font-mono text-[12px] text-slate-700 min-h-[44px] min-w-[44px]">নমুনা: আয়</button>
               </div>
             </section>
 
@@ -869,11 +854,11 @@ export default function ShohojBudgetPage() {
             <section aria-labelledby="split-h" className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5">
               <h2 id="split-h" className="flex items-center gap-1.5 text-[16px] font-bold"><Users size={17} aria-hidden /> মেস ও বন্ধুদের বিল ভাগ</h2>
               <div className="grid grid-cols-2 gap-2">
-                <label className="text-[11px] font-bold text-slate-600">মোট বিল (৳)
-                  <input type="number" min={0} value={splitTotal} onChange={(e) => setSplitTotal(Math.max(0, Number(e.target.value) || 0))} className="mt-1 block w-full rounded-lg border border-slate-200 px-2 py-1.5 text-[14px] font-bold" />
+                <label className="text-[12px] font-bold text-slate-600">মোট বিল (৳)
+                  <input type="number" min={0} value={splitTotal} onChange={(e) => setSplitTotal(Math.max(0, Number(e.target.value) || 0))} className="mt-1 block w-full rounded-lg border border-slate-200 px-2 py-1.5 text-[14px] font-bold min-h-[44px]" />
                 </label>
-                <label className="text-[11px] font-bold text-slate-600">কতজন
-                  <input type="number" min={2} max={50} value={splitPeople} onChange={(e) => setSplitPeople(Math.min(50, Math.max(2, Number(e.target.value) || 2)))} className="mt-1 block w-full rounded-lg border border-slate-200 px-2 py-1.5 text-[14px] font-bold" />
+                <label className="text-[12px] font-bold text-slate-600">কতজন
+                  <input type="number" min={2} max={50} value={splitPeople} onChange={(e) => setSplitPeople(Math.min(50, Math.max(2, Number(e.target.value) || 2)))} className="mt-1 block w-full rounded-lg border border-slate-200 px-2 py-1.5 text-[14px] font-bold min-h-[44px]" />
                 </label>
               </div>
               <p className="text-[13px]">
@@ -886,7 +871,7 @@ export default function ShohojBudgetPage() {
                   setCopied(true);
                   setTimeout(() => setCopied(false), 1800);
                 }}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-3 py-1.5 text-[12px] font-bold text-white"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-3 py-1.5 text-[12px] font-bold text-white min-h-[44px] min-w-[44px]"
               >
                 <Copy size={13} aria-hidden /> {copied ? "কপি হয়েছে" : "মেসেজ কপি করুন"}
               </button>
@@ -904,6 +889,25 @@ export default function ShohojBudgetPage() {
             </p>
           </aside>
         </div>
+        {/* Product price search is secondary: it sits below the budget so the page opens on the month itself. */}
+        <section aria-labelledby="product-search-title" className="space-y-3 rounded-2xl border border-emerald-200/80 bg-white/80 backdrop-blur-md p-5 sm:p-6 shadow-xs hover:shadow-md transition-all">
+          <div>
+            <h2 id="product-search-title" className="flex items-center gap-2 text-[18px] font-extrabold text-slate-900"><Search size={21} className="text-emerald-700" aria-hidden /> পণ্যের দাম ও তথ্য খুঁজুন</h2>
+            <p className="mt-1 text-[13px] text-slate-600">পণ্যের নাম বা মডেল লিখুন। AI ওয়েবে খুঁজে পাওয়া অফার, দাম এবং পণ্যের ভালো-মন্দ দিক উৎসসহ সাজিয়ে দেবে।</p>
+          </div>
+          <form onSubmit={searchProduct} className="flex flex-col gap-2 sm:flex-row">
+            <label htmlFor="product-query" className="sr-only">কোন পণ্য খুঁজবেন</label>
+            <input id="product-query" value={productQuery} maxLength={160} onChange={(event) => setProductQuery(event.target.value)} placeholder="যেমন: Redmi Note 14 8/256 GB" className="min-w-0 flex-1 rounded-xl border border-slate-200 px-4 py-3 text-[14px] outline-none focus:border-emerald-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 min-h-[44px]" />
+            <button type="submit" disabled={productSearching || productQuery.trim().length < 2} className="min-h-[44px] inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 text-[14px] font-bold text-white hover:bg-emerald-800 disabled:cursor-wait disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 transition-all min-w-[44px]"><Search size={16} aria-hidden />{productSearching ? "ওয়েবে খোঁজা হচ্ছে…" : "দাম তুলনা করুন"}</button>
+          </form>
+          <p className="text-[12px] leading-relaxed text-slate-600">দারাজসহ ওয়েবে পাওয়া সাইট থেকে তথ্য আসতে পারে, তবে সব দোকান বা পুরো ইন্টারনেট কভার হয় না। দাম/স্টক বদলাতে পারে; কেনার আগে বিক্রেতার সাইটে যাচাই করুন।</p>
+          {productSearchError && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-[13px] text-red-800">{productSearchError}</p>}
+          {productSearch && <div aria-live="polite" className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <div className="whitespace-pre-wrap text-[13px] leading-relaxed text-slate-800">{productSearch.answer}</div>
+            {productSearch.sources.length > 0 ? <div className="border-t border-slate-200 pt-3"><h2 className="mb-2 text-[12px] font-bold text-slate-600">খোঁজার উৎস · কেনার আগে মিলিয়ে দেখুন</h2><ul className="flex flex-wrap gap-2">{productSearch.sources.map((source) => <li key={source.url}><a href={source.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[44px] max-w-full items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-[12px] font-semibold text-emerald-800 hover:border-emerald-400 min-w-[44px]"><span className="max-w-56 truncate">{source.title}</span><ExternalLink size={12} aria-hidden /></a></li>)}</ul></div> : <p className="border-t border-slate-200 pt-2 text-[12px] text-amber-800">সার্চের নির্দিষ্ট উৎস-লিংক পাওয়া যায়নি, তাই ফলাফলের দাম যাচাই করা যাচ্ছে না।</p>}
+            <p className="text-[12px] text-slate-600">AI সারাংশে ভুল থাকতে পারে। তালিকার সর্বনিম্ন দাম নিশ্চিত বা সম্পূর্ণ নয়; ডেলিভারি চার্জ, ওয়ারেন্টি, পণ্যের অবস্থা ও বিক্রেতা যাচাই করুন।</p>
+          </div>}
+        </section>
         </>) : (
           <div className="mx-auto max-w-5xl">
             {view === "wallets" && <WalletsPanel txs={txs} />}
@@ -942,7 +946,7 @@ function RecurringPanel({
     <section aria-labelledby="rec-h" className="space-y-2 rounded-2xl border border-slate-200 bg-white p-5">
       <div className="flex items-center justify-between">
         <h2 id="rec-h" className="flex items-center gap-1.5 text-[16px] font-bold"><Repeat size={17} aria-hidden /> নিয়মিত লেনদেন</h2>
-        <button onClick={() => setOpen(!open)} className="text-[12px] font-bold text-emerald-700">{open ? "বন্ধ" : "+ নতুন"}</button>
+        <button onClick={() => setOpen(!open)} className="text-[12px] font-bold text-emerald-700 min-h-[44px] min-w-[44px]">{open ? "বন্ধ" : "+ নতুন"}</button>
       </div>
       {recurring.length === 0 && !open && <p className="text-[12px] text-slate-500">বাসা ভাড়া, বেতন, ইন্টারনেট বিলের মতো প্রতি মাসের লেনদেন একবার লিখে রাখুন।</p>}
       {/* Review queue: repeated entries the user may want as a recurring rule. Nothing is saved without a tap. */}
@@ -955,11 +959,11 @@ function RecurringPanel({
           <div className="mt-2 flex gap-2">
             <button
               onClick={() => setRecurring((p) => [...p, { id: Math.random().toString(36).slice(2, 9), type: sg.type, amountPoisha: sg.amountPoisha, categoryId: sg.categoryId, method: sg.method, note: sg.note, dayOfMonth: sg.dayOfMonth }])}
-              className="rounded-lg bg-emerald-700 px-3 py-1.5 text-[12px] font-bold text-white"
+              className="rounded-lg bg-emerald-700 px-3 py-1.5 text-[12px] font-bold text-white min-h-[44px] min-w-[44px]"
             >
               হ্যাঁ, যোগ করুন
             </button>
-            <button onClick={() => setDismissed((d) => [...d, sg.key])} className="rounded-lg border border-amber-300 px-3 py-1.5 text-[12px] font-bold text-amber-900">না</button>
+            <button onClick={() => setDismissed((d) => [...d, sg.key])} className="rounded-lg border border-amber-300 px-3 py-1.5 text-[12px] font-bold text-amber-900 min-h-[44px] min-w-[44px]">না</button>
           </div>
         </div>
       ))}
@@ -969,23 +973,23 @@ function RecurringPanel({
             <span>{r.note} · প্রতি মাসের {r.dayOfMonth} তারিখ</span>
             <span className="flex items-center gap-1">
               <strong className={r.type === "income" ? "text-emerald-700" : ""}>{r.type === "income" ? "+" : "−"}{tk(r.amountPoisha)}</strong>
-              <button onClick={() => setRecurring((p) => p.filter((x) => x.id !== r.id))} aria-label={`${r.note} মুছুন`} className="p-1 text-slate-400 hover:text-red-600"><Trash2 size={13} /></button>
+              <button onClick={() => setRecurring((p) => p.filter((x) => x.id !== r.id))} aria-label={`${r.note} মুছুন`} className="p-1 text-slate-500 hover:text-red-600 min-h-[44px] min-w-[44px]"><Trash2 size={13} /></button>
             </span>
           </li>
         ))}
       </ul>
       {open && (
         <div className="grid grid-cols-2 gap-2 rounded-lg bg-slate-50 p-3 text-[12px]">
-          <label className="col-span-2 font-bold text-slate-600">বিবরণ<input value={note} onChange={(e) => setNote(e.target.value)} className="mt-1 block w-full rounded border border-slate-200 px-2 py-1" /></label>
-          <label className="font-bold text-slate-600">পরিমাণ (৳)<input inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))} className="mt-1 block w-full rounded border border-slate-200 px-2 py-1" /></label>
-          <label className="font-bold text-slate-600">মাসের তারিখ<input type="number" min={1} max={31} value={day} onChange={(e) => setDay(Math.min(31, Math.max(1, Number(e.target.value) || 1)))} className="mt-1 block w-full rounded border border-slate-200 px-2 py-1" /></label>
+          <label className="col-span-2 font-bold text-slate-600">বিবরণ<input value={note} onChange={(e) => setNote(e.target.value)} className="mt-1 block w-full rounded border border-slate-200 px-2 py-1 min-h-[44px]" /></label>
+          <label className="font-bold text-slate-600">পরিমাণ (৳)<input inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))} className="mt-1 block w-full rounded border border-slate-200 px-2 py-1 min-h-[44px]" /></label>
+          <label className="font-bold text-slate-600">মাসের তারিখ<input type="number" min={1} max={31} value={day} onChange={(e) => setDay(Math.min(31, Math.max(1, Number(e.target.value) || 1)))} className="mt-1 block w-full rounded border border-slate-200 px-2 py-1 min-h-[44px]" /></label>
           <label className="font-bold text-slate-600">ধরন
-            <select value={type} onChange={(e) => { const t = e.target.value as TxType; setType(t); setCategoryId(t === "income" ? "salary" : "rent"); }} className="mt-1 block w-full rounded border border-slate-200 bg-white px-2 py-1">
+            <select value={type} onChange={(e) => { const t = e.target.value as TxType; setType(t); setCategoryId(t === "income" ? "salary" : "rent"); }} className="mt-1 block w-full rounded border border-slate-200 bg-white px-2 py-1 min-h-[44px]">
               <option value="expense">খরচ</option><option value="income">আয়</option>
             </select>
           </label>
           <label className="font-bold text-slate-600">খাত
-            <select value={categoryId} onChange={(e) => setCategoryId(e.target.value as CategoryId)} className="mt-1 block w-full rounded border border-slate-200 bg-white px-2 py-1">
+            <select value={categoryId} onChange={(e) => setCategoryId(e.target.value as CategoryId)} className="mt-1 block w-full rounded border border-slate-200 bg-white px-2 py-1 min-h-[44px]">
               {CATEGORIES.filter((c) => c.type === type).map((c) => <option key={c.id} value={c.id}>{c.bn}</option>)}
             </select>
           </label>
@@ -995,14 +999,14 @@ function RecurringPanel({
               setRecurring((p) => [...p, { id: Math.random().toString(36).slice(2, 9), type, amountPoisha: toPoisha(Number(amount)), categoryId, method: "Cash", note: note.trim().slice(0, 80), dayOfMonth: day }]);
               setOpen(false);
             }}
-            className="col-span-2 rounded-lg bg-slate-900 py-1.5 font-bold text-white disabled:opacity-40"
+            className="col-span-2 rounded-lg bg-slate-900 py-1.5 font-bold text-white disabled:opacity-40 min-h-[44px] min-w-[44px]"
           >
             সংরক্ষণ
           </button>
         </div>
       )}
       {dueCount > 0 && (
-        <button onClick={onAddForMonth} className="w-full rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-[12px] font-bold text-emerald-800 hover:bg-emerald-100">
+        <button onClick={onAddForMonth} className="w-full rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-[12px] font-bold text-emerald-800 hover:bg-emerald-100 min-h-[44px]">
           {month} মাসের {dueCount}টি নিয়মিত লেনদেন যোগ করুন
         </button>
       )}
@@ -1023,7 +1027,7 @@ function CategoryBudgetsPanel({ summary, budgets, setBudgets }: { summary: Month
     <section aria-labelledby="catb-h" className="space-y-2 rounded-2xl border border-slate-200 bg-white p-5">
       <div className="flex items-center justify-between">
         <h2 id="catb-h" className="flex items-center gap-1.5 text-[16px] font-bold"><Target size={17} aria-hidden /> খাতভিত্তিক বাজেট</h2>
-        <button onClick={() => setOpen(!open)} className="text-[12px] font-bold text-emerald-700">{open ? "বন্ধ" : "+ সীমা ঠিক করুন"}</button>
+        <button onClick={() => setOpen(!open)} className="text-[12px] font-bold text-emerald-700 min-h-[44px] min-w-[44px]">{open ? "বন্ধ" : "+ সীমা ঠিক করুন"}</button>
       </div>
       {status.length === 0 && !open && <p className="text-[12px] text-slate-500">খাবার, যাতায়াতের মতো খাতে মাসিক সীমা দিন — ৮০% হলে হলুদ, পার হলে লাল সতর্কতা দেখাবে।</p>}
       <ul className="space-y-2.5">
@@ -1033,26 +1037,26 @@ function CategoryBudgetsPanel({ summary, budgets, setBudgets }: { summary: Month
               <span>{categoryById(s.id).bn}</span>
               <span className="flex items-center gap-1">
                 <span className={s.level === "over" ? "font-bold text-red-700" : s.level === "near" ? "font-bold text-amber-700" : "font-semibold"}>{tk(s.spentPoisha)} / {tk(s.budgetPoisha)}</span>
-                <button onClick={() => setBudgets((p) => { const n = { ...p }; delete n[s.id]; return n; })} aria-label={`${categoryById(s.id).bn} সীমা মুছুন`} className="p-0.5 text-slate-400 hover:text-red-600"><Trash2 size={12} /></button>
+                <button onClick={() => setBudgets((p) => { const n = { ...p }; delete n[s.id]; return n; })} aria-label={`${categoryById(s.id).bn} সীমা মুছুন`} className="p-0.5 text-slate-500 hover:text-red-600 min-h-[44px] min-w-[44px]"><Trash2 size={12} /></button>
               </span>
             </div>
             <div className="mt-1 h-2 overflow-hidden rounded-full bg-slate-100" role="progressbar" aria-valuenow={Math.min(100, s.usedPct)} aria-valuemin={0} aria-valuemax={100} aria-label={`${categoryById(s.id).bn} বাজেটের ব্যবহার`}>
               <div className={`h-full rounded-full ${color[s.level]}`} style={{ width: `${Math.min(100, s.usedPct)}%` }} />
             </div>
-            {s.level === "over" && <p className="mt-0.5 text-[11px] font-semibold text-red-700" role="status">সীমা {tk(-s.remainingPoisha)} পার হয়েছে</p>}
-            {s.level === "near" && <p className="mt-0.5 text-[11px] text-amber-800">বাকি {tk(s.remainingPoisha)}</p>}
+            {s.level === "over" && <p className="mt-0.5 text-[12px] font-semibold text-red-700" role="status">সীমা {tk(-s.remainingPoisha)} পার হয়েছে</p>}
+            {s.level === "near" && <p className="mt-0.5 text-[12px] text-amber-800">বাকি {tk(s.remainingPoisha)}</p>}
           </li>
         ))}
       </ul>
       {open && (
         <div className="grid grid-cols-2 gap-2 rounded-lg bg-slate-50 p-3 text-[12px]">
           <label className="font-bold text-slate-600">খাত
-            <select value={categoryId} onChange={(e) => setCategoryId(e.target.value as CategoryId)} className="mt-1 block w-full rounded border border-slate-200 bg-white px-2 py-1">
+            <select value={categoryId} onChange={(e) => setCategoryId(e.target.value as CategoryId)} className="mt-1 block w-full rounded border border-slate-200 bg-white px-2 py-1 min-h-[44px]">
               {CATEGORIES.filter((c) => c.type === "expense").map((c) => <option key={c.id} value={c.id}>{c.bn}</option>)}
             </select>
           </label>
-          <label className="font-bold text-slate-600">মাসিক সীমা (৳)<input inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="যেমন ৫০০০" className="mt-1 block w-full rounded border border-slate-200 px-2 py-1" /></label>
-          <button disabled={!taka || taka <= 0} onClick={() => { setBudgets((p) => ({ ...p, [categoryId]: toPoisha(taka!) })); setAmount(""); setOpen(false); }} className="col-span-2 rounded-lg bg-slate-900 py-1.5 font-bold text-white disabled:opacity-40">সংরক্ষণ</button>
+          <label className="font-bold text-slate-600">মাসিক সীমা (৳)<input inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="যেমন ৫০০০" className="mt-1 block w-full rounded border border-slate-200 px-2 py-1 min-h-[44px]" /></label>
+          <button disabled={!taka || taka <= 0} onClick={() => { setBudgets((p) => ({ ...p, [categoryId]: toPoisha(taka!) })); setAmount(""); setOpen(false); }} className="col-span-2 rounded-lg bg-slate-900 py-1.5 font-bold text-white disabled:opacity-40 min-h-[44px] min-w-[44px]">সংরক্ষণ</button>
         </div>
       )}
     </section>
@@ -1079,15 +1083,15 @@ function GoalsPanel({ goals, setGoals, today }: { goals: SavingsGoal[]; setGoals
     <section aria-labelledby="goal-h" className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5">
       <div className="flex items-center justify-between">
         <h2 id="goal-h" className="flex items-center gap-1.5 text-[16px] font-bold"><PiggyBank size={17} aria-hidden /> সঞ্চয়ের লক্ষ্য</h2>
-        <button onClick={() => setOpen(!open)} className="text-[12px] font-bold text-emerald-700">{open ? "বন্ধ" : "+ নতুন লক্ষ্য"}</button>
+        <button onClick={() => setOpen(!open)} className="text-[12px] font-bold text-emerald-700 min-h-[44px] min-w-[44px]">{open ? "বন্ধ" : "+ নতুন লক্ষ্য"}</button>
       </div>
       {goals.length === 0 && !open && <p className="text-[12px] text-slate-500">ল্যাপটপ, ঈদ, জরুরি তহবিল — লক্ষ্য ও তারিখ দিন, প্রতি মাসে কত জমাতে হবে হিসাব করে দেখাবে।</p>}
       {open && (
         <div className="grid grid-cols-2 gap-2 rounded-lg bg-slate-50 p-3 text-[12px]">
-          <label className="col-span-2 font-bold text-slate-600">লক্ষ্যের নাম<input value={name} onChange={(e) => setName(e.target.value)} placeholder="যেমন ল্যাপটপ" className="mt-1 block w-full rounded border border-slate-200 px-2 py-1" /></label>
-          <label className="font-bold text-slate-600">লক্ষ্য (৳)<input inputMode="decimal" value={target} onChange={(e) => setTarget(e.target.value)} className="mt-1 block w-full rounded border border-slate-200 px-2 py-1" /></label>
-          <label className="font-bold text-slate-600">তারিখ (ঐচ্ছিক)<input type="date" value={date} min={today} onChange={(e) => setDate(e.target.value)} className="mt-1 block w-full rounded border border-slate-200 px-2 py-1" /></label>
-          <button disabled={!valid} onClick={() => { setGoals((p) => [...p, { id: newId(), name: name.trim().slice(0, 80), targetPoisha: toPoisha(targetTaka!), targetDate: date || null, contributions: [], createdAt: new Date().toISOString() }]); setName(""); setTarget(""); setDate(""); setOpen(false); }} className="col-span-2 rounded-lg bg-slate-900 py-1.5 font-bold text-white disabled:opacity-40">লক্ষ্য যোগ করুন</button>
+          <label className="col-span-2 font-bold text-slate-600">লক্ষ্যের নাম<input value={name} onChange={(e) => setName(e.target.value)} placeholder="যেমন ল্যাপটপ" className="mt-1 block w-full rounded border border-slate-200 px-2 py-1 min-h-[44px]" /></label>
+          <label className="font-bold text-slate-600">লক্ষ্য (৳)<input inputMode="decimal" value={target} onChange={(e) => setTarget(e.target.value)} className="mt-1 block w-full rounded border border-slate-200 px-2 py-1 min-h-[44px]" /></label>
+          <label className="font-bold text-slate-600">তারিখ (ঐচ্ছিক)<input type="date" value={date} min={today} onChange={(e) => setDate(e.target.value)} className="mt-1 block w-full rounded border border-slate-200 px-2 py-1 min-h-[44px]" /></label>
+          <button disabled={!valid} onClick={() => { setGoals((p) => [...p, { id: newId(), name: name.trim().slice(0, 80), targetPoisha: toPoisha(targetTaka!), targetDate: date || null, contributions: [], createdAt: new Date().toISOString() }]); setName(""); setTarget(""); setDate(""); setOpen(false); }} className="col-span-2 rounded-lg bg-slate-900 py-1.5 font-bold text-white disabled:opacity-40 min-h-[44px] min-w-[44px]">লক্ষ্য যোগ করুন</button>
         </div>
       )}
       <ul className="space-y-3">
@@ -1097,25 +1101,25 @@ function GoalsPanel({ goals, setGoals, today }: { goals: SavingsGoal[]; setGoals
             <li key={g.id} data-testid="goal" className="rounded-xl border border-slate-100 p-3">
               <div className="flex items-start justify-between gap-2 text-[13px]">
                 <strong>{g.name}</strong>
-                <button onClick={() => { if (window.confirm(`"${g.name}" লক্ষ্য মুছবেন?`)) setGoals((x) => x.filter((y) => y.id !== g.id)); }} aria-label={`${g.name} লক্ষ্য মুছুন`} className="p-0.5 text-slate-400 hover:text-red-600"><Trash2 size={12} /></button>
+                <button onClick={() => { if (window.confirm(`"${g.name}" লক্ষ্য মুছবেন?`)) setGoals((x) => x.filter((y) => y.id !== g.id)); }} aria-label={`${g.name} লক্ষ্য মুছুন`} className="p-0.5 text-slate-500 hover:text-red-600 min-h-[44px] min-w-[44px]"><Trash2 size={12} /></button>
               </div>
               <p className="text-[12px] text-slate-600">{tk(p.savedPoisha)} / {tk(g.targetPoisha)} ({p.pct}%)</p>
               <div className="mt-1 h-2 overflow-hidden rounded-full bg-slate-100" role="progressbar" aria-valuenow={p.pct} aria-valuemin={0} aria-valuemax={100} aria-label={`${g.name} লক্ষ্যের অগ্রগতি`}>
                 <div className="h-full rounded-full bg-sky-500" style={{ width: `${p.pct}%` }} />
               </div>
-              <p className="mt-1 text-[11px] text-slate-500" data-testid="goal-plan">
+              <p className="mt-1 text-[12px] text-slate-500" data-testid="goal-plan">
                 {p.reached ? "🎉 লক্ষ্য পূরণ হয়েছে!" : p.daysLeft === null ? `বাকি ${tk(p.remainingPoisha)} · তারিখ দেননি` : p.daysLeft < 0 ? `তারিখ পেরিয়ে গেছে · বাকি ${tk(p.remainingPoisha)}` : `বাকি ${tk(p.remainingPoisha)} · ${p.daysLeft} দিন · মাসে প্রায় ${tk(p.perMonthNeededPoisha ?? 0)} জমাতে হবে`}
               </p>
               <div className="mt-2 flex gap-1">
-                <input inputMode="decimal" aria-label={`${g.name}-এ জমার পরিমাণ`} value={add[g.id] ?? ""} onChange={(e) => setAdd((a) => ({ ...a, [g.id]: e.target.value }))} placeholder="৳" className="w-20 min-w-0 flex-1 rounded border border-slate-200 px-2 py-1 text-[12px]" />
-                <button onClick={() => contribute(g, 1)} className="rounded bg-emerald-600 px-2 py-1 text-[11px] font-bold text-white">জমা</button>
-                <button onClick={() => contribute(g, -1)} className="rounded border border-slate-200 px-2 py-1 text-[11px] font-bold">তোলা</button>
+                <input inputMode="decimal" aria-label={`${g.name}-এ জমার পরিমাণ`} value={add[g.id] ?? ""} onChange={(e) => setAdd((a) => ({ ...a, [g.id]: e.target.value }))} placeholder="৳" className="w-20 min-w-0 flex-1 rounded border border-slate-200 px-2 py-1 text-[12px] min-h-[44px]" />
+                <button onClick={() => contribute(g, 1)} className="rounded bg-emerald-600 px-2 py-1 text-[12px] font-bold text-white min-h-[44px] min-w-[44px]">জমা</button>
+                <button onClick={() => contribute(g, -1)} className="rounded border border-slate-200 px-2 py-1 text-[12px] font-bold min-h-[44px] min-w-[44px]">তোলা</button>
               </div>
             </li>
           );
         })}
       </ul>
-      {goals.length > 0 && <p className="text-[10px] text-slate-400">লক্ষ্যের জমা আলাদা হিসাব; এটি আপনার লেনদেনের খাতায় নিজে থেকে কিছু যোগ করে না।</p>}
+      {goals.length > 0 && <p className="text-[12px] text-slate-500">লক্ষ্যের জমা আলাদা হিসাব; এটি আপনার লেনদেনের খাতায় নিজে থেকে কিছু যোগ করে না।</p>}
     </section>
   );
 }
@@ -1200,13 +1204,13 @@ function SpendingDonutChart({ summary }: { summary: MonthSummary }) {
             <>
               <span className="text-[12px] font-bold text-slate-600">{categoryById(activeCategory.id).bn}</span>
               <span className="text-[16px] font-extrabold text-slate-900">{tk(activeCategory.poisha)}</span>
-              <span className="text-[11px] font-semibold text-emerald-600">{activeCategory.pct}%</span>
+              <span className="text-[12px] font-semibold text-emerald-600">{activeCategory.pct}%</span>
             </>
           ) : (
             <>
-              <span className="text-[11px] font-medium text-slate-500">মোট খরচ</span>
+              <span className="text-[12px] font-medium text-slate-500">মোট খরচ</span>
               <strong className="text-[17px] font-extrabold text-slate-900">{tk(total)}</strong>
-              <span className="text-[11px] text-slate-400">{summary.count}টি লেনদেন</span>
+              <span className="text-[12px] text-slate-500">{summary.count}টি লেনদেন</span>
             </>
           )}
         </div>
@@ -1246,7 +1250,7 @@ function SpendingDonutChart({ summary }: { summary: MonthSummary }) {
               </div>
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-slate-800">{tk(c.poisha)}</span>
-                <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[11px] text-slate-500 font-mono">
+                <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[12px] text-slate-500 font-mono">
                   {c.pct}%
                 </span>
               </div>
@@ -1271,14 +1275,14 @@ function MfsFeeCalculatorPanel() {
         বিকাশ, নগদ ও রকেট থেকে টাকা তোলার চার্জ হিসাব করুন। প্রতিষ্ঠানের নিজের পাতায় মিলিয়ে দেখা হারের পাশে উৎস দেওয়া আছে; বাকিগুলো যাচাই হয়নি, তাই ওয়ালেট অংশে নিজের হার বসিয়ে নিন।
       </p>
       <div>
-        <label className="text-[11px] font-bold text-slate-600">
+        <label className="text-[12px] font-bold text-slate-600">
           উত্তোলনের পরিমাণ (৳)
           <input
             type="number"
             min={0}
             value={calcAmount}
             onChange={(e) => setCalcAmount(Math.max(0, Number(e.target.value) || 0))}
-            className="mt-1 block w-full rounded-lg border border-slate-200 px-3 py-1.5 text-[14px] font-bold font-mono"
+            className="mt-1 block w-full rounded-lg border border-slate-200 px-3 py-1.5 text-[14px] font-bold font-mono min-h-[44px]"
           />
         </label>
       </div>
@@ -1290,11 +1294,11 @@ function MfsFeeCalculatorPanel() {
             <div key={p} className="flex items-center justify-between rounded-lg bg-slate-50 p-2 text-[12px]">
               <div>
                 <span className="font-semibold text-slate-800">{config.nameBn}</span>
-                {config.source ? <a href={config.source.url} target="_blank" rel="noopener noreferrer" className="block text-[10.5px] font-semibold text-emerald-700 underline">উৎস: {config.source.label} · {config.source.checked}</a> : <span className="block text-[10.5px] font-semibold text-amber-700">যাচাই হয়নি — নিজের হার দিয়ে মিলিয়ে নিন</span>}
+                {config.source ? <a href={config.source.url} target="_blank" rel="noopener noreferrer" className="block text-[12px] font-semibold text-emerald-700 underline min-h-[44px] min-w-[44px]">উৎস: {config.source.label} · {config.source.checked}</a> : <span className="block text-[12px] font-semibold text-amber-700">যাচাই হয়নি — নিজের হার দিয়ে মিলিয়ে নিন</span>}
               </div>
               <div className="text-right">
                 <span className="font-bold text-slate-900 font-mono">চার্জ: ৳{(res.feePoisha / 100).toFixed(2)}</span>
-                <span className="block text-[10px] text-slate-500 font-mono">মোট: ৳{(res.totalWithFeePoisha / 100).toFixed(2)}</span>
+                <span className="block text-[12px] text-slate-500 font-mono">মোট: ৳{(res.totalWithFeePoisha / 100).toFixed(2)}</span>
               </div>
             </div>
           );
@@ -1339,12 +1343,12 @@ function CashFlowDeficitAndBakiPanel() {
           <PiggyBank size={18} className="text-emerald-700" />
           <span>ক্যাশ ঘাটতি অ্যালার্ট ও বাকি কিস্তি (LaMP Track)</span>
         </h2>
-        <div className="flex items-center rounded-lg bg-slate-100 p-0.5 text-[11px] font-bold">
+        <div className="flex items-center rounded-lg bg-slate-100 p-0.5 text-[12px] font-bold">
           <button
             onClick={() => setSubTab("cashflow")}
             className={`px-2.5 py-1 rounded-md transition-all ${
               subTab === "cashflow" ? "bg-white text-emerald-800 shadow-xs" : "text-slate-600"
-            }`}
+            } min-h-[44px] min-w-[44px]`}
           >
             ক্যাশফ্লো
           </button>
@@ -1352,7 +1356,7 @@ function CashFlowDeficitAndBakiPanel() {
             onClick={() => setSubTab("baki")}
             className={`px-2.5 py-1 rounded-md transition-all ${
               subTab === "baki" ? "bg-white text-emerald-800 shadow-xs" : "text-slate-600"
-            }`}
+            } min-h-[44px] min-w-[44px]`}
           >
             বাকি কিস্তি
           </button>
@@ -1363,7 +1367,7 @@ function CashFlowDeficitAndBakiPanel() {
         <div className="space-y-3.5 text-[12.5px]">
           {/* Initial Balance */}
           <div>
-            <label htmlFor="cash-start" className="block text-[11.5px] font-bold text-slate-700 mb-1">
+            <label htmlFor="cash-start" className="block text-[12px] font-bold text-slate-700 mb-1">
               বর্তমান ক্যাশ বা ক্যাশবাক্সের উদ্বৃত্ত (৳):
             </label>
             <input
@@ -1371,7 +1375,7 @@ function CashFlowDeficitAndBakiPanel() {
               type="number"
               value={startCashTaka}
               onChange={(e) => setStartCashTaka(Math.max(0, Number(e.target.value) || 0))}
-              className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-[13px] font-bold font-mono"
+              className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-[13px] font-bold font-mono min-h-[44px]"
             />
           </div>
 
@@ -1393,18 +1397,18 @@ function CashFlowDeficitAndBakiPanel() {
                   ? "⚡ নগদ অর্থের ঝুঁকি (Vulnerable Cashflow)"
                   : "✅ নিরাপদ ক্যাশফ্লো (Solvent Cashflow)"}
               </span>
-              <span className="text-[11px] font-mono font-bold uppercase">
+              <span className="text-[12px] font-mono font-bold uppercase">
                 {simulation.healthLevel}
               </span>
             </div>
 
             {simulation.deficitDay !== null ? (
-              <p className="mt-1 text-[11.5px] leading-relaxed">
+              <p className="mt-1 text-[12px] leading-relaxed">
                 আগামী <strong>{simulation.deficitDay} নম্বর দিনে</strong> আপনার ক্যাশ ব্যালেন্স ঋণাত্মক হয়ে যাবে (সর্বনিম্ন ব্যালেন্স:{" "}
                 <span className="font-mono font-bold text-rose-700">{fmtTk(simulation.lowestBalancePoisha)}</span>)। সাপ্লায়ারের বিল পরিশোধের আগেই বাকির কিস্তি আদায় করুন।
               </p>
             ) : (
-              <p className="mt-1 text-[11.5px] leading-relaxed">
+              <p className="mt-1 text-[12px] leading-relaxed">
                 পরবর্তী ৩০ দিনে কোনো ঘাটতি নেই। সর্বনিম্ন ক্যাশ থাকবে {simulation.lowestBalanceDay} নম্বর দিনে ({fmtTk(simulation.lowestBalancePoisha)})।
               </p>
             )}
@@ -1412,10 +1416,10 @@ function CashFlowDeficitAndBakiPanel() {
 
           {/* Scheduled Events Mini List */}
           <div className="space-y-1.5">
-            <span className="block text-[11px] font-bold text-slate-600">আসন্ন ৩০ দিনের আয়-ব্যয়ের ধাপ:</span>
+            <span className="block text-[12px] font-bold text-slate-600">আসন্ন ৩০ দিনের আয়-ব্যয়ের ধাপ:</span>
             <div className="max-h-36 overflow-y-auto space-y-1 rounded-lg border border-slate-100 p-1.5 bg-slate-50">
               {flows.map((f) => (
-                <div key={f.id} className="flex items-center justify-between text-[11.5px] bg-white p-1.5 rounded border border-slate-100">
+                <div key={f.id} className="flex items-center justify-between text-[12px] bg-white p-1.5 rounded border border-slate-100">
                   <span className="font-medium text-slate-800">
                     দিন {f.dayOfMonth}: {f.label}
                   </span>
@@ -1432,17 +1436,17 @@ function CashFlowDeficitAndBakiPanel() {
         <div className="space-y-3.5 text-[12.5px]">
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label htmlFor="baki-total" className="block text-[11px] font-bold text-slate-700 mb-1">মোট বাকি (৳)</label>
+              <label htmlFor="baki-total" className="block text-[12px] font-bold text-slate-700 mb-1">মোট বাকি (৳)</label>
               <input
                 id="baki-total"
                 type="number"
                 value={debtTaka}
                 onChange={(e) => setDebtTaka(Math.max(0, Number(e.target.value) || 0))}
-                className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-[12.5px] font-mono font-bold"
+                className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-[12.5px] font-mono font-bold min-h-[44px]"
               />
             </div>
             <div>
-              <label htmlFor="baki-weeks" className="block text-[11px] font-bold text-slate-700 mb-1">কিস্তির সংখ্যা (সপ্তাহ)</label>
+              <label htmlFor="baki-weeks" className="block text-[12px] font-bold text-slate-700 mb-1">কিস্তির সংখ্যা (সপ্তাহ)</label>
               <input
                 id="baki-weeks"
                 type="number"
@@ -1450,28 +1454,28 @@ function CashFlowDeficitAndBakiPanel() {
                 max={52}
                 value={weeks}
                 onChange={(e) => setWeeks(Math.max(1, Math.min(52, Number(e.target.value) || 1)))}
-                className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-[12.5px] font-mono font-bold"
+                className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-[12.5px] font-mono font-bold min-h-[44px]"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="block text-[11px] font-bold text-slate-700 mb-1">গ্রাহকের নাম</label>
+              <label className="block text-[12px] font-bold text-slate-700 mb-1">গ্রাহকের নাম</label>
               <input
                 type="text"
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
-                className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-[12.5px]"
+                className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-[12.5px] min-h-[44px]"
               />
             </div>
             <div>
-              <label className="block text-[11px] font-bold text-slate-700 mb-1">দোকানের নাম</label>
+              <label className="block text-[12px] font-bold text-slate-700 mb-1">দোকানের নাম</label>
               <input
                 type="text"
                 value={merchantName}
                 onChange={(e) => setMerchantName(e.target.value)}
-                className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-[12.5px]"
+                className="w-full rounded-lg border border-slate-200 px-2.5 py-1 text-[12.5px] min-h-[44px]"
               />
             </div>
           </div>
@@ -1483,7 +1487,7 @@ function CashFlowDeficitAndBakiPanel() {
                 {fmtTk(bakiPlan.weeklyInstallmentPoisha)}
               </span>
             </div>
-            <div className="flex items-center justify-between text-[11px] text-emerald-800">
+            <div className="flex items-center justify-between text-[12px] text-emerald-800">
               <span>মোট সময়সীমা: {bakiPlan.weeks} সপ্তাহ</span>
               <span>সর্বশেষ কিস্তি: {fmtTk(bakiPlan.finalInstallmentPoisha)}</span>
             </div>
@@ -1492,7 +1496,7 @@ function CashFlowDeficitAndBakiPanel() {
           {/* SMS Reminder Template */}
           <div className="rounded-xl border border-slate-200 bg-slate-50 p-2.5 space-y-1.5">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-slate-700">এসএমএস রিমাইন্ডার মেসেজ:</span>
+              <span className="text-[12px] font-bold text-slate-700">এসএমএস রিমাইন্ডার মেসেজ:</span>
               <button
                 onClick={() => {
                   playClick();
@@ -1500,13 +1504,13 @@ function CashFlowDeficitAndBakiPanel() {
                   setSmsCopied(true);
                   setTimeout(() => setSmsCopied(false), 2000);
                 }}
-                className="inline-flex items-center gap-1 rounded bg-slate-800 px-2 py-0.5 text-[10.5px] font-bold text-white hover:bg-slate-700 transition-colors"
+                className="inline-flex items-center gap-1 rounded bg-slate-800 px-2 py-0.5 text-[12px] font-bold text-white hover:bg-slate-700 transition-colors min-h-[44px] min-w-[44px]"
               >
                 <Copy size={11} />
                 <span>{smsCopied ? "কপি হয়েছে!" : "কপি"}</span>
               </button>
             </div>
-            <p className="text-[11px] text-slate-600 leading-relaxed font-mono">
+            <p className="text-[12px] text-slate-600 leading-relaxed font-mono">
               {bakiPlan.smsReminderTemplateBn}
             </p>
           </div>

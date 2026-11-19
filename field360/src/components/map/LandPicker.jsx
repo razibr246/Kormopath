@@ -191,9 +191,9 @@ export default function LandPicker({ height = 420, onDone, compact = false, parc
               ) : <div className="font-display mt-0.5 text-[20px] font-bold leading-tight text-red-700">{T(`${upazila.name.bn} উপজেলার বাইরে`, `Outside ${upazila.name.en}`)}</div>}
               <div className="mt-1 text-[12.5px] text-muted tabular">{num(pos.lat, 'en', { dp: 5 })}, {num(pos.lon, 'en', { dp: 5 })}</div>
             </div>
-            {dirty ? <span className="chip bg-amber-50 text-amber-800 ring-1 ring-amber-200">{T('সংরক্ষণ বাকি', 'Not saved')}</span>
-              : savedOk ? <span className="chip bg-primary-50 text-primary-800 ring-1 ring-primary-200"><CheckCircle2 size={13} />{target?.source === 'office' ? T('অফিসে নিবন্ধিত', 'Registered') : T('নিশ্চিত', 'Saved')}</span>
-                : target?.pending ? <span className="chip bg-amber-50 text-amber-800 ring-1 ring-amber-200">{T('অফিসের যাচাই বাকি', 'Office check pending')}</span> : null}
+            {dirty ? <span className="chip !text-[12px] bg-amber-50 text-amber-800 ring-1 ring-amber-200">{T('সংরক্ষণ বাকি', 'Not saved')}</span>
+              : savedOk ? <span className="chip !text-[12px] bg-primary-50 text-primary-800 ring-1 ring-primary-200"><CheckCircle2 size={13} />{target?.source === 'office' ? T('অফিসে নিবন্ধিত', 'Registered') : T('নিশ্চিত', 'Saved')}</span>
+                : target?.pending ? <span className="chip !text-[12px] bg-amber-50 text-amber-800 ring-1 ring-amber-200">{T('অফিসের যাচাই বাকি', 'Office check pending')}</span> : null}
           </div>
           {inside && soil && (
             <div className="mt-3 rounded-xl bg-clay-50 p-3 text-[13.5px] leading-6 text-clay-700">

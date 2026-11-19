@@ -139,7 +139,7 @@ export function HaatLiveMap({
               <h2 id="map-heading" className="font-display text-[19px] font-bold tracking-tight text-ink sm:text-[22px]">
                 লাইভ হাট-মোকাম ও ট্রাক ট্র্যাকিং মানচিত্র
               </h2>
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-bold text-emerald-900">
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-[12px] font-bold text-emerald-900">
                 <span className="h-2 w-2 animate-ping rounded-full bg-emerald-600" />
                 সরাসরি ট্র্যাকিং
               </span>
@@ -159,7 +159,7 @@ export function HaatLiveMap({
               aria-pressed={viewMode === "map"}
               className={`rounded-lg px-3 py-1.5 text-[12px] font-bold transition-colors ${
                 viewMode === "map" ? "bg-white text-ink shadow-xs" : "text-muted hover:text-ink"
-              }`}
+              } min-h-[44px] min-w-[44px]`}
             >
               মানচিত্র ভিউ
             </button>
@@ -169,7 +169,7 @@ export function HaatLiveMap({
               aria-pressed={viewMode === "list"}
               className={`rounded-lg px-3 py-1.5 text-[12px] font-bold transition-colors ${
                 viewMode === "list" ? "bg-white text-ink shadow-xs" : "text-muted hover:text-ink"
-              }`}
+              } min-h-[44px] min-w-[44px]`}
             >
               ট্রিপ তালিকা ({INITIAL_LIVE_TRIPS.length})
             </button>
@@ -179,7 +179,7 @@ export function HaatLiveMap({
             type="button"
             onClick={() => setExpanded(!expanded)}
             aria-label={expanded ? "ম্যাপ ছোট করুন" : "ম্যাপ বড় করুন"}
-            className="hidden sm:inline-flex h-9 w-9 items-center justify-center rounded-xl border border-line bg-white text-slate-700 hover:bg-stone-50"
+            className="hidden sm:inline-flex h-11 w-11 items-center justify-center rounded-xl border border-line bg-white text-slate-700 hover:bg-stone-50"
             title={expanded ? "ম্যাপ ছোট করুন" : "পূর্ণস্ক্রিন দেখুন"}
           >
             {expanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
@@ -197,7 +197,7 @@ export function HaatLiveMap({
               activeLayer === "all"
                 ? "bg-stone-900 text-white shadow-xs"
                 : "border border-line bg-white text-stone-700 hover:bg-stone-50"
-            }`}
+            } min-h-[44px] min-w-[44px]`}
           >
             সব রুট ও মোকাম ({MANDI_HUBS.length})
           </button>
@@ -208,7 +208,7 @@ export function HaatLiveMap({
               activeLayer === "fleet"
                 ? "bg-emerald-800 text-white shadow-xs"
                 : "border border-line bg-white text-stone-700 hover:bg-stone-50"
-            }`}
+            } min-h-[44px] min-w-[44px]`}
           >
             চলন্ত ট্রাকবহর ({INITIAL_LIVE_TRIPS.length})
           </button>
@@ -219,7 +219,7 @@ export function HaatLiveMap({
               activeLayer === "hubs"
                 ? "bg-amber-700 text-white shadow-xs"
                 : "border border-line bg-white text-stone-700 hover:bg-stone-50"
-            }`}
+            } min-h-[44px] min-w-[44px]`}
           >
             পাইকারি আড়ত ও হাট
           </button>
@@ -230,7 +230,7 @@ export function HaatLiveMap({
           <button
             type="button"
             onClick={() => setIsSimulating(!isSimulating)}
-            className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-900 hover:text-emerald-950"
+            className="inline-flex items-center gap-1 text-[12px] font-bold text-emerald-900 hover:text-emerald-950 min-h-[44px] min-w-[44px]"
           >
             {isSimulating ? <Pause size={13} aria-hidden /> : <Play size={13} aria-hidden />}
             {isSimulating ? "পজ" : "চালান"}
@@ -239,13 +239,13 @@ export function HaatLiveMap({
           <button
             type="button"
             onClick={() => setSimProgress(5)}
-            className="inline-flex items-center gap-1 text-[11px] font-semibold text-stone-600 hover:text-stone-900"
+            className="inline-flex items-center gap-1 text-[12px] font-semibold text-stone-600 hover:text-stone-900 min-h-[44px] min-w-[44px]"
             title="যাত্রার শুরুতে নিন"
           >
             <RotateCcw size={12} aria-hidden />
             রিসেট
           </button>
-          <span className="font-mono text-[11px] font-bold text-stone-700">{simProgress}%</span>
+          <span className="font-mono text-[12px] font-bold text-stone-700">{simProgress}%</span>
         </div>
       </div>
 
@@ -254,7 +254,7 @@ export function HaatLiveMap({
           {/* Main Vector Map Display */}
           <div className="relative flex flex-col items-center justify-center rounded-2xl border border-line bg-gradient-to-b from-[#f9faf7] to-[#eef4ea]/80 p-2 sm:p-4 shadow-inner">
             {/* Quick badge overlays */}
-            <div className="absolute left-4 top-4 z-10 flex flex-col gap-1.5 text-[11px]">
+            <div className="absolute left-4 top-4 z-10 flex flex-col gap-1.5 text-[12px]">
               <span className="inline-flex items-center gap-1 rounded-md bg-white/90 px-2 py-0.5 font-bold text-stone-800 shadow-2xs backdrop-blur-xs">
                 <span className="h-2 w-2 rounded-full bg-emerald-600" /> N5, N8, N1 কৃষি করিডোর
               </span>
@@ -349,9 +349,9 @@ export function HaatLiveMap({
                 />
 
                 {/* River Labels */}
-                <text x="185" y="160" fill="#4b8aa6" fontSize="10" fontStyle="italic" opacity="0.8">যমুনা নদী</text>
-                <text x="150" y="275" fill="#4b8aa6" fontSize="10" fontStyle="italic" opacity="0.8">পদ্মা নদী</text>
-                <text x="325" y="440" fill="#4b8aa6" fontSize="10" fontStyle="italic" opacity="0.8">মেঘনা নদী</text>
+                <text x="185" y="160" fill="#2d6f82" fontSize="12" fontStyle="italic">যমুনা নদী</text>
+                <text x="150" y="275" fill="#2d6f82" fontSize="12" fontStyle="italic">পদ্মা নদী</text>
+                <text x="325" y="440" fill="#2d6f82" fontSize="12" fontStyle="italic">মেঘনা নদী</text>
                 <text x="245" y="580" fill="#2d6f82" fontSize="12" fontWeight="bold" opacity="0.65">বঙ্গোপসাগর</text>
 
                 {/* National Transit Corridors (Highways) */}
@@ -392,7 +392,7 @@ export function HaatLiveMap({
                     <g transform={`translate(${pt.x - 7}, ${pt.y - 7})`}>
                       <title>বঙ্গবন্ধু যমুনা সেতু টোলপ্লাজা</title>
                       <rect width="14" height="14" rx="3" fill="#ea580c" />
-                      <text x="7" y="10" textAnchor="middle" fill="#fff" fontSize="8" fontWeight="bold">ট</text>
+                      <text x="7" y="10" textAnchor="middle" fill="#fff" fontSize="8" fontWeight="bold" aria-hidden="true">ট</text>
                     </g>
                   );
                 })()}
@@ -404,7 +404,7 @@ export function HaatLiveMap({
                     <g transform={`translate(${pt.x - 7}, ${pt.y - 7})`}>
                       <title>পদ্মা সেতু টোলপ্লাজা</title>
                       <rect width="14" height="14" rx="3" fill="#ea580c" />
-                      <text x="7" y="10" textAnchor="middle" fill="#fff" fontSize="8" fontWeight="bold">ট</text>
+                      <text x="7" y="10" textAnchor="middle" fill="#fff" fontSize="8" fontWeight="bold" aria-hidden="true">ট</text>
                     </g>
                   );
                 })()}
@@ -454,7 +454,7 @@ export function HaatLiveMap({
                         <text
                           y={isSelected ? "-11" : "-8"}
                           textAnchor="middle"
-                          fontSize={isSelected ? "11" : "9.5"}
+                          fontSize={isSelected ? "13" : "12"}
                           fontWeight={isSelected ? "bold" : "600"}
                           fill="#1c1917"
                           className="pointer-events-none drop-shadow-[0_1px_2px_rgba(255,255,255,0.9)]"
@@ -498,7 +498,7 @@ export function HaatLiveMap({
                         x="6"
                         y="13"
                         fill="#ffffff"
-                        fontSize="9"
+                        fontSize="12"
                         fontWeight="bold"
                       >
                         {selectedTrip.cropBn.split(" ")[0]} · {simProgress}%
@@ -511,7 +511,7 @@ export function HaatLiveMap({
 
             {/* Scrubber / Simulator Slider */}
             <div className="mt-2 w-full max-w-[420px] rounded-xl border border-line bg-white/90 p-2.5 shadow-2xs backdrop-blur-xs">
-              <div className="flex items-center justify-between text-[11px] font-bold text-stone-700">
+              <div className="flex items-center justify-between text-[12px] font-bold text-stone-700">
                 <span className="flex items-center gap-1">
                   <Truck size={13} className="text-emerald-700" aria-hidden />
                   {activeCorridor.nameBn}
@@ -529,10 +529,10 @@ export function HaatLiveMap({
                   setIsSimulating(false);
                   setSimProgress(Number(e.target.value));
                 }}
-                className="mt-1 h-2 w-full cursor-pointer accent-green-800"
+                className="mt-1 h-2 w-full cursor-pointer accent-green-800 min-h-[44px]"
                 aria-label="ট্রাক চলাচলের অগ্রগতি স্লাইডার"
               />
-              <div className="flex justify-between text-[10px] text-stone-500">
+              <div className="flex justify-between text-[12px] text-stone-500">
                 <span>যাত্রা শুরু ({activeCorridor.waypoints[0].nameBn.split(" ")[0]})</span>
                 <span>গন্তব্য ({activeCorridor.waypoints[activeCorridor.waypoints.length - 1].nameBn.split(" ")[0]})</span>
               </div>
@@ -548,33 +548,33 @@ export function HaatLiveMap({
                   <Truck size={17} className="text-emerald-700" aria-hidden />
                   {selectedTrip.truckNo}
                 </span>
-                <span className="rounded-full bg-emerald-200/80 px-2.5 py-0.5 font-mono text-[11px] font-bold text-emerald-900">
+                <span className="rounded-full bg-emerald-200/80 px-2.5 py-0.5 font-mono text-[12px] font-bold text-emerald-900">
                   গতি: {selectedTrip.speedKmh} কিমি/ঘণ্টা
                 </span>
               </div>
 
               <div className="mt-3 grid grid-cols-2 gap-2 text-[12.5px]">
                 <div>
-                  <span className="text-[11px] text-stone-500">বোঝাই মাল:</span>
+                  <span className="text-[12px] text-stone-500">বোঝাই মাল:</span>
                   <strong className="block font-semibold text-stone-900">{selectedTrip.cropBn}</strong>
                 </div>
                 <div>
-                  <span className="text-[11px] text-stone-500">বর্তমান অবস্থান:</span>
+                  <span className="text-[12px] text-stone-500">বর্তমান অবস্থান:</span>
                   <strong className="block font-semibold text-emerald-900">{animatedTruckPos.currentWaypointBn}</strong>
                 </div>
                 <div>
-                  <span className="text-[11px] text-stone-500">উৎপত্তিস্থল:</span>
+                  <span className="text-[12px] text-stone-500">উৎপত্তিস্থল:</span>
                   <span className="block text-stone-800">{selectedTrip.originBn}</span>
                 </div>
                 <div>
-                  <span className="text-[11px] text-stone-500">গন্তব্য মোকাম:</span>
+                  <span className="text-[12px] text-stone-500">গন্তব্য মোকাম:</span>
                   <span className="block text-stone-800">{selectedTrip.destinationBn}</span>
                 </div>
               </div>
 
               {/* Progress bar */}
               <div className="mt-3 space-y-1">
-                <div className="flex justify-between text-[11.5px] font-bold">
+                <div className="flex justify-between text-[12px] font-bold">
                   <span className="text-stone-700">যাত্রাপথের অগ্রগতি</span>
                   <span className="font-mono text-emerald-800">{simProgress}% সম্পূর্ণ</span>
                 </div>
@@ -606,7 +606,7 @@ export function HaatLiveMap({
             <div className="rounded-2xl border border-line bg-white p-4 shadow-2xs">
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <span className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-muted">
+                  <span className="inline-flex items-center gap-1 text-[12px] font-bold uppercase tracking-wider text-muted">
                     <Store size={13} aria-hidden /> {selectedHub.type === "mokam" ? "পাইকারি মোকাম" : "গ্রামীণ হাট"}
                   </span>
                   <h3 className="font-display text-[17px] font-bold text-ink">{selectedHub.nameBn}</h3>
@@ -614,7 +614,7 @@ export function HaatLiveMap({
                     {selectedHub.districtBn} জেলা · {selectedHub.divisionBn} বিভাগ
                   </span>
                 </div>
-                <span className={`rounded-xl px-2.5 py-1 text-[11px] font-bold ${
+                <span className={`rounded-xl px-2.5 py-1 text-[12px] font-bold ${
                   selectedHub.type === "mokam" ? "bg-amber-100 text-amber-900" : "bg-green-100 text-green-900"
                 }`}>
                   {selectedHub.type === "mokam" ? "পাইকারি আড়ত" : "কৃষক হাট"}
@@ -626,12 +626,12 @@ export function HaatLiveMap({
               </p>
 
               <div className="mt-3">
-                <span className="text-[11px] font-bold text-stone-600">প্রধান কেনাবেচা হওয়া ফসল:</span>
+                <span className="text-[12px] font-bold text-stone-600">প্রধান কেনাবেচা হওয়া ফসল:</span>
                 <div className="mt-1 flex flex-wrap gap-1.5">
                   {selectedHub.primaryCropsBn.map((crop) => (
                     <span
                       key={crop}
-                      className="rounded-lg bg-stone-100 px-2 py-0.5 text-[11px] font-medium text-stone-800"
+                      className="rounded-lg bg-stone-100 px-2 py-0.5 text-[12px] font-medium text-stone-800"
                     >
                       {crop}
                     </span>
@@ -646,7 +646,7 @@ export function HaatLiveMap({
                   onClick={() => {
                     onSelectHub?.(selectedHub);
                   }}
-                  className="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl bg-stone-900 px-3.5 text-[12.5px] font-bold text-white hover:bg-stone-800"
+                  className="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl bg-stone-900 px-3.5 text-[12.5px] font-bold text-white hover:bg-stone-800 min-h-[44px] min-w-[44px]"
                 >
                   <Navigation size={14} aria-hidden />
                   এই হাটের দূরত্ব দিয়ে হিসাব করুন
@@ -668,15 +668,15 @@ export function HaatLiveMap({
                         setSelectedTripId(trip.id);
                         setSimProgress(trip.progressPct);
                       }}
-                      className={`flex flex-col rounded-xl border p-2 text-left text-[11.5px] transition-all ${
+                      className={`flex flex-col rounded-xl border p-2 text-left text-[12px] transition-all ${
                         on
                           ? "border-emerald-600 bg-emerald-50/70 font-semibold text-emerald-950 shadow-2xs"
                           : "border-line bg-white hover:bg-stone-50"
-                      }`}
+                      } min-h-[44px] min-w-[44px]`}
                     >
                       <span className="font-bold">{trip.truckNo}</span>
                       <span className="text-stone-600 truncate">{trip.cropBn}</span>
-                      <span className="font-mono text-[10.5px] text-emerald-800">{trip.progressPct}% সম্পন্ন</span>
+                      <span className="font-mono text-[12px] text-emerald-800">{trip.progressPct}% সম্পন্ন</span>
                     </button>
                   );
                 })}
@@ -689,7 +689,7 @@ export function HaatLiveMap({
         <div className="space-y-3">
           <div className="overflow-x-auto rounded-2xl border border-line">
             <table className="w-full text-left text-[13px]">
-              <thead className="bg-stone-100 text-[11.5px] font-bold text-stone-600">
+              <thead className="bg-stone-100 text-[12px] font-bold text-stone-600">
                 <tr>
                   <th className="px-3.5 py-2.5">ট্রাক নম্বর</th>
                   <th className="px-3 py-2.5">ফসল ও পরিমাণ</th>
@@ -716,7 +716,7 @@ export function HaatLiveMap({
                             style={{ width: `${trip.progressPct}%` }}
                           />
                         </div>
-                        <span className="font-mono text-[11px] font-bold">{trip.progressPct}%</span>
+                        <span className="font-mono text-[12px] font-bold">{trip.progressPct}%</span>
                       </div>
                     </td>
                     <td className="px-3 py-3 text-right font-mono font-bold">{trip.speedKmh} কিমি/ঘণ্টা</td>
@@ -725,7 +725,7 @@ export function HaatLiveMap({
               </tbody>
             </table>
           </div>
-          <p className="text-[11.5px] text-stone-500">
+          <p className="text-[12px] text-stone-500">
             * ট্র্যাকিং ডেটা সাধারণ মডেল ও জাতীয় মহাসড়ক (N5, N8, N1, N2) করিডোরের গতির ওপর ভিত্তি করে ডেমো সিমুলেশন।
           </p>
         </div>

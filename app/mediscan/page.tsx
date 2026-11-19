@@ -129,7 +129,7 @@ export default function MediScanPage() {
         <FeverWatch />
 
         {/* Doctors and consultation moved to /mediscan/doctors (demo profiles until a doctor is verified). */}
-        <Link href="/mediscan/doctors" className="group flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-sky-200 bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md" data-testid="mediscan-doctors-link">
+        <Link href="/mediscan/doctors" className="group flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-sky-200 bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md min-h-[44px] min-w-[44px]" data-testid="mediscan-doctors-link">
           <span className="flex items-center gap-3">
             <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-sky-100 text-sky-800"><CalendarDays size={21} aria-hidden /></span>
             <span>
@@ -147,7 +147,7 @@ export default function MediScanPage() {
               {redFlags.map((f) => <li key={f.id}>• {f.messageBn} <span className="text-red-700/80">(“{f.matched}”)</span></li>)}
             </ul>
             <div className="mt-3 flex flex-wrap gap-2">
-              <a href="tel:999" className="inline-flex items-center gap-1.5 rounded-xl bg-red-600 px-4 py-2.5 text-[15px] font-bold text-white"><Phone size={16} aria-hidden /> 999-এ কল করুন</a>
+              <a href="tel:999" className="inline-flex items-center gap-1.5 rounded-xl bg-red-600 px-4 py-2.5 text-[15px] font-bold text-white min-h-[44px] min-w-[44px]"><Phone size={16} aria-hidden /> 999-এ কল করুন</a>
               <span className="self-center text-[13px] text-red-900">অথবা নিকটস্থ হাসপাতালের জরুরি বিভাগে যান। এই অ্যাপের উত্তরের জন্য অপেক্ষা করবেন না।</span>
             </div>
           </section>
@@ -170,7 +170,7 @@ export default function MediScanPage() {
                       setPreviewType(null);
                       setPreviewFileName(null);
                     }}
-                    className="rounded px-2 py-0.5 text-[11px] font-semibold text-red-600 hover:bg-red-50 hover:underline"
+                    className="rounded px-2 py-0.5 text-[12px] font-semibold text-red-600 hover:bg-red-50 hover:underline min-h-[44px] min-w-[44px]"
                   >
                     প্রিভিউ বন্ধ করুন
                   </button>
@@ -178,7 +178,7 @@ export default function MediScanPage() {
                 <div className="grid gap-3 sm:grid-cols-2">
                   {/* Left: Original document thumbnail */}
                   <div className="space-y-1.5">
-                    <span className="block text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    <span className="block text-[12px] font-bold uppercase tracking-wider text-slate-500">
                       মূল প্রেসক্রিপশন {previewFileName ? `(${previewFileName})` : ""}
                     </span>
                     <div className="relative aspect-[3/4] max-h-72 w-full overflow-hidden rounded-lg border border-slate-200 bg-white shadow-inner">
@@ -192,14 +192,14 @@ export default function MediScanPage() {
                         />
                       )}
                     </div>
-                    <p className="text-[10px] text-slate-500">
+                    <p className="text-[12px] text-slate-500">
                       ছবিটি শুধুমাত্র এই ট্যাবের মেমোরিতে আছে (ইন-মেমোরি প্রাইভেসি); কোনো ডেটাবেস বা লোকাল স্টোরেজে সংরক্ষণ করা হয় না।
                     </p>
                   </div>
 
                   {/* Right: Editable transcription text */}
                   <div className="space-y-1.5">
-                    <label htmlFor="rx" className="block text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    <label htmlFor="rx" className="block text-[12px] font-bold uppercase tracking-wider text-slate-500">
                       স্বয়ংক্রিয় পাঠ (ছবির সাথে মিলিয়ে ঠিক করে নিন)
                     </label>
                     <textarea
@@ -208,7 +208,7 @@ export default function MediScanPage() {
                       value={text}
                       onChange={(e) => setText(e.target.value)}
                       placeholder={"প্রতিটি ওষুধ আলাদা লাইনে লিখুন..."}
-                      className="h-72 w-full rounded-xl border border-slate-200 p-3 font-mono text-[13px] leading-relaxed outline-none focus:border-sky-600"
+                      className="h-72 w-full rounded-xl border border-slate-200 p-3 font-mono text-[13px] leading-relaxed outline-none focus:border-sky-600 min-h-[44px]"
                     />
                   </div>
                 </div>
@@ -222,23 +222,23 @@ export default function MediScanPage() {
                   value={text}
                   onChange={(e) => setText(e.target.value)}
                   placeholder={"প্রতিটি ওষুধ আলাদা লাইনে লিখুন, যেমন:\nTab. Napa Extra 500mg 1+0+1 x 3 days p.c."}
-                  className="w-full rounded-xl border border-slate-200 p-3 font-mono text-[13px] leading-relaxed outline-none focus:border-sky-600"
+                  className="w-full rounded-xl border border-slate-200 p-3 font-mono text-[13px] leading-relaxed outline-none focus:border-sky-600 min-h-[44px]"
                 />
               </div>
             )}
             <div>
-              <span className="mb-1.5 block text-[11px] font-bold uppercase text-slate-400">কাল্পনিক নমুনা দিয়ে চেষ্টা করুন</span>
+              <span className="mb-1.5 block text-[12px] font-bold uppercase text-slate-500">কাল্পনিক নমুনা দিয়ে চেষ্টা করুন</span>
               <div className="flex flex-wrap gap-1.5">
                 {SAMPLES.map((s) => (
-                  <button key={s.id} onClick={() => setText(s.text)} className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-[12px] font-medium text-slate-700 hover:border-sky-500">{s.title}</button>
+                  <button key={s.id} onClick={() => setText(s.text)} className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-[12px] font-medium text-slate-700 hover:border-sky-500 min-h-[44px] min-w-[44px]">{s.title}</button>
                 ))}
-                {text && <button onClick={() => setText("")} className="rounded-lg px-2.5 py-1 text-[12px] text-slate-500 underline">মুছুন</button>}
+                {text && <button onClick={() => setText("")} className="rounded-lg px-2.5 py-1 text-[12px] text-slate-500 underline min-h-[44px] min-w-[44px]">মুছুন</button>}
               </div>
             </div>
 
             <div className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
               <span className="block text-[13px] font-bold">ছবি থেকে লেখা বের করুন (ঐচ্ছিক)</span>
-              <label className="flex items-start gap-2 text-[12px] leading-relaxed text-slate-700">
+              <label className="flex items-start gap-2 text-[12px] leading-relaxed text-slate-700 min-h-[44px]">
                 <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-0.5 h-4 w-4 accent-sky-600" />
                 <span>
                   আমি বুঝেছি: ছবিটি লেখা পড়ার জন্য আমাদের সার্ভার হয়ে Google Gemini-তে পাঠানো হবে। আমরা ছবি বা লেখা সংরক্ষণ করি না। স্বাস্থ্য তথ্য সংবেদনশীল — রোগীর নাম/ফোন নম্বর ঢেকে ছবি তোলা ভালো। পাঠ ভুল হতে পারে, তাই আমি নিজে মিলিয়ে দেখব।
@@ -249,7 +249,7 @@ export default function MediScanPage() {
                 <input
                   type="file"
                   accept="image/jpeg,image/png,image/webp,application/pdf"
-                  className="sr-only"
+                  className="sr-only min-h-[44px]"
                   disabled={!consent || uploading}
                   onChange={(e) => {
                     const f = e.target.files?.[0];
@@ -265,8 +265,8 @@ export default function MediScanPage() {
 
             <div>
               <label htmlFor="sym" className="text-[13px] font-bold">এখন কোনো উপসর্গ আছে? (ঐচ্ছিক)</label>
-              <input id="sym" value={symptoms} onChange={(e) => setSymptoms(e.target.value)} placeholder="যেমন: জ্বর, মাথাব্যথা, শ্বাসকষ্ট…" className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-[13px] outline-none focus:border-sky-600" />
-              <p className="mt-1 text-[11px] text-slate-500">শুধু জরুরি লক্ষণ চিনতে ব্যবহার হয়। আমরা রোগ নির্ণয় করি না।</p>
+              <input id="sym" value={symptoms} onChange={(e) => setSymptoms(e.target.value)} placeholder="যেমন: জ্বর, মাথাব্যথা, শ্বাসকষ্ট…" className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-[13px] outline-none focus:border-sky-600 min-h-[44px]" />
+              <p className="mt-1 text-[12px] text-slate-500">শুধু জরুরি লক্ষণ চিনতে ব্যবহার হয়। আমরা রোগ নির্ণয় করি না।</p>
             </div>
           </section>
 
@@ -275,7 +275,7 @@ export default function MediScanPage() {
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 id="out-h" className="text-[17px] font-bold">২. যা লেখা আছে</h2>
               {parsed.lines.length > 0 && (
-                <button onClick={() => window.print()} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[12px] font-bold text-slate-700 print:hidden"><Printer size={14} aria-hidden /> প্রিন্ট করুন</button>
+                <button onClick={() => window.print()} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[12px] font-bold text-slate-700 print:hidden min-h-[44px] min-w-[44px]"><Printer size={14} aria-hidden /> প্রিন্ট করুন</button>
               )}
             </div>
 
@@ -327,7 +327,7 @@ export default function MediScanPage() {
             {(["A", "B"] as const).map((k) => (
               <label key={k} className="block text-[12px] font-bold text-slate-600">
                 {k === "A" ? "প্রথম ওষুধ" : "দ্বিতীয় ওষুধ"}
-                <select value={k === "A" ? pairA : pairB} onChange={(e) => (k === "A" ? setPairA : setPairB)(e.target.value)} className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-2 py-2 text-[13px] font-normal">
+                <select value={k === "A" ? pairA : pairB} onChange={(e) => (k === "A" ? setPairA : setPairB)(e.target.value)} className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-2 py-2 text-[13px] font-normal min-h-[44px]">
                   {DRUG_REFERENCE.map((d) => <option key={d.id} value={d.id}>{d.genericName}</option>)}
                 </select>
               </label>
@@ -343,14 +343,14 @@ export default function MediScanPage() {
             <p className="text-[12px] text-slate-500">শুধু এই ব্রাউজারে থাকে, কোথাও পাঠানো হয় না। শেয়ার করা ফোনে সংরক্ষণ করবেন না।</p>
             <div className="flex gap-2">
               <label htmlFor="lbl" className="sr-only">নাম</label>
-              <input id="lbl" value={saveLabel} maxLength={80} onChange={(e) => setSaveLabel(e.target.value)} placeholder="যেমন: মায়ের প্রেসক্রিপশন, নভেম্বর" className="flex-1 rounded-lg border border-slate-200 px-2 py-1.5 text-[13px]" />
+              <input id="lbl" value={saveLabel} maxLength={80} onChange={(e) => setSaveLabel(e.target.value)} placeholder="যেমন: মায়ের প্রেসক্রিপশন, নভেম্বর" className="flex-1 rounded-lg border border-slate-200 px-2 py-1.5 text-[13px] min-h-[44px]" />
               <button
                 disabled={!text.trim()}
                 onClick={() => {
                   setSaved((p) => [{ id: Math.random().toString(36).slice(2), label: saveLabel.trim() || "প্রেসক্রিপশন", savedAt: new Date().toISOString(), text: text.slice(0, 5000) }, ...p].slice(0, 30));
                   setSaveLabel("");
                 }}
-                className="rounded-lg bg-sky-600 px-3 py-1.5 text-[13px] font-bold text-white disabled:opacity-40"
+                className="rounded-lg bg-sky-600 px-3 py-1.5 text-[13px] font-bold text-white disabled:opacity-40 min-h-[44px] min-w-[44px]"
               >
                 সংরক্ষণ
               </button>
@@ -360,15 +360,15 @@ export default function MediScanPage() {
                 <ul className="divide-y divide-slate-100 text-[13px]">
                   {saved.map((s) => (
                     <li key={s.id} className="flex items-center justify-between gap-2 py-2">
-                      <button onClick={() => setText(s.text)} className="min-w-0 text-left hover:underline">
+                      <button onClick={() => setText(s.text)} className="min-w-0 text-left hover:underline min-h-[44px]">
                         <span className="block truncate font-semibold">{s.label}</span>
-                        <span className="text-[11px] text-slate-400">{new Date(s.savedAt).toLocaleDateString("en-GB")}</span>
+                        <span className="text-[12px] text-slate-500">{new Date(s.savedAt).toLocaleDateString("en-GB")}</span>
                       </button>
-                      <button onClick={() => setSaved((p) => p.filter((x) => x.id !== s.id))} aria-label={`${s.label} মুছুন`} className="p-1 text-slate-400 hover:text-red-600"><Trash2 size={15} /></button>
+                      <button onClick={() => setSaved((p) => p.filter((x) => x.id !== s.id))} aria-label={`${s.label} মুছুন`} className="p-1 text-slate-500 hover:text-red-600 min-h-[44px] min-w-[44px]"><Trash2 size={15} /></button>
                     </li>
                   ))}
                 </ul>
-                <button onClick={() => { if (window.confirm("সব সংরক্ষিত প্রেসক্রিপশন মুছে ফেলবেন?")) setSaved([]); }} className="text-[12px] font-semibold text-red-700 underline">সব মুছে ফেলুন</button>
+                <button onClick={() => { if (window.confirm("সব সংরক্ষিত প্রেসক্রিপশন মুছে ফেলবেন?")) setSaved([]); }} className="text-[12px] font-semibold text-red-700 underline min-h-[44px] min-w-[44px]">সব মুছে ফেলুন</button>
               </>
             )}
           </section>
@@ -406,18 +406,18 @@ function MedicineCard({ line }: { line: ParsedLine }) {
       </div>
       <dl className="grid grid-cols-3 gap-2 text-[12px]">
         <div className="rounded-lg bg-slate-50 p-2">
-          <dt className="font-bold text-slate-400">কয়বার</dt>
+          <dt className="font-bold text-slate-500">কয়বার</dt>
           <dd className="font-semibold text-slate-900">
             {line.dose ? line.dose.readingBn : line.timesPerDay ? `দিনে ${line.timesPerDay.toLocaleString("bn-BD")} বার` : <span className="text-amber-700">লেখা নেই</span>}
-            {line.measure && <span className="block text-[11px] font-normal text-slate-600">প্রতিবার {line.measure.readingBn}</span>}
+            {line.measure && <span className="block text-[12px] font-normal text-slate-600">প্রতিবার {line.measure.readingBn}</span>}
           </dd>
         </div>
         <div className="rounded-lg bg-slate-50 p-2">
-          <dt className="font-bold text-slate-400">কতদিন</dt>
+          <dt className="font-bold text-slate-500">কতদিন</dt>
           <dd className="font-semibold text-slate-900">{line.durationText ?? <span className="text-amber-700">লেখা নেই</span>}</dd>
         </div>
         <div className="rounded-lg bg-slate-50 p-2">
-          <dt className="font-bold text-slate-400">খাবার</dt>
+          <dt className="font-bold text-slate-500">খাবার</dt>
           <dd className="font-semibold text-slate-900">{line.mealTiming ? MEAL[line.mealTiming] : <span className="text-slate-500">লেখা নেই</span>}</dd>
         </div>
       </dl>
@@ -449,30 +449,30 @@ function PriceCompare({ lines }: { lines: ParsedLine[] }) {
       <h2 id="price-h" className="flex items-center gap-1.5 text-[16px] font-bold"><Calculator size={17} aria-hidden /> দাম তুলনা</h2>
       <p className="text-[12px] text-slate-500">একই জেনেরিক ও স্ট্রেংথের যে ব্র্যান্ড/ফার্মেসির দাম আপনাকে বলা হয়েছে তা লিখুন। আমরা নিজে কোনো দাম দেখাই না।</p>
       {usable.length === 0 ? (
-        <p className="text-[12px] text-slate-400">প্রথমে প্রেসক্রিপশনের লেখা দিন।</p>
+        <p className="text-[12px] text-slate-500">প্রথমে প্রেসক্রিপশনের লেখা দিন।</p>
       ) : (
         <>
-          <select value={idx} onChange={(e) => setIdx(Number(e.target.value))} className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-[13px]" aria-label="ওষুধ">
+          <select value={idx} onChange={(e) => setIdx(Number(e.target.value))} className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-[13px] min-h-[44px]" aria-label="ওষুধ">
             {usable.map((l, i) => <option key={i} value={i}>{drugById(l.drugId!)?.genericName} {l.strength ?? ""}</option>)}
           </select>
           {units ? (
             <p className="text-[12px] text-slate-600">প্রেসক্রিপশন অনুযায়ী মোট দরকার: <strong>{units}টি</strong></p>
           ) : (
             <label className="block text-[12px] text-slate-600">ডোজ/সময়কাল লেখা নেই — কয়টি কিনবেন?
-              <input inputMode="numeric" value={manualUnits} onChange={(e) => setManualUnits(e.target.value.replace(/\D/g, ""))} className="mt-1 block w-24 rounded border border-slate-200 px-2 py-1" />
+              <input inputMode="numeric" value={manualUnits} onChange={(e) => setManualUnits(e.target.value.replace(/\D/g, ""))} className="mt-1 block w-24 rounded border border-slate-200 px-2 py-1 min-h-[44px]" />
             </label>
           )}
           {quotes.map((q, i) => (
             <div key={i} className="flex gap-2">
-              <input aria-label={`ব্র্যান্ড বা ফার্মেসি ${i + 1}`} value={q.label} onChange={(e) => setQuotes(quotes.map((x, j) => (j === i ? { ...x, label: e.target.value.slice(0, 40) } : x)))} placeholder={`ব্র্যান্ড/ফার্মেসি ${i + 1}`} className="min-w-0 flex-1 rounded-lg border border-slate-200 px-2 py-1.5 text-[13px]" />
-              <input aria-label={`প্রতি পিস দাম ${i + 1}`} inputMode="decimal" value={q.price} onChange={(e) => setQuotes(quotes.map((x, j) => (j === i ? { ...x, price: e.target.value.replace(/[^0-9.]/g, "") } : x)))} placeholder="৳/পিস" className="w-20 rounded-lg border border-slate-200 px-2 py-1.5 text-[13px]" />
+              <input aria-label={`ব্র্যান্ড বা ফার্মেসি ${i + 1}`} value={q.label} onChange={(e) => setQuotes(quotes.map((x, j) => (j === i ? { ...x, label: e.target.value.slice(0, 40) } : x)))} placeholder={`ব্র্যান্ড/ফার্মেসি ${i + 1}`} className="min-w-0 flex-1 rounded-lg border border-slate-200 px-2 py-1.5 text-[13px] min-h-[44px]" />
+              <input aria-label={`প্রতি পিস দাম ${i + 1}`} inputMode="decimal" value={q.price} onChange={(e) => setQuotes(quotes.map((x, j) => (j === i ? { ...x, price: e.target.value.replace(/[^0-9.]/g, "") } : x)))} placeholder="৳/পিস" className="w-20 rounded-lg border border-slate-200 px-2 py-1.5 text-[13px] min-h-[44px]" />
             </div>
           ))}
-          {quotes.length < 5 && <button onClick={() => setQuotes([...quotes, { label: "", price: "" }])} className="text-[12px] font-semibold text-sky-700">+ আরেকটি দাম</button>}
+          {quotes.length < 5 && <button onClick={() => setQuotes([...quotes, { label: "", price: "" }])} className="text-[12px] font-semibold text-sky-700 min-h-[44px] min-w-[44px]">+ আরেকটি দাম</button>}
           {result && (
             <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-3 text-[13px] text-emerald-950">
               <strong>{result.cheapest.label}</strong> নিলে পুরো কোর্সে ৳{result.courseCostCheapest} — <strong>{result.dearest.label}</strong>-এর চেয়ে ৳{result.savingBdt} ({result.savingPct}%) কম।
-              <span className="mt-1 block text-[11px] text-emerald-900">আপনার দেওয়া দামের ভিত্তিতে হিসাব। ব্র্যান্ড বদলানোর আগে ফার্মাসিস্টকে নিশ্চিত করুন যে জেনেরিক ও স্ট্রেংথ একই।</span>
+              <span className="mt-1 block text-[12px] text-emerald-900">আপনার দেওয়া দামের ভিত্তিতে হিসাব। ব্র্যান্ড বদলানোর আগে ফার্মাসিস্টকে নিশ্চিত করুন যে জেনেরিক ও স্ট্রেংথ একই।</span>
             </div>
           )}
         </>
@@ -505,13 +505,13 @@ function ReminderPanel({ parsed }: { parsed: ParsedPrescription }) {
           return (
             <div key={slot} className="rounded-xl bg-slate-50 p-3" data-testid={`slot-${slot}`}>
               <label className="flex items-center justify-between gap-2 text-[13px] font-bold">{SLOT_BN[slot]}
-                <input type="time" value={times[slot]} onChange={(e) => e.target.value && setTimes((t) => ({ ...t, [slot]: e.target.value }))} className="rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[12px] font-normal" />
+                <input type="time" value={times[slot]} onChange={(e) => e.target.value && setTimes((t) => ({ ...t, [slot]: e.target.value }))} className="rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[12px] font-normal min-h-[44px]" />
               </label>
               {items.length ? (
                 <ul className="mt-2 space-y-1 text-[12px]">
                   {items.map((e) => <li key={`${e.lineIndex}-${slot}`}>• {e.label} — <strong>{e.amountBn}</strong>{e.mealTiming ? ` (${MEAL[e.mealTiming]})` : ""}</li>)}
                 </ul>
-              ) : <p className="mt-2 text-[11px] text-slate-400">কিছু নেই</p>}
+              ) : <p className="mt-2 text-[12px] text-slate-500">কিছু নেই</p>}
             </div>
           );
         })}
@@ -524,12 +524,12 @@ function ReminderPanel({ parsed }: { parsed: ParsedPrescription }) {
       {entries.length > 0 && (
         <button
           onClick={() => downloadText("mediscan-reminders.ics", scheduleToIcs(entries, times, todayLocal(), { stamp: new Date().toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z" }), "text/calendar;charset=utf-8")}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-sky-700 px-3 py-2 text-[13px] font-bold text-white hover:bg-sky-800"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-sky-700 px-3 py-2 text-[13px] font-bold text-white hover:bg-sky-800 min-h-[44px] min-w-[44px]"
         >
           <CalendarDays size={15} aria-hidden /> ক্যালেন্ডার রিমাইন্ডার (.ics) ডাউনলোড
         </button>
       )}
-      <p className="text-[11px] text-slate-500">রিমাইন্ডার ফাইল আপনার ডিভাইসেই তৈরি হয়, কোথাও পাঠানো হয় না। কোর্সের দৈর্ঘ্য লেখা না থাকলে ৩০ দিনের রিমাইন্ডার হয় — ডাক্তার যেমন বলেন তেমনই চালিয়ে যান বা বন্ধ করুন।</p>
+      <p className="text-[12px] text-slate-500">রিমাইন্ডার ফাইল আপনার ডিভাইসেই তৈরি হয়, কোথাও পাঠানো হয় না। কোর্সের দৈর্ঘ্য লেখা না থাকলে ৩০ দিনের রিমাইন্ডার হয় — ডাক্তার যেমন বলেন তেমনই চালিয়ে যান বা বন্ধ করুন।</p>
     </section>
   );
 }

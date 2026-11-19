@@ -8,7 +8,7 @@ export default function BoroSensitivity({ rows }) {
   return (
     <details className="mb-4 rounded-2xl border border-amber-200 bg-amber-50/70 p-4">
       <summary className="cursor-pointer list-none font-semibold text-amber-950 marker:hidden">
-        <span className="mr-2 inline-flex rounded-full bg-amber-200/80 px-2 py-0.5 align-middle text-[11px] font-bold uppercase tracking-wide text-amber-950">{T('পরীক্ষা হয়নি', 'UNTESTED')}</span>
+        <span className="mr-2 inline-flex rounded-full bg-amber-200/80 px-2 py-0.5 align-middle text-[12px] font-bold uppercase tracking-wide text-amber-950">{T('পরীক্ষা হয়নি', 'UNTESTED')}</span>
         {T('বোরোর তাপসীমা বদলালে ক্রম', 'Boro heat-limit sensitivity')}
       </summary>
       <p className="mt-2 text-[13.5px] leading-6 text-amber-950/80">

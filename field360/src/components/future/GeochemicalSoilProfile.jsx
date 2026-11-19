@@ -124,7 +124,7 @@ export default function GeochemicalSoilProfile({ soil, farmer, waterSavedMm = 13
               <h2 className="text-[19px] font-bold text-ink">
                 {T('মৃত্তিকা রসায়ন, ভূ-প্রকৃতি ও জীবাশ্ম কার্বন প্রোফাইল', 'Geochemical Soil & Paleosol Fossil Carbon Profile')}
               </h2>
-              <span className="rounded-full bg-clay-50 px-2.5 py-0.5 text-[11px] font-bold text-clay-800 ring-1 ring-clay-200">
+              <span className="rounded-full bg-clay-50 px-2.5 py-0.5 text-[12px] font-bold text-clay-800 ring-1 ring-clay-200">
                 {T('৬০ সেমি উলম্ব স্তরচ্ছেদ', '60cm Depth Slice')}
               </span>
             </div>
@@ -172,7 +172,7 @@ export default function GeochemicalSoilProfile({ soil, farmer, waterSavedMm = 13
       <div className="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-[220px_1fr]">
         {/* Soil Horizon Stratigraphy Cut */}
         <div className="space-y-1.5 rounded-2xl border border-border/80 bg-canvas/60 p-2.5">
-          <span className="block px-2 text-[11px] font-semibold uppercase tracking-wider text-muted">
+          <span className="block px-2 text-[12px] font-semibold uppercase tracking-wider text-muted">
             {T('মাটির স্তর বাছাই করুন:', 'Select Soil Horizon:')}
           </span>
           {HORIZONS.map((h) => {
@@ -188,9 +188,9 @@ export default function GeochemicalSoilProfile({ soil, farmer, waterSavedMm = 13
                     : 'border-transparent bg-white/50 text-muted hover:border-border hover:bg-white/80'
                 }`}
               >
-                <div className="flex items-center justify-between text-[11.5px] font-bold">
+                <div className="flex items-center justify-between text-[12px] font-bold">
                   <span style={{ color: h.color }}>{L(h.depthRange)}</span>
-                  <span className="text-[10.5px] font-medium text-muted">pH {num(h.ph, lang)}</span>
+                  <span className="text-[12px] font-medium text-muted">pH {num(h.ph, lang)}</span>
                 </div>
                 <div className="mt-0.5 text-[12px] font-bold text-ink truncate">
                   {L({ bn: h.nameBn, en: h.nameEn })}
@@ -228,51 +228,51 @@ export default function GeochemicalSoilProfile({ soil, farmer, waterSavedMm = 13
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11.5px] font-bold text-emerald-800">
+                    <span className="text-[12px] font-bold text-emerald-800">
                       {T('সক্রিয় জৈব কার্বন (Labile)', 'Active Labile Carbon')}
                     </span>
-                    <span className="rounded-full bg-emerald-200/60 px-2 py-0.5 text-[11px] font-bold text-emerald-900">
+                    <span className="rounded-full bg-emerald-200/60 px-2 py-0.5 text-[12px] font-bold text-emerald-900">
                       {num(carbonPools.labile.pct, lang)}%
                     </span>
                   </div>
                   <div className="mt-2 font-display text-[20px] font-bold text-emerald-950">
                     {num(carbonPools.labile.tHa, lang)} {T('টন/হেক্টর', 't/ha')}
                   </div>
-                  <span className="text-[11px] text-emerald-700">
+                  <span className="text-[12px] text-emerald-700">
                     {carbonPools.labile.turnoverYears}
                   </span>
                 </div>
 
                 <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-3.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11.5px] font-bold text-amber-800">
+                    <span className="text-[12px] font-bold text-amber-800">
                       {T('স্থায়ী হিউমাস (Humus)', 'Stable Humus Pool')}
                     </span>
-                    <span className="rounded-full bg-amber-200/60 px-2 py-0.5 text-[11px] font-bold text-amber-900">
+                    <span className="rounded-full bg-amber-200/60 px-2 py-0.5 text-[12px] font-bold text-amber-900">
                       {num(carbonPools.humus.pct, lang)}%
                     </span>
                   </div>
                   <div className="mt-2 font-display text-[20px] font-bold text-amber-950">
                     {num(carbonPools.humus.tHa, lang)} {T('টন/হেক্টর', 't/ha')}
                   </div>
-                  <span className="text-[11px] text-amber-700">
+                  <span className="text-[12px] text-amber-700">
                     {carbonPools.humus.turnoverYears}
                   </span>
                 </div>
 
                 <div className="rounded-xl border border-rose-200 bg-rose-50/70 p-3.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11.5px] font-bold text-rose-800">
+                    <span className="text-[12px] font-bold text-rose-800">
                       {T('প্রাচীন জীবাশ্ম কার্বন (Paleosol)', 'Fossil Paleosol Carbon')}
                     </span>
-                    <span className="rounded-full bg-rose-200/60 px-2 py-0.5 text-[11px] font-bold text-rose-900">
+                    <span className="rounded-full bg-rose-200/60 px-2 py-0.5 text-[12px] font-bold text-rose-900">
                       {num(carbonPools.fossilPaleosol.pct, lang)}%
                     </span>
                   </div>
                   <div className="mt-2 font-display text-[20px] font-bold text-rose-950">
                     {num(carbonPools.fossilPaleosol.tHa, lang)} {T('টন/হেক্টর', 't/ha')}
                   </div>
-                  <span className="text-[11px] text-rose-700">
+                  <span className="text-[12px] text-rose-700">
                     {carbonPools.fossilPaleosol.turnoverYears}
                   </span>
                 </div>
@@ -295,49 +295,49 @@ export default function GeochemicalSoilProfile({ soil, farmer, waterSavedMm = 13
             <div className="mt-4 space-y-4">
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <div className="rounded-xl border border-border bg-white p-3">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-muted">
+                  <span className="text-[12px] font-semibold uppercase tracking-wider text-muted">
                     {T('CEC ধারণক্ষমতা', 'CEC Capacity')}
                   </span>
                   <div className="mt-1 font-display text-[20px] font-bold text-primary-950">
                     {num(cec, lang)} <span className="text-[12px] font-normal text-muted">cmol(+)/kg</span>
                   </div>
-                  <span className="text-[11px] text-emerald-700 font-medium">
+                  <span className="text-[12px] text-emerald-700 font-medium">
                     {T('উচ্চ পুষ্টি ধারণক্ষমতা', 'High nutrient holding')}
                   </span>
                 </div>
 
                 <div className="rounded-xl border border-border bg-white p-3">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-muted">
+                  <span className="text-[12px] font-semibold uppercase tracking-wider text-muted">
                     {T('ক্ষারীয় সম্পৃক্তি (BS%)', 'Base Saturation')}
                   </span>
                   <div className="mt-1 font-display text-[20px] font-bold text-sky-950">
                     {num(baseSat.baseSaturationPct, lang)}%
                   </div>
-                  <span className="text-[11px] text-sky-700 font-medium">
+                  <span className="text-[12px] text-sky-700 font-medium">
                     {T('ক্যাটায়ন ভারসাম্যে ভালো', 'Balanced base cations')}
                   </span>
                 </div>
 
                 <div className="rounded-xl border border-border bg-white p-3">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-muted">
+                  <span className="text-[12px] font-semibold uppercase tracking-wider text-muted">
                     {T('ক্যালসিয়াম (Ca²⁺)', 'Calcium (Ca²⁺)')}
                   </span>
                   <div className="mt-1 font-display text-[18px] font-bold text-ink">
-                    {num(baseSat.caCmol, lang)} <span className="text-[11px] font-normal text-muted">cmol/kg</span>
+                    {num(baseSat.caCmol, lang)} <span className="text-[12px] font-normal text-muted">cmol/kg</span>
                   </div>
-                  <span className="text-[11px] text-muted">
+                  <span className="text-[12px] text-muted">
                     {T('প্রধান বিনিময়যোগ্য ক্ষার', 'Dominant base ion')}
                   </span>
                 </div>
 
                 <div className="rounded-xl border border-border bg-white p-3">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-muted">
+                  <span className="text-[12px] font-semibold uppercase tracking-wider text-muted">
                     {T('ম্যাগনেসিয়াম (Mg²⁺)', 'Magnesium (Mg²⁺)')}
                   </span>
                   <div className="mt-1 font-display text-[18px] font-bold text-ink">
-                    {num(baseSat.mgCmol, lang)} <span className="text-[11px] font-normal text-muted">cmol/kg</span>
+                    {num(baseSat.mgCmol, lang)} <span className="text-[12px] font-normal text-muted">cmol/kg</span>
                   </div>
-                  <span className="text-[11px] text-muted">
+                  <span className="text-[12px] text-muted">
                     {T('ক্লোরোফিলের কেন্দ্রবিন্দু', 'Chlorophyll core')}
                   </span>
                 </div>
@@ -360,37 +360,37 @@ export default function GeochemicalSoilProfile({ soil, farmer, waterSavedMm = 13
             <div className="mt-4 space-y-4">
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-3.5">
-                  <span className="text-[11.5px] font-bold text-amber-900">
+                  <span className="text-[12px] font-bold text-amber-900">
                     {T('সাশ্রয়কৃত ডিজেল জ্বালানি', 'Fossil Diesel Saved')}
                   </span>
                   <div className="mt-1 font-display text-[22px] font-bold text-amber-950">
                     {num(dieselOffset.dieselLitersSaved, lang)} {T('লিটার / বিঘা', 'L / bigha')}
                   </div>
-                  <span className="text-[11px] text-amber-800">
+                  <span className="text-[12px] text-amber-800">
                     {T('পাম্পিং খরচ সাশ্রয়: ৳', 'Pumping cost saved: ৳')}{num(dieselOffset.dieselCostSavedBdt, lang)}
                   </span>
                 </div>
 
                 <div className="rounded-xl border border-sky-200 bg-sky-50/70 p-3.5">
-                  <span className="text-[11.5px] font-bold text-sky-900">
+                  <span className="text-[12px] font-bold text-sky-900">
                     {T('ডিজেলের ধোঁয়া প্রতিরোধ (CO₂)', 'Avoided Diesel Emissions')}
                   </span>
                   <div className="mt-1 font-display text-[22px] font-bold text-sky-950">
                     {num(dieselOffset.avoidedCo2Kg, lang)} {T('কেজি CO₂', 'kg CO₂')}
                   </div>
-                  <span className="text-[11px] text-sky-800">
+                  <span className="text-[12px] text-sky-800">
                     {T('বোরোর বদলে কম সেচের রবি ফসল', 'Replacing thirsty Boro with Rabi')}
                   </span>
                 </div>
 
                 <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3.5">
-                  <span className="text-[11.5px] font-bold text-emerald-900">
+                  <span className="text-[12px] font-bold text-emerald-900">
                     {T('মোট সার্বিক জলবায়ু সুরক্ষা', 'Net Multi-Gas Mitigation')}
                   </span>
                   <div className="mt-1 font-display text-[22px] font-bold text-emerald-950">
                     {num(netEnv.netClimateMitigationCo2eKg, lang)} {T('কেজি CO₂e', 'kg CO₂e')}
                   </div>
-                  <span className="text-[11px] text-emerald-800">
+                  <span className="text-[12px] text-emerald-800">
                     {T('মাটি কার্বন + মিথেন হ্রাস + ডিজেল সাশ্রয়', 'Soil C + Methane avoided + Diesel saved')}
                   </span>
                 </div>

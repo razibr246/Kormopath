@@ -4,11 +4,16 @@ import Link from "next/link";
 import { Mic, Square, Keyboard, Play, RotateCcw, CheckCircle2, XCircle, Lightbulb, MessageCircleQuestion, Trash2, TrendingUp, Info, Sparkles, Quote, Pencil, Plus, X, ShieldAlert, ShieldCheck, AlertTriangle, PhoneCall, Send, Lock } from "lucide-react";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { AppFooter } from "@/components/layout/AppFooter";
+import { PROMPT_BN, LEVEL_BN } from "./promptBn";
 import {
   QUESTIONS, analyzeAnswer, progressSummary, starCheck, practiceStreak, createCustomQuestion, evaluateViva,
   SCAM_SCENARIOS, evaluateScamDefense, type Question, type Analysis, type SessionRecord, type ScamEvaluation,
 } from "@/lib/speech";
 import { usePersistentState, storageKey, readStored, writeStored } from "@/lib/clientStore";
+import { ROKKHA_HELPLINES } from "@/lib/rokkhaData";
+
+// Hotlines come from Rokkha's sourced list (official URL + check date each), never typed in here.
+const PROBAHO_HOTLINES = ["999", "bkash", "nagad", "bb"].map((id) => ROKKHA_HELPLINES.find((h) => h.id === id)!).filter(Boolean);
 
 type SR = {
   start: () => void;
@@ -57,6 +62,7 @@ export default function ProbahoPage() {
   const allQuestions = useMemo(() => [...QUESTIONS, ...customQuestions], [customQuestions]);
   const [qid, setQid] = useState(QUESTIONS[0].id);
   const q = allQuestions.find((x) => x.id === qid) ?? allQuestions[0];
+  const [showEnPrompt, setShowEnPrompt] = useState(false);
   const [mode, setMode] = useState<"speak" | "type">("speak");
   const [finalText, setFinalText] = useState("");
   const [interim, setInterim] = useState("");
@@ -267,7 +273,7 @@ export default function ProbahoPage() {
           </div>
           {progress && (
             <div className="min-w-[240px] rounded-2xl border border-violet-200/80 bg-violet-50/90 backdrop-blur-md p-4 text-[13px] shadow-xs">
-              <span className="flex items-center gap-1 text-[11px] font-bold uppercase text-violet-800"><TrendingUp size={13} aria-hidden /> আপনার অগ্রগতি</span>
+              <span className="flex items-center gap-1 text-[12px] font-bold uppercase text-violet-800"><TrendingUp size={13} aria-hidden /> আপনার অগ্রগতি</span>
               <p className="mt-1"><strong>{progress.sessions}</strong>টি চেষ্টা, <strong>{progress.daysPractised}</strong> দিন অনুশীলন</p>
               <p>সাম্প্রতিক গড়: <strong>{progress.recentAvg}</strong> (প্রথম দিকে {progress.earlyAvg})</p>
               <p>সবচেয়ে দুর্বল দিক: <strong>{progress.weakest === "content" ? "বিষয়বস্তু" : progress.weakest === "structure" ? "গঠন" : "উপস্থাপন"}</strong></p>
@@ -291,7 +297,7 @@ export default function ProbahoPage() {
                   }}
                   className={`rounded-lg px-3 py-1.5 text-[12px] font-bold ${
                     track === t.id ? "bg-violet-600 text-white" : "bg-slate-100 text-slate-600"
-                  }`}
+                  } min-h-[44px] min-w-[44px]`}
                 >
                   {t.label}
                 </button>
@@ -318,13 +324,13 @@ export default function ProbahoPage() {
                           scamId === s.id
                             ? "border-red-500 bg-red-50/70 shadow-xs font-bold text-red-950"
                             : "border-slate-200 bg-slate-50/50 hover:bg-slate-100/70 text-slate-700"
-                        }`}
+                        } min-h-[44px] min-w-[44px]`}
                       >
                         <div className="flex items-center gap-1.5">
-                          <ShieldAlert size={15} className={scamId === s.id ? "text-red-600" : "text-slate-400"} />
+                          <ShieldAlert size={15} className={scamId === s.id ? "text-red-600" : "text-slate-500"} />
                           <span>{s.titleBn}</span>
                         </div>
-                        <div className="text-[11px] font-normal text-slate-500 mt-0.5 truncate">
+                        <div className="text-[12px] font-normal text-slate-500 mt-0.5 truncate">
                           {s.scammerPersonaBn}
                         </div>
                       </button>
@@ -344,11 +350,11 @@ export default function ProbahoPage() {
                         সরাসরি প্রতারণার আক্রমণ (Live Threat Pitch)
                       </span>
                     </div>
-                    <span className="text-[11px] font-mono text-slate-500">{selectedScam.category}</span>
+                    <span className="text-[12px] font-mono text-slate-500">{selectedScam.category}</span>
                   </div>
 
                   <div className="bg-white/90 rounded-xl border border-red-100 p-3.5 shadow-2xs">
-                    <div className="text-[11px] font-semibold text-slate-500 mb-1">
+                    <div className="text-[12px] font-semibold text-slate-500 mb-1">
                       ছদ্মবেশী প্রতারক: <span className="text-slate-800 font-bold">{selectedScam.scammerPersonaBn}</span>
                     </div>
                     <p className="text-[14px] leading-relaxed text-slate-800 italic font-medium">
@@ -357,8 +363,8 @@ export default function ProbahoPage() {
                   </div>
 
                   <div className="flex flex-wrap gap-1.5 items-center">
-                    <span className="text-[11px] font-bold text-slate-500">মনস্তাত্ত্বিক ফাঁদ:</span>
-                    <span className="rounded-md bg-amber-100/80 text-amber-900 px-2 py-0.5 text-[11px] font-semibold">
+                    <span className="text-[12px] font-bold text-slate-500">মনস্তাত্ত্বিক ফাঁদ:</span>
+                    <span className="rounded-md bg-amber-100/80 text-amber-900 px-2 py-0.5 text-[12px] font-semibold">
                       {selectedScam.tacticExplanationBn}
                     </span>
                   </div>
@@ -375,12 +381,12 @@ export default function ProbahoPage() {
                     value={scamReply}
                     onChange={(e) => setScamReply(e.target.value)}
                     placeholder="যেমন: আমি কোনো ওটিপি বা পিন দেব না। আমি সরাসরি কাস্টমার কেয়ারে ১৬২৪৭-এ ফোন দিচ্ছি..."
-                    className="w-full rounded-xl border border-slate-200 p-3 text-[14px] outline-none focus:border-red-500 transition-colors"
+                    className="w-full rounded-xl border border-slate-200 p-3 text-[14px] outline-none focus:border-red-500 transition-colors min-h-[44px]"
                   />
 
                   {/* Preset Safe Retorts */}
                   <div className="flex flex-wrap gap-1.5">
-                    <span className="text-[11px] text-slate-500 py-1 font-semibold">কুইক রেসপন্স:</span>
+                    <span className="text-[12px] text-slate-500 py-1 font-semibold">কুইক রেসপন্স:</span>
                     {[
                       "আমি কাউকে OTP বা পিন দেই না। আমি ১৬২৪৭-এ ফোন দিচ্ছি।",
                       "চাকরির জন্য আগে ডিপোজিট চাওয়া অবৈধ। সাইবার হেল্পলাইনে জানাচ্ছি।",
@@ -390,7 +396,7 @@ export default function ProbahoPage() {
                         key={idx}
                         type="button"
                         onClick={() => setScamReply(sample)}
-                        className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] text-slate-700 hover:bg-slate-100 transition-colors"
+                        className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-[12px] text-slate-700 hover:bg-slate-100 transition-colors min-h-[44px] min-w-[44px]"
                       >
                         {sample}
                       </button>
@@ -406,7 +412,7 @@ export default function ProbahoPage() {
                         setScamEval(res);
                       }}
                       disabled={!scamReply.trim()}
-                      className="inline-flex items-center gap-2 rounded-xl bg-red-600 hover:bg-red-700 px-5 py-2.5 text-[14px] font-bold text-white shadow-xs transition-all disabled:opacity-40"
+                      className="inline-flex items-center gap-2 rounded-xl bg-red-600 hover:bg-red-700 px-5 py-2.5 text-[14px] font-bold text-white shadow-xs transition-all disabled:opacity-40 min-h-[44px] min-w-[44px]"
                     >
                       <ShieldCheck size={16} /> প্রতিরক্ষা মূল্যায়ন করুন (Evaluate Defense)
                     </button>
@@ -423,13 +429,13 @@ export default function ProbahoPage() {
                     <button
                       type="button"
                       onClick={() => setCustomOpen(!customOpen)}
-                      className="inline-flex items-center gap-1 text-[12px] font-bold text-violet-700 hover:text-violet-900"
+                      className="inline-flex min-h-[44px] items-center gap-1 px-1 text-[13px] font-bold text-violet-700 hover:text-violet-900 min-w-[44px]"
                     >
-                      <Plus size={14} aria-hidden /> {customOpen ? "কাস্টম ফরম বন্ধ" : "+ কাস্টম প্রশ্ন তৈরি"}
+                      <Plus size={14} aria-hidden /> {customOpen ? "কাস্টম ফরম বন্ধ" : "কাস্টম প্রশ্ন তৈরি"}
                     </button>
                   </div>
-                  <select id="q-select" value={qid} onChange={(e) => pickQuestion(e.target.value)} className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-2 py-2 text-[13px] font-normal">
-                    {questionsInTrack.map((x) => <option key={x.id} value={x.id}>[{x.level}] {x.prompt}</option>)}
+                  <select id="q-select" value={qid} onChange={(e) => pickQuestion(e.target.value)} className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-2 py-2 text-[13px] font-normal min-h-[44px]">
+                    {questionsInTrack.map((x) => <option key={x.id} value={x.id}>[{LEVEL_BN[x.level] ?? x.level}] {PROMPT_BN[x.id] ?? x.prompt}</option>)}
                   </select>
                 </div>
 
@@ -437,36 +443,36 @@ export default function ProbahoPage() {
                   <form onSubmit={handleCreateCustom} className="space-y-3 rounded-xl border border-violet-200 bg-violet-50/50 p-4 text-[13px]">
                     <div className="flex items-center justify-between">
                       <h3 className="font-bold text-violet-900">নিজের কাস্টম প্রশ্ন তৈরি করুন</h3>
-                      <button type="button" onClick={() => setCustomOpen(false)} className="text-slate-400 hover:text-slate-600"><X size={16} /></button>
+                      <button type="button" onClick={() => setCustomOpen(false)} className="text-slate-500 hover:text-slate-600 min-h-[44px] min-w-[44px]"><X size={16} /></button>
                     </div>
                     <div>
-                      <label className="block text-[11px] font-bold text-slate-600">প্রশ্নের বিবরণ (Prompt)</label>
+                      <label className="block text-[12px] font-bold text-slate-600">প্রশ্নের বিবরণ (Prompt)</label>
                       <textarea
                         rows={2}
                         required
                         value={customPrompt}
                         onChange={(e) => setCustomPrompt(e.target.value)}
                         placeholder="যেমন: Compare optimistic locking vs pessimistic locking in high concurrency systems."
-                        className="mt-1 w-full rounded-lg border border-slate-200 bg-white p-2 text-[13px] outline-none focus:border-violet-600"
+                        className="mt-1 w-full rounded-lg border border-slate-200 bg-white p-2 text-[13px] outline-none focus:border-violet-600 min-h-[44px]"
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-600">ট্র্যাক</label>
+                        <label className="block text-[12px] font-bold text-slate-600">ট্র্যাক</label>
                         <select
                           value={customTrack}
                           onChange={(e) => setCustomTrack(e.target.value as Question["track"])}
-                          className="mt-1 block w-full rounded-lg border border-slate-200 bg-white p-1.5 text-[12px]"
+                          className="mt-1 block w-full rounded-lg border border-slate-200 bg-white p-1.5 text-[12px] min-h-[44px]"
                         >
                           {TRACKS.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
                         </select>
                       </div>
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-600">সময় সীমা (সেকেন্ড)</label>
+                        <label className="block text-[12px] font-bold text-slate-600">সময় সীমা (সেকেন্ড)</label>
                         <select
                           value={customDuration}
                           onChange={(e) => setCustomDuration(Number(e.target.value))}
-                          className="mt-1 block w-full rounded-lg border border-slate-200 bg-white p-1.5 text-[12px]"
+                          className="mt-1 block w-full rounded-lg border border-slate-200 bg-white p-1.5 text-[12px] min-h-[44px]"
                         >
                           <option value={30}>৩০ সেকেন্ড</option>
                           <option value={60}>৬০ সেকেন্ড</option>
@@ -476,20 +482,20 @@ export default function ProbahoPage() {
                         </select>
                       </div>
                       <div className="col-span-2 sm:col-span-1">
-                        <label className="block text-[11px] font-bold text-slate-600">বিষয়/কিওয়ার্ড (কমা দিয়ে, ঐচ্ছিক)</label>
+                        <label className="block text-[12px] font-bold text-slate-600">বিষয়/কিওয়ার্ড (কমা দিয়ে, ঐচ্ছিক)</label>
                         <input
                           type="text"
                           value={customKeywords}
                           onChange={(e) => setCustomKeywords(e.target.value)}
                           placeholder="version, lock, conflicts"
-                          className="mt-1 block w-full rounded-lg border border-slate-200 bg-white p-1.5 text-[12px]"
+                          className="mt-1 block w-full rounded-lg border border-slate-200 bg-white p-1.5 text-[12px] min-h-[44px]"
                         />
                       </div>
                     </div>
                     <button
                       type="submit"
                       disabled={!customPrompt.trim()}
-                      className="rounded-lg bg-violet-600 px-4 py-2 text-[12px] font-bold text-white hover:bg-violet-700 disabled:opacity-40"
+                      className="rounded-lg bg-violet-600 px-4 py-2 text-[12px] font-bold text-white hover:bg-violet-700 disabled:opacity-40 min-h-[44px] min-w-[44px]"
                     >
                       প্রশ্ন তৈরি করে শুরু করুন
                     </button>
@@ -497,24 +503,37 @@ export default function ProbahoPage() {
                 )}
 
                 <div id="q-h" className="rounded-xl border border-violet-200 bg-violet-50/60 p-4">
-              <span className="text-[11px] font-bold uppercase text-violet-800">প্রশ্ন · লক্ষ্য সময় {q.targetSeconds} সেকেন্ড</span>
-              <p className="mt-1 text-[17px] font-bold leading-snug">{q.prompt}</p>
+              <span className="text-[12px] font-bold uppercase text-violet-800">প্রশ্ন · লক্ষ্য সময় {q.targetSeconds} সেকেন্ড</span>
+              {/* Bangla first; the English original is one tap away because real interviews and the scoring terms are in English. */}
+              {PROMPT_BN[q.id] && !showEnPrompt ? (
+                <p className="mt-1 text-[17px] font-bold leading-snug" lang="bn">{PROMPT_BN[q.id]}</p>
+              ) : (
+                <p className="mt-1 text-[17px] font-bold leading-snug" lang={q.lang === "bn" ? "bn" : "en"}>{q.prompt}</p>
+              )}
+              {PROMPT_BN[q.id] && (
+                <div className="mt-1 flex flex-wrap items-center gap-x-3 text-[12px] text-slate-700">
+                  <button type="button" onClick={() => setShowEnPrompt((v) => !v)} aria-pressed={showEnPrompt} className="inline-flex min-h-[44px] items-center font-bold text-violet-800 underline underline-offset-2 min-w-[44px]">
+                    {showEnPrompt ? "বাংলায় দেখুন" : "English-এ দেখুন"}
+                  </button>
+                  <span>উত্তর ইংরেজিতে দিন, আসল ইন্টারভিউর মতো।</span>
+                </div>
+              )}
               <details className="mt-2 text-[12px] text-slate-600">
-                <summary className="cursor-pointer font-semibold text-violet-800">পরীক্ষক কী শুনতে চান (উত্তরের আগে দেখতে পারেন)</summary>
+                <summary className="cursor-pointer font-semibold text-violet-800 min-h-[44px] min-w-[44px]">পরীক্ষক কী শুনতে চান (উত্তরের আগে দেখতে পারেন)</summary>
                 <ul className="mt-1 list-disc pl-5">{q.topics.map((t) => <li key={t.id}>{t.label}</li>)}</ul>
               </details>
             </div>
 
             <div className="flex flex-wrap items-center gap-2" role="group" aria-label="উত্তরের ধরন">
-              <button onClick={() => { reset(); setMode("speak"); }} disabled={supported === false} aria-pressed={mode === "speak"} className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[13px] font-bold ${mode === "speak" ? "border-violet-600 bg-violet-50 text-violet-800" : "border-slate-200 text-slate-600"} disabled:opacity-40`}><Mic size={15} aria-hidden /> বলে উত্তর</button>
-              <button onClick={() => { reset(); setMode("type"); }} aria-pressed={mode === "type"} className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[13px] font-bold ${mode === "type" ? "border-violet-600 bg-violet-50 text-violet-800" : "border-slate-200 text-slate-600"}`}><Keyboard size={15} aria-hidden /> লিখে উত্তর</button>
+              <button onClick={() => { reset(); setMode("speak"); }} disabled={supported === false} aria-pressed={mode === "speak"} className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[13px] font-bold ${mode === "speak" ? "border-violet-600 bg-violet-50 text-violet-800" : "border-slate-200 text-slate-600"} disabled:opacity-40 min-h-[44px] min-w-[44px]`}><Mic size={15} aria-hidden /> বলে উত্তর</button>
+              <button onClick={() => { reset(); setMode("type"); }} aria-pressed={mode === "type"} className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[13px] font-bold ${mode === "type" ? "border-violet-600 bg-violet-50 text-violet-800" : "border-slate-200 text-slate-600"} min-h-[44px] min-w-[44px]`}><Keyboard size={15} aria-hidden /> লিখে উত্তর</button>
               {supported === false && <span className="text-[12px] text-slate-500">এই ব্রাউজারে ভয়েস নেই — লিখে অনুশীলন করুন।</span>}
             </div>
 
             {mode === "speak" && !consented && (
               <div className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-4 text-[13px]">
                 <p><strong>মাইক ব্যবহারের আগে জেনে নিন:</strong> কথা থেকে লেখা তৈরি হয় আপনার ব্রাউজারের স্পিচ সার্ভিসে (Chrome-এ অডিও Google-এর সার্ভারে প্রক্রিয়া হয়)। KormoPath কোনো অডিও আপলোড বা সংরক্ষণ করে না। স্কোর এই ডিভাইসেই হিসাব হয়।</p>
-                <button onClick={() => { setConsented(true); writeStored(storageKey("probaho", "micConsent"), true); }} className="rounded-lg bg-violet-600 px-3 py-1.5 font-bold text-white">বুঝেছি, মাইক চালু করতে দিন</button>
+                <button onClick={() => { setConsented(true); writeStored(storageKey("probaho", "micConsent"), true); }} className="rounded-lg bg-violet-600 px-3 py-1.5 font-bold text-white min-h-[44px] min-w-[44px]">বুঝেছি, মাইক চালু করতে দিন</button>
               </div>
             )}
 
@@ -522,12 +541,12 @@ export default function ProbahoPage() {
               <div className="space-y-2">
                 <div className="flex flex-wrap items-center gap-3">
                   {!recording ? (
-                    <button onClick={() => void start()} className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-3 text-[14px] font-bold text-white hover:bg-violet-700"><Mic size={18} aria-hidden /> উত্তর বলা শুরু করুন</button>
+                    <button onClick={() => void start()} className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-3 text-[14px] font-bold text-white hover:bg-violet-700 min-h-[44px] min-w-[44px]"><Mic size={18} aria-hidden /> উত্তর বলা শুরু করুন</button>
                   ) : (
-                    <button onClick={stop} className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-5 py-3 text-[14px] font-bold text-white"><Square size={16} aria-hidden /> শেষ করুন</button>
+                    <button onClick={stop} className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-5 py-3 text-[14px] font-bold text-white min-h-[44px] min-w-[44px]"><Square size={16} aria-hidden /> শেষ করুন</button>
                   )}
                   <span role="timer" aria-live="off" className={`font-mono text-[18px] font-bold ${over ? "text-amber-700" : "text-slate-700"}`}>{elapsed}s / {q.targetSeconds}s</span>
-                  <label className="flex items-center gap-1.5 text-[12px] text-slate-600">
+                  <label className="flex items-center gap-1.5 text-[12px] text-slate-600 min-h-[44px]">
                     <input type="checkbox" checked={keepAudio} disabled={recording} onChange={(e) => setKeepAudio(e.target.checked)} className="accent-violet-600" />
                     নিজের রেকর্ডিং পরে শুনতে চাই (শুধু এই পেজে, সংরক্ষণ হয় না)
                   </label>
@@ -546,8 +565,8 @@ export default function ProbahoPage() {
             {mode === "type" && (
               <div className="space-y-2">
                 <label htmlFor="typed" className="sr-only">আপনার উত্তর</label>
-                <textarea id="typed" rows={6} value={typed} onChange={(e) => setTyped(e.target.value)} placeholder="যেভাবে মুখে বলতেন সেভাবে লিখুন…" className="w-full rounded-xl border border-slate-200 p-3 text-[14px] outline-none focus:border-violet-600" />
-                <button onClick={() => finish(typed, null)} disabled={!typed.trim()} className="rounded-xl bg-violet-600 px-5 py-2.5 text-[14px] font-bold text-white disabled:opacity-40">মূল্যায়ন করুন</button>
+                <textarea id="typed" rows={6} value={typed} onChange={(e) => setTyped(e.target.value)} placeholder="যেভাবে মুখে বলতেন সেভাবে লিখুন…" className="w-full rounded-xl border border-slate-200 p-3 text-[14px] outline-none focus:border-violet-600 min-h-[44px]" />
+                <button onClick={() => finish(typed, null)} disabled={!typed.trim()} className="rounded-xl bg-violet-600 px-5 py-2.5 text-[14px] font-bold text-white disabled:opacity-40 min-h-[44px] min-w-[44px]">মূল্যায়ন করুন</button>
               </div>
             )}
 
@@ -556,30 +575,30 @@ export default function ProbahoPage() {
             {mode === "speak" && (shownText || recording) && (
               <div className="min-h-[100px] rounded-xl border border-slate-200 bg-slate-50 p-3 text-[14px] leading-relaxed" aria-live="polite">
                 <div className="mb-1.5 flex items-center justify-between">
-                  <span className="block text-[11px] font-bold uppercase text-slate-400">যা শোনা গেছে (স্বয়ংক্রিয় — ভুল থাকতে পারে)</span>
+                  <span className="block text-[12px] font-bold uppercase text-slate-500">যা শোনা গেছে (স্বয়ংক্রিয় — ভুল থাকতে পারে)</span>
                   {!recording && finalText && (
                     <button
                       type="button"
                       onClick={openEditModal}
-                      className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-bold text-violet-700 shadow-sm hover:bg-violet-50"
+                      className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[12px] font-bold text-violet-700 shadow-sm hover:bg-violet-50 min-h-[44px] min-w-[44px]"
                     >
                       <Pencil size={11} aria-hidden /> এডিট করুন
                     </button>
                   )}
                 </div>
-                {finalText}<span className="text-slate-400"> {interim}</span>
+                {finalText}<span className="text-slate-500"> {interim}</span>
               </div>
             )}
             {audioUrl && (
               <div className="flex items-center gap-2 text-[12px]">
                 <Play size={14} aria-hidden /> <audio controls src={audioUrl} className="h-8" />
-                <button onClick={() => { URL.revokeObjectURL(audioUrl); setAudioUrl(null); }} className="text-red-700 underline">রেকর্ডিং মুছুন</button>
+                <button onClick={() => { URL.revokeObjectURL(audioUrl); setAudioUrl(null); }} className="text-red-700 underline min-h-[44px] min-w-[44px]">রেকর্ডিং মুছুন</button>
               </div>
             )}
             {mode === "speak" && analysis && finalText && (
-              <p className="text-[11px] text-slate-500">
+              <p className="text-[12px] text-slate-500">
                 ট্রান্সক্রিপ্টে ভুল শব্দ থাকলে ঠিক করে আসল রেকর্ডিং সময় ধরে পুনর্মূল্যায়ন করুন:{" "}
-                <button className="font-semibold text-violet-700 underline" onClick={openEditModal}>
+                <button className="font-semibold text-violet-700 underline min-h-[44px] min-w-[44px]" onClick={openEditModal}>
                   ট্রান্সক্রিপ্ট এডিট করুন
                 </button>
               </p>
@@ -591,7 +610,7 @@ export default function ProbahoPage() {
                 <div className="w-full max-w-lg space-y-4 rounded-2xl bg-white p-5 shadow-xl">
                   <div className="flex items-center justify-between">
                     <h3 className="text-[16px] font-bold text-slate-900">ট্রান্সক্রিপ্ট সংশোধন</h3>
-                    <button onClick={() => setEditModalOpen(false)} className="rounded-lg p-1 text-slate-400 hover:bg-slate-100">
+                    <button onClick={() => setEditModalOpen(false)} className="rounded-lg p-1 text-slate-500 hover:bg-slate-100 min-h-[44px] min-w-[44px]">
                       <X size={18} />
                     </button>
                   </div>
@@ -602,13 +621,13 @@ export default function ProbahoPage() {
                     rows={6}
                     value={editText}
                     onChange={(e) => setEditText(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 p-3 text-[14px] outline-none focus:border-violet-600"
+                    className="w-full rounded-xl border border-slate-200 p-3 text-[14px] outline-none focus:border-violet-600 min-h-[44px]"
                   />
                   <div className="flex justify-end gap-2">
                     <button
                       type="button"
                       onClick={() => setEditModalOpen(false)}
-                      className="rounded-lg border border-slate-200 px-3 py-1.5 text-[13px] font-bold text-slate-700"
+                      className="rounded-lg border border-slate-200 px-3 py-1.5 text-[13px] font-bold text-slate-700 min-h-[44px] min-w-[44px]"
                     >
                       বাতিল
                     </button>
@@ -616,7 +635,7 @@ export default function ProbahoPage() {
                       type="button"
                       onClick={saveEditedTranscript}
                       disabled={!editText.trim()}
-                      className="rounded-lg bg-violet-600 px-4 py-1.5 text-[13px] font-bold text-white hover:bg-violet-700 disabled:opacity-40"
+                      className="rounded-lg bg-violet-600 px-4 py-1.5 text-[13px] font-bold text-white hover:bg-violet-700 disabled:opacity-40 min-h-[44px] min-w-[44px]"
                     >
                       সংরক্ষণ ও পুনর্মূল্যায়ন
                     </button>
@@ -640,7 +659,7 @@ export default function ProbahoPage() {
                         setScamReply("");
                         setScamEval(null);
                       }}
-                      className="inline-flex items-center gap-1 text-[12px] font-semibold text-red-700 hover:underline"
+                      className="inline-flex items-center gap-1 text-[12px] font-semibold text-red-700 hover:underline min-h-[44px] min-w-[44px]"
                     >
                       <RotateCcw size={13} /> আবার চেষ্টা
                     </button>
@@ -699,7 +718,7 @@ export default function ProbahoPage() {
 
                     {/* Golden Standard Defense */}
                     <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-3.5 space-y-1.5">
-                      <div className="text-[11px] font-bold uppercase text-slate-500 flex items-center gap-1">
+                      <div className="text-[12px] font-bold uppercase text-slate-500 flex items-center gap-1">
                         <Lightbulb size={13} className="text-amber-600" /> আদর্শ সাইবার নিরাপত্তা প্রতিক্রিয়া:
                       </div>
                       <p className="text-[13px] text-slate-800 font-medium italic">
@@ -715,22 +734,13 @@ export default function ProbahoPage() {
                     <PhoneCall size={14} className="text-violet-600" /> সাইবার ক্রাইম ও প্রতারণা অভিযোগ হটলাইন
                   </div>
                   <div className="grid grid-cols-2 gap-2 text-[12px]">
-                    <div className="p-2 rounded-lg bg-slate-50 border border-slate-100">
-                      <span className="block font-semibold text-slate-800">CID Cyber Police BD</span>
-                      <span className="font-mono text-violet-700 font-bold">01730336431</span>
-                    </div>
-                    <div className="p-2 rounded-lg bg-slate-50 border border-slate-100">
-                      <span className="block font-semibold text-slate-800">জাতীয় জরুরি সেবা</span>
-                      <span className="font-mono text-emerald-700 font-bold">999</span>
-                    </div>
-                    <div className="p-2 rounded-lg bg-slate-50 border border-slate-100">
-                      <span className="block font-semibold text-slate-800">বিকাশ ফ্রড সাপোর্ট</span>
-                      <span className="font-mono text-pink-700 font-bold">16247</span>
-                    </div>
-                    <div className="p-2 rounded-lg bg-slate-50 border border-slate-100">
-                      <span className="block font-semibold text-slate-800">নগদ হেল্পলাইন</span>
-                      <span className="font-mono text-orange-700 font-bold">16167</span>
-                    </div>
+                    {PROBAHO_HOTLINES.map((h) => (
+                      <div key={h.id} className="p-2 rounded-lg bg-slate-50 border border-slate-100 space-y-1">
+                        <span className="block font-semibold text-slate-800">{h.nameBn}</span>
+                        <a href={`tel:${h.number}`} className="inline-flex min-h-[44px] items-center font-mono text-violet-700 font-bold hover:underline">{h.numberBn}</a>
+                        <a href={h.source.url} target="_blank" rel="noopener noreferrer" className="block text-[12px] text-slate-500 hover:underline">উৎস: {h.source.label} ↗</a>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -738,7 +748,7 @@ export default function ProbahoPage() {
               <>
                 <div className="flex items-center justify-between">
                   <h2 id="fb-h" className="text-[17px] font-bold">ফিডব্যাক</h2>
-                  {analysis && <button onClick={reset} className="inline-flex items-center gap-1 text-[12px] font-semibold text-violet-700"><RotateCcw size={13} aria-hidden /> আবার চেষ্টা</button>}
+                  {analysis && <button onClick={reset} className="inline-flex items-center gap-1 text-[12px] font-semibold text-violet-700 min-h-[44px] min-w-[44px]"><RotateCcw size={13} aria-hidden /> আবার চেষ্টা</button>}
                 </div>
                 {!analysis ? (
                   <p className="py-10 text-center text-[13px] text-slate-500">উত্তর দেওয়ার পর এখানে বিষয়ভিত্তিক ফিডব্যাক, পরের প্রশ্ন ও একটি নমুনা উত্তর দেখাবে।</p>
@@ -753,7 +763,7 @@ export default function ProbahoPage() {
                         <li key={k} className={`rounded-lg px-2 py-1 font-semibold ${star[k] ? "bg-emerald-100 text-emerald-900" : "bg-amber-100 text-amber-900"}`}>{star[k] ? "✓" : "○"} {l}</li>
                       ))}
                     </ul>
-                    <p className="mt-2 text-[11px] text-slate-600">{star.missing.length ? "যে অংশে চিহ্ন নেই, সেটি গল্পে স্পষ্ট করে বলুন।" : "চারটি অংশেরই ইঙ্গিত পাওয়া গেছে।"} এটি কিছু সংকেত-শব্দ দেখে করা আন্দাজ, গল্পের মান যাচাই নয়।</p>
+                    <p className="mt-2 text-[12px] text-slate-600">{star.missing.length ? "যে অংশে চিহ্ন নেই, সেটি গল্পে স্পষ্ট করে বলুন।" : "চারটি অংশেরই ইঙ্গিত পাওয়া গেছে।"} এটি কিছু সংকেত-শব্দ দেখে করা আন্দাজ, গল্পের মান যাচাই নয়।</p>
                   </div>
                 )}
                 {analysis && <AiCoach key={`${q.id}:${answerText.length}`} questionId={q.id} answer={answerText} lang={q.lang} />}
@@ -767,17 +777,17 @@ export default function ProbahoPage() {
             <h2 id="hist-h" className="text-[16px] font-bold">অনুশীলনের ইতিহাস</h2>
             {streak.best > 0 && <span className="rounded-full bg-orange-100 px-2.5 py-0.5 text-[12px] font-bold text-orange-900" data-testid="streak">🔥 টানা {streak.current} দিন · সেরা {streak.best}</span>}
             <div className="flex flex-wrap items-center gap-3 text-[12px]">
-              <label className="flex items-center gap-1.5"><input type="checkbox" checked={keepTranscripts} onChange={(e) => setKeepTranscripts(e.target.checked)} className="accent-violet-600" /> ইতিহাসে ট্রান্সক্রিপ্টও রাখুন</label>
-              {history.length > 0 && <button onClick={() => { if (window.confirm("সব অনুশীলনের ইতিহাস মুছবেন?")) setHistory([]); }} className="inline-flex items-center gap-1 font-semibold text-red-700"><Trash2 size={13} aria-hidden /> সব মুছুন</button>}
+              <label className="flex items-center gap-1.5 min-h-[44px]"><input type="checkbox" checked={keepTranscripts} onChange={(e) => setKeepTranscripts(e.target.checked)} className="accent-violet-600" /> ইতিহাসে ট্রান্সক্রিপ্টও রাখুন</label>
+              {history.length > 0 && <button onClick={() => { if (window.confirm("সব অনুশীলনের ইতিহাস মুছবেন?")) setHistory([]); }} className="inline-flex items-center gap-1 font-semibold text-red-700 min-h-[44px] min-w-[44px]"><Trash2 size={13} aria-hidden /> সব মুছুন</button>}
             </div>
           </div>
-          <p className="mt-1 text-[11px] text-slate-500">শুধু এই ডিভাইসে থাকে। ডিফল্টভাবে শুধু স্কোর রাখা হয়, আপনার বলা কথা নয়।</p>
+          <p className="mt-1 text-[12px] text-slate-500">শুধু এই ডিভাইসে থাকে। ডিফল্টভাবে শুধু স্কোর রাখা হয়, আপনার বলা কথা নয়।</p>
           {history.length === 0 ? (
             <p className="mt-3 text-[13px] text-slate-500">এখনো কোনো অনুশীলন নেই। প্রতিদিন একটি প্রশ্ন দিয়ে শুরু করুন।</p>
           ) : (
             <div className="mt-3 overflow-x-auto">
               <table className="w-full min-w-[560px] text-left text-[13px]">
-                <thead className="text-[11px] uppercase text-slate-500"><tr><th className="py-1">তারিখ</th><th>প্রশ্ন</th><th className="text-right">মোট</th><th className="text-right">বিষয়/৫০</th><th className="text-right">গঠন/২০</th><th className="text-right">উপস্থাপন/৩০</th><th className="text-right">ফিলার/১০০</th><th /></tr></thead>
+                <thead className="text-[12px] uppercase text-slate-500"><tr><th className="py-1">তারিখ</th><th>প্রশ্ন</th><th className="text-right">মোট</th><th className="text-right">বিষয়/৫০</th><th className="text-right">গঠন/২০</th><th className="text-right">উপস্থাপন/৩০</th><th className="text-right">ফিলার/১০০</th><th /></tr></thead>
                 <tbody className="divide-y divide-slate-100">
                   {history.slice(0, 30).map((h) => (
                     <tr key={h.id}>
@@ -788,7 +798,7 @@ export default function ProbahoPage() {
                       <td className="text-right">{h.structure}</td>
                       <td className="text-right">{h.delivery}</td>
                       <td className="text-right">{h.fillerPer100}</td>
-                      <td className="text-right"><button onClick={() => setHistory((p) => p.filter((x) => x.id !== h.id))} aria-label="মুছুন" className="p-1 text-slate-400 hover:text-red-600"><Trash2 size={13} /></button></td>
+                      <td className="text-right"><button onClick={() => setHistory((p) => p.filter((x) => x.id !== h.id))} aria-label="মুছুন" className="p-1 text-slate-500 hover:text-red-600 min-h-[44px] min-w-[44px]"><Trash2 size={13} /></button></td>
                     </tr>
                   ))}
                 </tbody>
@@ -819,7 +829,7 @@ function Feedback({ a, q, showModel, setShowModel }: { a: Analysis; q: Question;
       <div className="flex items-center gap-4">
         <div className="flex h-20 w-20 shrink-0 flex-col items-center justify-center rounded-2xl bg-violet-600 text-white">
           <strong className="text-[28px] leading-none">{a.score.total}</strong>
-          <span className="text-[10px]">/১০০</span>
+          <span className="text-[12px]">/১০০</span>
         </div>
         <div className="flex-1 space-y-1.5">
           {bar(a.score.content, 50, "বিষয়বস্তু (প্রত্যাশিত বিষয় ছুঁয়েছে কি না)")}
@@ -833,7 +843,7 @@ function Feedback({ a, q, showModel, setShowModel }: { a: Analysis; q: Question;
           const ok = a.covered.includes(t);
           return (
             <li key={t.id} className="flex items-start gap-1.5">
-              {ok ? <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-emerald-600" aria-label="বলা হয়েছে" /> : <XCircle size={16} className="mt-0.5 shrink-0 text-slate-400" aria-label="বাদ পড়েছে" />}
+              {ok ? <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-emerald-600" aria-label="বলা হয়েছে" /> : <XCircle size={16} className="mt-0.5 shrink-0 text-slate-500" aria-label="বাদ পড়েছে" />}
               <span className={ok ? "" : "text-slate-500"}>{t.label}</span>
             </li>
           );
@@ -862,7 +872,7 @@ function Feedback({ a, q, showModel, setShowModel }: { a: Analysis; q: Question;
         </div>
       )}
       <div>
-        <button onClick={() => setShowModel(!showModel)} className="text-[13px] font-bold text-violet-700">{showModel ? "নমুনা উত্তর লুকান" : "একটি শক্তিশালী নমুনা উত্তর দেখুন"}</button>
+        <button onClick={() => setShowModel(!showModel)} className="text-[13px] font-bold text-violet-700 min-h-[44px] min-w-[44px]">{showModel ? "নমুনা উত্তর লুকান" : "একটি শক্তিশালী নমুনা উত্তর দেখুন"}</button>
         {showModel && <p className="mt-2 rounded-xl bg-slate-50 p-3 text-[13px] leading-relaxed">{q.modelAnswer}</p>}
       </div>
     </div>
@@ -902,15 +912,15 @@ function AiCoach({ questionId, answer, lang }: { questionId: string; answer: str
     <div className="space-y-3 rounded-xl border border-violet-200 bg-gradient-to-br from-violet-50 to-white p-4" data-testid="ai-coach">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="flex items-center gap-1.5 text-[14px] font-bold"><Sparkles size={16} className="text-violet-700" aria-hidden /> {en ? "AI coach (Gemini)" : "AI কোচ (Gemini)"}</h3>
-        {res && <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${isAi ? "bg-violet-100 text-violet-800" : "bg-amber-100 text-amber-900"}`}>{isAi ? res.engine : en ? "rule-based fallback" : "নিয়মভিত্তিক বিকল্প"}</span>}
+        {res && <span className={`rounded-full px-2 py-0.5 text-[12px] font-bold ${isAi ? "bg-violet-100 text-violet-800" : "bg-amber-100 text-amber-900"}`}>{isAi ? res.engine : en ? "rule-based fallback" : "নিয়মভিত্তিক বিকল্প"}</span>}
       </div>
       {!res && (
         <>
           <p className="text-[12px] text-slate-600">{en ? "Get specific coaching on this answer. Every strength must quote your own words — we check each quote. Your score above is not changed by the AI." : "এই উত্তরের ওপর নির্দিষ্ট পরামর্শ নিন। প্রতিটি ভালো দিক আপনার নিজের কথা থেকে উদ্ধৃত হতে হবে — আমরা যাচাই করি। উপরের স্কোর AI বদলায় না।"}</p>
-          <button onClick={run} disabled={busy} className="inline-flex items-center gap-1.5 rounded-lg bg-violet-700 px-3 py-2 text-[13px] font-bold text-white hover:bg-violet-800 disabled:opacity-50">
+          <button onClick={run} disabled={busy} className="inline-flex items-center gap-1.5 rounded-lg bg-violet-700 px-3 py-2 text-[13px] font-bold text-white hover:bg-violet-800 disabled:opacity-50 min-h-[44px] min-w-[44px]">
             <Sparkles size={14} aria-hidden /> {busy ? (en ? "Thinking…" : "ভাবছে…") : en ? "Ask the AI coach" : "AI কোচকে জিজ্ঞেস করুন"}
           </button>
-          <p className="text-[10px] text-slate-500">{en ? "Sends only this answer's text to Google Gemini. Nothing is stored." : "শুধু এই উত্তরের লেখা Google Gemini-তে পাঠানো হয়। কিছু সংরক্ষণ করা হয় না।"}</p>
+          <p className="text-[12px] text-slate-500">{en ? "Sends only this answer's text to Google Gemini. Nothing is stored." : "শুধু এই উত্তরের লেখা Google Gemini-তে পাঠানো হয়। কিছু সংরক্ষণ করা হয় না।"}</p>
         </>
       )}
       {err && <p role="alert" className="text-[12px] text-amber-900">{err}</p>}
@@ -918,7 +928,7 @@ function AiCoach({ questionId, answer, lang }: { questionId: string; answer: str
         <div className="space-y-3 text-[13px]">
           {res.strengths.length > 0 && (
             <div>
-              <p className="mb-1 text-[11px] font-bold uppercase text-emerald-800">{en ? "What worked" : "যা ভালো হয়েছে"}</p>
+              <p className="mb-1 text-[12px] font-bold uppercase text-emerald-800">{en ? "What worked" : "যা ভালো হয়েছে"}</p>
               <ul className="space-y-1.5">
                 {res.strengths.map((s, i) => (
                   <li key={i} className="rounded-lg bg-emerald-50 p-2">
@@ -930,16 +940,16 @@ function AiCoach({ questionId, answer, lang }: { questionId: string; answer: str
             </div>
           )}
           <div>
-            <p className="mb-1 text-[11px] font-bold uppercase text-amber-800">{en ? "Improve next time" : "পরের বার উন্নতি করুন"}</p>
+            <p className="mb-1 text-[12px] font-bold uppercase text-amber-800">{en ? "Improve next time" : "পরের বার উন্নতি করুন"}</p>
             <ul className="list-disc space-y-1 pl-5">{res.gaps.map((g, i) => <li key={i}>{g.tip}</li>)}</ul>
           </div>
           {res.stronger_sentence && (
             <div className="rounded-lg border border-violet-200 bg-white p-2">
-              <p className="text-[11px] font-bold uppercase text-violet-800">{en ? "Try saying" : "এভাবে বলে দেখুন"}</p>
+              <p className="text-[12px] font-bold uppercase text-violet-800">{en ? "Try saying" : "এভাবে বলে দেখুন"}</p>
               <p className="mt-0.5">{res.stronger_sentence}</p>
             </div>
           )}
-          <p className="text-[10px] text-slate-500">{isAi ? (en ? "Each quoted strength was checked against your answer text." : "প্রতিটি উদ্ধৃতি আপনার উত্তরের লেখার সাথে মিলিয়ে দেখা হয়েছে।") : en ? "Model unavailable, so this is built from the rule-based analysis." : "মডেল পাওয়া যায়নি, তাই নিয়মভিত্তিক বিশ্লেষণ থেকে তৈরি।"}</p>
+          <p className="text-[12px] text-slate-500">{isAi ? (en ? "Each quoted strength was checked against your answer text." : "প্রতিটি উদ্ধৃতি আপনার উত্তরের লেখার সাথে মিলিয়ে দেখা হয়েছে।") : en ? "Model unavailable, so this is built from the rule-based analysis." : "মডেল পাওয়া যায়নি, তাই নিয়মভিত্তিক বিশ্লেষণ থেকে তৈরি।"}</p>
         </div>
       )}
     </div>
@@ -1050,7 +1060,7 @@ function AudioWaveformVisualizer({ stream, active }: { stream: MediaStream | nul
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
           <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
         </span>
-        <span className="text-[11px] font-bold uppercase tracking-wider text-violet-800">মাইক্রোফোন লাইভ অডিও স্পেকট্রাম</span>
+        <span className="text-[12px] font-bold uppercase tracking-wider text-violet-800">মাইক্রোফোন লাইভ অডিও স্পেকট্রাম</span>
       </div>
       <canvas ref={canvasRef} width={340} height={42} className="w-full max-w-[360px] h-10 rounded-lg" />
     </div>

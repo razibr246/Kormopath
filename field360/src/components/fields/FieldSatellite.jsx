@@ -73,7 +73,7 @@ export function PhotoPicture({ parcel, close, tight = false }) {
                 : T('ছবি আনা হচ্ছে…', 'Loading the photo…')}</span>}
           </div>
         )}
-        {close && st.phase === 'done' && <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-violet-700/90 px-2.5 py-1 text-[11.5px] font-semibold text-white"><Sparkles size={12} />{T('AI × ৪', 'AI × 4')}</span>}
+        {close && st.phase === 'done' && <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-violet-700/90 px-2.5 py-1 text-[12px] font-semibold text-white"><Sparkles size={12} />{T('AI × ৪', 'AI × 4')}</span>}
       </div>
       <p className="mt-2 text-[12.5px] leading-5 text-muted">
         {close
@@ -95,7 +95,7 @@ export function Picture({ parcel, pictures, kind }) {
         className="crisp-img h-full w-full object-cover" onError={() => setFailed(true)} loading="lazy" decoding="async" /> : null}
       <Outline parcel={parcel} />
       {kind === 'ndvi' && (
-        <div className="absolute inset-x-3 bottom-3 rounded-lg bg-black/55 px-2.5 py-1.5 text-[11.5px] text-white backdrop-blur">
+        <div className="absolute inset-x-3 bottom-3 rounded-lg bg-black/55 px-2.5 py-1.5 text-[12px] text-white backdrop-blur">
           <div className="h-2 rounded-full" style={{ background: 'linear-gradient(90deg,#a50026,#f46d43,#fee08b,#d9ef8b,#66bd63,#006837)' }} />
           <div className="mt-1 flex justify-between"><span>{T('খালি মাটি / পানি', 'Bare soil / water')}</span><span>{T('ঘন সবুজ ফসল', 'Thick green crop')}</span></div>
         </div>

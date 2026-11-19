@@ -65,29 +65,29 @@ export function StudyPlanner({ today }: { today: string }) {
         </div>
         <div className="grid gap-3 sm:grid-cols-3">
           <label className="text-[13px] font-semibold text-slate-700">পরীক্ষার তারিখ<input type="date" className={fieldCls} value={saved.examDate} min={today} onChange={(e) => update({ examDate: e.target.value })} /></label>
-          <label className="text-[13px] font-semibold text-slate-700">দিনে কত ঘণ্টা<input className={`${fieldCls} font-mono`} inputMode="decimal" value={saved.hoursPerDay} onChange={(e) => { const n = Number(e.target.value); if (Number.isFinite(n) && n > 0 && n <= 16) update({ hoursPerDay: n }); }} /></label>
+          <label className="text-[13px] font-semibold text-slate-700">দিনে কত ঘণ্টা<input className={`${fieldCls} font-mono min-h-[44px]`} inputMode="decimal" value={saved.hoursPerDay} onChange={(e) => { const n = Number(e.target.value); if (Number.isFinite(n) && n > 0 && n <= 16) update({ hoursPerDay: n }); }} /></label>
           <label className="text-[13px] font-semibold text-slate-700">যেদিন পড়া হবে না (বিদ্যুৎ/নেট নেই)
             <div className="flex gap-2"><input type="date" className={fieldCls} value={blockDate} onChange={(e) => setBlockDate(e.target.value)} />
-              <button type="button" className="shrink-0 rounded-lg border border-slate-300 px-3 text-[13px] font-bold" onClick={() => { if (blockDate && !saved.blockedDates?.includes(blockDate)) update({ blockedDates: [...(saved.blockedDates ?? []), blockDate].sort() }); setBlockDate(""); }}>বাদ দিন</button></div>
+              <button type="button" className="shrink-0 rounded-lg border border-slate-300 px-3 text-[13px] font-bold min-h-[44px] min-w-[44px]" onClick={() => { if (blockDate && !saved.blockedDates?.includes(blockDate)) update({ blockedDates: [...(saved.blockedDates ?? []), blockDate].sort() }); setBlockDate(""); }}>বাদ দিন</button></div>
           </label>
         </div>
         {(saved.blockedDates?.length ?? 0) > 0 && (
           <div className="flex flex-wrap gap-2 text-[12.5px]">{saved.blockedDates!.map((d) => (
-            <button key={d} type="button" onClick={() => update({ blockedDates: saved.blockedDates!.filter((x) => x !== d) })} className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 font-semibold text-amber-900 ring-1 ring-amber-200" aria-label={`${d} আবার যোগ করুন`}><Zap size={12} aria-hidden /> {d} ✕</button>
+            <button key={d} type="button" onClick={() => update({ blockedDates: saved.blockedDates!.filter((x) => x !== d) })} className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 font-semibold text-amber-900 ring-1 ring-amber-200 min-h-[44px] min-w-[44px]" aria-label={`${d} আবার যোগ করুন`}><Zap size={12} aria-hidden /> {d} ✕</button>
           ))}</div>
         )}
         <div className="grid gap-2 sm:grid-cols-[1fr_2fr_7rem_auto]">
           <input className={fieldCls} value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="বিষয়, যেমন: পদার্থবিজ্ঞান" aria-label="বিষয়" list="study-subjects" />
           <datalist id="study-subjects">{[...new Set(saved.chapters.map((c) => c.subject))].map((s) => <option key={s} value={s} />)}</datalist>
           <input className={fieldCls} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="অধ্যায়, যেমন: ভেক্টর" aria-label="অধ্যায়" onKeyDown={(e) => { if (e.key === "Enter") addChapter(); }} />
-          <input className={`${fieldCls} font-mono`} inputMode="decimal" value={hours} onChange={(e) => setHours(e.target.value)} aria-label="ঘণ্টা" title="এই অধ্যায় প্রথমবার পড়তে কত ঘণ্টা লাগবে" />
-          <button type="button" onClick={addChapter} className="inline-flex min-h-[44px] items-center justify-center gap-1 rounded-lg bg-indigo-600 px-4 text-[14px] font-bold text-white"><Plus size={15} /> যোগ</button>
+          <input className={`${fieldCls} font-mono min-h-[44px]`} inputMode="decimal" value={hours} onChange={(e) => setHours(e.target.value)} aria-label="ঘণ্টা" title="এই অধ্যায় প্রথমবার পড়তে কত ঘণ্টা লাগবে" />
+          <button type="button" onClick={addChapter} className="inline-flex min-h-[44px] items-center justify-center gap-1 rounded-lg bg-indigo-600 px-4 text-[14px] font-bold text-white min-w-[44px]"><Plus size={15} /> যোগ</button>
         </div>
         {err && <p role="alert" className="text-[13px] text-rose-700">{err}</p>}
         {saved.chapters.length > 0 && (
           <ul className="flex flex-wrap gap-2">{saved.chapters.map((c) => (
             <li key={c.id} className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-[13px]">{c.subject}: {c.title} · {c.hours} ঘ.
-              <button type="button" aria-label={`${c.title} মুছুন`} onClick={() => update({ chapters: saved.chapters.filter((x) => x.id !== c.id) })} className="text-slate-500 hover:text-rose-700"><Trash2 size={13} /></button></li>
+              <button type="button" aria-label={`${c.title} মুছুন`} onClick={() => update({ chapters: saved.chapters.filter((x) => x.id !== c.id) })} className="text-slate-500 hover:text-rose-700 min-h-[44px] min-w-[44px]"><Trash2 size={13} /></button></li>
           ))}</ul>
         )}
         <p className="flex items-start gap-2 rounded-xl bg-sky-50 p-3 text-[13px] text-sky-900"><WifiOff size={16} className="mt-0.5 shrink-0" aria-hidden /> বিদ্যুৎ চলে গেলে বা ইন্টারনেট না থাকলেও পরিকল্পনা চলে: সব হিসাব এই ফোনেই হয়, একবার খোলা থাকলে অফলাইনেও খোলে। আগে থেকে প্রিন্ট করে বা ক্যালেন্ডারে (.ics) রেখে দিন। কোনো দিন পড়া না হলে সেই দিনটা “বাদ দিন” — বাকি পরিকল্পনা নিজে থেকে সরে যাবে।</p>
@@ -104,8 +104,8 @@ export function StudyPlanner({ today }: { today: string }) {
               <p className="text-[13px] text-slate-600">লাগবে {hm(plan.neededMinutes)} · হাতে আছে {hm(plan.availableMinutes)} · শেষ {doneCount}/{allSessions.length}</p>
             </div>
             <div className="no-print flex gap-2">
-              <button type="button" onClick={exportIcs} className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg bg-indigo-600 px-3 text-[13px] font-bold text-white"><CalendarPlus size={15} /> ক্যালেন্ডার (.ics)</button>
-              <button type="button" onClick={() => window.print()} className="inline-flex min-h-[40px] items-center rounded-lg border border-slate-300 px-3 text-[13px] font-bold">প্রিন্ট</button>
+              <button type="button" onClick={exportIcs} className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg bg-indigo-600 px-3 text-[13px] font-bold text-white min-h-[44px] min-w-[44px]"><CalendarPlus size={15} /> ক্যালেন্ডার (.ics)</button>
+              <button type="button" onClick={() => window.print()} className="inline-flex min-h-[40px] items-center rounded-lg border border-slate-300 px-3 text-[13px] font-bold min-h-[44px] min-w-[44px]">প্রিন্ট</button>
             </div>
           </div>
           {plan.overload && <p role="alert" className="flex items-start gap-2 rounded-xl bg-rose-50 p-3 text-[13.5px] font-semibold text-rose-800"><AlertTriangle size={16} className="mt-0.5 shrink-0" aria-hidden /> সময়ে কুলাচ্ছে না।</p>}
@@ -120,8 +120,8 @@ export function StudyPlanner({ today }: { today: string }) {
                   const on = done.includes(s.id);
                   return (
                     <li key={s.id}>
-                      <button type="button" aria-pressed={on} onClick={() => toggle(s.id)} className="flex w-full items-start gap-2 rounded-lg px-1 py-1 text-left text-[14px] hover:bg-slate-50">
-                        {on ? <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-emerald-600" aria-hidden /> : <Circle size={18} className="mt-0.5 shrink-0 text-slate-400" aria-hidden />}
+                      <button type="button" aria-pressed={on} onClick={() => toggle(s.id)} className="flex w-full items-start gap-2 rounded-lg px-1 py-1 text-left text-[14px] hover:bg-slate-50 min-h-[44px]">
+                        {on ? <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-emerald-600" aria-hidden /> : <Circle size={18} className="mt-0.5 shrink-0 text-slate-500" aria-hidden />}
                         <span className={on ? "text-slate-500 line-through" : ""}><strong>{s.subject}</strong> — {s.title} · <span className={s.kind === "revise" ? "text-indigo-700" : ""}>{s.kind === "learn" ? "প্রথম পড়া" : ROUND_BN[s.round]}</span> · {hm(s.minutes)}</span>
                       </button>
                     </li>

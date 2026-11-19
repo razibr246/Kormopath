@@ -72,7 +72,7 @@ export default function CropPhoto({ crop, width = 800, fallback = 'seedlings', s
           )}
           {shown && !thumb && (
             <Credit link={linkCredit} href={img.page}
-              className={`absolute inset-x-0 px-3 text-[11px] leading-4 text-white/90 hover:text-white ${creditTop ? 'top-0 bg-gradient-to-b from-black/60 to-transparent pb-6 pt-2' : 'bottom-0 bg-gradient-to-t from-black/70 to-transparent pb-2 pt-6'}`}>
+              className={`absolute inset-x-0 px-3 text-[12px] leading-4 text-white/90 hover:text-white ${creditTop ? 'top-0 bg-gradient-to-b from-black/60 to-transparent pb-6 pt-2' : 'bottom-0 bg-gradient-to-t from-black/70 to-transparent pb-2 pt-6'}`}>
               <span className="font-semibold">{L(crop.name)}</span>{img.where ? `, ${L(img.where)}` : ''}
               <span className="block truncate text-white/75">{T('ছবি', 'Photo')}: {img.artist}{img.license ? ` · ${img.license}` : ''} · {T('উইকিমিডিয়া কমন্স', 'Wikimedia Commons')}</span>
             </Credit>

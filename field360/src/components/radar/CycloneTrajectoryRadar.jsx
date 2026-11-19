@@ -193,7 +193,7 @@ Timestamp: ${new Date().toISOString()}
               >
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-[13.5px] text-ink">{L(sc.name)}</span>
-                  <span className="rounded-full px-2 py-0.5 text-[10.5px] font-bold text-white" style={{ background: sc.color }}>
+                  <span className="rounded-full px-2 py-0.5 text-[12px] font-bold text-white" style={{ background: sc.color }}>
                     {L({ bn: sc.badge, en: sc.badgeEn })}
                   </span>
                 </div>
@@ -212,7 +212,7 @@ Timestamp: ${new Date().toISOString()}
         {/* Radar Graphic */}
         <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-slate-800 bg-slate-950 p-2 shadow-inner">
           <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-700/80 bg-slate-900/85 px-2.5 py-0.5 font-mono text-[10px] text-sky-200 backdrop-blur-xs">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-700/80 bg-slate-900/85 px-2.5 py-0.5 font-mono text-[12px] text-sky-200 backdrop-blur-xs">
               <span
                 className="h-1.5 w-1.5 rounded-full"
                 style={{ backgroundColor: scenario.color }}
@@ -224,7 +224,7 @@ Timestamp: ${new Date().toISOString()}
               type="button"
               onClick={() => setIsAnimating((a) => !a)}
               aria-label={isAnimating ? T('রাডার অ্যানিমেশন থামান', 'Pause radar animation') : T('রাডার অ্যানিমেশন চালান', 'Play radar animation')}
-              className="pointer-events-auto inline-flex items-center gap-1 rounded-full border border-slate-700/80 bg-slate-900/85 px-2 py-0.5 font-mono text-[10px] text-slate-200 hover:border-sky-400/60 hover:text-white transition cursor-pointer"
+              className="pointer-events-auto inline-flex items-center gap-1 rounded-full border border-slate-700/80 bg-slate-900/85 px-2 py-0.5 font-mono text-[12px] text-slate-200 hover:border-sky-400/60 hover:text-white transition cursor-pointer"
             >
               {isAnimating ? <Pause size={10} /> : <Play size={10} />}
               <span>{isAnimating ? T('বিরতি', 'Pause') : T('চালু', 'Live')}</span>
@@ -253,9 +253,9 @@ Timestamp: ${new Date().toISOString()}
             <circle cx="200" cy="180" r="40" fill="none" stroke="#334155" strokeWidth="1" strokeDasharray="2 2" />
             <circle cx="200" cy="180" r="80" fill="none" stroke="#334155" strokeWidth="1" strokeDasharray="3 3" />
             <circle cx="200" cy="180" r="130" fill="none" stroke="#334155" strokeWidth="1" strokeDasharray="4 4" />
-            <text x="205" y="145" fontSize="8" fill="#64748b">100 km</text>
-            <text x="205" y="105" fontSize="8" fill="#64748b">200 km</text>
-            <text x="205" y="55" fontSize="8" fill="#64748b">300 km</text>
+            <text x="205" y="145" fontSize="12" fill="#64748b">100 km</text>
+            <text x="205" y="105" fontSize="12" fill="#64748b">200 km</text>
+            <text x="205" y="55" fontSize="12" fill="#64748b">300 km</text>
 
             {/* Rotating Doppler Radar Beam Sweep */}
             <g transform={`rotate(${sweepDeg.toFixed(1)} 200 180)`} opacity={isAnimating ? 0.85 : 0.35}>
@@ -290,7 +290,7 @@ Timestamp: ${new Date().toISOString()}
             })}
 
             {/* Bay of Bengal Label */}
-            <text x="200" y="238" textAnchor="middle" fontSize="10" fill="#38bdf8" opacity="0.6" letterSpacing="2">
+            <text x="200" y="238" textAnchor="middle" fontSize="12" fill="#38bdf8" opacity="0.6" letterSpacing="2">
               {T('বঙ্গোপসাগর', 'BAY OF BENGAL')}
             </text>
 
@@ -387,7 +387,7 @@ Timestamp: ${new Date().toISOString()}
                 />
               </g>
               <circle cx="0" cy="0" r="3.8" fill="#ffffff" />
-              <text x="0" y="27" textAnchor="middle" fontSize="8.5" fill="#ffffff" fontWeight="bold">
+              <text x="0" y="27" textAnchor="middle" fontSize="12" fill="#ffffff" fontWeight="bold">
                 {scenario.windSpeedKph} km/h
               </text>
             </g>

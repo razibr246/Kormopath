@@ -47,13 +47,13 @@ function TaskCard({ c, task, compact }) {
         <div className="min-w-0 flex-1">
           <div className="text-[15px] font-bold leading-snug">{L(task.title)}</div>
           <p className="mt-1 text-[13.5px] leading-6 text-white/80">{L(task.body)}</p>
-          {!compact && <p className="mt-1 text-[12px] text-white/50">{T('কেন: ', 'Why: ')}{L(task.why)}</p>}
+          {!compact && <p className="mt-1 text-[12px] text-white/80">{T('কেন: ', 'Why: ')}{L(task.why)}</p>}
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
-            <span className="rounded-full bg-white/10 px-2 py-0.5 text-[11.5px] font-semibold text-white/85">{L(GATE[task.gate])}</span>
-            <span className="[&_*]:!text-[11px]"><Tags list={task.tags} /></span>
+            <span className="rounded-full bg-white/10 px-2 py-0.5 text-[12px] font-semibold text-white/85">{L(GATE[task.gate])}</span>
+            <span className="[&_*]:!text-[12px]"><Tags list={task.tags} /></span>
           </div>
           {sms && !compact && (
-            <p className="mt-2 flex flex-wrap items-center gap-1.5 text-[11.5px] text-white/50"><Smartphone size={13} />{T(`বাটন ফোনে এসএমএস: ${num(sms.length, 'bn')} ভাগ`, `To a button phone by SMS: ${sms.length} part(s)`)}
+            <p className="mt-2 flex flex-wrap items-center gap-1.5 text-[12px] text-white/80"><Smartphone size={13} />{T(`বাটন ফোনে এসএমএস: ${num(sms.length, 'bn')} ভাগ`, `To a button phone by SMS: ${sms.length} part(s)`)}
               {phone ? <> → {s.lang === 'bn' ? bnDigits(phone) : phone} <a href={smsHref(phone, sms.join(' '))} className="chakra-chip rounded-full px-2 py-0.5 font-semibold text-white/85">{T('ফোন থেকে পাঠান', 'Send from phone')}</a></> : T(' (মোবাইল নম্বর দেওয়া নেই)', ' (no mobile number yet)')}
             </p>
           )}
@@ -73,19 +73,19 @@ function TaskCard({ c, task, compact }) {
 function CrewRun({ run, compact }) {
   const { T, L, s } = useStore();
   if (compact) return (
-    <div className="flex flex-wrap items-center gap-1.5 text-[11.5px] text-white/55"><UsersRound size={13} />{T('দলের কাজ:', 'Crew:')}
+    <div className="flex flex-wrap items-center gap-1.5 text-[12px] text-white/80"><UsersRound size={13} />{T('দলের কাজ:', 'Crew:')}
       {run.trace.filter((t) => t.asked).map((t) => <span key={t.member} className="chakra-chip rounded-full px-2 py-0.5">{L(t.name)}{t.notes ? ` · ${num(t.notes, s.lang)}` : ''}</span>)}
     </div>
   );
   return (
     <div className="space-y-3">
-      <p className="text-[12.5px] leading-5 text-white/60">{T('চক্র দলের প্রত্যেক সদস্যের একটাই কাজ। আগের জনের খবর পরের জন পড়ে, আর সমন্বয়ক সবচেয়ে জরুরি তিনটি কথা বেছে বলে। দল নিজে কিছু পাঠাতে পারে না; কাজ হয় কাজের তালিকা থেকে, অনুমতি মেনে।', 'Each crew member has one job. Each reads what the one before found, and the coordinator picks the three most important points to say. The crew cannot send anything itself; actions go through the task list and its permissions.')}</p>
+      <p className="text-[12.5px] leading-5 text-white/80">{T('চক্র দলের প্রত্যেক সদস্যের একটাই কাজ। আগের জনের খবর পরের জন পড়ে, আর সমন্বয়ক সবচেয়ে জরুরি তিনটি কথা বেছে বলে। দল নিজে কিছু পাঠাতে পারে না; কাজ হয় কাজের তালিকা থেকে, অনুমতি মেনে।', 'Each crew member has one job. Each reads what the one before found, and the coordinator picks the three most important points to say. The crew cannot send anything itself; actions go through the task list and its permissions.')}</p>
       {run.trace.map((t) => (
         <div key={t.member} className={`rounded-2xl border p-3 ${t.asked ? 'border-white/12 bg-white/[.06]' : 'border-white/5 bg-white/[.02] opacity-70'}`}>
-          <div className="flex items-center justify-between gap-2"><span className="text-[14.5px] font-bold">{L(t.name)}</span><span className="text-[11px] text-white/45">{t.error ? T('সমস্যা হয়েছে', 'failed') : !t.asked ? T('শুধু তথ্য দিয়েছে', 'facts only') : T(`${num(t.notes, s.lang)}টি কথা`, `${t.notes} note(s)`)}</span></div>
-          {t.goal && <p className="mt-0.5 text-[12.5px] text-white/60">{L(t.goal)}</p>}
-          {t.reads && <p className="mt-1 text-[11px] text-white/40">{T('পড়েছে: ', 'Read: ')}{L(t.reads)}</p>}
-          <ul className="mt-1.5 space-y-1">{run.notes.filter((n) => n.member === t.member).map((n) => <li key={n.key} className={`text-[13px] leading-6 ${run.top.includes(n) ? 'text-white' : 'text-white/60'}`}>{run.top.includes(n) ? '★ ' : '· '}{L(n.text)}</li>)}</ul>
+          <div className="flex items-center justify-between gap-2"><span className="text-[14.5px] font-bold">{L(t.name)}</span><span className="text-[12px] text-white/80">{t.error ? T('সমস্যা হয়েছে', 'failed') : !t.asked ? T('শুধু তথ্য দিয়েছে', 'facts only') : T(`${num(t.notes, s.lang)}টি কথা`, `${t.notes} note(s)`)}</span></div>
+          {t.goal && <p className="mt-0.5 text-[12.5px] text-white/80">{L(t.goal)}</p>}
+          {t.reads && <p className="mt-1 text-[12px] text-white/80">{T('পড়েছে: ', 'Read: ')}{L(t.reads)}</p>}
+          <ul className="mt-1.5 space-y-1">{run.notes.filter((n) => n.member === t.member).map((n) => <li key={n.key} className={`text-[13px] leading-6 ${run.top.includes(n) ? 'text-white' : 'text-white/80'}`}>{run.top.includes(n) ? '★ ' : '· '}{L(n.text)}</li>)}</ul>
         </div>
       ))}
     </div>
@@ -96,15 +96,15 @@ function CrewRun({ run, compact }) {
 const PATH_ORDER = ['reported', 'first_look', 'officer', 'advised', 'check_back', 'solved'];
 function PathView({ c }) {
   const { T, L, s } = useStore();
-  if (!c.caseList.length) return <p className="py-10 text-center text-[14px] text-white/55">{T('কোনো সমস্যা জানানো হয়নি।', 'No problems reported.')}</p>;
+  if (!c.caseList.length) return <p className="py-10 text-center text-[14px] text-white/80">{T('কোনো সমস্যা জানানো হয়নি।', 'No problems reported.')}</p>;
   return (
     <div className="space-y-3">
-      <p className="text-[12.5px] leading-5 text-white/60">{T('প্রতিটি সমস্যা একই পথে চলে: জানানো, কর্মকর্তার উত্তর, তারপর আপনার কথা যে মিটেছে। যেখানে মানুষের সিদ্ধান্ত লাগে, পথ সেখানে থেমে অপেক্ষা করে।', 'Every problem follows the same path: reported, the officer’s answer, then your word that it is solved. Where a person must decide, the path stops and waits.')}</p>
+      <p className="text-[12.5px] leading-5 text-white/80">{T('প্রতিটি সমস্যা একই পথে চলে: জানানো, কর্মকর্তার উত্তর, তারপর আপনার কথা যে মিটেছে। যেখানে মানুষের সিদ্ধান্ত লাগে, পথ সেখানে থেমে অপেক্ষা করে।', 'Every problem follows the same path: reported, the officer’s answer, then your word that it is solved. Where a person must decide, the path stops and waits.')}</p>
       {c.caseList.slice(0, 8).map((k) => {
         const done = new Set(k.trail.map((t) => t.node));
         return (
           <div key={k.id} className="rounded-2xl border border-white/12 bg-white/[.06] p-3">
-            <div className="flex items-center justify-between gap-2 text-[14px] font-bold"><span className="truncate">{cropName(k.crop, s.lang)} · {L(k.text) || k.symptom}</span><span className="shrink-0 text-[11px] font-semibold text-white/45">{fmtDate(k.created, s.lang)}</span></div>
+            <div className="flex items-center justify-between gap-2 text-[14px] font-bold"><span className="truncate">{cropName(k.crop, s.lang)} · {L(k.text) || k.symptom}</span><span className="shrink-0 text-[12px] font-semibold text-white/80">{fmtDate(k.created, s.lang)}</span></div>
             <ol className="mt-2 space-y-1">
               {PATH_ORDER.filter((id) => id !== 'first_look' || done.has(id)).map((id) => {
                 const n = PROBLEM_PATH.nodes[id];
@@ -113,7 +113,7 @@ function PathView({ c }) {
                 return (
                   <li key={id} className="flex items-start gap-2 text-[13px] leading-5">
                     <span className={`mt-1 h-2.5 w-2.5 shrink-0 rounded-full ${state === 'done' ? 'bg-emerald-300' : state === 'wait' ? 'animate-pulse bg-amber-300' : 'bg-white/15'}`} />
-                    <span className={state === 'next' ? 'text-white/40' : 'text-white/90'}>{L(n.name)}{state === 'wait' && k.waiting?.ask ? <span className="block text-[12px] text-amber-100/80">{L(k.waiting.ask)} · {k.waiting.who === 'officer' ? T('কর্মকর্তার পালা', 'officer’s turn') : T('আপনার পালা', 'your turn')}</span> : null}</span>
+                    <span className={state === 'next' ? 'text-white/80' : 'text-white/90'}>{L(n.name)}{state === 'wait' && k.waiting?.ask ? <span className="block text-[12px] text-amber-100/80">{L(k.waiting.ask)} · {k.waiting.who === 'officer' ? T('কর্মকর্তার পালা', 'officer’s turn') : T('আপনার পালা', 'your turn')}</span> : null}</span>
                   </li>
                 );
               })}
@@ -168,10 +168,10 @@ function Panel({ c, onClose, onMinimize }) {
             <ChakraLogo size={28} spin={c.phase === 'thinking'} />
             <div className="min-w-0 leading-tight">
               <div className="truncate text-[15.5px] font-bold">{L(AGENT_NAME)}</div>
-              <div className="truncate text-[11px] text-white/60">{c.role === 'farmer' ? T('আপনার জমির সহকারী', 'Your field assistant') : T('অফিসের সহকারী', 'Office assistant')}{c.ai === 'on' ? ' · AI' : ''}</div>
+              <div className="truncate text-[12px] text-white/80">{c.role === 'farmer' ? T('আপনার জমির সহকারী', 'Your field assistant') : T('অফিসের সহকারী', 'Office assistant')}{c.ai === 'on' ? ' · AI' : ''}</div>
             </div>
           </div>
-          <span className="hidden sm:inline-flex items-center rounded-full border border-white/15 bg-white/[.07] px-2 py-0.5 text-[10.5px] font-semibold text-white/75">
+          <span className="hidden sm:inline-flex items-center rounded-full border border-white/15 bg-white/[.07] px-2 py-0.5 text-[12px] font-semibold text-white/75">
             {c.mode === 'agent' ? T('এজেন্ট', 'Agent') : T('ম্যানুয়াল', 'Manual')}
           </span>
         </div>
@@ -182,7 +182,7 @@ function Panel({ c, onClose, onMinimize }) {
             <button key={m} type="button" role="radio" aria-checked={c.mode === m} onClick={() => c.setMode(m)} className={`rounded-full py-2 transition-colors ${c.mode === m ? 'bg-white text-primary-950 shadow' : 'text-white/70 hover:text-white'}`}>{label}</button>
           ))}
         </div>
-        <p className="mx-5 mt-1.5 text-center text-[11.5px] leading-5 text-white/55">
+        <p className="mx-5 mt-1.5 text-center text-[12px] leading-5 text-white/80">
           {c.mode === 'agent'
             ? (c.role === 'farmer' ? T('এজেন্ট নিজে থেকে আপনার সমস্যা অফিসে পাঠাবে, উত্তর না এলে মনে করাবে আর পরামর্শ জানাবে।', 'The agent reports your problems to the office, chases late replies and tells you what to do, on its own.') : T('এজেন্ট উত্তর আর পরামর্শের খসড়া করবে; পাঠানোর আগে আপনার অনুমোদন চাইবে।', 'The agent drafts replies and advice, and asks your approval before anything goes out.'))
             : T('এজেন্ট শুধু পরামর্শ দেবে; প্রতিটি কাজ আপনি নিজে করবেন।', 'The agent only suggests; you do every step yourself.')}
@@ -195,7 +195,7 @@ function Panel({ c, onClose, onMinimize }) {
 
         <div className="mx-4 mt-2 flex gap-1 border-b border-white/10">
           {tabs.map(([id, Icon, label]) => (
-            <button key={id} type="button" onClick={() => setTab(id)} className={`flex flex-1 items-center justify-center gap-1.5 border-b-2 py-2 text-[13px] font-semibold ${tab === id ? 'border-paddy-300 text-white' : 'border-transparent text-white/55 hover:text-white/80'}`}><Icon size={15} />{label}</button>
+            <button key={id} type="button" onClick={() => setTab(id)} className={`flex flex-1 items-center justify-center gap-1.5 border-b-2 py-2 text-[13px] font-semibold ${tab === id ? 'border-paddy-300 text-white' : 'border-transparent text-white/80 hover:text-white/80'}`}><Icon size={15} />{label}</button>
           ))}
         </div>
 
@@ -213,8 +213,8 @@ function Panel({ c, onClose, onMinimize }) {
               ) : (
                 <div key={m.id}>
                   <p className="text-[17px] leading-8 text-white/95">{m.text}</p>
-                  {m.tags && <span className="mt-1 inline-flex flex-wrap items-center gap-1.5 [&_*]:!text-[11px]"><Tags list={m.tags} />{m.model && <span className="text-white/40">{m.deep ? T('গভীর ভাবনা · ', 'Deep · ') : ''}{m.model}</span>}</span>}
-                  {!!m.sources?.length && <div className="mt-1.5 flex flex-wrap gap-1.5">{m.sources.map((x) => <a key={x.url} href={x.url} target="_blank" rel="noreferrer" className="chakra-chip max-w-[220px] truncate rounded-full px-2.5 py-1 text-[11.5px] text-white/70">{x.title}</a>)}</div>}
+                  {m.tags && <span className="mt-1 inline-flex flex-wrap items-center gap-1.5 [&_*]:!text-[12px]"><Tags list={m.tags} />{m.model && <span className="text-white/80">{m.deep ? T('গভীর ভাবনা · ', 'Deep · ') : ''}{m.model}</span>}</span>}
+                  {!!m.sources?.length && <div className="mt-1.5 flex flex-wrap gap-1.5">{m.sources.map((x) => <a key={x.url} href={x.url} target="_blank" rel="noreferrer" className="chakra-chip max-w-[220px] truncate rounded-full px-2.5 py-1 text-[12px] text-white/70">{x.title}</a>)}</div>}
                   {(m.chips?.length || m.nav) && (
                     <div className="mt-2 flex flex-wrap gap-2">
                       {m.nav && <Link to={m.nav} onClick={onClose} className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-[13px] font-bold text-primary-950">{T('পাতাটি খুলুন', 'Open the page')}<ChevronRight size={14} /></Link>}
@@ -223,13 +223,13 @@ function Panel({ c, onClose, onMinimize }) {
                   )}
                 </div>
               )))}
-              {c.interim && <p className="text-[17px] italic text-white/50">{c.interim}…</p>}
-              {c.phase === 'thinking' && <p className="text-[14px] text-white/50">{c.thinkingDeep ? T('গভীরভাবে ভাবছি, সব তথ্য মিলিয়ে দেখছি… (এক মিনিট পর্যন্ত লাগতে পারে)', 'Thinking deeply over all the data… (can take up to a minute)') : T('ভাবছি…', 'Thinking…')}</p>}
+              {c.interim && <p className="text-[17px] italic text-white/80">{c.interim}…</p>}
+              {c.phase === 'thinking' && <p className="text-[14px] text-white/80">{c.thinkingDeep ? T('গভীরভাবে ভাবছি, সব তথ্য মিলিয়ে দেখছি… (এক মিনিট পর্যন্ত লাগতে পারে)', 'Thinking deeply over all the data… (can take up to a minute)') : T('ভাবছি…', 'Thinking…')}</p>}
             </div>
           )}
           {tab === 'tasks' && (
             <div className="space-y-3">
-              {!c.tasks.length && <p className="py-10 text-center text-[14px] text-white/55"><CheckCircle2 className="mx-auto mb-2 text-emerald-300" />{T('এখন কোনো কাজ বাকি নেই।', 'Nothing waiting right now.')}</p>}
+              {!c.tasks.length && <p className="py-10 text-center text-[14px] text-white/80"><CheckCircle2 className="mx-auto mb-2 text-emerald-300" />{T('এখন কোনো কাজ বাকি নেই।', 'Nothing waiting right now.')}</p>}
               {c.tasks.map((t) => <TaskCard key={t.id} c={c} task={t} />)}
             </div>
           )}
@@ -245,17 +245,17 @@ function Panel({ c, onClose, onMinimize }) {
                 <div className="font-bold">{T('এজেন্ট নিজে যা পারে', 'What the agent may do alone')}</div>
                 <p className="text-white/70">{POLICY[c.role].auto.map((a) => T(ACTION[a][0], ACTION[a][1])).join(', ')}. {T(`দিনে সর্বোচ্চ ${num(DAILY_AUTO_LIMIT, 'bn')}টি (আজ ${num(used, 'bn')}টি)।`, `At most ${DAILY_AUTO_LIMIT} a day (${used} today).`)}</p>
                 {!!POLICY[c.role].verdict.length && <><div className="mt-2 font-bold">{T('মানুষের অনুমোদন ছাড়া কখনো নয়', 'Never without a person’s approval')}</div><p className="text-white/70">{POLICY[c.role].verdict.map((a) => T(ACTION[a][0], ACTION[a][1])).join(', ')}.</p></>}
-                <p className="mt-2 text-white/55">{c.role === 'farmer' ? T('শুধু আপনার নিজের জমি আর অনুরোধ নিয়েই কাজ করে।', 'It acts only on your own field and requests.') : T('শুধু আপনার উপজেলার ইউনিয়নের অনুরোধ নিয়েই কাজ করে।', 'It acts only on requests from your own upazila’s unions.')} {T('AI শুধু প্রস্তাব দেয়, নিজে কিছু পাঠাতে পারে না; চাবি সার্ভারে থাকে, ব্রাউজারে আসে না।', 'The AI can only propose, never send; its key stays on the server, never in the browser.')}</p>
+                <p className="mt-2 text-white/80">{c.role === 'farmer' ? T('শুধু আপনার নিজের জমি আর অনুরোধ নিয়েই কাজ করে।', 'It acts only on your own field and requests.') : T('শুধু আপনার উপজেলার ইউনিয়নের অনুরোধ নিয়েই কাজ করে।', 'It acts only on requests from your own upazila’s unions.')} {T('AI শুধু প্রস্তাব দেয়, নিজে কিছু পাঠাতে পারে না; চাবি সার্ভারে থাকে, ব্রাউজারে আসে না।', 'The AI can only propose, never send; its key stays on the server, never in the browser.')}</p>
               </div>
               <div>
                 <div className="mb-1 font-bold">{T('সাম্প্রতিক কাজ', 'Recent activity')}</div>
-                {!c.audit.length && <p className="text-white/55">{T('এখনো কিছু হয়নি।', 'Nothing yet.')}</p>}
+                {!c.audit.length && <p className="text-white/80">{T('এখনো কিছু হয়নি।', 'Nothing yet.')}</p>}
                 <ol className="space-y-1">
                   {c.audit.filter((e) => e.role === c.role).slice(-14).reverse().map((e) => (
                     <li key={e.seq} className="flex gap-2 text-[12.5px] text-white/70">
-                      <span className="w-12 shrink-0 text-white/40">#{num(e.seq, s.lang)}</span>
+                      <span className="w-12 shrink-0 text-white/80">#{num(e.seq, s.lang)}</span>
                       <span className="min-w-0 flex-1 truncate">{e.action.split('+').map((a) => (ACTION[a] ? T(ACTION[a][0], ACTION[a][1]) : a)).join(' + ')} · {e.gate === 'auto' ? T('এজেন্ট', 'agent') : T('মানুষ', 'person')} · {e.result}</span>
-                      <code className="shrink-0 text-white/30">{e.hash.slice(0, 6)}</code>
+                      <code className="shrink-0 text-white/80">{e.hash.slice(0, 6)}</code>
                     </li>
                   ))}
                 </ol>
@@ -267,7 +267,7 @@ function Panel({ c, onClose, onMinimize }) {
 
         {typing && tab === 'talk' && (
           <form onSubmit={submit} className="mx-4 mb-2 flex items-center gap-2 rounded-full bg-white/10 pl-4 pr-1.5">
-            <input autoFocus value={text} onChange={(e) => setText(e.target.value)} maxLength={600} className="h-11 min-w-0 flex-1 bg-transparent text-[15px] text-white outline-none placeholder:text-white/40" placeholder={c.role === 'farmer' ? T('যেমন: ধানে পোকা লেগেছে', 'e.g. insects on my rice') : T('যেমন: আজকের অবস্থা', 'e.g. today’s briefing')} aria-label={T('লিখে বলুন', 'Type to the agent')} />
+            <input autoFocus value={text} onChange={(e) => setText(e.target.value)} maxLength={600} className="h-11 min-w-0 flex-1 bg-transparent text-[15px] text-white outline-none placeholder:text-white/80" placeholder={c.role === 'farmer' ? T('যেমন: ধানে পোকা লেগেছে', 'e.g. insects on my rice') : T('যেমন: আজকের অবস্থা', 'e.g. today’s briefing')} aria-label={T('লিখে বলুন', 'Type to the agent')} />
             <button type="submit" className="grid h-9 w-9 place-items-center rounded-full bg-white text-primary-950" aria-label={T('পাঠান', 'Send')}><SendHorizontal size={17} /></button>
           </form>
         )}
@@ -275,8 +275,8 @@ function Panel({ c, onClose, onMinimize }) {
           <button type="button" onClick={() => { c.setVoiceOn(!c.voiceOn); if (c.voiceOn) c.stopAll(); }} className="grid h-12 w-12 place-items-center rounded-full bg-white/10 hover:bg-white/20" aria-pressed={c.voiceOn} aria-label={c.voiceOn ? T('কথা বলা বন্ধ', 'Mute voice') : T('কথা বলা চালু', 'Turn voice on')}>{c.voiceOn ? <Volume2 size={20} /> : <VolumeX size={20} />}</button>
           <div className="flex flex-col items-center gap-1">
             <ChakraOrb phase={c.phase} size={76} onClick={talk} label={c.phase === 'listening' ? T('শোনা থামান', 'Stop listening') : T('কথা বলুন', 'Talk')} />
-            <span className="text-[11.5px] text-white/50">{{ listening: T('শুনছি…', 'Listening…'), thinking: T('ভাবছি…', 'Thinking…'), speaking: T('বলছি… থামাতে ছুঁয়ে দিন', 'Speaking… tap to stop') }[c.phase] ?? T('ছুঁয়ে কথা বলুন', 'Tap and speak')}</span>
-            {c.voiceNote && <span className="max-w-[200px] text-center text-[10.5px] leading-4 text-amber-200/80">{c.voiceNote === 'quota' ? T('আজকের স্বাভাবিক কণ্ঠের সীমা শেষ; কাল আবার ফিরবে। এখন ডিভাইসের কণ্ঠ।', 'Today’s natural-voice limit is used; it is back tomorrow. Device voice for now.') : T('স্বাভাবিক কণ্ঠ চালু নেই; ডিভাইসের কণ্ঠ বলছে।', 'Natural voice is off; the device voice speaks.')}</span>}
+            <span className="text-[12px] text-white/80">{{ listening: T('শুনছি…', 'Listening…'), thinking: T('ভাবছি…', 'Thinking…'), speaking: T('বলছি… থামাতে ছুঁয়ে দিন', 'Speaking… tap to stop') }[c.phase] ?? T('ছুঁয়ে কথা বলুন', 'Tap and speak')}</span>
+            {c.voiceNote && <span className="max-w-[200px] text-center text-[12px] leading-4 text-amber-200/80">{c.voiceNote === 'quota' ? T('আজকের স্বাভাবিক কণ্ঠের সীমা শেষ; কাল আবার ফিরবে। এখন ডিভাইসের কণ্ঠ।', 'Today’s natural-voice limit is used; it is back tomorrow. Device voice for now.') : T('স্বাভাবিক কণ্ঠ চালু নেই; ডিভাইসের কণ্ঠ বলছে।', 'Natural voice is off; the device voice speaks.')}</span>}
           </div>
           <button type="button" onClick={() => { setTyping(!typing); setTab('talk'); }} className={`grid h-12 w-12 place-items-center rounded-full ${typing ? 'bg-white text-primary-950' : 'bg-white/10 hover:bg-white/20'}`} aria-pressed={typing} aria-label={T('লিখে বলুন', 'Type instead')}><Keyboard size={20} /></button>
         </div>
@@ -354,7 +354,7 @@ function Verdict({
                 type="button"
                 onClick={() => onDismissAll(task)}
                 title={T('বাকি সব পপআপ একবারে বন্ধ করে পরে দেখুন', 'Dismiss all remaining popups for now')}
-                className="inline-flex shrink-0 items-center gap-1 rounded-full border border-white/22 bg-white/12 px-2.5 py-1 text-[11.5px] font-semibold text-white/90 transition hover:bg-white/22 active:scale-95 cursor-pointer"
+                className="inline-flex shrink-0 items-center gap-1 rounded-full border border-white/22 bg-white/12 px-2.5 py-1 text-[12px] font-semibold text-white/90 transition hover:bg-white/22 active:scale-95 cursor-pointer"
               >
                 <Layers size={12} />
                 <span className="hidden sm:inline">{T('সব পরে', 'Later')}</span>
@@ -367,7 +367,7 @@ function Verdict({
             <div className="relative flex flex-wrap items-center justify-between gap-2 border-t border-white/12 bg-white/[0.06] px-4 py-2 sm:px-5">
               <div className="flex min-w-0 flex-1 items-center gap-2">
                 <span className={`h-2 w-2 shrink-0 rounded-full ${task.risk === 'high' ? 'bg-red-400' : 'bg-amber-300'}`} />
-                <span className="shrink-0 rounded-md bg-white/15 px-1.5 py-0.5 text-[11px] font-bold tabular text-emerald-100">
+                <span className="shrink-0 rounded-md bg-white/15 px-1.5 py-0.5 text-[12px] font-bold tabular text-emerald-100">
                   #{T(num(q.position, 'bn'), String(q.position))}
                 </span>
                 <span className="truncate text-[12.5px] font-semibold text-white/95">{L(task.title)}</span>
@@ -416,9 +416,9 @@ function Verdict({
 
                 {queueMenu && (
                   <div className="macos-queue-menu absolute right-0 top-[calc(100%+8px)] z-30 w-72 overflow-hidden rounded-2xl p-2 text-white">
-                    <div className="mb-1.5 flex items-center justify-between px-2 py-1 text-[11px] font-semibold text-emerald-200/85">
+                    <div className="mb-1.5 flex items-center justify-between px-2 py-1 text-[12px] font-semibold text-emerald-200/85">
                       <span>{T(`অপেক্ষমাণ অনুরোধ (${num(q.total, 'bn')}টি)`, `Pending drafts (${q.total})`)}</span>
-                      <span className="tabular text-white/65">{T(`বামে ${num(q.left, 'bn')} · ডানে ${num(q.right, 'bn')}`, `Left ${q.left} · Right ${q.right}`)}</span>
+                      <span className="tabular text-white/80">{T(`বামে ${num(q.left, 'bn')} · ডানে ${num(q.right, 'bn')}`, `Left ${q.left} · Right ${q.right}`)}</span>
                     </div>
                     <div className="max-h-56 space-y-1 overflow-y-auto pr-0.5">
                       {c.verdicts.map((v, i) => {
@@ -450,7 +450,7 @@ function Verdict({
         <div className={`min-h-0 flex-1 overflow-y-auto ${expanded && q.total > 1 ? 'md:grid md:grid-cols-[260px_1fr] md:overflow-hidden' : ''}`}>
           {expanded && q.total > 1 && (
             <aside className="macos-verdict-sidebar flex max-h-48 flex-col overflow-y-auto p-3 text-white md:max-h-full">
-              <div className="mb-2 flex items-center justify-between px-2 text-[11.5px] font-bold uppercase tracking-wide text-emerald-200/80">
+              <div className="mb-2 flex items-center justify-between px-2 text-[12px] font-bold uppercase tracking-wide text-emerald-200/80">
                 <span>{T(`অপেক্ষমাণ তালিকা (${num(q.total, 'bn')})`, `Pending Queue (${q.total})`)}</span>
               </div>
               <div className="space-y-1 flex-1 overflow-y-auto pr-0.5">
@@ -472,7 +472,7 @@ function Verdict({
                         <span className={`h-2 w-2 shrink-0 rounded-full ${v.risk === 'high' ? 'bg-red-400' : 'bg-amber-300'}`} />
                         <span className="truncate">{L(v.title)}</span>
                       </div>
-                      <div className="mt-0.5 truncate pl-3.5 text-[11px] text-white/55">#{num(i + 1, s.lang)} · {L(v.why)}</div>
+                      <div className="mt-0.5 truncate pl-3.5 text-[12px] text-white/80">#{num(i + 1, s.lang)} · {L(v.why)}</div>
                     </button>
                   );
                 })}
@@ -629,8 +629,8 @@ function BangladeshChakraAgent({ role, headerButton = true }) {
         title={headerVerdictAction ? T('অপেক্ষমাণ অনুমোদন পপআপ খুলুন', 'Restore queued approval popups') : `${L(AGENT_NAME)} (Ctrl+K)`}>
         <ChakraLogo size={26} spin={c.phase === 'thinking'} />
         <span className="hidden md:inline">{T('চক্র', 'Chakra')}</span>
-        {c.mode === 'agent' && <span className="hidden rounded-md bg-paddy-300 px-1 text-[10.5px] font-bold uppercase text-primary-950 md:inline">{T('চালু', 'on')}</span>}
-        {badge > 0 && <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-500 px-1.5 text-[11px] font-extrabold text-white shadow-xs ml-1 shrink-0">{T(num(badge, 'bn'), String(badge))}</span>}
+        {c.mode === 'agent' && <span className="hidden rounded-md bg-paddy-300 px-1 text-[12px] font-bold uppercase text-primary-950 md:inline">{T('চালু', 'on')}</span>}
+        {badge > 0 && <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-500 px-1.5 text-[12px] font-extrabold text-white shadow-xs ml-1 shrink-0">{T(num(badge, 'bn'), String(badge))}</span>}
       </button>}
       {/* In a portal: the header's backdrop-filter would otherwise make it the box these fixed layers sit in. */}
       {createPortal(<>

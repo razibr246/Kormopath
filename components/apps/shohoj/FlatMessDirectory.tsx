@@ -139,7 +139,7 @@ export function FlatMessDirectory({
           <button
             type="button"
             onClick={onOpenPostTab}
-            className="shrink-0 inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-emerald-800 px-5 py-2.5 text-[14.5px] font-bold text-white shadow-sm hover:bg-emerald-900 active:scale-98 transition-all"
+            className="shrink-0 inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-emerald-800 px-5 py-2.5 text-[14.5px] font-bold text-white shadow-sm hover:bg-emerald-900 active:scale-98 transition-all min-w-[44px]"
           >
             <Plus size={18} />
             <span>বাসা/সিট পোস্ট করুন</span>
@@ -152,7 +152,7 @@ export function FlatMessDirectory({
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {/* Keyword Search */}
           <div className="relative">
-            <Search size={17} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search size={17} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
             <input
               type="text"
               value={searchQuery}
@@ -219,7 +219,7 @@ export function FlatMessDirectory({
               genderFilter === "all"
                 ? "bg-slate-900 text-white"
                 : "border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
-            }`}
+            } min-h-[44px] min-w-[44px]`}
           >
             সকল
           </button>
@@ -232,7 +232,7 @@ export function FlatMessDirectory({
                 genderFilter === g.id
                   ? "bg-emerald-800 text-white"
                   : "border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
-              }`}
+              } min-h-[44px] min-w-[44px]`}
             >
               {g.bn}
             </button>
@@ -253,7 +253,7 @@ export function FlatMessDirectory({
                   active
                     ? "border border-emerald-500 bg-emerald-100 text-emerald-950 font-bold"
                     : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-                }`}
+                } min-h-[44px] min-w-[44px]`}
               >
                 {active && <Check size={12} className="text-emerald-800" />}
                 <span>{fac.bn}</span>
@@ -279,7 +279,7 @@ export function FlatMessDirectory({
               setSearchQuery("");
               setSelectedFacilities([]);
             }}
-            className="text-[13px] font-bold text-emerald-800 hover:underline"
+            className="text-[13px] font-bold text-emerald-800 hover:underline min-h-[44px] min-w-[44px]"
           >
             ফিল্টার রিসেট করুন
           </button>
@@ -300,7 +300,7 @@ export function FlatMessDirectory({
             <button
               type="button"
               onClick={onOpenPostTab}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-800 px-4 py-2 text-[14px] font-bold text-white hover:bg-emerald-900"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-800 px-4 py-2 text-[14px] font-bold text-white hover:bg-emerald-900 min-h-[44px] min-w-[44px]"
             >
               <Plus size={16} /> নতুন পোস্ট তৈরি করুন
             </button>
@@ -329,12 +329,12 @@ export function FlatMessDirectory({
                         {genderLabel}
                       </span>
                       {isUserItem && (
-                        <span className="rounded-md bg-teal-100 px-2 py-0.5 text-[11px] font-bold text-teal-900">
+                        <span className="rounded-md bg-teal-100 px-2 py-0.5 text-[12px] font-bold text-teal-900">
                           ইউজারের নিজস্ব পোস্ট
                         </span>
                       )}
                       {item.verified && (
-                        <span className="inline-flex items-center gap-0.5 rounded-md bg-sky-50 px-2 py-0.5 text-[11px] font-bold text-sky-800">
+                        <span className="inline-flex items-center gap-0.5 rounded-md bg-sky-50 px-2 py-0.5 text-[12px] font-bold text-sky-800">
                           <CheckCircle2 size={12} className="text-sky-600" />
                           যাচাইকৃত
                         </span>
@@ -348,7 +348,7 @@ export function FlatMessDirectory({
                             onDeleteUserListing(item.id);
                           }
                         }}
-                        className="text-slate-400 hover:text-red-700 p-1"
+                        className="text-slate-500 hover:text-red-700 p-1 min-h-[44px] min-w-[44px]"
                         title="পোস্ট মুছুন"
                         aria-label="Delete listing"
                       >
@@ -385,7 +385,7 @@ export function FlatMessDirectory({
                         return (
                           <span
                             key={facId}
-                            className="inline-flex items-center gap-1 rounded-md bg-slate-50 px-2 py-0.5 text-[11.5px] font-medium text-slate-700 border border-slate-100"
+                            className="inline-flex items-center gap-1 rounded-md bg-slate-50 px-2 py-0.5 text-[12px] font-medium text-slate-700 border border-slate-100"
                           >
                             {getFacilityIcon(facId)}
                             <span>{facName}</span>
@@ -393,7 +393,7 @@ export function FlatMessDirectory({
                         );
                       })}
                       {item.facilities.length > 5 && (
-                        <span className="rounded-md bg-slate-50 px-1.5 py-0.5 text-[11px] text-slate-500">
+                        <span className="rounded-md bg-slate-50 px-1.5 py-0.5 text-[12px] text-slate-500">
                           +{bnDigits(item.facilities.length - 5)} আরও
                         </span>
                       )}
@@ -434,7 +434,7 @@ export function FlatMessDirectory({
                   <div className="grid grid-cols-2 gap-2 pt-1">
                     <a
                       href={`tel:${item.contactPhone}`}
-                      className="inline-flex min-h-[42px] items-center justify-center gap-1.5 rounded-xl bg-slate-900 px-3 py-2 text-[13.5px] font-bold text-white hover:bg-slate-800 transition-colors"
+                      className="inline-flex min-h-[42px] items-center justify-center gap-1.5 rounded-xl bg-slate-900 px-3 py-2 text-[13.5px] font-bold text-white hover:bg-slate-800 transition-colors min-h-[44px] min-w-[44px]"
                     >
                       <Phone size={15} />
                       <span>কল করুন</span>
@@ -445,7 +445,7 @@ export function FlatMessDirectory({
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex min-h-[42px] items-center justify-center gap-1.5 rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-[13.5px] font-bold text-emerald-900 hover:bg-emerald-100 transition-colors"
+                      className="inline-flex min-h-[42px] items-center justify-center gap-1.5 rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-[13.5px] font-bold text-emerald-900 hover:bg-emerald-100 transition-colors min-h-[44px] min-w-[44px]"
                     >
                       <MessageSquare size={15} className="text-emerald-700" />
                       <span>হোয়াটসঅ্যাপ</span>
@@ -457,7 +457,7 @@ export function FlatMessDirectory({
                     <button
                       type="button"
                       onClick={() => handleCopyShare(item)}
-                      className="inline-flex items-center gap-1 text-slate-600 hover:text-emerald-800 font-semibold"
+                      className="inline-flex items-center gap-1 text-slate-600 hover:text-emerald-800 font-semibold min-h-[44px] min-w-[44px]"
                     >
                       {copiedId === item.id ? (
                         <>
@@ -476,7 +476,7 @@ export function FlatMessDirectory({
                       <button
                         type="button"
                         onClick={() => onSelectForCalculator(item.rentPoisha, item.advancePoisha, item.title)}
-                        className="inline-flex items-center gap-1 text-emerald-800 hover:underline font-bold"
+                        className="inline-flex items-center gap-1 text-emerald-800 hover:underline font-bold min-h-[44px] min-w-[44px]"
                       >
                         <Calculator size={13} />
                         <span>খরচ হিসাব করুন</span>
@@ -487,7 +487,7 @@ export function FlatMessDirectory({
                       <button
                         type="button"
                         onClick={() => onSelectForAgreement(item)}
-                        className="inline-flex items-center gap-1 text-slate-600 hover:text-emerald-800 font-semibold"
+                        className="inline-flex items-center gap-1 text-slate-600 hover:text-emerald-800 font-semibold min-h-[44px] min-w-[44px]"
                       >
                         <FileText size={13} />
                         <span>চুক্তিপত্র খসড়া</span>

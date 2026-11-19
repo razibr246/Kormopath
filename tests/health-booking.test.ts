@@ -105,3 +105,16 @@ test("sanitizeBookings drops junk and keeps valid rows", () => {
   assert.equal(out?.[0].ref, b.ref);
   assert.ok(makeRoom(rand).startsWith("KormoPath-Consult-"));
 });
+
+test("admin demo: banner says demo/this device only/no payments, page is noindex, and no payment number can be shown", async () => {
+  const { readFileSync } = await import("node:fs");
+  const admin = readFileSync(new URL("../components/apps/health/doctors/AdminDemo.tsx", import.meta.url), "utf8");
+  const page = readFileSync(new URL("../app/mediscan/admin/page.tsx", import.meta.url), "utf8");
+  assert.match(admin, /data-testid="admin-demo-banner"/);
+  assert.match(admin, /শুধু এই ডিভাইসে/);
+  assert.match(admin, /cannot take payments/);
+  // The admin desk never reads or sets the receiving number.
+  assert.doesNotMatch(admin, /PAYMENT_CONFIG|receiver|realPaymentsEnabled/);
+  assert.match(page, /robots:\s*\{\s*index:\s*false/);
+  assert.equal(PAYMENT_CONFIG.receiver, null);
+});

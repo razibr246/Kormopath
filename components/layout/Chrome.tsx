@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AppSwitcherDropdown } from "@/components/layout/AppSwitcherDropdown";
@@ -31,6 +31,18 @@ export function Navbar(props?: {
 }) {
   const { lang = "bn", setLang, usdBdt = FX_FALLBACK.usdBdt, fxLive = false, fxSource = FX_FALLBACK.source, onOpenEcosystem, isEcosystemOpen = false } = props ?? {};
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  // Escape closes the mobile menu and puts focus back on the menu button.
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      setMobileMenuOpen(false);
+      menuButtonRef.current?.focus();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [mobileMenuOpen]);
   const pathname = usePathname();
   const bn = lang === "bn";
   const isActive = (href: string) => !href.includes("#") && pathname?.startsWith(href);
@@ -52,7 +64,7 @@ export function Navbar(props?: {
         {bn ? "মূল অংশে সরাসরি যান" : "Skip to main content"}
       </a>
       <div className="kp-nav mx-auto flex items-center gap-1.5">
-        <Link href="/" className="flex shrink-0 items-center rounded-2xl px-1 py-1">
+        <Link href="/" className="flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-2xl px-1 py-1" aria-label="KormoPath — হোম">
           <span className="hidden sm:inline-flex"><KormoPathLogo theme="light" variant="full" size="sm" /></span>
           <span className="sm:hidden"><KormoPathLogo theme="light" variant="mark" size="sm" /></span>
         </Link>
@@ -116,7 +128,9 @@ export function Navbar(props?: {
           </Link>
 
           <button
+            ref={menuButtonRef}
             type="button"
+            aria-controls="kp-mobile-menu"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="kp-icon-btn lg:hidden"
             aria-label={mobileMenuOpen ? (bn ? "মেনু বন্ধ করুন" : "Close menu") : (bn ? "মেনু খুলুন" : "Open menu")}
@@ -128,7 +142,7 @@ export function Navbar(props?: {
       </div>
 
       {mobileMenuOpen && (
-        <div className="kp-nav-drawer mt-2 p-3 lg:hidden">
+        <div id="kp-mobile-menu" className="kp-nav-drawer mt-2 p-3 lg:hidden">
           <nav className="grid gap-1 text-[15px] font-semibold" aria-label={bn ? "মোবাইল মেনু" : "Mobile menu"}>
             {NAV.map((item) => (
               <Link key={item.href} href={item.href} onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-between rounded-xl px-3 py-2.5 text-slate-800 hover:bg-orange-50">

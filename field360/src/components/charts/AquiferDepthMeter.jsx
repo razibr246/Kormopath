@@ -87,7 +87,7 @@ export default function AquiferDepthMeter({ upazilaId, cropId }) {
             {num(baselineDepthM, lang, { dp: 1 })} <span className="text-[13px] font-normal text-muted">{T('মিটার', 'm')}</span>
             <span className="text-[12px] text-muted font-normal">({num(Math.round(baselineDepthM * 3.28), lang)} {T('ফুট', 'ft')})</span>
           </div>
-          <div className={`mt-1 text-[11px] font-semibold ${isDeepWellRequired ? 'text-amber-700' : 'text-emerald-700'}`}>
+          <div className={`mt-1 text-[12px] font-semibold ${isDeepWellRequired ? 'text-amber-700' : 'text-emerald-700'}`}>
             {isDeepWellRequired
               ? T('অগভীর নলকূপ (STW) অচল, গভীর সাবমার্সিবল প্রয়োজন', 'Exceeds 8m suction limit: DTW required')
               : T('অগভীর পাম্পে (STW) পানি ওঠে', 'Safe for shallow centrifugal STW')}
@@ -100,7 +100,7 @@ export default function AquiferDepthMeter({ upazilaId, cropId }) {
             <span className="text-[12px] font-semibold text-muted">
               {T('মৌসুমি সেচ জ্বালানি খরচ', 'Seasonal Pumping Bill')}
             </span>
-            <div className="flex rounded-md bg-canvas p-0.5 text-[10.5px]">
+            <div className="flex rounded-md bg-canvas p-0.5 text-[12px]">
               <button
                 type="button"
                 onClick={() => setPumpType('diesel')}
@@ -120,7 +120,7 @@ export default function AquiferDepthMeter({ upazilaId, cropId }) {
           <div className="mt-1 font-display text-[22px] font-bold text-ink">
             ৳{num(currentCostPerBigha, lang)} <span className="text-[13px] font-normal text-muted">/{T('বিঘা', 'bigha')}</span>
           </div>
-          <div className="text-[11px] text-muted">
+          <div className="text-[12px] text-muted">
             {pumpType === 'diesel'
               ? T(`প্রায় ${num(Math.round(dieselLitersPerBigha), lang)} লিটার ডিজেল (${num(dieselHoursPerBigha, lang)} ঘণ্টা)`, `~${Math.round(dieselLitersPerBigha)}L diesel (${dieselHoursPerBigha} hrs)`)
               : T('বিদ্যুৎ পাম্পে ৫০%–৬০% খরচ কম', 'Electric pump saves ~55% vs diesel')}
@@ -142,7 +142,7 @@ export default function AquiferDepthMeter({ upazilaId, cropId }) {
               <>৳{num(potentialSavingsBdt, lang)} <span className="text-[13px] font-normal text-emerald-700">/{T('বিঘা', 'bigha')}</span></>
             )}
           </div>
-          <div className="text-[11px] text-emerald-800/80">
+          <div className="text-[12px] text-emerald-800/80">
             {isBoro
               ? T('সরিষা বা গমে গেলে বিঘায় ৳৪–৫ হাজার সাশ্রয় হবে', 'Switching to mustard/wheat saves ৳4–5k/bigha')
               : T('বোরো ধানের তুলনায় এই ফসলে সরাসরি সাশ্রয়', 'Direct cash saved compared to flooded Boro')}
@@ -152,7 +152,7 @@ export default function AquiferDepthMeter({ upazilaId, cropId }) {
 
       {/* Visual Depth Bar */}
       <div className="mt-3.5 rounded-xl bg-white p-3 border border-sky-100">
-        <div className="flex justify-between text-[11px] font-semibold text-muted">
+        <div className="flex justify-between text-[12px] font-semibold text-muted">
           <span>{T('০ মি (মাটির উপরিভাগ)', '0m Surface')}</span>
           <span className="text-amber-800">{T('৮ মি (অগভীর পাম্পের শেষ সীমা)', '8m STW Suction Limit')}</span>
           <span>{T('৩০ মি (গভীর ভূগর্ভ)', '30m Deep Aquifer')}</span>
@@ -168,7 +168,7 @@ export default function AquiferDepthMeter({ upazilaId, cropId }) {
             style={{ left: `${Math.min(98, (baselineDepthM / 30) * 100)}%` }}
           />
         </div>
-        <div className="mt-2 text-[11.5px] text-muted flex items-center justify-between">
+        <div className="mt-2 text-[12px] text-muted flex items-center justify-between">
           <span className="text-sky-950 font-medium">
             {T(`আপনার এলাকায় পানি তুলতে ${num(baselineDepthM, lang, { dp: 1 })} মিটার নিচ থেকে টানতে হয়`, `Pumping water requires lifting from ${baselineDepthM}m underground`)}
           </span>

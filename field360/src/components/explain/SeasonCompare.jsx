@@ -26,7 +26,7 @@ export default function SeasonCompare() {
     { k: T('লাভ/বিঘা', 'Profit/bigha'), f: (o) => o.money?.net, show: (o) => (o.money ? `৳${num(o.money.net, lang)}` : '–'), dir: 1 },
     { k: T('মাটির সঙ্গে মিল', 'Soil match'), f: (o) => o.comp.S, show: (o) => num(o.comp.S, lang, { dp: 0 }), dir: 1 },
     { k: T('ফসলচক্রে মিল', 'Rotation fit'), f: (o) => o.comp.R, show: (o) => num(o.comp.R, lang, { dp: 0 }), dir: 1 },
-    { k: T('দাম পড়ার ঝুঁকি', 'Price-drop risk'), f: null, show: (o) => <span className={`chip ${RISK_STYLE[o.glut.level].cls}`}>{L(RISK_STYLE[o.glut.level])}</span> },
+    { k: T('দাম পড়ার ঝুঁকি', 'Price-drop risk'), f: null, show: (o) => <span className={`chip !text-[12px] ${RISK_STYLE[o.glut.level].cls}`}>{L(RISK_STYLE[o.glut.level])}</span> },
   ];
   const out = s.exclude ?? [];
   const suspect = calibrationFlags(d.options, farmer.last_crop);
@@ -55,7 +55,7 @@ export default function SeasonCompare() {
                   <div className="flex items-center gap-2">
                     <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg"><CropPhoto crop={o.crop} width={120} sizes="40px" thumb /></span>
                     <div className="min-w-0">
-                      <div className={`text-[11.5px] font-bold uppercase tracking-wide ${role === 'rec' ? 'text-primary-800' : 'text-muted'}`}>{ROLE[role]}</div>
+                      <div className={`text-[12px] font-bold uppercase tracking-wide ${role === 'rec' ? 'text-primary-800' : 'text-muted'}`}>{ROLE[role]}</div>
                       <div className="font-display text-[16px] font-bold leading-tight">{L(o.crop.name)}</div>
                     </div>
                     <span className="ml-auto"><ScoreRing value={o.score} size={34} /></span>
@@ -101,7 +101,7 @@ function WhyLegend() {
   const { T, L, decision: d } = useStore();
   const ks = Object.entries(d.weights).filter(([, w]) => w > 0).map(([k]) => k);
   return (
-    <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] text-ink/70">
+    <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-ink/70">
       <span className="font-semibold text-muted">{T('রঙিন দাগ:', 'The bar:')}</span>
       {ks.map((k) => <span key={k} className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-full" style={{ background: FACTOR[k].c }} />{L(FACTOR[k])}</span>)}
     </p>

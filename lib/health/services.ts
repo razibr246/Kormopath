@@ -41,7 +41,7 @@ export const HEALTH_SERVICES: readonly HealthService[] = [
     bn: "জাতীয় জরুরি সেবা ৯৯৯", en: "National emergency service 999",
     whatBn: "অ্যাম্বুলেন্স, পুলিশ বা ফায়ার সার্ভিস — এখনই বিপদ হলে প্রথমে এখানে ফোন করুন। নিবন্ধন বা টাকা লাগে না।",
     whatEn: "Ambulance, police or fire service — call here first in any emergency. No registration or payment.",
-    source: s("সরকারি ওয়েবসাইটে জাতীয় জরুরি সেবা ৯৯৯ (nlaso.gov.bd)", "https://nlaso.gov.bd/"),
+    source: { label: "বাংলাদেশ জাতীয় তথ্য বাতায়ন — জরুরি সেবা নম্বরসমূহ (৯৯৯)", url: "https://bangladesh.gov.bd", checked: "2026-11-19" },
   },
   {
     id: "16263-ambulance", group: "emergency", phone: "16263", url: "https://16263.dghs.gov.bd/", confidence: "official",

@@ -6,8 +6,7 @@ import "@fontsource/hind-siliguri/600.css";
 import "@fontsource/hind-siliguri/700.css";
 import "./globals.css";
 import { StorageNotice } from "@/components/layout/StorageNotice";
-import { CommandPalette } from "@/components/layout/CommandPalette";
-import { Buddy } from "@/components/buddy/Buddy";
+import { LazyBuddy, LazyCommandPalette } from "@/components/buddy/LazyGlobals";
 import { BuildathonSticker } from "@/components/layout/BuildathonSticker";
 import { PwaSupport } from "@/components/layout/PwaSupport";
 
@@ -115,8 +114,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a className="skip-link" href="#main">মূল কনটেন্টে যান</a>
         <BuildathonSticker />
         {children}
-        <CommandPalette />
-        <Buddy />
+        <LazyCommandPalette />
+        <LazyBuddy />
         <PwaSupport />
       </body>
     </html>

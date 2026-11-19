@@ -12,7 +12,9 @@ test("legal data: every helpline and law carries an official source with the che
   for (const h of HELPLINES) {
     assert.match(h.number, /^\d{3,5}$/, h.id);
     assert.match(h.source.url, /^https?:\/\//, h.id);
-    assert.equal(h.source.checked, LEGAL_CHECKED);
+    // Re-checked sources carry their own, later date.
+    assert.match(h.source.checked, /^\d{4}-\d{2}-\d{2}$/, h.id);
+    assert.ok(h.source.checked >= LEGAL_CHECKED, h.id);
   }
   for (const l of Object.values(LAWS)) {
     assert.match(l.url, /^http:\/\/bdlaws\.minlaw\.gov\.bd\/act-details-\d+\.html$/, l.id);

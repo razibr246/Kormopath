@@ -71,6 +71,9 @@ type Message = {
   content: string;
   unverified?: boolean;
   sources?: Array<{ title: string; url: string }>;
+  /** Rule-based answer from KormoPath's verified data, given when the model could not answer. */
+  offline?: boolean;
+  links?: Array<{ href: string; label: string }>;
 };
 
 type AssistantTab = "talk" | "tasks" | "crew" | "path" | "security";
@@ -346,6 +349,19 @@ export function Buddy() {
   const routeApp = appForPath(pathname);
   const [selectedApp, setSelectedApp] = useState<AppId>(routeApp);
   const [open, setOpen] = useState(false);
+  // While the page scrolls, the closed launcher fades away so it never sits on top of what someone is reading.
+  const [scrolling, setScrolling] = useState(false);
+  useEffect(() => {
+    if (open) return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const onScroll = () => {
+      setScrolling(true);
+      clearTimeout(timer);
+      timer = setTimeout(() => setScrolling(false), 900);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => { window.removeEventListener("scroll", onScroll); clearTimeout(timer); };
+  }, [open]);
   // Movable launcher: drag anywhere, it snaps to the nearest side and remembers the spot on this device.
   type DockPos = { side: "left" | "right"; bottom: number };
   const [dock, setDock] = usePersistentState<DockPos>(storageKey("platform", "buddyDock"), { side: "right", bottom: 16 }, (raw) => {
@@ -638,6 +654,8 @@ export function Buddy() {
         error?: string;
         sources?: Array<{ title: string; url: string }>;
         unverified?: boolean;
+        offline?: boolean;
+        links?: Array<{ href: string; label: string }>;
       };
 
       if (!response.ok || typeof data.reply !== "string") {
@@ -652,6 +670,8 @@ export function Buddy() {
           content: reply,
           sources: data.sources,
           unverified: data.unverified,
+          offline: data.offline,
+          links: Array.isArray(data.links) ? data.links.filter((l) => typeof l?.href === "string" && l.href.startsWith("/")).slice(0, 3) : undefined,
         },
       ]);
       void speak(reply);
@@ -688,11 +708,11 @@ export function Buddy() {
   ];
 
   // MaathSathi field (Chakra) and the legal assistant have their own agent in the same corner.
-  if (pathname?.startsWith("/krishi/field") || pathname?.startsWith("/legal/assistant") || pathname?.startsWith("/mediscan/emergency") || pathname?.startsWith("/mediscan/assistant")) return null; // own agent or emergency screen in that corner
+  if (pathname?.startsWith("/krishi/field") || pathname?.startsWith("/legal/assistant") || pathname?.startsWith("/mediscan/emergency") || pathname?.startsWith("/mediscan/assistant") || pathname?.startsWith("/workspace")) return null; // own agent or emergency screen in that corner
   return (
     <aside
       aria-label={bn ? "বাডি সহকারী" : "Buddy assistant"}
-      className={`buddy-root fixed bottom-4 right-4 ${open ? "z-50" : "z-30"} print:hidden font-sans`}
+      className={`buddy-root fixed bottom-4 right-4 ${open ? "z-50" : "z-30"} ${!open && scrolling ? "buddy-scrolling" : ""} print:hidden font-sans`}
       style={open ? undefined : dragAt
         ? { left: dragAt.left, top: dragAt.top, right: "auto", bottom: "auto" }
         : { [dock.side]: 16, [dock.side === "left" ? "right" : "left"]: "auto", bottom: `min(${dock.bottom}px, calc(100dvh - 110px))` }}
@@ -796,7 +816,15 @@ export function Buddy() {
                       <div className="min-w-0 flex-1">
                         <div className="bv2-reply">
                           {message.unverified && <span className="mb-1.5 block text-[11.5px] font-bold text-amber-300">{bn ? "ওয়েবের ফল · উৎস খুলে যাচাই করুন" : "Web result · check the sources"}</span>}
+                          {message.offline && <span className="mb-1.5 inline-flex items-center rounded-full border border-amber-300/50 px-2 py-0.5 text-[11.5px] font-bold text-amber-200">{bn ? "অফলাইন উত্তর · যাচাই করা তথ্য থেকে" : "Offline answer · from verified data"}</span>}
                           <p className="whitespace-pre-wrap">{formatReply(message.content)}</p>
+                          {message.links && message.links.length > 0 && (
+                            <div className="mt-2.5 flex flex-wrap gap-2">
+                              {message.links.map((link) => (
+                                <a key={link.href} href={link.href} className="inline-flex min-h-11 items-center rounded-xl border border-[#f4cf87]/40 px-3 text-[13px] font-semibold text-[#f4cf87] hover:bg-white/10">{link.label} →</a>
+                              ))}
+                            </div>
+                          )}
                           {message.sources && message.sources.length > 0 && (
                             <ul className="mt-2.5 space-y-1 border-t border-white/10 pt-2">
                               {message.sources.map((source) => (

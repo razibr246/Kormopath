@@ -27,7 +27,7 @@ export const SCRIPT: [string, string][] = [
   ["0:41", "The Examiner sets a real bug to fix in a sandbox, then a short viva. Pass both to earn a signed Skill Passport."],
   ["0:52", "Outreach drafts a pitch and a bilingual contract with an internet-shutdown clause. The pitch can’t mention any amount not in the contract."],
   ["1:02", "The Treasurer compares payout routes in taka. Fees are calculated by tested code — never by the model."],
-  ["1:10", "The same rules power six everyday apps. AdmitBuddy matches students to universities — and never invents an admission date."],
+  ["1:10", "The same rules power 11 everyday apps. AdmitBuddy matches students to universities — and never invents an admission date."],
   ["1:18", "MediScan reads a prescription in plain Bangla and turns it into reminders. It never diagnoses."],
   ["1:26", "Shohoj Budget understands spoken Bangla amounts — and saves nothing until you confirm."],
   ["1:32", "HaatBazar tells a farmer whether a distant market is worth the trip, with live weather."],
@@ -144,7 +144,7 @@ export function DemoPlayer() {
       <p className="text-[14px] text-slate-600">
         Narrated in British English (synthesised voice), with captions. Screens recorded from this live site on 5 Nov 2026.{" "}
         <Link href="/judges" className="font-semibold text-orange-700 underline hover:text-orange-800">
-          Try it yourself with the 2-minute judge tour →
+          Try it yourself with the 3-minute judge tour →
         </Link>
       </p>
 

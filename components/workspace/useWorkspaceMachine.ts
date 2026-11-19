@@ -103,6 +103,8 @@ export function useWorkspaceMachine() {
   const [grades, setGrades] = useState<Record<string, VivaGrade>>({});
   const [grading, setGrading] = useState<string | null>(null);
   const [passport, setPassport] = useState<PassportState | null>(null);
+  // The Treasurer has really compared the payout routes for an invoice (lib/finops, deterministic).
+  const [payoutCompared, setPayoutCompared] = useState(false);
   const [issuing, setIssuing] = useState(false);
   const [issueErr, setIssueErr] = useState<string | null>(null);
 
@@ -308,6 +310,7 @@ export function useWorkspaceMachine() {
       const cs = compareChannels({ invoiceUsd: inv, withdrawals: 1, fx: rate, fees: f, claimIncentive: true });
       const ok = checkInvariants(cs);
       const b = best(cs);
+      setPayoutCompared(true);
       local(
         "Treasurer",
         "deterministic-finops",
@@ -335,6 +338,7 @@ export function useWorkspaceMachine() {
     setInspect({});
     setPitch(null);
     setAudit(null);
+    setPayoutCompared(false);
 
     local(
       "KormoPath",
@@ -391,21 +395,24 @@ export function useWorkspaceMachine() {
     local(
       "KormoPath",
       "pipeline-complete",
-      `[Pipeline complete: ${secs}s] Prepared for ${p.name}. Stage 2 is ready for live human test verification.`,
+      `[Autopilot: ${secs}s] Steps 1, 3 and 4 ran for ${p.name}. Step 2 is a live exam that no autopilot can take for you: that is what makes the passport worth trusting.`,
       Math.round(performance.now() - t0)
     );
     setAuto({
       running: false,
-      msg: `Pipeline prepared in ${secs}s for ${p.name}. Step 2 is ready for live verification: run unit tests and complete the viva to mint your verified passport!`,
+      msg: `Steps 1, 3 and 4 ran in ${secs}s for ${p.name}. Step 2 is the live exam: fix the bug, answer the viva, and the passport is issued. Using the reference fix or a model answer marks it "assisted".`,
     });
   };
 
   // ---- stage 2: Examiner Handlers ----
-  const onRunTests = async () => {
+  // `src` lets a caller test code it has just set: React state (`code`) is still the old value in that closure.
+  // Buttons pass a click event, so anything that isn't a string falls back to the editor's code.
+  const onRunTests = async (src?: unknown) => {
+    const source = typeof src === "string" ? src : code;
     setRunning(true);
     setCompileError(null);
     try {
-      const r = await runTests(code, challenge.fnName, challenge.tests);
+      const r = await runTests(source, challenge.fnName, challenge.tests);
       if (r.compileError) {
         setCompileError(r.compileError);
         setResults(null);
@@ -565,7 +572,7 @@ export function useWorkspaceMachine() {
     };
   }, [fx.usdBdt, fees]);
 
-  const done = [Boolean(audit), Boolean(passport), Boolean(pitch), ledger.length > 0 || stage === 4];
+  const done = [Boolean(audit), Boolean(passport), Boolean(pitch), payoutCompared || ledger.length > 0 || stage === 4];
 
   const groundingDiffData = useMemo(() => {
     if (!audit) return undefined;
