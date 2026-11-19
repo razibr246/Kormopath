@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { AppSwitcherDropdown } from "@/components/layout/AppSwitcherDropdown";
 import { KormoPathLogo } from "@/components/brand/KormoPathLogo";
 import { FX_FALLBACK, type Source } from "@/lib/data";
-import { ArrowUpRight, FlaskConical, LayoutGrid, Languages, Linkedin, Menu, Search, ShieldCheck, X } from "lucide-react";
+import { ArrowUpRight, Compass, FlaskConical, LayoutGrid, Languages, Linkedin, Menu, Search, ShieldCheck, Sparkles, X } from "lucide-react";
 import { PersonaLoginModal } from "@/components/auth/PersonaLoginModal";
 import { UserNavBadge } from "@/components/auth/UserNavBadge";
 import { storageKey, readStored, removeStored } from "@/lib/clientStore";
@@ -234,6 +234,12 @@ export function Footer() {
             </Link>
             <Link href="/trust" className="kp-chip font-semibold">
               <FlaskConical size={14} className="text-emerald-700" /> পরিমাপ করা ফল · Measured results
+            </Link>
+            <Link href="/pricing" className="kp-chip font-semibold">
+              <Sparkles size={14} className="text-emerald-700" /> প্ল্যান ও মূল্য · Pricing
+            </Link>
+            <Link href="/judges" className="kp-chip font-semibold">
+              <Compass size={14} className="text-emerald-700" /> বিচারকদের গাইড · Judge tour
             </Link>
           </div>
           {FOOTER_GROUPS.map((group) => (

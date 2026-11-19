@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Navbar, Footer } from "@/components/layout/Chrome";
 import dynamic from "next/dynamic";
 import { HeroOrbit } from "@/components/home/HeroOrbit";
+import { ProofStrip } from "@/components/home/ProofStrip";
 // The ecosystem tour is a modal that renders nothing until opened, and it carries the demo personas and the
 // budget parser; loading it on first open keeps them out of every home-page visit.
 const EcosystemHub = dynamic(() => import("@/components/home/EcosystemHub").then((m) => m.EcosystemHub), { ssr: false });
@@ -334,6 +335,8 @@ export default function HomePage() {
           ))}
         </section>
 
+        <ProofStrip lang={bn ? "bn" : "en"} />
+
         {/* ============ LIFE CYCLE ============ */}
         <section aria-labelledby="life-title" className="pt-24">
           <p className="kp-eyebrow">{bn ? "জীবনের পথ" : "A life, step by step"}</p>
@@ -540,6 +543,12 @@ export default function HomePage() {
                 a: bn
                   ? "এআই লেখা বোঝা, প্রস্তাব খসড়া আর বাডির উত্তরে সাহায্য করে। ফি, কর, মোট টাকা, চুক্তির ধারা আর ওষুধের মাত্রা কখনো এআই ঠিক করে না। এআই না থাকলেও প্রতিটি টুল নিয়মভিত্তিক বিকল্পে চলে।"
                   : "AI helps read text, draft pitches and answer in Buddy. Fees, tax, totals, contract clauses and doses are never decided by AI. Without AI, every tool falls back to rule-based logic.",
+              },
+              {
+                q: bn ? "এটা কি বিনামূল্যে? টাকা লাগবে কখন?" : "Is it free? When would I pay?",
+                a: bn
+                  ? "জরুরি ৯৯৯ নির্দেশনা, কাছের হাসপাতাল, প্রতারণা যাচাই, আইনি সহায়তা, বাজেট আর সব হেল্পলাইন সবসময় বিনামূল্যে। শুধু সময় বাঁচানো সুবিধার জন্য প্রো প্ল্যান প্রস্তাবিত: এক অ্যাপ ৳৯৯, সব অ্যাপ ৳২৯৯ মাসে। যাচাই করা বিকাশ মার্চেন্ট অ্যাকাউন্ট চালু না হওয়া পর্যন্ত কোনো টাকা নেওয়া হয় না।"
+                  : "Emergency 999 guidance, nearby hospitals, scam checks, legal aid, budgeting and every helpline are free forever. A Pro plan is proposed only for time-saving extras: ৳99 for one app or ৳299 for all, per month. No money is taken until a verified bKash merchant account is live.",
               },
               {
                 q: bn ? "এক টুল থেকে অন্য টুলে যাব কীভাবে?" : "How do I move between tools?",

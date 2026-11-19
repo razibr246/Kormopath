@@ -1238,3 +1238,16 @@ a:focus-visible, button:focus-visible, [role="tab"]:focus-visible, summary:focus
     animation: none !important;
   }
 }
+
+/* Home proof strip: measured figures from lib/eval-results.json, counting up once in view */
+.kp-proof { position: relative; overflow: hidden; border-radius: 22px; padding: 18px 20px 16px; background: linear-gradient(135deg, #fffdf8, #f3f9f5); border: 1px solid var(--color-line); }
+.kp-proof::before { content: ""; position: absolute; inset: -40% -10% auto auto; width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(closest-side, rgba(15,107,79,.10), transparent); pointer-events: none; }
+.kp-proof-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; }
+.kp-proof-note { font-size: 13px; color: var(--color-muted, #6b5a4b); }
+.kp-proof-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 12px; }
+.kp-proof-item { border-radius: 16px; background: rgba(255,255,255,.75); border: 1px solid var(--color-line); padding: 12px 14px; }
+.kp-proof-num { font: 800 clamp(26px, 3vw, 34px)/1 var(--font-mono); color: #0f6b4f; font-variant-numeric: tabular-nums; }
+.kp-proof-tot { font-size: .6em; color: #6b7d74; margin-left: 2px; }
+.kp-proof-label { margin-top: 6px; font-size: 13.5px; line-height: 1.35; color: #3d3226; }
+.kp-proof-link { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; margin-top: 6px; font-weight: 700; font-size: 14.5px; color: #0f6b4f; }
+.kp-proof-link:hover { text-decoration: underline; }

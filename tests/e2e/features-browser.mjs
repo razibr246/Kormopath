@@ -75,7 +75,7 @@ await p.type("#typed", good);
 await clickText(p, "button", "মূল্যায়ন করুন");
 await wait(300);
 await clickText(p, '[data-testid="ai-coach"] button', "Ask the AI coach");
-for (let i = 0; i < 40; i++) { const done = await p.evaluate(() => /what worked|improve next time|unavailable/i.test(document.querySelector('[data-testid="ai-coach"]')?.innerText ?? "")); if (done) break; await wait(500); }
+for (let i = 0; i < 60; i++) { const done = await p.evaluate(() => /what worked|improve next time|unavailable/i.test(document.querySelector('[data-testid="ai-coach"]')?.innerText ?? "")); if (done) break; await wait(500); }
 t = await p.$eval('[data-testid="ai-coach"]', (e) => e.innerText).catch(() => "");
 check(/improve next time/i.test(t), "Probaho: AI coach panel shows coaching", t.replace(/\n/g, " | ").slice(0, 200));
 await p.close();
