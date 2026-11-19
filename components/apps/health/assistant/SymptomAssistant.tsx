@@ -192,6 +192,26 @@ export function SymptomAssistant({ lang, setLang }: { lang: "bn" | "en"; setLang
 
       {result?.kind === "specialty" && sp && (
         <section className="hb-card-in space-y-4 rounded-2xl border-2 border-sky-300 bg-white p-5 sm:p-6" data-testid="specialty-result" data-specialty={sp.id} aria-live="polite">
+          {/* Offline (fixed rules only): the keyword rules miss more phrasings than the model check, so before any
+              specialty the person re-checks the warning signs themselves and gets the emergency numbers. */}
+          {isOfflineEngine(result.engine) && (
+            <div className="space-y-2 rounded-xl border-2 border-red-300 bg-red-50 p-3.5" data-testid="offline-redflag-check">
+              <p className="text-[15px] font-bold text-red-900">{T("অবস্থা খারাপ হলে বা নিশ্চিত না হলে: এখনই ৯৯৯, পরামর্শের জন্য ১৬২৬৩", "Getting worse or unsure: call 999 now, or 16263 for advice")}</p>
+              <div className="flex flex-wrap gap-2">
+                <a href="tel:999" className="inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-red-700 px-4 text-[15px] font-bold text-white"><Phone size={16} aria-hidden /> ৯৯৯</a>
+                <a href="tel:16263" className="inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-red-300 bg-white px-4 text-[15px] font-semibold text-red-900"><Phone size={16} aria-hidden /> ১৬২৬৩</a>
+              </div>
+              <p className="text-[14px] text-red-900">{T("এখন উত্তর শুধু নির্দিষ্ট নিয়ম থেকে। এগুলোর কোনোটি হচ্ছে কি না আবার দেখে নিন:", "This answer comes from fixed rules only. Check again whether any of these is happening:")}</p>
+              <div className="grid gap-1.5 sm:grid-cols-2">
+                {RED_FLAGS.map((f) => (
+                  <label key={"off-" + f.id} className="flex min-h-[44px] cursor-pointer items-center gap-2.5 rounded-lg border border-red-200 bg-white px-2.5 py-1.5 text-[14px] leading-snug text-slate-800">
+                    <input type="checkbox" checked={ticked.includes(f.id)} onChange={() => toggleFlag(f.id)} className="h-5 w-5 shrink-0 accent-red-700" />
+                    <span>{bn ? f.bn : f.en}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
           <p className="kp-eyebrow !font-sans !text-[13px] !leading-[1.4] !tracking-normal !normal-case">{T("যে ধরনের ডাক্তার দেখাতে পারেন", "The kind of doctor to see")}</p>
           <h2 className="text-[clamp(21px,3vw,27px)] font-semibold leading-tight text-slate-900">{bn ? sp.bn : sp.en}</h2>
           <p className="max-w-[62ch] text-[15.5px] leading-relaxed text-slate-700">{bn ? result.whyBn : result.whyEn}</p>

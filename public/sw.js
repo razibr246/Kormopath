@@ -4,7 +4,7 @@
  * - Hashed build assets (/_next/static) are immutable, so they are served cache first.
  * - Map tiles (OSM / MapLibre / Carto) and hospital datasets are cached offline for field and emergency use.
  * Bump VERSION to drop old caches after a release that changes this file's behaviour. */
-const VERSION = "kp-v2-3";
+const VERSION = "kp-v2-5";
 const PAGES = `${VERSION}-pages`;
 const ASSETS = `${VERSION}-assets`;
 const TILES = `${VERSION}-tiles`;
@@ -18,10 +18,22 @@ const PRECACHE_ASSETS = [
 ];
 
 const PRECACHE_SHELLS = [
-  "/shohoj-budget",
-  "/rokkha",
+  "/",
+  "/workspace",
+  "/opportunities",
+  "/pricing",
+  "/feeguard",
+  "/chuktiguard",
+  "/admitbuddy",
+  "/mediscan",
   "/mediscan/emergency",
+  "/shohoj-budget",
   "/krishi",
+  "/haatbazar",
+  "/rokkha",
+  "/legal",
+  "/probaho",
+  "/judges",
 ];
 
 self.addEventListener("install", (event) => {

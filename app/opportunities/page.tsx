@@ -299,7 +299,7 @@ export default function OpportunitiesPage() {
                       <h3 className="text-[14px] font-bold text-slate-900 leading-snug hover:text-indigo-900">
                         {opp.titleBn}
                       </h3>
-                      <p className="text-[11px] text-slate-400 mt-0.5">{opp.titleEn}</p>
+                      <p className="text-[11px] font-medium text-slate-500 mt-0.5">{opp.titleEn}</p>
                     </div>
 
                     <p className="text-[12px] text-slate-600 leading-relaxed line-clamp-2">
@@ -411,7 +411,7 @@ export default function OpportunitiesPage() {
         {saveFailed && <p role="alert" className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-950">ব্রাউজারে পরিবর্তন সংরক্ষণ করা যাচ্ছে না। পেজ বন্ধ করার আগে সুযোগের CSV নামিয়ে রাখুন।</p>}
         {ready && <OpportunityTracker key={activePath.id} items={visibleSaved} onAdd={saveOpportunity} onUpdate={updateOpportunity} onRemove={removeOpportunity} />}
 
-        <section aria-labelledby="all-apps-title" className="rounded-2xl border border-slate-200 bg-white p-5"><h2 id="all-apps-title" className="text-[18px] font-bold">সব অ্যাপ, একই পথে</h2><p className="mt-1 text-[12px] text-slate-500">অ্যাপগুলো নিজ নিজ তথ্য আলাদাভাবে রাখে। কোনো সংরক্ষিত ব্যক্তিগত বা স্বাস্থ্য তথ্য এখানে স্বয়ংক্রিয়ভাবে আনা হয় না।</p><div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">{APP_LINKS.map((app) => { const Icon = app.icon; return <Link key={app.href} href={app.href} className="group rounded-xl border border-slate-200 bg-white/70 p-3 transition hover:-translate-y-0.5 hover:border-indigo-300 hover:shadow-sm"><span className="flex items-center justify-between"><Icon size={17} className="text-indigo-600" /><ArrowUpRight size={14} className="text-slate-400 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" /></span><strong className="mt-2 block text-[12px]">{app.name}</strong><span className="mt-0.5 block text-[10px] text-slate-500">{app.detail}</span></Link>; })}</div></section>
+        <section aria-labelledby="all-apps-title" className="rounded-2xl border border-slate-200 bg-white p-5"><h2 id="all-apps-title" className="text-[18px] font-bold">সব অ্যাপ, একই পথে</h2><p className="mt-1 text-[12px] text-slate-500">অ্যাপগুলো নিজ নিজ তথ্য আলাদাভাবে রাখে। কোনো সংরক্ষিত ব্যক্তিগত বা স্বাস্থ্য তথ্য এখানে স্বয়ংক্রিয়ভাবে আনা হয় না।</p><div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">{APP_LINKS.map((app) => { const Icon = app.icon; return <Link key={app.href} href={app.href} prefetch={true} className="group rounded-xl border border-slate-200 bg-white/70 p-3 transition hover:-translate-y-0.5 hover:border-indigo-300 hover:shadow-sm"><span className="flex items-center justify-between"><Icon size={17} className="text-indigo-600" /><ArrowUpRight size={14} className="text-slate-400 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" /></span><strong className="mt-2 block text-[12px]">{app.name}</strong><span className="mt-0.5 block text-[10px] text-slate-500">{app.detail}</span></Link>; })}</div></section>
       </main>
     </div>
   );

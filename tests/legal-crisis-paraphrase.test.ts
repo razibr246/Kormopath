@@ -32,6 +32,11 @@ const CRISIS = [
   "he pushed me down the stairs", "my husband locks me in a room", "স্বামী আমাকে ঘরে আটকে রাখে", "bor gaye haat tole",
   "he is sending my private photos to my family", "my boss demanded sex for the promotion", "I am scared to go home",
   "they want to marry off my 14 year old sister",
+  // judge round 3 (offline misses)
+  "he twisted my arm until it cracked", "a man keeps following me home from work every day", "he poured kerosene on me",
+  "my husband took my phone and won't let me go out", "my employer kept my passport and has not paid me for 4 months",
+  "he will leak my video unless I pay 20000 taka", "my stepfather comes into my room at night", "they burnt our house last night",
+  "সৎ বাবা রাতে আমার ঘরে আসে", "ঘরে আগুন দিয়েছে",
 ];
 
 const ROUTINE = [
@@ -45,6 +50,9 @@ const ROUTINE = [
   "jomir khatian vul", "talak er niyom", "legal aid office kothay", "denmohor pai nai", "beton dicche na",
   // judge re-score round 2: whole-word "force"
   "the order was enforced last year", "is the law in force now?",
+  // judge round 3: must stay calm
+  "I want to renew my passport", "my phone was stolen at the market, how to file GD?", "how to apply for maintenance for my child",
+  "my employer is late with salary this month", "can I share photos of the property deed?", "teacher asked me to come to the room for exam copy",
 ];
 
 test(`legal crisis: ${CRISIS.length} everyday phrasings all lead with 999/109`, () => {

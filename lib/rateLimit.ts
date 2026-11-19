@@ -262,9 +262,23 @@ export function setRemoteRateLimitStore(store: RemoteRateLimitStore | null | und
  * Like checkRateLimit, but counts in Redis when a shared store is configured (see above), so the limit holds
  * across all server instances. Falls back to the in-memory limiter if the store is missing or fails.
  */
-/** Hex SHA-256 of an IP (first 32 hex chars), via Web Crypto, for keys stored outside this server. */
-export async function hashIp(ip: string): Promise<string> {
-  const digest = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(`kormopath-rl:${ip}`));
+/**
+ * Pseudonymous key for an IP stored outside this server: HMAC-SHA256 with RATE_LIMIT_HASH_SECRET (falling back to
+ * PASSPORT_SECRET), first 32 hex chars, via Web Crypto. A keyed hash cannot be reversed by hashing every IPv4
+ * address. If neither secret is set (local development), a plain salted SHA-256 is used instead, which is
+ * pseudonymous but brute-forceable; production deployments set PASSPORT_SECRET.
+ */
+export async function hashIp(ip: string, env: Record<string, string | undefined> = process.env): Promise<string> {
+  const secret = env.RATE_LIMIT_HASH_SECRET?.trim() || env.PASSPORT_SECRET?.trim() || "";
+  const subtle = globalThis.crypto.subtle;
+  const data = new TextEncoder().encode(`kormopath-rl:${ip}`);
+  let digest: ArrayBuffer;
+  if (secret) {
+    const key = await subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+    digest = await subtle.sign("HMAC", key, data);
+  } else {
+    digest = await subtle.digest("SHA-256", data);
+  }
   return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("").slice(0, 32);
 }
 

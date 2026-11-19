@@ -126,3 +126,8 @@ test("guard round 2: guessed conditions and non-drug treatment advice are blocke
   for (const bad of ["This is most likely a viral fever.", "Your symptoms point to dengue.", "Take ORS and rest.", "Apply Betnovate on the rash.", "An antihistamine may help.", "It is probably gastritis."]) assert.ok(unsafeIn(bad), bad);
   for (const ok of ["A medicine specialist looks after fever and weakness in adults, and is likely the right first step.", "Tell the doctor when the pain started and what makes it worse.", "A cardiologist checks the heart; doctors can arrange tests if needed."]) assert.equal(unsafeIn(ok), null, ok);
 });
+
+test("guard round 3: false reassurance, 'seems to be <condition>' and home remedies are blocked", () => {
+  for (const bad of ["It's nothing serious, just gas.", "You don't need to see a doctor.", "This seems to be a migraine.", "He appears to have hand-foot-mouth disease.", "It is likely a urinary tract infection.", "Give zinc tablets for ten days.", "Rub Vicks on the chest.", "Try a saline gargle.", "Gargle with salt water.", "চিন্তার কিছু নেই, শুধু গ্যাস।"]) assert.ok(unsafeIn(bad), bad);
+  for (const ok of ["A gastroenterologist looks after stomach pain and gas problems.", "An ENT specialist looks after ear, nose and throat problems such as a sore throat.", "A child specialist looks after illness, growth and vaccines for children."]) assert.equal(unsafeIn(ok), null, ok);
+});

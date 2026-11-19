@@ -82,25 +82,25 @@ await step("shohoj", async () => {
   check(t.includes("এই মাসে এখনো কোনো লেনদেন নেই"), "Shohoj: nothing saved before confirmation");
   await clickText(p, "button", "নিশ্চিত করুন");
   t = await text(p);
-  check(t.includes("৳1,200") && t.includes("বাজার ও মুদি"), "Shohoj: confirmed transaction appears in ledger");
+  check(t.includes("৳১,২০০") && t.includes("বাজার ও মুদি"), "Shohoj: confirmed transaction appears in ledger");
   await p.reload({ waitUntil: "networkidle0" });
   await wait(300);
   t = await text(p);
-  check(t.includes("৳1,200") && t.includes("লেনদেন —"), "Shohoj: transaction persists after reload");
+  check(t.includes("৳১,২০০") && t.includes("লেনদেন —"), "Shohoj: transaction persists after reload");
   // edit
   await p.click('button[aria-label="সংশোধন"]');
   await typeInto(p, 'input[inputmode="decimal"]', "1300");
   await clickText(p, "button", "সংশোধন সংরক্ষণ");
   await p.click('button[aria-label="পরিবর্তনের ইতিহাস"]');
   t = await text(p);
-  check(t.includes("৳1,300") && t.includes("পরিমাণ ৳1,200 → ৳1,300"), "Shohoj: edit recorded in audit history");
+  check(t.includes("৳১,৩০০") && t.includes("পরিমাণ ৳১,২০০ → ৳১,৩০০"), "Shohoj: edit recorded in audit history");
   // delete + undo
   await p.click('button[aria-label="মুছুন"]');
   t = await text(p);
   check(t.includes("ফিরিয়ে আনুন"), "Shohoj: delete offers undo");
   await clickText(p, "button", "ফিরিয়ে আনুন");
   t = await text(p);
-  check(t.includes("৳1,300"), "Shohoj: undo restores transaction");
+  check(t.includes("৳১,৩০০"), "Shohoj: undo restores transaction");
   // no amount -> cannot confirm
   await typeInto(p, "#entry", "রিকশা ভাড়া দিয়েছি");
   await clickText(p, "button", "বুঝে নিন");
@@ -116,7 +116,7 @@ await step("shohoj", async () => {
   check(incPressed === "true", "Shohoj: received-money SMS detected as income");
   await clickText(p, "button", "নিশ্চিত করুন");
   t = await text(p);
-  check(t.includes("+৳5,000"), "Shohoj: income saved");
+  check(t.includes("+৳৫,০০০"), "Shohoj: income saved");
   // legacy migration
   await p.evaluate(() => {
     localStorage.setItem("shohoj_expenses", JSON.stringify([{ id: "e1", category: "Transport", categoryBn: "x", amount: 200, note: "রিকশা", method: "Cash", time: "আজ" }]));
@@ -193,7 +193,7 @@ await step("feeguard", async () => {
   await wait(500);
   let t = await text(p);
   check(t.includes("✓ প্রতিটি ধাপ যোগ করলে নিট মিলে যায়"), "FeeGuard: reconciliation invariant holds on screen");
-  check(t.includes("Direct client via Payoneer") && t.includes("Direct client via bank wire"), "FeeGuard: all four routes shown incl. Payoneer→bKash");
+  check(t.includes("Payoneer হয়ে") && t.includes("ব্যাংক ওয়্যার"), "FeeGuard: all four routes shown incl. Payoneer→bKash");
   const inc = await p.evaluate(() => [...document.querySelectorAll('input[type="checkbox"]')].map((c) => c.checked));
   check(inc.every((c) => c === false), "FeeGuard: incentive is off by default");
   check(!t.includes("$0.99") && !t.includes("SRO") && !t.includes("TOS violation"), "FeeGuard: hardcoded wrong labels, SRO claim and ToS-evasion copy removed");
@@ -380,7 +380,7 @@ await step("shohoj goals & category budgets", async () => {
   await typeInto(p, 'section[aria-labelledby="catb-h"] input', "১০০০");
   await clickText(p, 'section[aria-labelledby="catb-h"] button', "সংরক্ষণ");
   let row = await p.$eval('[data-testid="catbudget-food"]', (e) => e.innerText).catch(() => "");
-  check(row.includes("৳1,000"), "Shohoj: per-category budget saved (Bangla digits accepted)", flat(row));
+  check(row.includes("৳১,০০০"), "Shohoj: per-category budget saved (Bangla digits accepted)", flat(row));
   await clickText(p, 'section[aria-labelledby="goal-h"] button', "নতুন লক্ষ্য");
   await typeInto(p, 'section[aria-labelledby="goal-h"] input[placeholder="যেমন ল্যাপটপ"]', "Laptop");
   const goalInputs = await p.$$('section[aria-labelledby="goal-h"] input[inputmode="decimal"]');
@@ -390,14 +390,14 @@ await step("shohoj goals & category budgets", async () => {
   await typeInto(p, '[data-testid="goal"] input', "15000");
   await clickText(p, '[data-testid="goal"] button', "জমা");
   let goal = await p.$eval('[data-testid="goal"]', (e) => e.innerText).catch(() => "");
-  check(goal.includes("৳15,000 / ৳60,000 (25%)") && goal.includes("মাসে প্রায়"), "Shohoj: savings goal progress and per-month amount", flat(goal));
+  check(goal.includes("৳১৫,০০০ / ৳৬০,০০০ (২৫%)") && goal.includes("মাসে প্রায়"), "Shohoj: savings goal progress and per-month amount", flat(goal));
   const txBefore = await p.evaluate(() => JSON.parse(localStorage.getItem("kormopath:shohoj:transactions.v2") || "[]").length);
   await p.reload({ waitUntil: "networkidle2" });
   await wait(300);
   goal = await p.$eval('[data-testid="goal"]', (e) => e.innerText).catch(() => "");
   row = await p.$eval('[data-testid="catbudget-food"]', (e) => e.innerText).catch(() => "");
   const txAfter = await p.evaluate(() => JSON.parse(localStorage.getItem("kormopath:shohoj:transactions.v2") || "[]").length);
-  check(goal.includes("25%") && row.includes("৳1,000"), "Shohoj: goal and category budget persist after reload");
+  check(goal.includes("২৫%") && row.includes("৳১,০০০"), "Shohoj: goal and category budget persist after reload");
   check(txBefore === txAfter, "Shohoj: saving to a goal does not silently create a transaction", `${txBefore} → ${txAfter}`);
   await p.close();
 });

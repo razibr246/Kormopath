@@ -31,7 +31,7 @@ export const NLASO_LEGAL_AID_PAGE = src("আইনগত সহায়তা �
 export const NLASO_DISTRICT_OFFICES = src("আইনগত সহায়তা অধিদপ্তর — জেলা লিগ্যাল এইড অফিস", "https://nlaso.gov.bd/pages/officers?filters=%7B%22officer_category%22%3A%20%226922d29b81fc96cef9e99564%22%7D");
 export const BDLAWS = src("Laws of Bangladesh (bdlaws.minlaw.gov.bd)", "http://bdlaws.minlaw.gov.bd/");
 
-export type HelplineId = "legal_aid" | "emergency" | "women_children" | "govt_info" | "land";
+export type HelplineId = "legal_aid" | "emergency" | "women_children" | "child" | "govt_info" | "land";
 
 export interface Helpline {
   id: HelplineId;
@@ -61,6 +61,13 @@ export const HELPLINES: readonly Helpline[] = [
     bn: "নারী ও শিশু নির্যাতন প্রতিরোধে জাতীয় হেল্পলাইন", en: "National helpline against violence on women and children",
     whenBn: "নির্যাতন, বাল্যবিবাহ, যৌতুক, যৌন হয়রানি", whenEn: "Abuse, child marriage, dowry, sexual harassment",
     source: src("মহিলা ও শিশু বিষয়ক মন্ত্রণালয় — হেল্পলাইন ১০৯", "https://mowca.portal.gov.bd//sites/default/files/files/mowca.portal.gov.bd/publications/2232e974_c9d5_437c_bb2c_4b558af52020/English_MoWCA_Presentation_March_23.pdf"),
+  },
+  {
+    id: "child", number: "1098",
+    bn: "শিশু সহায়তা লাইন", en: "Child helpline",
+    whenBn: "বিপদে থাকা শিশুর জন্য সহায়তা", whenEn: "Help for a child in danger",
+    // Same official source and check date as Rokkha's helpline list (lib/rokkhaData.ts).
+    source: { label: "বাংলাদেশ জাতীয় তথ্য বাতায়ন — শিশু সহায়তা লাইন (১০৯৮)", url: "https://bangladesh.gov.bd", checked: "2026-11-17" },
   },
   {
     id: "govt_info", number: "333",

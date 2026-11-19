@@ -9,8 +9,11 @@ import { usePersistentState, storageKey, downloadText } from "@/lib/clientStore"
 
 type Lang = "bn" | "en";
 
-const tk = (poisha: number) =>
-  "৳" + (poisha / 100).toLocaleString("en-IN", { minimumFractionDigits: poisha % 100 ? 2 : 0, maximumFractionDigits: 2 });
+const BN_DIGITS = "০১২৩৪৫৬৭৮৯";
+const tkIn = (poisha: number, lang: Lang) => {
+  const s = (poisha / 100).toLocaleString("en-IN", { minimumFractionDigits: poisha % 100 ? 2 : 0, maximumFractionDigits: 2 });
+  return "৳" + (lang === "bn" ? s.replace(/[0-9]/g, (d) => BN_DIGITS[Number(d)]) : s);
+};
 
 const newId = () => Math.random().toString(36).slice(2, 10);
 
@@ -81,6 +84,8 @@ export function RentPocketsPanel({ month, today, recordedIncomePoisha }: { month
   const [incomeText, setIncomeText] = useState<string | null>(null);
 
   const t = (k: keyof typeof T) => T[k][lang];
+  // Amounts follow the panel language: Bangla digits in Bangla.
+  const tk = (poisha: number) => tkIn(poisha, lang);
   const kindLabel = (k: DueKind) => DUE_KINDS.find((x) => x.id === k)?.[lang] ?? k;
 
   const manualIncome = incomeByMonth[month];

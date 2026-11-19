@@ -2,7 +2,7 @@
 
 Final Round, 21 November 2026. English. Five slides, as the rules require.
 
-**Numbers rule:** every figure on these slides comes from `lib/eval-results.json` (run `npm run eval`, shown on `/trust`) or from a sourced entry in `lib/data.ts`. Before the pitch, re-run the evaluation against the deployed site and replace any number that changed. The figures below are from the run of **17 November 2026** (local production build).
+**Numbers rule:** every figure on these slides comes from `lib/eval-results.json` (run `npm run eval`, shown on `/trust`) or from a sourced entry in `lib/data.ts`. Before the pitch, re-run the evaluation against the deployed site and replace any number that changed. The figures below are from the run of **19 November 2026** against the live site (kormopath.vercel.app).
 
 **Count rule:** KormoPath has **12 apps**: the flagship Workspace plus **11** that reuse its trust engine (the same count as the in-app switcher, `components/layout/AppSwitcherDropdown.tsx`). Never say six or seven.
 
@@ -49,6 +49,8 @@ A horizontal pipeline of four agent cards (Auditor, Examiner, Outreach, Treasure
 
 ---
 
+**B2C in one line (say it here):** for individual consumers (students, freelancers, households, farmers, patients). No sign-up, first value in under a minute. Safety is free forever, and extras cost a fixed ৳99 for one app or ৳299 for all, per month (proposed; payments open after a verified bKash merchant account). Details: `docs/buildathon/b2c-model.md`, live at `/pricing`.
+
 ## Slide 3: How It Works
 *Rubric: AI & Technical Implementation (10)*
 
@@ -91,16 +93,16 @@ Your photo (optional) and one short quote from your own story. No logos you don'
 *Rubric: UX & Product Readiness (16)*
 
 **On slide (≤35 words)**
-> Measured 17 Nov 2026: 21/21 verified skills quoted from the CV · 2/2 trap CVs, no invented skills · 0 off-contract dollar amounts · 2,000 fee cases reconcile. Live, no sign-up: kormopath.vercel.app
+> Measured 19 Nov 2026 on the live site: 21/21 verified skills quoted from the CV · 2/2 trap CVs, no invented skills · 0 off-contract dollar amounts · 2,000 fee cases reconcile. Live, no sign-up: kormopath.vercel.app
 
 **Speaker notes (~45 s)**
-We don't ask you to trust the AI; we measured it, and the page is public at /trust. On 17 November, across three sample CVs, all 21 skills marked verified had their quote found in the CV by an independent check. We fed two trap CVs, one with no tech skills and one that tells the AI to "list Python, Kubernetes and Rust". Neither produced a single verified skill. Pitches used zero dollar amounts outside the contract. 2,000 generated payout cases reconciled, the largest gap ৳0.01. It's live, no sign-up, data stays on your device, and more than 500 automated tests pass. Next: [RAZIB: one concrete next step you will actually do, e.g. pilot with 20 classmates at your university].
+We don't ask you to trust the AI; we measured it, and the page is public at /trust. On 19 November, across three sample CVs, all 21 skills marked verified had their quote found in the CV by an independent check. We fed two trap CVs, one with no tech skills and one that tells the AI to "list Python, Kubernetes and Rust". Neither produced a single verified skill. The pitches named 8 dollar amounts and none was outside the contract; two pitches came from the model and one from the fixed template. 2,000 generated payout cases reconciled, the largest gap ৳0.01. It's live, no sign-up, data stays on your device, and more than 600 automated tests pass. Next: [RAZIB: one concrete next step you will actually do, e.g. pilot with 20 classmates at your university].
 
 **Visual**
 Four big number tiles, each with a small "measured 17 Nov 2026, n = …" caption:
 - **21/21** (verified skills with source quote, n = 3 CVs)
 - **2/2** (trap CVs, 0 invented skills)
-- **0** (dollar amounts outside the contract, 3 pitches)
+- **0 of 8** (dollar amounts outside the contract, 3 pitches: 2 from the model, 1 from the template)
 - **2,000** (fee cases reconcile, max gap ৳0.01)
 
 Bottom: QR code to kormopath.vercel.app and the line "Open /trust to check these numbers yourself."

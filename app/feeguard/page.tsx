@@ -11,6 +11,16 @@ import {
 } from "@/lib/finops";
 import { usePersistentState, storageKey, downloadText, todayLocal } from "@/lib/clientStore";
 
+// Channel names and routes in Bangla for display; the engine's ids, numbers and steps are unchanged.
+const CHANNEL_BN: Record<string, { name: string; route: string }> = {
+  fiverr: { name: "Fiverr", route: "Fiverr → Payoneer → ব্যাংক" },
+  upwork: { name: "Upwork", route: "Upwork → Payoneer → ব্যাংক" },
+  payoneer_bkash: { name: "সরাসরি ক্লায়েন্ট · Payoneer হয়ে", route: "ক্লায়েন্ট → Payoneer → বিকাশ" },
+  bank_wire: { name: "সরাসরি ক্লায়েন্ট · ব্যাংক ওয়্যার", route: "ক্লায়েন্ট → SWIFT → আপনার বাংলাদেশি ব্যাংক" },
+};
+const chName = (c: { id: string; name: string }) => CHANNEL_BN[c.id]?.name ?? c.name;
+const chRoute = (c: { id: string; route: string }) => CHANNEL_BN[c.id]?.route ?? c.route;
+
 const DEFAULT_FEES = Object.fromEntries(Object.entries(FEES).map(([k, v]) => [k, v.value])) as unknown as FeeValues;
 
 interface PaymentRecord {
@@ -88,7 +98,7 @@ export default function FeeGuardPage() {
         }
       />
 
-      <main id="main" className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 motion-safe:animate-rise-in">
+      <main id="main" className="mx-auto max-w-7xl space-y-6 px-4 pt-6 pb-28 sm:px-6 motion-safe:animate-rise-in">
         <section className="flex flex-wrap items-end justify-between gap-4 rounded-2xl border border-slate-200/80 bg-white/80 backdrop-blur-md p-5 sm:p-6 shadow-xs hover:shadow-md transition-all">
           <div className="max-w-2xl">
             <h1 className="text-[26px] font-extrabold leading-tight tracking-tight text-slate-900 sm:text-[32px]">আপনার ইনভয়েসের কত টাকা আসলে হাতে আসে?</h1>
@@ -98,7 +108,7 @@ export default function FeeGuardPage() {
           </div>
           <div className="min-w-[260px] rounded-2xl border-2 border-emerald-500 bg-emerald-50/90 backdrop-blur-md p-4 shadow-xs">
             <span className="block text-[11px] font-bold uppercase tracking-wide text-emerald-800">এই ইনপুটে সবচেয়ে বেশি থাকে</span>
-            <strong className="block text-[22px] font-extrabold text-emerald-800">{top.name}</strong>
+            <strong className="block text-[22px] font-extrabold text-emerald-800">{chName(top)}</strong>
             <span className="text-[13px] font-bold text-emerald-900">{fmtBdt(top.netBdt)} · ইনভয়েসের {top.keptPct}%</span>
             <span className="mt-1 block text-[11px] text-emerald-800">আনুমানিক, শর্ত নিচে দেখুন</span>
           </div>
@@ -109,9 +119,9 @@ export default function FeeGuardPage() {
           <div className="space-y-2">
             <label htmlFor="inv" className="flex items-center justify-between text-[14px] font-bold text-slate-900">
               মাসিক ইনভয়েস (USD)
-              <input id="inv" type="number" min={1} max={100000} value={invoiceUsd} onChange={(e) => setInvoiceUsd(Math.min(100000, Math.max(0, Number(e.target.value) || 0)))} className="w-28 rounded-lg border border-slate-200 px-2 py-1 text-right font-mono text-[16px] font-bold text-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600" />
+              <input id="inv" type="number" min={1} max={100000} value={invoiceUsd} onChange={(e) => setInvoiceUsd(Math.min(100000, Math.max(0, Number(e.target.value) || 0)))} className="min-h-[44px] w-28 rounded-lg border border-slate-200 px-2 py-1 text-right font-mono text-[16px] font-bold text-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600" />
             </label>
-            <input type="range" min={50} max={5000} step={50} value={Math.min(5000, invoiceUsd)} onChange={(e) => setInvoiceUsd(Number(e.target.value))} className="w-full accent-emerald-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600" aria-label="ইনভয়েস স্লাইডার" />
+            <input type="range" min={50} max={5000} step={50} value={Math.min(5000, invoiceUsd)} onChange={(e) => setInvoiceUsd(Number(e.target.value))} className="h-11 w-full accent-emerald-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600" aria-label="ইনভয়েস স্লাইডার" />
           </div>
           <div className="space-y-2">
             <span className="block text-[14px] font-bold text-slate-900">মাসে কতবার টাকা তোলেন</span>
@@ -130,8 +140,8 @@ export default function FeeGuardPage() {
             <label htmlFor="fx" className="flex items-center justify-between text-[14px] font-bold">
               ডলার রেট (৳/USD)
               <span className="flex items-center gap-1">
-                <input id="fx" type="number" step={0.01} min={80} max={250} value={fx} onChange={(e) => { setFx(Number(e.target.value) || 0); setFxSource((s) => (s ? { ...s, live: false, source: { label: "আপনার দেওয়া রেট", checked: todayLocal(), confidence: "estimate" } } : s)); }} className="w-24 rounded-lg border border-slate-200 px-2 py-1 text-right font-mono text-[15px] font-bold" />
-                <button onClick={loadFx} aria-label="দৈনিক রেট আবার আনুন" className="rounded p-1 text-slate-500 hover:bg-slate-100"><RefreshCw size={14} className={fxLoading ? "animate-spin" : ""} /></button>
+                <input id="fx" type="number" step={0.01} min={80} max={250} value={fx} onChange={(e) => { setFx(Number(e.target.value) || 0); setFxSource((s) => (s ? { ...s, live: false, source: { label: "আপনার দেওয়া রেট", checked: todayLocal(), confidence: "estimate" } } : s)); }} className="min-h-[44px] w-24 rounded-lg border border-slate-200 px-2 py-1 text-right font-mono text-[15px] font-bold" />
+                <button onClick={loadFx} aria-label="দৈনিক রেট আবার আনুন" className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100"><RefreshCw size={14} className={fxLoading ? "animate-spin" : ""} /></button>
               </span>
             </label>
             {fxSource && (
@@ -191,8 +201,8 @@ export default function FeeGuardPage() {
                   <span className={`rounded px-2.5 py-1 text-[11px] font-bold uppercase ${c.marketplace ? "bg-slate-100 text-slate-700" : "bg-emerald-100 text-emerald-800"}`}>{c.marketplace ? "মার্কেটপ্লেস" : "সরাসরি ক্লায়েন্ট"}</span>
                   {c.id === top.id && <span className="text-[11px] font-bold text-emerald-700">সবচেয়ে বেশি থাকে</span>}
                 </div>
-                <h3 className="mt-2 text-[16px] font-extrabold text-slate-900">{c.name}</h3>
-                <p className="text-[12px] text-slate-600">{c.route}</p>
+                <h3 className="mt-2 text-[16px] font-extrabold text-slate-900">{chName(c)}</h3>
+                <p className="text-[12px] text-slate-600">{chRoute(c)}</p>
                 <div className="mt-3 border-b border-slate-100 pb-3">
                   <span className="block text-[11px] text-slate-600 font-medium">আনুমানিক হাতে আসে</span>
                   <strong className="font-mono text-[24px] font-extrabold text-slate-900">{fmtBdt(c.netBdt)}</strong>
@@ -222,8 +232,8 @@ export default function FeeGuardPage() {
           <div className="rounded-2xl border border-slate-200 bg-white p-5">
             <h2 className="flex items-center gap-1.5 text-[16px] font-bold"><Scale size={17} aria-hidden /> পার্থক্যটা কী বোঝায়</h2>
             <p className="mt-2 text-[14px] text-slate-700">
-              এই ইনপুটে সবচেয়ে ভালো সরাসরি পথ (<strong>{directBest.name}</strong>) Fiverr-এর চেয়ে মাসে আনুমানিক{" "}
-              <strong className="text-emerald-700">{fmtBdt(directBest.netBdt - fiverr.netBdt)}</strong> বেশি রাখে, আর সবচেয়ে ভালো মার্কেটপ্লেস পথের ({marketplaceBest.name}) চেয়ে{" "}
+              এই ইনপুটে সবচেয়ে ভালো সরাসরি পথ (<strong>{chName(directBest)}</strong>) Fiverr-এর চেয়ে মাসে আনুমানিক{" "}
+              <strong className="text-emerald-700">{fmtBdt(directBest.netBdt - fiverr.netBdt)}</strong> বেশি রাখে, আর সবচেয়ে ভালো মার্কেটপ্লেস পথের ({chName(marketplaceBest)}) চেয়ে{" "}
               <strong className="text-emerald-700">{fmtBdt(directBest.netBdt - marketplaceBest.netBdt)}</strong> বেশি।
             </p>
             <ul className="mt-3 space-y-1.5 text-[12px] text-slate-600">
@@ -318,7 +328,7 @@ function RealityCheck({ channels, invoiceUsd, fx, onSave }: { channels: Channel[
       <div className="mt-3 grid gap-2 sm:grid-cols-2">
         <label className="text-[12px] font-bold text-slate-600">কোন পথে এসেছে
           <select value={channel} onChange={(e) => setChannel(e.target.value as Channel["id"])} className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-[13px] font-normal">
-            {channels.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
+            {channels.map((x) => <option key={x.id} value={x.id}>{chName(x)}</option>)}
           </select>
         </label>
         <label className="text-[12px] font-bold text-slate-600">হাতে এসেছে (৳) — ${invoiceUsd} ইনভয়েসের জন্য
@@ -421,7 +431,7 @@ function FreelancerAitCalculator({ defaultBdt }: { defaultBdt: number }) {
           আয়কর আইন ২০২৩: ফ্রিল্যান্স উৎসে কর (AIT) ক্যালকুলেটর
         </h2>
         <span className="rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-800">
-          ধারা ৫২ ও ৭৬
+          তথ্য · কর পরামর্শ নয়
         </span>
       </div>
       <p className="mt-1 text-[12px] text-slate-600">

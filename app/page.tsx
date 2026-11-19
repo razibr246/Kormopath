@@ -19,6 +19,7 @@ import {
   CornerDownLeft,
   Database,
   GraduationCap,
+  LayoutGrid,
   Lock,
   MessageCircle,
   Mic,
@@ -28,9 +29,12 @@ import {
   ScrollText,
   Search,
   ShieldCheck,
+  Sparkles,
   Sprout,
   Wallet,
   type LucideIcon, Tractor } from "lucide-react";
+const PersonaLoginModal = dynamic(() => import("@/components/auth/PersonaLoginModal").then((m) => m.PersonaLoginModal), { ssr: false });
+import { CustomizableDashboard } from "@/components/home/CustomizableDashboard";
 
 type Lang = "en" | "bn";
 const sanitizeLanguage = (value: unknown): Lang | null => value === "en" || value === "bn" ? value : null;
@@ -216,6 +220,9 @@ export default function HomePage() {
     return () => { document.documentElement.lang = "bn"; };
   }, [bn]);
 
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
+  const [toolsViewMode, setToolsViewMode] = useState<"catalog" | "custom">("catalog");
+
   const goToTopMatch = (event: FormEvent) => {
     event.preventDefault();
     if (results[0]) router.push(results[0].href);
@@ -236,24 +243,13 @@ export default function HomePage() {
         {/* ============ HERO ============ */}
         <section aria-labelledby="hero-title" className="kp-hero grid items-center gap-10 pb-10 pt-12 sm:pt-16 lg:grid-cols-[1.08fr_.92fr] lg:gap-6 lg:pt-20">
           <div className="kp-rise">
-            <span className="kp-chip font-semibold">
-              <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" /><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-600" /></span>
-              {bn ? "অ্যাকাউন্ট লাগে না · তথ্য থাকে আপনার ডিভাইসে" : "No account · your data stays on your device"}
-            </span>
-
-            <h1 id="hero-title" className="mt-6 text-[clamp(38px,6.2vw,76px)] font-semibold leading-[1.04] tracking-tight text-slate-900">
+            <h1 id="hero-title" className="mt-0 text-[clamp(38px,6.2vw,76px)] font-semibold leading-[1.04] tracking-tight text-slate-900">
               {bn ? (
                 <>পড়া, কাজ, সংসার আর মাঠ — <em className="kp-em">এক পথে</em> সব হিসাব।</>
               ) : (
                 <>Study, work, home and field: <em className="kp-em">one honest path.</em></>
               )}
             </h1>
-            <p lang={bn ? "bn" : "en"} className="mt-3 text-[15px] font-medium text-slate-500 sm:text-[17px]">
-              {bn
-                ? "শিক্ষার্থী ফ্রিল্যান্সারের জন্য: দক্ষতা প্রমাণ করুন, ন্যায্য চুক্তি করুন, পেমেন্টের প্রতিটি টাকা দেখুন।"
-                : "For a student freelancer: prove your skills, sign a fair contract, see every taka of the payout."}
-            </p>
-
             <p className="mt-5 max-w-[34rem] text-[17px] leading-relaxed text-slate-600 sm:text-[19px]">
               {bn
                 ? "মূল যাত্রা একজন ছাত্র ফ্রিল্যান্সারের: দক্ষতার প্রমাণ, তারপর চুক্তি, তারপর টাকা হাতে। একই ট্রাস্ট ইঞ্জিনে চলে আরও ১১টি অ্যাপ, মোট ১২টি। টাকার হিসাব নির্ধারিত নিয়মে, প্রতিটি সংখ্যার পাশে উৎস, আর কোনো তথ্য বানিয়ে বলা হয় না।"
@@ -283,7 +279,7 @@ export default function HomePage() {
               ) : (
                 results.map((task, i) => (
                   <li key={task.href} className={i >= 3 ? "hidden sm:block" : undefined}>
-                    <Link href={task.href} className={`kp-task ${query && i === 0 ? "kp-task-top" : ""}`}>
+                    <Link href={task.href} prefetch={!task.href.includes("#")} className={`kp-task ${query && i === 0 ? "kp-task-top" : ""}`}>
                       {bn ? task.bn : task.en}
                       {query && i === 0 ? <CornerDownLeft size={13} aria-hidden="true" /> : <ArrowUpRight size={13} aria-hidden="true" />}
                     </Link>
@@ -293,12 +289,19 @@ export default function HomePage() {
             </ul>
 
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Link href="/workspace" className="kp-btn-primary kp-btn-lg">
-                <Briefcase size={18} /> {bn ? "ওয়ার্কস্পেস শুরু করুন" : "Start the Workspace"}
+              {/* B2C: first value with no sign-up. The workspace opens straight away; profiles and plans are optional. */}
+              <Link href="/workspace" prefetch={true} className="kp-btn-primary kp-btn-lg" data-testid="hero-start">
+                <Briefcase size={18} /> {bn ? "এখনই শুরু করুন · সাইন-আপ লাগবে না" : "Start now · no sign-up"}
               </Link>
               <a href="#apps-showcase" className="kp-btn-ghost kp-btn-lg">
-                {bn ? "সব টুল দেখুন" : "See all tools"} <ArrowRight size={17} />
+                {bn ? "সব অ্যাপ দেখুন" : "See all apps"} <ArrowRight size={17} />
               </a>
+              <Link href="/pricing" prefetch={true} className="kp-btn-ghost kp-btn-lg" data-testid="hero-pricing">
+                <Sparkles size={18} /> {bn ? "ফ্রি ও পেইড প্ল্যান" : "Free & paid plans"}
+              </Link>
+              <button type="button" onClick={() => setLoginModalOpen(true)} className="kp-btn-ghost kp-btn-lg">
+                {bn ? "ডেমো প্রোফাইল" : "Demo profiles"}
+              </button>
             </div>
           </div>
 
@@ -361,6 +364,7 @@ export default function HomePage() {
                       <Link
                         key={link.href}
                         href={link.href}
+                        prefetch={!link.href.includes("#")}
                         className="kp-task !py-1 !text-[12.5px] transition-all hover:border-emerald-500 hover:bg-emerald-50/70"
                       >
                         {bn ? link.bn : link.en} <ArrowUpRight size={12} aria-hidden="true" />
@@ -382,52 +386,104 @@ export default function HomePage() {
                 {bn ? <>যা দরকার, <em className="kp-em">সেটাই খুলুন</em></> : <>Open <em className="kp-em">just what you need</em></>}
               </h2>
             </div>
-            <p className="max-w-md text-[15px] text-slate-600">
+            <p className="max-w-md text-[15px] text-slate-600 sm:text-right">
               {bn ? "প্রতিটি টুল আলাদা, নিজে নিজেই কাজ করে। একটির তথ্য অন্যটি পড়ে না।" : "Each tool stands alone and works by itself. No tool reads another's data."}
             </p>
           </div>
 
-          {(() => {
-            const renderGroup = (group: (typeof GROUPS)[number], cols: string) => (
-              <div key={group.key} className="mt-12">
-                <div className="mb-4 flex items-baseline gap-3 border-b border-line pb-3">
-                  <h3 className="font-display text-[24px] font-semibold text-slate-900">{bn ? group.bn : group.en}</h3>
-                  <span className="text-[14px] text-slate-500">{bn ? group.sub.bn : group.sub.en}</span>
+          {/* View switcher between default categorized catalog and customizable dashboard */}
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-b border-line pb-4">
+            <div className="inline-flex rounded-2xl bg-slate-100 p-1 ring-1 ring-slate-900/5">
+              <button
+                type="button"
+                onClick={() => setToolsViewMode("catalog")}
+                className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-[14px] font-semibold transition-all ${
+                  toolsViewMode === "catalog"
+                    ? "bg-white text-slate-900 shadow-xs ring-1 ring-slate-900/10"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                <LayoutGrid size={16} className={toolsViewMode === "catalog" ? "text-emerald-700" : "text-slate-400"} />
+                <span>{bn ? "সব ১২টি টুল (ক্যাটালগ)" : "All 12 Tools (Catalog)"}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setToolsViewMode("custom")}
+                className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-[14px] font-semibold transition-all ${
+                  toolsViewMode === "custom"
+                    ? "bg-white text-slate-900 shadow-xs ring-1 ring-slate-900/10"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                <Sparkles size={16} className={toolsViewMode === "custom" ? "text-amber-600" : "text-slate-400"} />
+                <span>{bn ? "আমার ড্যাশবোর্ড (কাস্টমাইজ)" : "My Dashboard (Customize)"}</span>
+              </button>
+            </div>
+            <p className="text-[13px] text-slate-500">
+              {toolsViewMode === "catalog"
+                ? bn ? "ক্যাটাগরি অনুযায়ী প্রতিটি টুলের বিবরণ ও ট্যাগ" : "Categorized view with tags and lines"
+                : bn ? "নিজের পছন্দমতো অ্যাপ সাজিয়ে ও পিন করে রাখুন" : "Pin and customize your preferred apps"}
+            </p>
+          </div>
+
+          {toolsViewMode === "catalog" ? (
+            (() => {
+              const renderGroup = (group: (typeof GROUPS)[number], cols: string) => (
+                <div key={group.key} className="mt-12">
+                  <div className="mb-4 flex items-baseline gap-3 border-b border-line pb-3">
+                    <h3 className="font-display text-[24px] font-semibold text-slate-900">{bn ? group.bn : group.en}</h3>
+                    <span className="text-[14px] text-slate-500">{bn ? group.sub.bn : group.sub.en}</span>
+                  </div>
+                  <div className={`grid gap-4 ${cols}`}>
+                    {TOOLS[group.key].map((tool) => {
+                      const Icon = tool.icon;
+                      return (
+                        <Link
+                          key={tool.id}
+                          href={tool.href}
+                          prefetch={true}
+                          onPointerEnter={() => {
+                            if (tool.href.startsWith("/") && !tool.href.includes("#")) router.prefetch(tool.href);
+                          }}
+                          onTouchStart={() => {
+                            if (tool.href.startsWith("/") && !tool.href.includes("#")) router.prefetch(tool.href);
+                          }}
+                          className="kp-tool group"
+                        >
+                          <span className={`kp-tool-stripe bg-gradient-to-r ${tool.stripe}`} aria-hidden="true" />
+                          <span className="flex items-start justify-between gap-3">
+                            <span className={`grid h-12 w-12 place-items-center rounded-2xl ring-1 ${tool.tone}`}><Icon size={22} /></span>
+                            <ArrowUpRight size={18} className="text-slate-400 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-slate-800" aria-hidden="true" />
+                          </span>
+                          <span className="mt-5 block font-display text-[21px] font-semibold text-slate-900">{bn ? tool.name.bn : tool.name.en}</span>
+                          <span className="mt-0.5 block text-[12.5px] font-semibold uppercase tracking-wider text-slate-500">{bn ? tool.name.en : tool.name.bn}</span>
+                          <span className="mt-3 block text-[15px] leading-relaxed text-slate-600">{bn ? tool.line.bn : tool.line.en}</span>
+                          <span className="mt-auto flex flex-wrap gap-1.5 pt-4">
+                            {(bn ? tool.chips.bn : tool.chips.en).map((c) => (
+                              <span key={c} className="rounded-lg border border-line bg-slate-50 px-2 py-0.5 text-[12.5px] font-medium text-slate-700">{c}</span>
+                            ))}
+                          </span>
+                        </Link>
+                      );
+                    })}
+                  </div>
                 </div>
-                <div className={`grid gap-4 ${cols}`}>
-                  {TOOLS[group.key].map((tool) => {
-                    const Icon = tool.icon;
-                    return (
-                      <Link key={tool.id} href={tool.href} className="kp-tool group">
-                        <span className={`kp-tool-stripe bg-gradient-to-r ${tool.stripe}`} aria-hidden="true" />
-                        <span className="flex items-start justify-between gap-3">
-                          <span className={`grid h-12 w-12 place-items-center rounded-2xl ring-1 ${tool.tone}`}><Icon size={22} /></span>
-                          <ArrowUpRight size={18} className="text-slate-400 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-slate-800" aria-hidden="true" />
-                        </span>
-                        <span className="mt-5 block font-display text-[21px] font-semibold text-slate-900">{bn ? tool.name.bn : tool.name.en}</span>
-                        <span className="mt-0.5 block text-[12.5px] font-semibold uppercase tracking-wider text-slate-500">{bn ? tool.name.en : tool.name.bn}</span>
-                        <span className="mt-3 block text-[15px] leading-relaxed text-slate-600">{bn ? tool.line.bn : tool.line.en}</span>
-                        <span className="mt-auto flex flex-wrap gap-1.5 pt-4">
-                          {(bn ? tool.chips.bn : tool.chips.en).map((c) => (
-                            <span key={c} className="rounded-lg border border-line bg-slate-50 px-2 py-0.5 text-[12.5px] font-medium text-slate-700">{c}</span>
-                          ))}
-                        </span>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-            return (
-              <>
-                {renderGroup(GROUPS[0], "sm:grid-cols-2 lg:grid-cols-4")}
-                <div className="grid gap-x-6 lg:grid-cols-[3fr_1fr]">
-                  {renderGroup(GROUPS[1], "sm:grid-cols-2 lg:grid-cols-3")}
-                  {renderGroup(GROUPS[2], "sm:grid-cols-2 lg:grid-cols-1")}
-                </div>
-              </>
-            );
-          })()}
+              );
+              return (
+                <>
+                  {renderGroup(GROUPS[0], "sm:grid-cols-2 lg:grid-cols-4")}
+                  <div className="grid gap-x-6 lg:grid-cols-[3fr_1fr]">
+                    {renderGroup(GROUPS[1], "sm:grid-cols-2 lg:grid-cols-3")}
+                    {renderGroup(GROUPS[2], "sm:grid-cols-2 lg:grid-cols-1")}
+                  </div>
+                </>
+              );
+            })()
+          ) : (
+            <div className="mt-8">
+              <CustomizableDashboard lang={lang} />
+            </div>
+          )}
         </section>
 
         {/* ============ WORKSPACE PIPELINE ============ */}
@@ -532,6 +588,12 @@ export default function HomePage() {
         lang={lang}
         usdBdt={fx.usdBdt}
       />}
+
+      <PersonaLoginModal
+        isOpen={loginModalOpen}
+        onClose={() => setLoginModalOpen(false)}
+        lang={lang}
+      />
     </div>
   );
 }

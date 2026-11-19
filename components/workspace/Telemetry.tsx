@@ -279,7 +279,7 @@ export function Telemetry({
               <button
                 onClick={() => setDiffOpen(false)}
                 aria-label="Close"
-                className="rounded-lg border border-[#3a2b1f] bg-[#142036] p-1.5 text-slate-400 hover:text-white hover:bg-[#1c2e4f]"
+                className="rounded-lg border border-[#3a2b1f] bg-[#24170f] p-1.5 text-slate-400 hover:text-white hover:bg-[#2d1e14]"
               >
                 <X size={16} />
               </button>
@@ -296,7 +296,7 @@ export function Telemetry({
                     {groundingDiff.sourceText.length} chars
                   </span>
                 </div>
-                <div className="max-h-[500px] overflow-y-auto rounded-lg border border-[#3a2b1f] bg-[#080e1a] p-3 font-mono text-[12px] leading-relaxed text-slate-300 whitespace-pre-wrap select-text">
+                <div className="max-h-[500px] overflow-y-auto rounded-lg border border-[#3a2b1f] bg-[#120c08] p-3 font-mono text-[12px] leading-relaxed text-slate-300 whitespace-pre-wrap select-text">
                   {groundingDiff.sourceText || "No source text available."}
                 </div>
               </div>
@@ -391,7 +391,7 @@ export function Telemetry({
                 <ShieldCheck size={20} className="text-emerald-400" />
                 <h3 className="display text-[20px] font-bold text-white">Inspect Raw Model vs Validated JSON Schema</h3>
               </div>
-              <button onClick={() => setOpen(false)} aria-label="Close" className="rounded-lg border border-[#3a2b1f] bg-[#142036] p-1.5 text-slate-400 hover:text-white">
+              <button onClick={() => setOpen(false)} aria-label="Close" className="rounded-lg border border-[#3a2b1f] bg-[#24170f] p-1.5 text-slate-400 hover:text-white hover:bg-[#2d1e14]">
                 <X size={16} />
               </button>
             </div>
@@ -400,17 +400,17 @@ export function Telemetry({
             </p>
             {inspect.map((x) => (
               <details key={x.label} className="mb-3 rounded-xl border border-[#3a2b1f] overflow-hidden" open>
-                <summary className="cursor-pointer bg-[#21170f] px-3.5 py-2.5 font-bold text-[14px] text-slate-200 border-b border-[#3a2b1f] hover:bg-[#142036]">{x.label}</summary>
+                <summary className="cursor-pointer bg-[#21170f] px-3.5 py-2.5 font-bold text-[14px] text-slate-200 border-b border-[#3a2b1f] hover:bg-[#2a1d13]">{x.label}</summary>
                 <div className="grid gap-3 p-3 md:grid-cols-2 bg-[#1b130e]">
                   <div>
                     <p className="mb-1 text-[11px] font-bold uppercase text-slate-400 font-mono">Raw Model Generation</p>
-                    <pre className="max-h-72 overflow-auto rounded-lg bg-[#080e1a] p-2.5 font-mono text-[11px] leading-tight text-cyan-300 border border-[#3a2b1f]">
+                    <pre className="max-h-72 overflow-auto rounded-lg bg-[#120c08] p-2.5 font-mono text-[11px] leading-tight text-cyan-300 border border-[#3a2b1f]">
                       {x.raw ?? "No LLM guessing (deterministic code/rules engine)."}
                     </pre>
                   </div>
                   <div>
                     <p className="mb-1 text-[11px] font-bold uppercase text-emerald-400 font-mono">Validated &amp; Grounded Schema (Zod)</p>
-                    <pre className="max-h-72 overflow-auto rounded-lg bg-[#080e1a] p-2.5 font-mono text-[11px] leading-tight text-emerald-300 border border-[#3a2b1f]">
+                    <pre className="max-h-72 overflow-auto rounded-lg bg-[#120c08] p-2.5 font-mono text-[11px] leading-tight text-emerald-300 border border-[#3a2b1f]">
                       {JSON.stringify(x.validated, null, 2)}
                     </pre>
                   </div>

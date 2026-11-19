@@ -27,6 +27,10 @@ My Path lets you bookmark search results or add your own links, track applicatio
 
 Workspace shows model calls, tool calls and fallbacks for its supported flows. Model output is untrusted: financial calculations remain deterministic and claims from uploaded evidence are checked against source text.
 
+## B2C model
+
+KormoPath sells directly to individual consumers: students, freelancers, households, farmers and patients. There's no sign-up; the first value comes in under a minute. Safety is free forever (emergency hospitals, the health assistant, prescription reading, legal aid, scam checks and every helpline). Extras cost a fixed monthly price: ৳99 for one app or ৳299 for all, proposed and not yet final. Real payments are off until a verified bKash merchant account exists, and paid features can only be tried as a labelled demo. See `/pricing` and `docs/buildathon/b2c-model.md`.
+
 ## Run locally
 
 ```bash

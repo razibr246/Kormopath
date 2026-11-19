@@ -106,6 +106,14 @@ export default function JudgesPage() {
               <Play size={14} className="fill-orange-800" />
               <span>Watch the demo</span>
             </Link>
+            <a
+              href="/presentation.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-5 py-2.5 text-[15px] font-bold text-amber-900 hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 transition-all active:scale-[0.98]"
+            >
+              <span>5-Slide Pitch Deck ↗</span>
+            </a>
           </div>
         </section>
 
@@ -143,6 +151,17 @@ export default function JudgesPage() {
         </section>
 
         {/* Live Assertion Harness */}
+        <section aria-labelledby="b2c-h" data-testid="judges-b2c" className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-5 sm:p-6">
+          <h2 id="b2c-h" className="text-[20px] font-bold text-slate-900">B2C: sold directly to individual consumers</h2>
+          <ul className="mt-2 list-disc space-y-1 pl-5 text-[14px] leading-relaxed text-slate-700">
+            <li><strong>Who:</strong> students, freelancers, households, farmers and patients. Each one is a person, not a company.</li>
+            <li><strong>Short path:</strong> no sign-up and no download; the first value comes in under a minute. A paid extra appears only when it helps, for example when you start a model test.</li>
+            <li><strong>Fixed, low price:</strong> ৳99 a month for one app or ৳299 for all (proposed). Safety is free forever: emergency hospitals, the health assistant, legal aid and scam checks are never gated, enforced in code and tests.</li>
+            <li><strong>Honest checkout:</strong> payments open after a verified bKash merchant account. Until then the sheet offers early access or a labelled demo, and nothing typed can unlock a feature.</li>
+          </ul>
+          <Link href="/pricing" className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 font-semibold text-emerald-800 underline">See /pricing <ArrowRight size={15} aria-hidden /></Link>
+        </section>
+
         <section aria-labelledby="harness-h" className="rounded-2xl border border-slate-200/80 bg-white/80 backdrop-blur-md p-5 sm:p-6 shadow-xs hover:shadow-md transition-all">
           <LiveAssertionHarness />
         </section>

@@ -28,6 +28,7 @@ export function AppFooter({
           <div className="space-y-3 sm:col-span-2 lg:col-span-1">
             <Link
               href="/"
+              prefetch={true}
               className="inline-block group"
             >
               <KormoPathLogo theme="light" variant="full" size="md" />
@@ -52,6 +53,7 @@ export function AppFooter({
               <li>
                 <Link
                   href="/workspace"
+                  prefetch={true}
                   className="hover:text-orange-600 transition-colors inline-flex items-center gap-1"
                 >
                   <span>{lang === "bn" ? "ওয়ার্কস্পেস ও অডিট" : "Workspace Pipeline"}</span>
@@ -61,6 +63,7 @@ export function AppFooter({
               <li>
                 <Link
                   href="/#apps-showcase"
+                  prefetch={false}
                   className="hover:text-orange-600 transition-colors inline-flex items-center gap-1"
                 >
                   <span>{lang === "bn" ? "সকল ইকোসিস্টেম অ্যাপ" : "Ecosystem Showcase"}</span>
@@ -69,6 +72,7 @@ export function AppFooter({
               <li>
                 <Link
                   href="/opportunities"
+                  prefetch={true}
                   className="hover:text-orange-600 transition-colors inline-flex items-center gap-1"
                 >
                   <span>{lang === "bn" ? "সুযোগ ও আমার পথ" : "Opportunities Board"}</span>
@@ -77,6 +81,7 @@ export function AppFooter({
               <li>
                 <Link
                   href="/rokkha"
+                  prefetch={true}
                   className="hover:text-orange-600 transition-colors inline-flex items-center gap-1"
                 >
                   <span>{lang === "bn" ? "রক্ষা: প্রতারণা ও দুর্যোগে সুরক্ষা" : "Rokkha: scam & disaster safety"}</span>
@@ -85,6 +90,7 @@ export function AppFooter({
               <li>
                 <Link
                   href="/legal"
+                  prefetch={true}
                   className="hover:text-orange-600 transition-colors inline-flex items-center gap-1"
                 >
                   <span>{lang === "bn" ? "আইনি সহায়তা: সরকারি ফ্রি লিগ্যাল এইড" : "Legal Aid: free legal aid"}</span>
@@ -93,6 +99,7 @@ export function AppFooter({
               <li>
                 <Link
                   href="/judges"
+                  prefetch={true}
                   className="hover:text-amber-600 font-medium transition-colors inline-flex items-center gap-1"
                 >
                   <span>{lang === "bn" ? "বিচারক গাইড (Judge Tour)" : "Judge Walkthrough"}</span>
@@ -101,6 +108,7 @@ export function AppFooter({
               <li>
                 <Link
                   href="/trust"
+                  prefetch={true}
                   className="hover:text-emerald-700 font-medium transition-colors inline-flex items-center gap-1"
                 >
                   <span>{lang === "bn" ? "যাচাই করা ফলাফল" : "Measured results"}</span>
@@ -109,6 +117,7 @@ export function AppFooter({
               <li>
                 <Link
                   href="/settings"
+                  prefetch={true}
                   className="hover:text-orange-600 transition-colors inline-flex items-center gap-1"
                 >
                   <span>{lang === "bn" ? "প্রাইভেসি ও ব্যাকআপ" : "Privacy & Backup"}</span>
@@ -120,17 +129,20 @@ export function AppFooter({
           {/* Col 3: Regulatory Grounding */}
           <div className="space-y-2">
             <h2 className="font-sans text-[14px] font-bold tracking-normal text-slate-900">
-              {lang === "bn" ? "আইনি ও পলিসি রেফারেন্স" : "Regulatory Framework"}
+              {lang === "bn" ? "কর ও প্রণোদনা (তথ্য)" : "Tax & incentives (information)"}
             </h2>
             <div className="space-y-2 text-[12px] text-slate-600 leading-snug">
               <p>
-                <strong className="text-slate-800">NBR ITES Exemption:</strong> 1 July 2024 – 30 June 2027 (Finance Act 2024).
+                <strong className="text-slate-800">{lang === "bn" ? "কর:" : "Tax:"}</strong>{" "}
+                {lang === "bn" ? "ফ্রিল্যান্সিং আয় আয়কর আইন ২০২৩-এর ষষ্ঠ তফসিলে করমুক্ত বলে প্রকাশিত। তথ্য, কর পরামর্শ নয়।" : "Freelancing income is reported as exempt under the Sixth Schedule, Income Tax Act 2023. Information, not tax advice."}
               </p>
               <p>
-                <strong className="text-slate-800">Bangladesh Bank:</strong> 2.5% Cash Export Incentive (FE Circular 02).
+                <strong className="text-slate-800">{lang === "bn" ? "নগদ প্রণোদনা:" : "Cash incentive:"}</strong>{" "}
+                {lang === "bn" ? "ফ্রিল্যান্সারদের ২.৫% (প্রকাশিত খবর অনুযায়ী); প্রযোজ্য কি না, ব্যাংক ঠিক করে।" : "2.5% for individual freelancers, as reported; your bank decides if it applies."}
               </p>
               <p>
-                <strong className="text-slate-800">Clause 4 Shield:</strong> 48h internet blackout force majeure defense.
+                <strong className="text-slate-800">{lang === "bn" ? "ধারা ৪:" : "Clause 4:"}</strong>{" "}
+                {lang === "bn" ? "আমাদের চুক্তি টেমপ্লেটের ইন্টারনেট-বন্ধ ধারা (আইন নয়)।" : "our contract template's internet-blackout clause (a contract term, not a law)."}
               </p>
             </div>
           </div>

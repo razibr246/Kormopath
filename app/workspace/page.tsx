@@ -1,12 +1,23 @@
 "use client";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { Navbar, Footer } from "@/components/layout/Chrome";
 import { HeroDevice } from "@/components/workspace/HeroDevice";
 import { Telemetry } from "@/components/workspace/Telemetry";
 import { StageAudit } from "@/components/workspace/StageAudit";
-import { StageViva } from "@/components/workspace/StageViva";
-import { StageContract } from "@/components/workspace/StageContract";
-import { StageMoney } from "@/components/workspace/StageMoney";
+
+const StageLoading = () => (
+  <div className="flex h-64 items-center justify-center rounded-2xl border border-line bg-white/60">
+    <div className="flex items-center gap-2 text-sm text-slate-500 font-medium">
+      <span className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
+      <span>ধাপ লোড হচ্ছে...</span>
+    </div>
+  </div>
+);
+
+const StageViva = dynamic(() => import("@/components/workspace/StageViva").then((m) => m.StageViva), { loading: StageLoading, ssr: false });
+const StageContract = dynamic(() => import("@/components/workspace/StageContract").then((m) => m.StageContract), { loading: StageLoading, ssr: false });
+const StageMoney = dynamic(() => import("@/components/workspace/StageMoney").then((m) => m.StageMoney), { loading: StageLoading, ssr: false });
 import { EcosystemHub } from "@/components/home/EcosystemHub";
 import { PERSONAS } from "@/lib/presets";
 import { CHALLENGES } from "@/lib/challenges";
@@ -112,20 +123,8 @@ export default function Home() {
     groundingDiffData,
   } = useWorkspaceMachine();
 
-  return (
-    <>
-      <Navbar
-        lang={lang}
-        setLang={setLang}
-        usdBdt={fx.usdBdt}
-        fxLive={fx.live}
-        fxSource={fx.source}
-        onOpenEcosystem={() => setIsEcosystemOpen(true)}
-        isEcosystemOpen={isEcosystemOpen}
-      />
-
-      <main id="main" className="mx-auto max-w-7xl px-4 sm:px-6 space-y-12">
-        {/* Proof bar: every figure is live (FX) or measured by scripts/eval.ts (lib/eval-results.json). */}
+  // Every figure is live (FX) or measured by scripts/eval.ts (lib/eval-results.json).
+  const proofBar = (
         <section aria-label={lang === "bn" ? "যাচাই করা ফলাফল" : "Measured results"} className="mt-4 overflow-hidden rounded-2xl border border-slate-200/80 bg-white/90 backdrop-blur-md shadow-xs">
           <div className="grid grid-cols-2 divide-x divide-line text-[12px] sm:grid-cols-4">
             {[
@@ -169,6 +168,23 @@ export default function Home() {
             {new Date(EVAL.generatedAt).toLocaleDateString(lang === "bn" ? "bn-BD" : "en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Dhaka" })} →
           </Link>
         </section>
+  );
+
+  return (
+    <>
+      <Navbar
+        lang={lang}
+        setLang={setLang}
+        usdBdt={fx.usdBdt}
+        fxLive={fx.live}
+        fxSource={fx.source}
+        onOpenEcosystem={() => setIsEcosystemOpen(true)}
+        isEcosystemOpen={isEcosystemOpen}
+      />
+
+      <main id="main" className="mx-auto max-w-7xl px-4 sm:px-6 space-y-12">
+        {/* Proof bar (measured results): above the hero from 640px; on phones it follows the hero so the start button is above the fold. */}
+        <div className="hidden sm:block">{proofBar}</div>
 
         {/* Hero Section */}
         <section aria-label="Introduction Hero" className="hero-section grid gap-8 pt-4 pb-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
@@ -250,6 +266,7 @@ export default function Home() {
             </div>
           </div>
         </section>
+        <div className="sm:hidden">{proofBar}</div>
 
         {/* 4-Stage Guided Workspace */}
         <section id="pipeline" aria-label="4-Stage Guided Workspace">
@@ -286,7 +303,7 @@ export default function Home() {
                       aria-current={stage === s.n ? "step" : undefined}
                       className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left transition-all ${
                         stage === s.n
-                          ? "border border-slate-800 bg-[#070d1e] text-white shadow-md ring-1 ring-slate-700/50"
+                          ? "border border-[#3a2b1f] bg-[#1b130e] text-white shadow-md ring-1 ring-amber-400/20"
                           : "border border-transparent bg-white/70 hover:bg-white text-slate-800 hover:shadow-xs"
                       }`}
                     >
@@ -840,7 +857,7 @@ export default function Home() {
                 <ChevronDown size={18} className="text-muted group-open:rotate-180 transition-transform" />
               </summary>
               <p className="mt-3 text-[14px] text-muted leading-relaxed">
-                Under the Finance Act 2024 (as reported; check the current Finance Act), income from Information Technology Enabled Services (ITES) earned between 1 July 2024 and 30 June 2027 is 100% exempt from income tax in Bangladesh if received through formal banking channels. KormoPath Treasurer provides an income ledger with receipt reading that exports a CSV you can give your tax advisor and bank.
+                Under the Finance Act 2024 (as reported; check the current Finance Act), income from Information Technology Enabled Services (ITES) earned between 1 July 2024 and 30 June 2027 is reported to be exempt from income tax in Bangladesh when received through formal banking channels; confirm with a tax adviser. KormoPath Treasurer provides an income ledger with receipt reading that exports a CSV you can give your tax advisor and bank.
               </p>
             </details>
           </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useLayoutEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import {
@@ -227,8 +227,11 @@ export function AppSwitcherDropdown({
   lang = "bn",
   onSelectApp,
   variant = "dark",
+  genericLabel = false,
 }: {
   variant?: "dark" | "light";
+  /** On app pages the header title already names the app, so the pill just says "অ্যাপ" / "Apps". */
+  genericLabel?: boolean;
   currentAppId?: "kormopath" | "path" | "feeguard" | "chuktiguard" | "admitbuddy" | "mediscan" | "shohoj" | "haatbazar" | "krishi" | "rokkha" | "legal" | "probaho";
   lang?: "en" | "bn";
   onSelectApp?: (appId: string) => void;
@@ -237,6 +240,23 @@ export function AppSwitcherDropdown({
   const [query, setQuery] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  // Keep the panel inside the screen with a 16px margin on both sides, wherever the trigger sits in the header.
+  const [panelBox, setPanelBox] = useState<{ left: number; width: number } | null>(null);
+  useLayoutEffect(() => {
+    if (!isOpen) return;
+    const place = () => {
+      const t = triggerRef.current;
+      if (!t) return;
+      const r = t.getBoundingClientRect();
+      const vw = document.documentElement.clientWidth;
+      const width = Math.min(336, vw - 32);
+      const leftInViewport = Math.min(Math.max(r.right - width, 16), vw - 16 - width);
+      setPanelBox({ left: leftInViewport - r.left, width });
+    };
+    place();
+    window.addEventListener("resize", place);
+    return () => window.removeEventListener("resize", place);
+  }, [isOpen]);
   const searchRef = useRef<HTMLInputElement>(null);
   const [recentApps, setRecentApps] = usePersistentState<AppItem["id"][]>(
     storageKey("platform", "recentApps"),
@@ -283,9 +303,18 @@ export function AppSwitcherDropdown({
     .filter((app): app is AppItem => Boolean(app));
 
   useEffect(() => {
-    if (isOpen) searchRef.current?.focus();
-    else setQuery("");
-  }, [isOpen]);
+    if (isOpen) {
+      searchRef.current?.focus();
+      // Prefetch companion app routes for instant 0ms switching
+      APPS_LIST.forEach((app) => {
+        if (app.href.startsWith("/") && !app.href.includes("#")) {
+          router.prefetch(app.href);
+        }
+      });
+    } else {
+      setQuery("");
+    }
+  }, [isOpen, router]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -338,7 +367,7 @@ export function AppSwitcherDropdown({
         <span className="hidden h-2 w-2 rounded-full bg-emerald-600 sm:flex" aria-hidden="true" />
         <div className="text-left">
           <span className={`kp-switcher-label block text-[12px] font-bold leading-tight ${isLight ? "text-slate-900" : "text-white"}`}>
-            {lang === "bn" ? APP_SHORT_NAME[currentApp.id].bn : APP_SHORT_NAME[currentApp.id].en}
+            {genericLabel ? (lang === "bn" ? "অ্যাপ" : "Apps") : lang === "bn" ? APP_SHORT_NAME[currentApp.id].bn : APP_SHORT_NAME[currentApp.id].en}
           </span>
           <span className={`hidden text-[10px] leading-none sm:block ${isLight ? "text-slate-500" : "text-amber-300/80"}`}>
             {lang === "bn" ? currentApp.stageNameBn : currentApp.stageNameEn}
@@ -354,6 +383,7 @@ export function AppSwitcherDropdown({
       {/* Dropdown Menu */}
       {isOpen && (
         <div
+          style={panelBox ? { left: panelBox.left, right: "auto", width: panelBox.width } : undefined}
           className={`absolute right-0 mt-2 w-84 max-w-[calc(100vw-32px)] max-h-[85vh] overflow-y-auto origin-top-right rounded-2xl border p-2.5 shadow-2xl z-50 animate-in fade-in-50 zoom-in-95 duration-150 ${
             isLight
               ? "border-white/80 bg-paper/95 text-slate-900 backdrop-blur-2xl"
@@ -399,6 +429,12 @@ export function AppSwitcherDropdown({
                     <button
                       key={app.id}
                       type="button"
+                      onPointerEnter={() => {
+                        if (app.href.startsWith("/") && !app.href.includes("#")) router.prefetch(app.href);
+                      }}
+                      onTouchStart={() => {
+                        if (app.href.startsWith("/") && !app.href.includes("#")) router.prefetch(app.href);
+                      }}
                       onClick={() => handleSelect(app)}
                       className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1.5 text-[11px] font-semibold transition-colors ${
                         isLight ? "border-line bg-white/75 text-slate-700 hover:border-emerald-500/50 hover:bg-emerald-50" : "border-white/10 bg-white/5 text-slate-200 hover:bg-white/10"
@@ -435,6 +471,13 @@ export function AppSwitcherDropdown({
                     </p>
                   )}
                   <button
+                    type="button"
+                    onPointerEnter={() => {
+                      if (app.href.startsWith("/") && !app.href.includes("#")) router.prefetch(app.href);
+                    }}
+                    onTouchStart={() => {
+                      if (app.href.startsWith("/") && !app.href.includes("#")) router.prefetch(app.href);
+                    }}
                     onClick={() => handleSelect(app)}
                     className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-[13.5px] transition-all ${
                       isSelected

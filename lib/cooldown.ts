@@ -48,3 +48,16 @@ export function createCooldown(now: () => number = () => Date.now()): Cooldown {
     ],
   };
 }
+
+/**
+ * The order one request tries models and keys in: models and keys that failed recently go last (still tried,
+ * never dropped). Keys are identified by their index, never by value. Pure, so the failover order is unit-tested.
+ */
+export function attemptPlan(models: readonly string[], keyCount: number, modelCooldown: Cooldown, keyCooldown: Cooldown): {
+  models: string[];
+  keyOrder: number[];
+  deferredKeys: number[];
+} {
+  const keyOrder = keyCooldown.order(Array.from({ length: keyCount }, (_, i) => String(i))).map(Number);
+  return { models: modelCooldown.order(models), keyOrder, deferredKeys: keyOrder.filter((i) => keyCooldown.remainingMs(String(i)) > 0) };
+}

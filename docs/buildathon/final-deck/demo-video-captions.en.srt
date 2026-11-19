@@ -1,0 +1,31 @@
+1
+00:00:00,000 --> 00:00:04,817
+This is KormoPath. AI you can check, for everyday life in Bangladesh.
+
+2
+00:00:05,567 --> 00:00:16,392
+Meet Nabila. In one week, a client doubts her CV, a fake bKash SMS asks for her OTP, and at night her father has chest pain. Generic AI just guesses.
+
+3
+00:00:17,142 --> 00:00:22,780
+Rokkha checks the message, and quotes the exact scam words. It never calls anything safe.
+
+4
+00:00:23,530 --> 00:00:29,920
+MediScan sends danger signs, like chest pain, straight to 999, before any AI
+
+5
+00:00:30,670 --> 00:00:36,231
+Twelve consumer apps share one trust engine. In Bangla, on a phone, with no sign-up.
+
+6
+00:00:36,981 --> 00:00:42,915
+For freelancers, four Gemini agents turn skills into taka. Every skill must quote the CV
+
+7
+00:00:43,665 --> 00:00:50,066
+Money is computed by code, Buddy answers in every app with sourced numbers, and we measure it all on the live site.
+
+8
+00:00:50,816 --> 00:00:59,120
+Safety is free forever. Pro costs under ৳100 a month. Try it now at kormopath.vercel.app. Built by Razib Miah.

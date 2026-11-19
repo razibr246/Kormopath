@@ -1,6 +1,6 @@
 /** Portable browser backups. Never accept arbitrary localStorage keys. */
 export const BACKUP_LIMIT = 5 * 1024 * 1024;
-const namespaces = new Set(["shohoj", "mediscan", "admitbuddy", "probaho", "haatbazar", "krishi", "rokkha", "legal", "feeguard", "chuktiguard", "platform"]);
+const namespaces = new Set(["shohoj", "mediscan", "admitbuddy", "probaho", "haatbazar", "krishi", "rokkha", "legal", "feeguard", "chuktiguard", "platform", "auth", "dashboard"]);
 const legacy = new Set(["shohoj_expenses", "kormopath_unified_profile_v1", "kp-ledger"]);
 export type Backup = { format: "kormopath-backup"; version: 1; exportedAt: string; data: Record<string, unknown> };
 type StorageAccess = Pick<Storage, "getItem" | "setItem" | "removeItem">;
@@ -56,7 +56,7 @@ export function restoreBackup(storage: StorageAccess, backup: Backup, overwrite 
 }
 
 export function backupSummary(backup: Backup): { name: string; items: number }[] {
-  const names: Record<string, string> = { shohoj: "Shohoj Budget", mediscan: "MediScan BD", admitbuddy: "AdmitBuddy", probaho: "Probaho Coach", haatbazar: "HaatBazar AI", krishi: "MaathSathi", rokkha: "Rokkha", legal: "আইনি সহায়তা", feeguard: "FeeGuard BD", chuktiguard: "ChuktiGuard", platform: "My Path ও প্রোফাইল" };
+  const names: Record<string, string> = { shohoj: "Shohoj Budget", mediscan: "MediScan BD", admitbuddy: "AdmitBuddy", probaho: "Probaho Coach", haatbazar: "HaatBazar AI", krishi: "MaathSathi", rokkha: "Rokkha", legal: "আইনি সহায়তা", feeguard: "FeeGuard BD", chuktiguard: "ChuktiGuard", platform: "My Path ও প্রোফাইল", auth: "লগইন সেশন ও ইউজার প্রোফাইল", dashboard: "কাস্টমাইজেবল ড্যাশবোর্ড" };
   const counts = new Map<string, number>();
   for (const key of Object.keys(backup.data)) {
     const name = key === "kp-ledger" ? "Workspace" : key === "shohoj_expenses" ? names.shohoj : key === "kormopath_unified_profile_v1" ? names.platform : names[key.split(":")[1]];

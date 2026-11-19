@@ -92,7 +92,9 @@ export async function runStructured<T>(o: RunOptions<T>): Promise<StructuredResu
       return out;
     }
     lastErr = v.issues.slice(0, 6).map((i) => `${i.path.join(".")}: ${i.message}`).join("; ");
-    o.log("zod", `Schema failed (${v.issues.length} issues), asking model to repair`, "warn", Math.round(now() - t1));
+    // Name the failing fields and rules (first three, trimmed) so a repeat failure can be traced to one rule.
+    const why = v.issues.slice(0, 3).map((i) => `${i.path.join(".") || "(root)"}: ${i.message.slice(0, 80)}`).join("; ");
+    o.log("zod", `Schema failed (${v.issues.length} issues: ${why}), asking model to repair`, "warn", Math.round(now() - t1));
   }
   o.log("zod", "Model output still invalid after repair, falling back", "fallback");
   return null;

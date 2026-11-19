@@ -1,10 +1,13 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import { BadgeCheck, Languages, Search, ShieldQuestion } from "lucide-react";
+import { BadgeCheck, Languages, Search, ShieldQuestion, Lock } from "lucide-react";
 import { AVAILABILITY_LABEL, SPECIALTIES, TYPE_LABEL, filterDoctors, isRealBookable, specialtyById, type Availability, type ConsultType, type Doctor } from "@/lib/health/doctors";
 import { formatTaka } from "@/lib/health/payments";
 import { BookingFlow } from "./BookingFlow";
 import { DoctorAvatar, TiltCard, T as tr, toneClass, useDoctorAdmin, allDoctors } from "./shared";
+import { UpgradeModal } from "@/components/pricing/UpgradeModal";
+import { isFeatureGated, sanitizeSession, getStoredSession, type UserSession } from "@/lib/session";
+import { readStored, storageKey } from "@/lib/clientStore";
 
 const LANG_NAME: Record<string, { bn: string; en: string }> = { bn: { bn: "বাংলা", en: "Bangla" }, en: { bn: "ইংরেজি", en: "English" } };
 
@@ -29,7 +32,33 @@ export function DoctorDirectory() {
     setAskedFor(want);
     if (SPECIALTIES.some((s) => s.id === want)) setSpecialty(want);
   }, []);
-  const askedMissing = askedFor !== null && !SPECIALTIES.some((s) => s.id === askedFor);
+  const [askedMissing, setAskedMissing] = useState(false);
+  const [session, setSession] = useState<UserSession | null>(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [pendingDoctor, setPendingDoctor] = useState<Doctor | null>(null);
+
+  useEffect(() => {
+    setSession(getStoredSession());
+    const onSession = () => setSession(getStoredSession());
+    window.addEventListener("kormopath:session-change", onSession);
+    window.addEventListener("storage", onSession);
+    return () => {
+      window.removeEventListener("kormopath:session-change", onSession);
+      window.removeEventListener("storage", onSession);
+    };
+  }, []);
+
+  const handleBookingClick = (d: Doctor) => {
+    // Demo doctors are never bookable, so their flow (with its demo banner) stays open; the paid plan applies only
+    // to booking a real, verified doctor.
+    if (!d.demo && isFeatureGated(session, "mediscan", "doctor_booking")) {
+      setPendingDoctor(d);
+      setShowUpgradeModal(true);
+      return;
+    }
+    setBooking(d);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const doctors = useMemo(() => allDoctors(admin), [admin]);
   const list = useMemo(() => filterDoctors(doctors, { q, specialtyId: specialty, maxFeePoisha: maxFee === "any" ? null : Number(maxFee) * 100, availability, language, type, hospital }), [doctors, q, specialty, maxFee, availability, language, type, hospital]);
@@ -59,6 +88,25 @@ export function DoctorDirectory() {
       )}
 
       {booking && <BookingFlow doctor={booking} lang={lang} onClose={() => setBooking(null)} />}
+
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => {
+          setShowUpgradeModal(false);
+          setPendingDoctor(null);
+        }}
+        targetAppId="mediscan"
+        targetAppNameBn={T("MediScan BD বিশেষজ্ঞ স্বাস্থ্যসেবা", "MediScan BD Specialist Care")}
+        featureNameBn={T("বিশেষজ্ঞ ডাক্তার পরামর্শ ও বুকিং", "Specialist Doctor Consultation")}
+        lang={lang}
+        onSuccess={() => {
+          if (pendingDoctor) {
+            setBooking(pendingDoctor);
+            setPendingDoctor(null);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }
+        }}
+      />
 
       <section aria-label={T("খোঁজ ও ফিল্টার", "Search and filters")} className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5" data-testid="doctor-filter">
         <label className="flex min-h-[48px] items-center gap-2 rounded-xl border border-slate-300 bg-white px-3">
@@ -126,7 +174,7 @@ export function DoctorDirectory() {
                         <p className="font-mono text-[20px] font-bold text-slate-900">{formatTaka(d.feePoisha, lang)}</p>
                         <p className="text-[12.5px] text-slate-600">{T("ফলো-আপ", "Follow-up")} {formatTaka(d.followUpFeePoisha, lang)}{d.demo ? T(" · ডেমো ফি", " · demo fee") : ""}</p>
                       </div>
-                      <button type="button" onClick={() => { setBooking(d); window.scrollTo({ top: 0, behavior: "smooth" }); }} className={`${d.demo ? "kp-btn-ghost" : "kp-btn-primary"} inline-flex min-h-[48px] items-center px-4 text-[14.5px]`}>
+                      <button type="button" onClick={() => handleBookingClick(d)} className={`${d.demo ? "kp-btn-ghost" : "kp-btn-primary"} inline-flex min-h-[48px] items-center px-4 text-[14.5px]`}>
                         {d.demo ? T("ডেমো বুকিং দেখুন", "Try demo booking") : T("বুক করুন", "Book")}
                       </button>
                     </div>

@@ -15,14 +15,18 @@ function fixture(data: Record<string, unknown>) {
 
 test("backup round trip preserves Bangla, amounts, workspace and all app namespaces", () => {
   const source = new MemoryStorage();
-  for (const ns of ["shohoj", "mediscan", "admitbuddy", "probaho", "haatbazar", "feeguard", "chuktiguard", "platform"]) source.setItem(`kormopath:${ns}:record`, JSON.stringify({ note: "আমার তথ্য", amount: 12345 }));
+  for (const ns of ["shohoj", "mediscan", "admitbuddy", "probaho", "haatbazar", "feeguard", "chuktiguard", "platform", "auth", "dashboard"]) source.setItem(`kormopath:${ns}:record`, JSON.stringify({ note: "আমার তথ্য", amount: 12345 }));
   source.setItem("kp-ledger", "[]");
   source.setItem("unrelated", '"private"');
   const backup = parseBackup("\uFEFF" + JSON.stringify(createBackup(source, [...source.data.keys()])));
   const target = new MemoryStorage();
-  assert.equal(restoreBackup(target, backup), 9);
+  assert.equal(restoreBackup(target, backup), 11);
   assert.equal(target.getItem("unrelated"), null);
   assert.equal(target.getItem("kormopath:shohoj:record"), source.getItem("kormopath:shohoj:record"));
+  assert.ok(target.getItem("kormopath:auth:record"));
+  assert.ok(target.getItem("kormopath:dashboard:record"));
+  assert.equal(isBackupKey("kormopath:auth:session"), true);
+  assert.equal(isBackupKey("kormopath:dashboard:pinned_apps"), true);
 });
 
 test("restore keeps existing records by default and only overwrites explicitly", () => {

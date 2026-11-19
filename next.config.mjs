@@ -24,6 +24,10 @@ const securityHeaders = [
 /** @type {import('next').NextConfig} */
 const nextConfig = (phase) => ({
   reactStrictMode: true,
+  compress: true,
+  experimental: {
+    optimizePackageImports: ["lucide-react"],
+  },
   // Keep the dev server's generated chunks separate from production builds and starts.
   distDir: process.env.NEXT_DIST_DIR || (phase === PHASE_DEVELOPMENT_SERVER ? ".next-dev" : ".next"),
   devIndicators: false,
@@ -51,6 +55,24 @@ const nextConfig = (phase) => ({
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },
+      {
+        source: "/_next/static/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+      {
+        source: "/images/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" },
+        ],
+      },
+      {
+        source: "/favicon.svg",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" },
+        ],
+      },
       // The service worker must always be revalidated so a new release takes over promptly.
       { source: "/sw.js", headers: [{ key: "Cache-Control", value: "no-cache, no-store, must-revalidate" }, { key: "Content-Type", value: "application/javascript; charset=utf-8" }] },
     ];

@@ -42,6 +42,15 @@ const CRISIS_PATTERNS: readonly RegExp[] = [
   /\b(send|sending|sent|share|sharing|shared|post|posting|posted|leak\w*|upload\w*|spread\w*)\b[\s\S]{0,25}\b(private|nude|naked|intimate|personal)\s+(photo|pic|picture|image|video)s?\b|(ছবি|ভিডিও)[\s\S]{0,20}(ছড়িয়ে দেবে|ছড়িয়ে দিচ্ছে|ভাইরাল করবে|ফাঁস)/i,
   /\b(demand\w*|ask\w*|want\w*|pressur\w*)\b[\s\S]{0,15}\b(sex|sexual favou?rs?|to sleep with)\b|\b(boss|manager|teacher|landlord)\b[\s\S]{0,30}\b(sex|sleep with me|touch\w*)\b/i,
   /\b(scared|afraid|terrified|frightened) (to go|of going) (back )?home\b|বাড়ি (যেতে|ফিরতে) ভয়|বাসায় (যেতে|ফিরতে) ভয়/i,
+  // judge round 3 (offline misses)
+  /\btwist(s|ed|ing)?\s+(my|her|his)\s+(arm|wrist|hand|neck)\b|\b(arm|wrist)[\s\S]{0,20}(cracked|broke|broken)\b/i,
+  /\b(stalk\w*|follows? me (everywhere|home|to work)|keeps following me|waits? outside my (house|home|office|school))\b|পিছু নেয়|পিছু নিচ্ছে|পিছে পিছে আসে/i,
+  /\b(poured|pour(s|ing)?|threw|throw(s|ing)?|douse\w*|splash\w*)\b[\s\S]{0,20}\b(kerosene|petrol|gasoline|acid|oil|fuel)\b|কেরোসিন (ঢেলে|দিয়ে)|পেট্রোল ঢেলে|kerosin dhele/i,
+  /\b(took|takes|taken|snatch\w*|keeps?|kept|hid|hides)\s+(away\s+)?(my|her)\s+(phone|mobile)\b|(won'?t|doesn'?t|does not|will not) let (me|her) (go out|leave|out of the house|call)|ফোন কেড়ে|মোবাইল কেড়ে|বাইরে যেতে দেয় না|ঘর থেকে বের হতে দেয় না/i,
+  /\b(employer|boss|agency|company|owner|madam|sponsor|kafeel|malik)\b[\s\S]{0,30}\b(kept|keeps|took|takes|holding|has|seized|won'?t (return|give back))\b[\s\S]{0,15}\bpassport\b|\bpassport\b[\s\S]{0,25}\b(kept|taken|seized|confiscated|won'?t (return|give))\b|পাসপোর্ট (আটকে|রেখে দিয়েছে|কেড়ে|ফেরত দিচ্ছে না)/i,
+  /\b(leak|post|share|spread|send|upload|viral)\w*\b[\s\S]{0,30}\b(video|photos?|pictures?|pics)\b[\s\S]{0,30}\b(unless|if i don'?t|if i do not|pay|money|taka)\b|\b(blackmail\w*|sextort\w*)\b|ব্ল্যাকমেইল|ভিডিও (ছেড়ে|ভাইরাল করে) দেবে/i,
+  /\b(step-?father|step-?dad|uncle|cousin|teacher|tutor|neighbou?r|landlord|brother-in-law)\b[\s\S]{0,30}\b(comes?|came|coming|enters?|entered|sneaks?)\s+(in)?to (my|her|his) (room|bed)\b|(সৎ ?বাবা|চাচা|মামা)[\s\S]{0,20}রাতে[\s\S]{0,15}(ঘরে|রুমে) আসে/i,
+  /\b(burn(t|ed)?|set (fire|on fire) to|torched|set alight)\b[\s\S]{0,15}\b(our|my|the|his|her) (house|home|shop|hut|room)\b|ঘরে আগুন (দিয়েছে|দেয়|লাগিয়ে)|বাড়িতে আগুন (দিয়েছে|দেয়|লাগিয়ে)/i,
   /\bmarry (off|her off)\b[\s\S]{0,30}\b(1[0-7]|[5-9])\b|\b(1[0-7]|[5-9])[ -]?(years?|yrs?)[ -]?old\b[\s\S]{0,30}\b(marr\w*|biye|wedding)\b|\b(marr\w*|biye)\b[\s\S]{0,30}\b(1[0-7]|[5-9])[ -]?(years?|yrs?)[ -]?old\b/i,
 ];
 
@@ -64,7 +73,7 @@ const SECTION = /(ধারা|অনুচ্ছেদ|উপধারা|দ�
 const MONEY = /([0-9][0-9,.]*\s*(টাকা|tk\.?|taka|bdt|৳|লাখ|লক্ষ|হাজার|lakh|crore|কোটি))|((৳|tk\.?|bdt)\s*[0-9])/i;
 const PROMISE = /(মামলা|কেস|আবেদন)\s*(দায়ের|দাখিল|ফাইল|জমা)\s*(হয়ে গেছে|করা হয়েছে|হয়েছে|করে দিয়েছি)|নিশ্চিতভাবে\s*(জিত|পাবেন)|অবশ্যই\s*(জিতবেন|পাবেন)|আপনি\s*জিতবেন|পাবেনই|গ্যারান্টি|guarantee|you will win|your (case|application) (is|has been) (filed|submitted|registered)|i (have )?filed/i;
 // Eligibility and outcomes are decided by the legal aid office or the court, never by us.
-const DECIDES_FOR_THEM = /\byou (are|'re) (definitely |certainly |clearly )?(eligible|qualified|entitled)\b|\byou (will|'ll) (definitely |surely |certainly )?(get|win|receive|be granted)\b|\b(definitely|certainly) (will|get|win)\b|\b(don'?t|do not|won'?t) need (a |any )?lawyer\b|no need (for|of) (a )?lawyer|আপনি\s*(অবশ্যই\s*)?যোগ্য|আইনজীবীর\s*(কোনো\s*)?(দরকার|প্রয়োজন)\s*নেই|নিশ্চিত(ভাবে)?\s*পাবেন|\byou (do |will )?qualify\b|\b(court|judge|office|they) (will|would) (surely|definitely|certainly|obviously)\b|\b(should|will|would) win (easily|for sure)\b|\bcosts? (you )?nothing( at all)?\b|\bwill cost (you )?nothing\b/i;
+const DECIDES_FOR_THEM = /\byou (are|'re) (definitely |certainly |clearly )?(eligible|qualified|entitled)\b|\byou (will|'ll) (definitely |surely |certainly )?(get|win|receive|be granted)\b|\b(definitely|certainly) (will|get|win)\b|\b(don'?t|do not|won'?t) need (a |any )?lawyer\b|no need (for|of) (a )?lawyer|আপনি\s*(অবশ্যই\s*)?যোগ্য|আইনজীবীর\s*(কোনো\s*)?(দরকার|প্রয়োজন)\s*নেই|নিশ্চিত(ভাবে)?\s*পাবেন|\byou (do |will )?qualify\b|\b(court|judge|office|they) (will|would) (surely|definitely|certainly|obviously)\b|\b(should|will|would) win (easily|for sure)\b|\bcosts? (you )?nothing( at all)?\b|\bwill cost (you )?nothing\b|\b(your )?chances (are|look) (very |really |quite )?(good|high|strong|excellent)\b|\bsure to (get|win|receive|be granted)\b|\b(easily|quickly) (get|obtain|win)\b[\s\S]{0,40}\b(in|within) (a|one|two|\d+) (day|week|month)s?\b|\b(completely|totally|absolutely|100%) free\b|\bno (charges?|fees?|costs?) (at all|whatsoever)\b|\bno charges\b|\b(he|she|they|the accused|your husband) (will|would) (definitely |surely )?(go to|be sent to|end up in) (jail|prison)\b|জেল হবেই|অবশ্যই জেল হবে|সম্পূর্ণ বিনামূল্যে|কোনো খরচ (লাগবে|হবে) না/i;
 
 /** Every problem in a model answer, or [] when it can be shown. */
 export function checkAnswer(answer: string, ctx: GuardContext): GuardIssue[] {
@@ -86,6 +95,10 @@ export function checkAnswer(answer: string, ctx: GuardContext): GuardIssue[] {
   if (MONEY.test(t)) issues.push({ code: "money", detail: "Do not state taka amounts, fees or income thresholds." });
   if (PROMISE.test(t)) issues.push({ code: "promise", detail: "Never say a case is filed or promise an outcome; the legal aid office or court decides." });
   if (DECIDES_FOR_THEM.test(t)) issues.push({ code: "promise", detail: "Never tell the person they are eligible, will win/get something, or don't need a lawyer; say they may qualify and the legal aid office or court decides." });
+  // "Call the helpline" without a number leaves a frightened person with nothing to dial.
+  if (/\b(helpline|hotline)\b|হেল্পলাইন|হটলাইন/.test(t) && ![...ALLOWED_HELPLINE_NUMBERS].some((n) => t.includes(n))) {
+    issues.push({ code: "unknown_number", detail: `The answer mentions a helpline but gives no number. Write the number itself: ${[...ALLOWED_HELPLINE_NUMBERS].join(", ")}.` });
+  }
   if (ctx.crisis) {
     const first = t.split(/[।.!?\n]/).find((s) => s.trim()) ?? "";
     if (!/(999|109)/.test(first)) issues.push({ code: "crisis_first", detail: "The person may be in danger: the first sentence must tell them to call 999 (or 109 for women and children) now." });

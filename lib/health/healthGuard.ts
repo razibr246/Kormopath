@@ -35,13 +35,19 @@ const HEDGED_DIAGNOSIS = /\b(?:sounds|looks|seems) like (?:a |an )?\w+|\b(?:coul
 const LIKELY_DIAGNOSIS = /\b(?:most likely|more likely|very likely|probably|likely|points? (?:to|towards)|suggests?|consistent with|indicat(?:es|ive of)|typical of)\s+(?:a |an |the |some )?(?:\w+itis|\w+osis|viral|bacterial|fungal|flu|influenza|allergy|allergic|migraine|infection|dengue|typhoid|malaria|covid|pneumonia|asthma|diabetes|cancer|ulcer|gastric|acidity|heart attack|stroke|anaemia|anemia|jaundice|fracture|sprain)\b|সম্ভবত\s*(?:ভাইরাল|গ্যাস্ট্রিক|অ্যালার্জি|এলার্জি|ইনফেকশন|সংক্রমণ)/i;
 // Treatment advice that is not a named drug: ORS, creams, antihistamines, painkillers, home applications.
 const TREATMENT = /\b(?:take|drink|use|apply|try|give|put on|rub)\s+(?:some |an? |the |this )?(?:ors|oral rehydration|saline|cream|ointment|gel|lotion|eye ?drops|syrup|antihistamine|painkiller|pain ?killer|balm|ice pack|hot compress)\b|\b(?:antihistamines?|painkillers?|ointments?|betnovate|dermovate|burnol|savlon|dettol|calamine|zinc oxide)\b|\bors\b|মলম|ক্রিম লাগান|অ্যান্টিহিস্টামিন|ব্যথানাশক|স্যালাইন খান/i;
+// False reassurance: telling someone it is nothing, or that they need no doctor, is a diagnosis and can delay care.
+const REASSURANCE = /\b(?:(?:it'?s|it is|this is|that'?s|probably|likely) (?:nothing|not) (?:serious|to worry about|dangerous)|nothing serious|nothing to worry about|no need to worry|(?:just|only|simply) (?:gas|acidity|stress|a cold|anxiety|indigestion|tiredness|muscle pain)|(?:you |he |she |they )?(?:do(?:n'?t| not)|does(?:n'?t| not)|won'?t) need (?:to see )?(?:a |any )?(?:doctor|hospital|treatment|tests?)|no need (?:to see|for) (?:a |any )?(?:doctor|hospital|treatment))\b|চিন্তার (?:কিছু|কারণ) নেই|গুরুতর কিছু না|ডাক্তার দেখানোর (?:দরকার|প্রয়োজন) নেই|শুধু গ্যাস/i;
+// "Seems to be a migraine", "appears to have hand-foot-mouth disease", "likely a urinary tract infection".
+const SEEMS_DIAGNOSIS = /\b(?:seems?|appears?) (?:to (?:be|have)|like) (?:a |an |the )?\w+|\blikely (?:a|an) (?:\w+ ){0,3}(?:infection|disease|fever|disorder|syndrome|migraine|allergy|\w+itis|\w+osis)\b/i;
+// Home or OTC remedies that are still treatment advice.
+const REMEDY = /\bzinc (?:tablets?|syrup|supplements?)\b|\bvicks\b|\bvaporub\b|\bsaline (?:gargle|drops|spray|nasal)|\bgargl\w* (?:with )?(?:warm |salt |salty )?(?:salt )?water\b|\bsalt[- ]water gargle|\bsteam inhalation\b|\bhoney (?:and|with) (?:lemon|ginger)\b|লবণ পানি(?:তে| দিয়ে)? গড়গড়া|গরম পানির ভাপ|ভিক্স/i;
 // Generic drug-name endings, so medicines missing from MEDICINE_WORDS are still caught (montelukast, domperidone…).
 const DRUG_SUFFIX = /\b[a-z]{3,}(?:prazole|mycin|cillin|floxacin|olol|pril|sartan|statin|lukast|peridone|tadine|ifene|azepam|oxetine|triptan|dronate|parin|cycline|conazole|vir)\b/i;
 
 /** Text that reads as a dose, medicine suggestion or diagnosis, or null when clean. */
 export function unsafeIn(text: string): string | null {
   const t = ascii(norm(text));
-  const m = t.match(DOSE) ?? t.match(FREQUENCY) ?? t.match(WORD_DOSE) ?? t.match(MEDICINE_WORDS) ?? t.match(DRUG_SUFFIX) ?? t.match(DIAGNOSIS) ?? t.match(HEDGED_DIAGNOSIS) ?? t.match(LIKELY_DIAGNOSIS) ?? t.match(TREATMENT);
+  const m = t.match(DOSE) ?? t.match(FREQUENCY) ?? t.match(WORD_DOSE) ?? t.match(MEDICINE_WORDS) ?? t.match(DRUG_SUFFIX) ?? t.match(DIAGNOSIS) ?? t.match(HEDGED_DIAGNOSIS) ?? t.match(LIKELY_DIAGNOSIS) ?? t.match(TREATMENT) ?? t.match(REASSURANCE) ?? t.match(SEEMS_DIAGNOSIS) ?? t.match(REMEDY);
   return m ? m[0] : null;
 }
 

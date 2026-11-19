@@ -28,7 +28,7 @@ export const CREW_APPS = [
   { id: "haatbazar", bnName: "হাটবাজার", name: "HaatBazar AI", tag: "কৃষি ও আবহাওয়া", route: "/haatbazar", icon: "🌾" },
   { id: "krishi", bnName: "মাঠসাথী", name: "MaathSathi", tag: "জমি, কাজ ও পশুপাখি", route: "/krishi/field#/farmer", icon: "🚜" },
   { id: "rokkha", bnName: "রক্ষা", name: "Rokkha", tag: "প্রতারণা ও দুর্যোগে সুরক্ষা", route: "/rokkha", icon: "🛡️" },
-  { id: "kormopath", bnName: "ওয়ার্কস্পেস", name: "KormoPath Workspace", tag: "সিভি থেকে পেমেন্ট", route: "/workspace", icon: "🧭" },
+  { id: "kormopath", bnName: "কর্মপথ ওয়ার্কস্পেস", name: "KormoPath Workspace", tag: "সিভি থেকে পেমেন্ট", route: "/workspace", icon: "🧭" },
   { id: "chuktiguard", bnName: "চুক্তিগার্ড", name: "ChuktiGuard", tag: "আইন ও বিভ্রাট ধারা", route: "/chuktiguard", icon: "🛡️" },
   { id: "feeguard", bnName: "ফি-গার্ড", name: "FeeGuard BD", tag: "বৈদেশিক মুদ্রা ও কর", route: "/feeguard", icon: "৳" },
   { id: "admitbuddy", bnName: "অ্যাডমিট বাডি", name: "AdmitBuddy", tag: "বিশ্ববিদ্যালয় ভর্তি", route: "/admitbuddy", icon: "🎓" },
@@ -779,7 +779,7 @@ export function Buddy() {
                 value={selectedApp}
                 onChange={(e) => { const id = e.target.value as AppId; setSelectedApp(id); if (id === "mediscan") setBrowseEnabled(false); }}
               >
-                {CREW_APPS.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
+                {CREW_APPS.map((a) => <option key={a.id} value={a.id}>{bn ? a.bnName : a.name}</option>)}
               </select>
             </label>
             <div className="bv2-seg" role="group" aria-label={bn ? "উত্তরের ধরন" : "Answer style"}>
@@ -891,7 +891,7 @@ export function Buddy() {
           {/* TASKS */}
           {tab === "tasks" && (
             <div className="bv2-scroll flex-1 space-y-2.5 overflow-y-auto px-4 py-4">
-              <p className="text-[13px] text-[#d6c5b2]">{bn ? `${appMeta.name}-এর জন্য পরের কাজ` : `Next steps in ${appMeta.name}`}</p>
+              <p className="text-[13px] text-[#d6c5b2]">{bn ? `${appMeta.bnName}-এর জন্য পরের কাজ` : `Next steps in ${appMeta.name}`}</p>
               {tasks.map((t) => (
                 <div key={t.title} className="bv2-card">
                   <strong className="block text-[14.5px] leading-snug text-emerald-200">{t.title}</strong>
@@ -913,7 +913,7 @@ export function Buddy() {
                   <div key={a.id} className={`bv2-card flex items-center gap-3 ${selectedApp === a.id ? "!border-emerald-400/70" : ""}`}>
                     <span className="text-[22px]" aria-hidden="true">{a.icon}</span>
                     <button type="button" className="min-w-0 flex-1 text-left" onClick={() => { setSelectedApp(a.id); if (a.id === "mediscan") setBrowseEnabled(false); setTab("talk"); }}>
-                      <span className="block text-[14px] font-bold">{a.name}</span>
+                      <span className="block text-[14px] font-bold">{bn ? a.bnName : a.name}</span>
                       <span className="block text-[12.5px] text-[#b8a593]">{a.tag}</span>
                     </button>
                     <Link href={a.route} onClick={() => setOpen(false)} className="bv2-mini">{bn ? "খুলুন" : "Open"} <ArrowRight size={12} /></Link>

@@ -17,12 +17,23 @@ import {
   type StudentProfile, type UserDeadline, type ApplicationStatus, type ApplicationStage,
   type UnitRequirement, type ScholarshipItem, type UniversityComparison,
 } from "@/lib/admitbuddy";
+import dynamic from "next/dynamic";
 import { usePersistentState, storageKey, downloadText, todayLocal } from "@/lib/clientStore";
-import { StudyPlanner } from "@/components/apps/admitbuddy/StudyPlanner";
-import { ExamPracticeView } from "@/components/apps/admitbuddy/ExamPracticeView";
-import { ForeignAdmissionView } from "@/components/apps/admitbuddy/ForeignAdmissionView";
-import { AdmissionCostEstimator } from "@/components/apps/admitbuddy/AdmissionCostEstimator";
-import { ExamDayStrategyView } from "@/components/apps/admitbuddy/ExamDayStrategyView";
+
+const AdmitBuddyTabLoader = () => (
+  <div className="flex h-56 items-center justify-center rounded-2xl border border-line bg-white/60">
+    <div className="flex items-center gap-2 text-sm text-slate-500 font-medium">
+      <span className="h-4 w-4 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
+      <span>মডিউল লোড হচ্ছে...</span>
+    </div>
+  </div>
+);
+
+const StudyPlanner = dynamic(() => import("@/components/apps/admitbuddy/StudyPlanner").then((m) => m.StudyPlanner), { loading: AdmitBuddyTabLoader, ssr: false });
+const ExamPracticeView = dynamic(() => import("@/components/apps/admitbuddy/ExamPracticeView").then((m) => m.ExamPracticeView), { loading: AdmitBuddyTabLoader, ssr: false });
+const ForeignAdmissionView = dynamic(() => import("@/components/apps/admitbuddy/ForeignAdmissionView").then((m) => m.ForeignAdmissionView), { loading: AdmitBuddyTabLoader, ssr: false });
+const AdmissionCostEstimator = dynamic(() => import("@/components/apps/admitbuddy/AdmissionCostEstimator").then((m) => m.AdmissionCostEstimator), { loading: AdmitBuddyTabLoader, ssr: false });
+const ExamDayStrategyView = dynamic(() => import("@/components/apps/admitbuddy/ExamDayStrategyView").then((m) => m.ExamDayStrategyView), { loading: AdmitBuddyTabLoader, ssr: false });
 import { bnDigits } from "@/lib/contract";
 
 type Tab = "discover" | "matrix" | "exam_practice" | "foreign" | "scholarships" | "budget" | "hall_strategy" | "applications" | "study" | "sop" | "counselor" | "resources";

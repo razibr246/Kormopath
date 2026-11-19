@@ -258,14 +258,17 @@ export function CommandPalette() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // Focus input on open
+  // Focus input on open & prefetch primary routes
   useEffect(() => {
     if (isOpen) {
       setQuery("");
       setSelectedIndex(0);
       setTimeout(() => inputRef.current?.focus(), 50);
+      ["/workspace", "/opportunities", "/feeguard", "/chuktiguard", "/admitbuddy", "/shohoj-budget", "/mediscan", "/rokkha", "/legal", "/haatbazar", "/pricing", "/judges"].forEach((path) => {
+        router.prefetch(path);
+      });
     }
-  }, [isOpen]);
+  }, [isOpen, router]);
 
   const handleKeyDownInList = (e: React.KeyboardEvent) => {
     if (e.key === "ArrowDown") {

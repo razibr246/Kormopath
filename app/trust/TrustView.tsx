@@ -14,6 +14,7 @@ export type EvalResults = {
   probes: Array<{ id: string; label: string; passed: boolean; verifiedSkills: string[]; leaked: string[] }>;
   pitch: { runs: number; fromModel: number; amountsFound: number; amountsNotInContract: number; marketplaceMentions: number; failures: string[] };
   coach: { runs: number; fromModel: number; quotes: number; quotesFound: number; failures: string[] };
+  triage?: { routine: number; falseUrgent: number; fromModel: number; examples: string[] };
   fees: { cases: number; channelRoutes: number; failures: number; maxErrorBdt: number };
   latencyMs: Record<string, { n: number; p50: number | null; p95: number | null }>;
 };
@@ -99,8 +100,11 @@ export function TrustView({ results: r, primaryModel }: { results: EvalResults; 
       ? [t(`In this run no answer came from the primary model (${primaryModel}); it was rate-limited or timed out on our free-tier key, so the lighter model answered. The app logs this in every trace.`,
            `এই পরিমাপে মূল মডেল (${primaryModel}) থেকে কোনো উত্তর আসেনি; আমাদের ফ্রি-টিয়ার কি-তে সেটি রেট-লিমিট বা টাইমআউট হয়েছে, তাই হালকা মডেল উত্তর দিয়েছে। অ্যাপ প্রতিটি ট্রেসে এটি দেখায়।`)]
       : []),
-    t(`Speed was measured on a ${r.base}, not on the live Vercel site. The first call after a cold start can be slower.`,
-      `গতি মাপা হয়েছে ${r.base === "local production build" ? "লোকাল প্রোডাকশন বিল্ডে" : r.base}, লাইভ ভার্সেল সাইটে নয়। কোল্ড স্টার্টের পর প্রথম কল ধীর হতে পারে।`),
+    ...(/^https:\/\//.test(String(r.base))
+      ? [t(`Speed was measured on the live site (${String(r.base).replace(/^https:\/\//, "")}), from one location. The first call after a cold start can be slower.`,
+           `গতি মাপা হয়েছে লাইভ সাইটে (${String(r.base).replace(/^https:\/\//, "")}), একটি জায়গা থেকে। কোল্ড স্টার্টের পর প্রথম কল ধীর হতে পারে।`)]
+      : [t(`Speed was measured on a ${r.base}, not on the live Vercel site. The first call after a cold start can be slower.`,
+           `গতি মাপা হয়েছে ${r.base === "local production build" ? "লোকাল প্রোডাকশন বিল্ডে" : r.base}, লাইভ ভার্সেল সাইটে নয়। কোল্ড স্টার্টের পর প্রথম কল ধীর হতে পারে।`)]),
     t("FeeGuard's math is exact, but its fee and tax parameters are indicative, each with a source and the date we checked it (lib/data.ts). Platforms change fees; check before you rely on them.",
       "ফি-গার্ডের হিসাব নির্ভুল, কিন্তু ফি ও করের মানগুলো নির্দেশক; প্রতিটির উৎস ও যাচাইয়ের তারিখ আছে (lib/data.ts)। প্ল্যাটফর্ম ফি বদলায়; ভরসা করার আগে মিলিয়ে নিন।"),
     t("Web-search features (opportunities, product prices, market search) have no rule-based fallback: without a working Gemini key they return an error instead of guessing.",
@@ -192,6 +196,17 @@ export function TrustView({ results: r, primaryModel }: { results: EvalResults; 
               </p>
               <Failures items={r.coach.failures} lang={lang} />
             </Card>
+
+            {r.triage && (
+              <Card title={t("Health triage: routine questions not sent to 999", "স্বাস্থ্য: সাধারণ প্রশ্ন ৯৯৯-এ পাঠানো হয় না")} n={`n = ${num(r.triage.routine, lang)} ${t("questions", "প্রশ্ন")}`}>
+                <Ratio ok={r.triage.routine - r.triage.falseUrgent} total={r.triage.routine} lang={lang} />
+                <p className="text-[13.5px] leading-relaxed text-slate-600">
+                  {t(`Everyday questions (Bangla, Banglish, English) that were routed to a doctor instead of 999. The model is told "when in doubt, urgent", so a false alarm here is the price of caution; a missed emergency would be worse. ${num(r.triage.fromModel, lang)} answers came from the model.`,
+                     `দৈনন্দিন প্রশ্ন (বাংলা, বাংলিশ, ইংরেজি), যা ৯৯৯-এর বদলে ডাক্তারের কাছে পাঠানো হয়েছে। মডেলকে বলা আছে "সন্দেহ হলে জরুরি", তাই এখানে ভুল সতর্কতা সাবধানতার দাম; জরুরি অবস্থা মিস হওয়া আরও খারাপ। ${num(r.triage.fromModel, lang)}টি উত্তর মডেল থেকে।`)}
+                </p>
+                <Failures items={r.triage.examples} lang={lang} />
+              </Card>
+            )}
 
             <Card title={t("FeeGuard: every taka reconciles", "ফি-গার্ড: প্রতিটি টাকার হিসাব মেলে")} n={`n = ${num(r.fees.cases, lang)} ${t("inputs", "ইনপুট")}`}>
               <p className="font-mono text-[30px] font-bold leading-none tracking-tight">

@@ -18,19 +18,22 @@ export function BuildathonSticker() {
   const src = stickerFile();
   return (
     <div className="relative z-50 border-b border-amber-300 bg-gradient-to-r from-amber-100 via-yellow-50 to-amber-100 print:hidden" role="note" aria-label={LABEL}>
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-2 gap-y-1 px-2 py-1 sm:gap-x-3 sm:px-4 sm:py-1.5">
+      <div className="mx-auto flex max-w-7xl flex-nowrap items-center justify-center gap-x-2 px-2 sm:gap-x-3 sm:px-4">
       <a
         href="https://yunet-aignite26.devpost.com/"
         target="_blank"
         rel="noopener noreferrer"
-        className="flex min-h-11 items-center justify-center gap-2 text-center"
+        className="flex min-h-11 min-w-0 items-center justify-center gap-2 text-center"
       >
         {src ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={src} alt={LABEL} className="h-8 w-auto sm:h-9" />
         ) : (
           <span className="inline-flex items-center justify-center gap-1 rounded-full border-2 border-amber-500 bg-white px-2 py-0.5 text-center text-[12px] font-extrabold leading-tight text-amber-900 shadow-sm sm:gap-1.5 sm:px-3 sm:text-[12px] sm:tracking-wide">
-            <span aria-hidden>🏆</span> {LABEL}
+            <span aria-hidden>🏆</span>
+            {/* One line on phones: a short form of the official name; the full name shows from 640px up and is the bar's label. */}
+            <span className="whitespace-nowrap sm:hidden">Ostad · YUNet AIgnite 2026</span>
+            <span className="hidden sm:inline">{LABEL}</span>
           </span>
         )}
       </a>

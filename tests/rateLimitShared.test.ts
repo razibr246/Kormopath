@@ -119,3 +119,13 @@ test("the shared store only ever sees a hash of the IP, never the address itself
     setRemoteRateLimitStore(null);
   }
 });
+
+test("hashIp is keyed: with a secret the hash differs from the unkeyed one and from another secret's", async () => {
+  const { hashIp } = await import("../lib/rateLimit.ts");
+  const plain = await hashIp("203.0.113.7", {});
+  const a = await hashIp("203.0.113.7", { RATE_LIMIT_HASH_SECRET: "a".repeat(32) });
+  const b = await hashIp("203.0.113.7", { PASSPORT_SECRET: "b".repeat(32) });
+  assert.match(a, /^[0-9a-f]{32}$/);
+  assert.notEqual(a, plain); assert.notEqual(a, b);
+  assert.equal(await hashIp("203.0.113.7", { RATE_LIMIT_HASH_SECRET: "a".repeat(32) }), a, "stable for one secret");
+});

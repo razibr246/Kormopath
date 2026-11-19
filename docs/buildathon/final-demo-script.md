@@ -32,11 +32,17 @@ About me: I sell handmade jute bags on Facebook and pack orders for Sundarban Co
 **Say:** "Step 2 is an exam. No autopilot can take it for you, and that's why the passport is worth trusting."
 
 ## 0:45–1:30 · Step 2: the exam and the passport
-**Click, in order:** the **Examiner** step → **1-Click Apply Fix & Run** → tick the viva consent box → for each question **Auto-Fill Model Answer**, then **Grade Answer** → **Mint Passport**.
+**Click, in order:** the **Examiner** step → **1-Click Apply Fix & Run** → tick the viva consent box → question 1: **Auto-Fill Model Answer**, then **Grade Answer** → question 2: **type this half-right answer yourself**, then **Grade Answer** → **Mint Passport**.
 
-**Say:** "Tests run in a sandbox in the browser. The viva only gives points it can quote from the answer. I used the reference fix and model answers to save time, so the passport says so: open the verify link and it reads 'Viewed reference fix'. Shortcuts are disclosed, not hidden."
+> Floats can't store 0.1 exactly, so I keep the amount in paisa as an integer.
 
-**Judge should notice:** all four step ticks; the "assisted" disclosure.
+(It covers two of the three points and leaves out "convert and round once at the input boundary".)
+
+**Say:** "Tests run in a sandbox in the browser. Watch the grader on an answer I typed myself: it gives credit only for points it can quote from my words, and it names the one I missed. I used the reference fix and one model answer to save time, so the passport says so: open the verify link and it reads 'Assisted'. Shortcuts are disclosed, not hidden."
+
+**Judge should notice:** partial credit with the missing point named; all four step ticks; the "assisted" disclosure.
+
+**Before the pitch:** rehearse this once on the live site. If question 2 gets full marks or zero, adjust the sentence so it still misses exactly one point.
 
 ## 1:30–1:55 · The guardrail failing safely
 **Click:** the **Auditor** step, clear the CV box, paste the **trap CV**, tick the Gemini consent box, press **Check my skills**.
@@ -58,7 +64,7 @@ About me: I sell handmade jute bags on Facebook and pack orders for Sundarban Co
 ## 2:40–3:00 · Proof and close
 **Click:** `/trust` tab.
 
-**Say:** "We measured it. On 17 November: 21 of 21 verified skills had their quote in the CV. Two of two trap CVs: no invented skills. Zero dollar amounts outside the contract. 2,000 payout cases reconcile. No sign-up, your data stays on your device. KormoPath: AI you can check."
+**Say:** "We measured it. On 19 November: 21 of 21 verified skills had their quote in the CV. Two of two trap CVs: no invented skills. Zero dollar amounts outside the contract. 2,000 payout cases reconcile. No sign-up, your data stays on your device. KormoPath: AI you can check."
 
 ---
 
@@ -77,8 +83,8 @@ It gets rejected. A skill's evidence must be one exact quote from the CV. That r
 **2. Why not just use ChatGPT?**
 ChatGPT will write you a confident CV and a contract with any numbers it likes. We don't let the model own anything that matters. Skills need a source quote. Contract clauses come from reviewed templates (`lib/contract.ts`). Money math is a pure, tested module (`lib/finops.ts`). The model drafts; code decides.
 
-**3. How do you sustain it or make money?**
-[RAZIB: give your honest plan. A grounded option: free for students; a paid "verified Skill Passport" or an agency/university plan later. Don't claim revenue or users you don't have.] Running costs today are one Gemini key with a fallback chain, and the app works without AI through labelled rule-based agents.
+**3. How do you sustain it or make money? (B2C)**
+"Safety is free for everyone, forever: emergency hospitals, the health assistant, legal aid and scam checks. People pay a small fixed monthly fee, ৳99 for one app or ৳299 for all, for extras like model tests, unlimited interview coaching and exports. There's no sign-up to start, so the first value comes in under a minute, and the paid extra shows up only when it helps. Payments open once our bKash merchant account is verified; until then we take no money and the app says so." [RAZIB: confirm the prices and add one real next step.] Full model: `docs/buildathon/b2c-model.md`; live page: `/pricing`.
 
 **4. What about privacy?**
 No account and no database. App data stays in the browser, in its own namespace per app. Gemini calls are sent with `store: false`. MediScan's image reading only runs after explicit consent. The `/settings` page lists, exports and deletes data per app.
@@ -87,4 +93,4 @@ No account and no database. App data stays in the browser, in its own namespace 
 The flagship is one journey: skill proof, contract, payout. The 11 other apps prove the trust engine is reusable. Same rules everywhere: show the source, confirm before saving, never invent facts. They are small because the engine is shared.
 
 **6. What did you measure?**
-Four things, with a script anyone can re-run (`npm run eval`, results on `/trust`). On 17 November: 21/21 verified skills quoted from the CV; 2/2 trap CVs with no invented skills; 0 off-contract dollar amounts in 3 pitches; 2,000 generated fee cases reconcile, max gap ৳0.01. Plus more than 500 automated tests. The samples are small. It's a regression check, and I say so.
+Four things, with a script anyone can re-run (`npm run eval`, results on `/trust`). On 19 November: 21/21 verified skills quoted from the CV; 2/2 trap CVs with no invented skills; 0 of 8 dollar amounts in 3 pitches outside the contract (2 pitches written by the model, 1 by the fixed template); 2,000 generated fee cases reconcile, max gap ৳0.01. Plus more than 600 automated tests. The samples are small. It's a regression check, and I say so.

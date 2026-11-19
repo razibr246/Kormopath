@@ -6,13 +6,18 @@ import { AppSwitcherDropdown } from "@/components/layout/AppSwitcherDropdown";
 import { KormoPathLogo } from "@/components/brand/KormoPathLogo";
 import { FX_FALLBACK, type Source } from "@/lib/data";
 import { ArrowUpRight, FlaskConical, LayoutGrid, Languages, Linkedin, Menu, Search, ShieldCheck, X } from "lucide-react";
+import { PersonaLoginModal } from "@/components/auth/PersonaLoginModal";
+import { UserNavBadge } from "@/components/auth/UserNavBadge";
+import { storageKey, readStored, removeStored } from "@/lib/clientStore";
+import { sanitizeSession, getStoredSession, type UserSession } from "@/lib/session";
 
 const NAV = [
   { href: "/workspace", bn: "ওয়ার্কস্পেস", en: "Workspace" },
   { href: "/#apps-showcase", bn: "সব টুল", en: "Tools" },
   { href: "/opportunities", bn: "আমার পথ", en: "My Path" },
-  { href: "/judges", bn: "বিচারক গাইড", en: "Judge tour" },
-  { href: "/#faq", bn: "প্রশ্নোত্তর", en: "FAQ" },
+  { href: "/pricing", bn: "প্ল্যান ও মূল্য", en: "Pricing" },
+  { href: "/judges", bn: "বিচারক গাইড", en: "Judge tour", hideOnMedium: true },
+  { href: "/#faq", bn: "প্রশ্নোত্তর", en: "FAQ", hideOnMedium: true },
 ] as const;
 
 function openPalette() {
@@ -31,6 +36,20 @@ export function Navbar(props?: {
 }) {
   const { lang = "bn", setLang, usdBdt = FX_FALLBACK.usdBdt, fxLive = false, fxSource = FX_FALLBACK.source, onOpenEcosystem, isEcosystemOpen = false } = props ?? {};
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
+  const [session, setSession] = useState<UserSession | null>(null);
+
+  useEffect(() => {
+    setSession(getStoredSession());
+    const onSession = () => setSession(getStoredSession());
+    window.addEventListener("kormopath:session-change", onSession);
+    window.addEventListener("storage", onSession);
+    return () => {
+      window.removeEventListener("kormopath:session-change", onSession);
+      window.removeEventListener("storage", onSession);
+    };
+  }, []);
+
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   // Escape closes the mobile menu and puts focus back on the menu button.
   useEffect(() => {
@@ -64,13 +83,19 @@ export function Navbar(props?: {
         {bn ? "মূল অংশে সরাসরি যান" : "Skip to main content"}
       </a>
       <div className="kp-nav mx-auto flex items-center gap-1.5">
-        <Link href="/" className="flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-2xl px-1 py-1" aria-label="KormoPath — হোম">
+        <Link href="/" prefetch={true} className="flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-2xl px-1 py-1" aria-label="KormoPath — হোম">
           <span className="hidden sm:inline-flex"><KormoPathLogo theme="light" variant="full" size="sm" /></span>
           <span className="sm:hidden"><KormoPathLogo theme="light" variant="mark" size="sm" /></span>
         </Link>
-        <nav aria-label="Main" className="kp-nav-links hidden lg:flex justify-center">
+        <nav aria-label="Main" className="kp-nav-links hidden lg:flex flex-1 min-w-0 justify-center items-center gap-1 xl:gap-1.5 px-2">
           {NAV.map((item) => (
-            <Link key={item.href} href={item.href} aria-current={isActive(item.href) ? "page" : undefined} className="kp-nav-link">
+            <Link
+              key={item.href}
+              href={item.href}
+              prefetch={!item.href.includes("#")}
+              aria-current={isActive(item.href) ? "page" : undefined}
+              className={`kp-nav-link ${"hideOnMedium" in item && item.hideOnMedium ? "hidden 2xl:inline-block" : ""}`}
+            >
               {bn ? item.bn : item.en}
             </Link>
           ))}
@@ -79,6 +104,7 @@ export function Navbar(props?: {
         <div className="ml-auto flex shrink-0 items-center gap-1.5">
           <Link
             href="/feeguard"
+            prefetch={true}
             className="kp-chip kp-fx-widget font-mono"
             title={fxTooltip}
             aria-label={`${bn ? "USD থেকে BDT দৈনিক রেট" : "Daily USD to BDT rate"}: ৳${usdBdt.toFixed(2)}. ${fxTooltip}. ${bn ? "রূপান্তর ও ফি দেখতে খুলুন" : "Open to view conversion and fees"}`}
@@ -122,10 +148,9 @@ export function Navbar(props?: {
             <AppSwitcherDropdown lang={lang} variant="light" />
           </span>
 
-          <Link href="/workspace" className="kp-btn-primary hidden xl:inline-flex">
-            <span>{bn ? "শুরু করুন" : "Get started"}</span>
-            <ArrowUpRight size={15} />
-          </Link>
+          <div className="hidden xl:inline-flex items-center">
+            <UserNavBadge lang={lang} onOpenLogin={() => setLoginModalOpen(true)} />
+          </div>
 
           <button
             ref={menuButtonRef}
@@ -145,7 +170,7 @@ export function Navbar(props?: {
         <div id="kp-mobile-menu" className="kp-nav-drawer mt-2 p-3 lg:hidden">
           <nav className="grid gap-1 text-[15px] font-semibold" aria-label={bn ? "মোবাইল মেনু" : "Mobile menu"}>
             {NAV.map((item) => (
-              <Link key={item.href} href={item.href} onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-between rounded-xl px-3 py-2.5 text-slate-800 hover:bg-orange-50">
+              <Link key={item.href} href={item.href} prefetch={!item.href.includes("#")} onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-between rounded-xl px-3 py-2.5 text-slate-800 hover:bg-orange-50">
                 <span>{bn ? item.bn : item.en}</span>
                 <ArrowUpRight size={14} className="text-slate-400" />
               </Link>
@@ -155,12 +180,16 @@ export function Navbar(props?: {
             <span className="flex items-center gap-1.5 font-mono text-[12px] text-slate-600">
               <span className={`h-2 w-2 rounded-full ${fxLive ? "bg-emerald-500" : "bg-amber-500"}`} />$1 = ৳{usdBdt.toFixed(1)}
             </span>
-            <Link href="/workspace" onClick={() => setMobileMenuOpen(false)} className="kp-btn-primary">
-              {bn ? "শুরু করুন" : "Get started"} <ArrowUpRight size={14} />
-            </Link>
+            <UserNavBadge lang={lang} onOpenLogin={() => { setMobileMenuOpen(false); setLoginModalOpen(true); }} />
           </div>
         </div>
       )}
+
+      <PersonaLoginModal
+        isOpen={loginModalOpen}
+        onClose={() => setLoginModalOpen(false)}
+        lang={lang}
+      />
     </header>
   );
 }

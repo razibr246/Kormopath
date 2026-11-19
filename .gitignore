@@ -16,3 +16,8 @@ next-env.d.ts
 .next-test
 .next-*
 .claude/worktrees/
+
+# Alternative pitch deck binaries (kept locally, not in git)
+docs/buildathon/alt-deck/*.pptx
+docs/buildathon/alt-deck/screenshots/
+docs/buildathon/alt-deck/unused/

@@ -232,6 +232,7 @@ export function EcosystemHub({
                   <div className="flex items-center gap-1.5">
                     <Link
                       href="/feeguard"
+                      prefetch={true}
                       onClick={onClose}
                       className="flex items-center gap-1 rounded-lg bg-emerald-700 px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-emerald-800 transition-colors"
                     >
@@ -266,6 +267,7 @@ export function EcosystemHub({
                   <div className="flex items-center gap-1.5">
                     <Link
                       href="/chuktiguard"
+                      prefetch={true}
                       onClick={onClose}
                       className="flex items-center gap-1 rounded-lg bg-indigo-600 px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-indigo-700 transition-colors"
                     >
@@ -274,7 +276,7 @@ export function EcosystemHub({
                   </div>
                 </div>
                 <p className="mt-2 text-[12px] text-muted">
-                  Contra &amp; Deel benchmark: 1-click professional B2B sprint invoicing with statutory NBR Section 52 tax exemption and legally sound Clause 4 Force Majeure shields during internet disruptions.
+                  Contra &amp; Deel benchmark: 1-click professional B2B sprint invoicing with a sourced tax note (information, not tax advice) and legally sound Clause 4 Force Majeure shields during internet disruptions.
                 </p>
               </div>
 
@@ -306,6 +308,7 @@ export function EcosystemHub({
                     </button>
                     <Link
                       href="/admitbuddy"
+                      prefetch={true}
                       onClick={onClose}
                       className="flex items-center gap-1 rounded-lg bg-indigo-600 px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-indigo-700 transition-colors"
                     >
@@ -346,6 +349,7 @@ export function EcosystemHub({
                     </button>
                     <Link
                       href="/mediscan"
+                      prefetch={true}
                       onClick={onClose}
                       className="flex items-center gap-1 rounded-lg bg-rose-600 px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-rose-700 transition-colors"
                     >
@@ -387,6 +391,7 @@ export function EcosystemHub({
                     </button>
                     <Link
                       href="/shohoj-budget"
+                      prefetch={true}
                       onClick={onClose}
                       className="flex items-center gap-1 rounded-lg bg-amber-600 px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-amber-700 transition-colors"
                     >
@@ -453,6 +458,7 @@ export function EcosystemHub({
                     </button>
                     <Link
                       href="/haatbazar"
+                      prefetch={true}
                       onClick={onClose}
                       className="flex items-center gap-1 rounded-lg bg-emerald-700 px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-emerald-800 transition-colors"
                     >
@@ -494,6 +500,7 @@ export function EcosystemHub({
                     </button>
                     <Link
                       href="/probaho"
+                      prefetch={true}
                       onClick={onClose}
                       className="flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-blue-700 transition-colors"
                     >
@@ -529,6 +536,7 @@ export function EcosystemHub({
                   <div className="flex items-center gap-1.5">
                     <Link
                       href="/opportunities"
+                      prefetch={true}
                       onClick={onClose}
                       className="flex items-center gap-1 rounded-lg bg-sky-700 px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-sky-800 transition-colors"
                     >
@@ -563,6 +571,7 @@ export function EcosystemHub({
                   <div className="flex items-center gap-1.5">
                     <Link
                       href="/rokkha"
+                      prefetch={true}
                       onClick={onClose}
                       className="flex items-center gap-1 rounded-lg bg-amber-700 px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-amber-800 transition-colors"
                     >
@@ -597,6 +606,7 @@ export function EcosystemHub({
                   <div className="flex items-center gap-1.5">
                     <Link
                       href="/legal"
+                      prefetch={true}
                       onClick={onClose}
                       className="flex items-center gap-1 rounded-lg bg-indigo-700 px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-indigo-800 transition-colors"
                     >

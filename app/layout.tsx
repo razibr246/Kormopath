@@ -109,7 +109,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="min-h-screen bg-paper text-ink antialiased selection:bg-kept-soft selection:text-kept">
+      <body className="min-h-screen bg-paper text-ink antialiased selection:bg-kept-soft selection:text-kept" suppressHydrationWarning>
         <StorageNotice />
         <a className="skip-link" href="#main">মূল কনটেন্টে যান</a>
         <BuildathonSticker />

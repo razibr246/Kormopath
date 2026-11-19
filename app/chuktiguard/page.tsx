@@ -15,6 +15,7 @@ import {
   SAMPLE_CHUKTI_PRESETS,
   generateClause4Text,
   calculateInvoiceFinOps,
+  NBR_ITES_DECLARATION,
 } from "@/lib/chuktiguard";
 import {
   buildDncrpPetition,
@@ -347,7 +348,7 @@ export default function ChuktiGuardPage() {
           {/* Quick Metrics Bar */}
           <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
             <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-xs">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Invoiced</span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Total Invoiced</span>
               <div className="text-[20px] font-extrabold text-slate-900">${finops.totalUsd}</div>
               <span className="text-[11px] text-slate-500 font-mono">≈ {finops.formattedGross}</span>
             </div>
@@ -355,7 +356,7 @@ export default function ChuktiGuardPage() {
             <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3 shadow-xs">
               <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700">+2.5% Cash Incentive</span>
               <div className="text-[20px] font-extrabold text-emerald-800">+{finops.formattedIncentive}</div>
-              <span className="text-[11px] text-emerald-600">Bangladesh Bank FE Circular 02</span>
+              <span className="text-[12px] text-emerald-700">As reported · your bank decides</span>
             </div>
 
             <div className="rounded-xl border border-indigo-200 bg-indigo-50/70 p-3 shadow-xs">
@@ -365,7 +366,7 @@ export default function ChuktiGuardPage() {
             </div>
 
             <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-xs">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Milestone Progress</span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Milestone Progress</span>
               <div className="text-[20px] font-extrabold text-slate-900">{progressPct}%</div>
               <div className="mt-1 h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
                 <div className="h-full bg-indigo-600 transition-all" style={{ width: `${progressPct}%` }} />
@@ -425,7 +426,7 @@ export default function ChuktiGuardPage() {
               {/* Bill From / Bill To Grid */}
               <div className="grid gap-6 sm:grid-cols-2 py-6 border-b border-slate-200">
                 <div className="rounded-xl border border-slate-100 bg-slate-50/60 p-4">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block mb-1">
                     Billed From (Contractor / Supplier):
                   </span>
                   <div className="font-bold text-slate-900 text-[15px]">{invoice.contractor.name}</div>
@@ -434,7 +435,7 @@ export default function ChuktiGuardPage() {
                 </div>
 
                 <div className="rounded-xl border border-slate-100 bg-slate-50/60 p-4">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block mb-1">
                     Billed To (Client / Entity):
                   </span>
                   <div className="font-bold text-slate-900 text-[15px]">{invoice.client.company || invoice.client.name}</div>
@@ -446,7 +447,7 @@ export default function ChuktiGuardPage() {
 
               {/* Scope & Service */}
               <div className="py-4">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
                   Service Scope / Deliverable Category:
                 </span>
                 <span className="text-[14px] font-semibold text-slate-800">
@@ -577,16 +578,14 @@ export default function ChuktiGuardPage() {
                 </div>
               )}
 
-              {/* Statutory NBR ITES Tax Exemption Stamp */}
+              {/* Tax note (information, not a statutory notice): sourced text from lib/chuktiguard.ts */}
               {invoice.includeNbrExemption && (
                 <div className="mt-6 rounded-xl border-2 border-emerald-200 bg-emerald-50/40 p-5">
                   <div className="flex items-center gap-2 text-emerald-900 font-bold text-[13px] mb-1">
                     <CheckCircle2 size={18} className="text-emerald-600" />
-                    <span>Statutory NBR ITES Export Tax-Exemption Declaration</span>
+                    <span>Tax note (information) · কর বিষয়ক তথ্য</span>
                   </div>
-                  <p className="text-[11px] text-slate-600 leading-relaxed font-mono">
-                    Sixth Schedule (Part A, Para 33) &amp; Section 52 of Income Tax Act 2023 (Bangladesh). IT &amp; software export proceeds received via formal banking channels are 100% tax-free from withholding (AIT) and eligible for the 2.5% Bangladesh Bank inward cash incentive.
-                  </p>
+                  <p className="text-[12px] text-slate-600 leading-relaxed whitespace-pre-line">{NBR_ITES_DECLARATION.en}</p>
                 </div>
               )}
 
@@ -881,7 +880,7 @@ export default function ChuktiGuardPage() {
                       onChange={(e) => setInvoice({ ...invoice, includeNbrExemption: e.target.checked })}
                       className="h-4 w-4 rounded accent-indigo-600"
                     />
-                    <span>Include NBR Section 52 ITES Tax-Exemption Declaration</span>
+                    <span>Include a tax note (information, not tax advice)</span>
                   </label>
                 </div>
               </div>

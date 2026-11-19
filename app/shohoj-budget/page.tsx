@@ -12,14 +12,25 @@ import { bnDigits } from "@/lib/contract";
 const BN_MONTH_NAMES = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
 /** "2026-11" -> "নভেম্বর ২০২৬" (the value stays ISO; only the label is Bangla). */
 const bnMonth = (m: string) => { const [y, mo] = m.split("-"); const name = BN_MONTH_NAMES[Number(mo) - 1]; return name ? `${name} ${bnDigits(y)}` : bnDigits(m); };
+import dynamic from "next/dynamic";
 import { useActiveTabIntoView } from "@/components/layout/useActiveTabIntoView";
 import { AppFooter } from "@/components/layout/AppFooter";
-import { RentPocketsPanel } from "@/components/apps/RentPocketsPanel";
-import { WalletsPanel } from "@/components/apps/shohoj/WalletsPanel";
-import { DharLedger } from "@/components/apps/shohoj/DharLedger";
-import { BazarList } from "@/components/apps/shohoj/BazarList";
-import { MessLedger } from "@/components/apps/shohoj/MessLedger";
-import { ZakatHub } from "@/components/apps/shohoj/ZakatHub";
+
+const ShohojPanelLoader = () => (
+  <div className="flex h-56 items-center justify-center rounded-2xl border border-line bg-white/60">
+    <div className="flex items-center gap-2 text-sm text-slate-500 font-medium">
+      <span className="h-4 w-4 animate-spin rounded-full border-2 border-orange-500 border-t-transparent" />
+      <span>হিসাব লোড হচ্ছে...</span>
+    </div>
+  </div>
+);
+
+const RentPocketsPanel = dynamic(() => import("@/components/apps/RentPocketsPanel").then((m) => m.RentPocketsPanel), { loading: ShohojPanelLoader, ssr: false });
+const WalletsPanel = dynamic(() => import("@/components/apps/shohoj/WalletsPanel").then((m) => m.WalletsPanel), { loading: ShohojPanelLoader, ssr: false });
+const DharLedger = dynamic(() => import("@/components/apps/shohoj/DharLedger").then((m) => m.DharLedger), { loading: ShohojPanelLoader, ssr: false });
+const BazarList = dynamic(() => import("@/components/apps/shohoj/BazarList").then((m) => m.BazarList), { loading: ShohojPanelLoader, ssr: false });
+const MessLedger = dynamic(() => import("@/components/apps/shohoj/MessLedger").then((m) => m.MessLedger), { loading: ShohojPanelLoader, ssr: false });
+const ZakatHub = dynamic(() => import("@/components/apps/shohoj/ZakatHub").then((m) => m.ZakatHub), { loading: ShohojPanelLoader, ssr: false });
 import { playClick, playCoinSound } from "@/lib/sound";
 import {
   CATEGORIES, categoryById, parseEntry, parseSms, summarizeMonth, budgetPace, splitBill, toCsv,
@@ -72,8 +83,9 @@ interface Recurring {
 }
 
 const METHODS: Method[] = ["Cash", "bKash", "Nagad", "Rocket", "Bank", "Card"];
+// Shohoj is a Bangla page: every amount shows in Bangla digits.
 const tk = (poisha: number) =>
-  "৳" + (poisha / 100).toLocaleString("en-IN", { minimumFractionDigits: poisha % 100 ? 2 : 0, maximumFractionDigits: 2 });
+  "৳" + bnDigits((poisha / 100).toLocaleString("en-IN", { minimumFractionDigits: poisha % 100 ? 2 : 0, maximumFractionDigits: 2 }));
 
 const sanitizeBudget = (raw: unknown) => (typeof raw === "number" && Number.isInteger(raw) && raw >= 0 && raw < 1e12 ? raw : null);
 const sanitizeRecurring = (raw: unknown): Recurring[] | null =>
@@ -475,7 +487,7 @@ export default function ShohojBudgetPage() {
               <div className={`h-full rounded-full ${pace.usedPct >= 100 ? "bg-red-500" : pace.usedPct >= 80 ? "bg-amber-500" : "bg-emerald-500"}`} style={{ width: `${usedPct}%` }} />
             </div>
             <p className="mt-1.5 text-[12px] text-slate-600">
-              বাজেটের {pace.usedPct}% ব্যবহৃত।{" "}
+              বাজেটের {bnDigits(String(pace.usedPct))}% ব্যবহৃত।{" "}
               {pace.overBudget ? <strong className="text-red-700">বাজেট {tk(-pace.remainingPoisha)} ছাড়িয়ে গেছে।</strong> : pace.usedPct >= 80 ? <strong className="text-amber-700">বাজেটের ৮০% পার হয়েছে।</strong> : null}
             </p>
           </div>
@@ -655,7 +667,7 @@ export default function ShohojBudgetPage() {
                           }}
                           className="rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[12px] font-bold text-slate-700 hover:border-emerald-500 hover:bg-emerald-50 min-h-[44px] min-w-[44px]"
                         >
-                          +৳{val}
+                          +৳{bnDigits(String(val))}
                         </button>
                       ))}
                       <button
@@ -718,15 +730,15 @@ export default function ShohojBudgetPage() {
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <div className="text-[12px]">
                             <span className="font-bold text-sky-900">{config.nameBn} ক্যাশআউট চার্জ:</span>
-                            <span className="ml-1.5 font-mono font-bold text-sky-700">৳{feeTaka.toFixed(2)}</span>
-                            <span className="ml-2 text-slate-500">(মোট লাগবে ৳{totalTaka.toFixed(2)})</span>
+                            <span className="ml-1.5 font-mono font-bold text-sky-700">৳{bnDigits(feeTaka.toFixed(2))}</span>
+                            <span className="ml-2 text-slate-500">(মোট লাগবে ৳{bnDigits(totalTaka.toFixed(2))})</span>
                           </div>
                           <button
                             type="button"
                             onClick={handleAddFee}
                             className="rounded-lg bg-sky-600 px-2.5 py-1 text-[12px] font-bold text-white hover:bg-sky-700 min-h-[44px] min-w-[44px]"
                           >
-                            ফি যোগ করুন (+৳{feeTaka.toFixed(2)})
+                            ফি যোগ করুন (+৳{bnDigits(feeTaka.toFixed(2))})
                           </button>
                         </div>
                       </div>
@@ -823,7 +835,7 @@ export default function ShohojBudgetPage() {
               )}
               {summary.byCategory[0] && summary.byCategory[0].pct >= 40 && (
                 <p className="mt-3 rounded-lg bg-amber-50 p-2 text-[12px] text-amber-900">
-                  এই মাসের খরচের {summary.byCategory[0].pct}% গেছে <strong>{categoryById(summary.byCategory[0].id).bn}</strong> খাতে। কমানোর সুযোগ থাকলে এখান থেকেই শুরু করা সহজ।
+                  এই মাসের খরচের {bnDigits(String(summary.byCategory[0].pct))}% গেছে <strong>{categoryById(summary.byCategory[0].id).bn}</strong> খাতে। কমানোর সুযোগ থাকলে এখান থেকেই শুরু করা সহজ।
                 </p>
               )}
             </section>
@@ -867,8 +879,8 @@ export default function ShohojBudgetPage() {
                 </label>
               </div>
               <p className="text-[13px]">
-                জনপ্রতি <strong className="text-emerald-800">৳{shares[shares.length - 1].toFixed(2)}</strong>
-                {shares[0] !== shares[shares.length - 1] && <span className="text-slate-500"> (প্রথম কয়েকজন ৳{shares[0].toFixed(2)}, যাতে মোট ঠিক ৳{splitTotal} হয়)</span>}
+                জনপ্রতি <strong className="text-emerald-800">৳{bnDigits(shares[shares.length - 1].toFixed(2))}</strong>
+                {shares[0] !== shares[shares.length - 1] && <span className="text-slate-500"> (প্রথম কয়েকজন ৳{bnDigits(shares[0].toFixed(2))}, যাতে মোট ঠিক ৳{bnDigits(String(splitTotal))} হয়)</span>}
               </p>
               <button
                 onClick={() => {
@@ -1108,7 +1120,7 @@ function GoalsPanel({ goals, setGoals, today }: { goals: SavingsGoal[]; setGoals
                 <strong>{g.name}</strong>
                 <button onClick={() => { if (window.confirm(`"${g.name}" লক্ষ্য মুছবেন?`)) setGoals((x) => x.filter((y) => y.id !== g.id)); }} aria-label={`${g.name} লক্ষ্য মুছুন`} className="p-0.5 text-slate-500 hover:text-red-600 min-h-[44px] min-w-[44px]"><Trash2 size={12} /></button>
               </div>
-              <p className="text-[12px] text-slate-600">{tk(p.savedPoisha)} / {tk(g.targetPoisha)} ({p.pct}%)</p>
+              <p className="text-[12px] text-slate-600">{tk(p.savedPoisha)} / {tk(g.targetPoisha)} ({bnDigits(String(p.pct))}%)</p>
               <div className="mt-1 h-2 overflow-hidden rounded-full bg-slate-100" role="progressbar" aria-valuenow={p.pct} aria-valuemin={0} aria-valuemax={100} aria-label={`${g.name} লক্ষ্যের অগ্রগতি`}>
                 <div className="h-full rounded-full bg-sky-500" style={{ width: `${p.pct}%` }} />
               </div>
@@ -1196,7 +1208,7 @@ function SpendingDonutChart({ summary }: { summary: MonthSummary }) {
               onMouseLeave={() => setHoveredId(null)}
               tabIndex={0}
               role="button"
-              aria-label={`${categoryById(slice.id).bn}: ${tk(slice.poisha)} (${slice.pct}%)`}
+              aria-label={`${categoryById(slice.id).bn}: ${tk(slice.poisha)} (${bnDigits(String(slice.pct))}%)`}
               onFocus={() => setHoveredId(slice.id)}
               onBlur={() => setHoveredId(null)}
             />
@@ -1209,7 +1221,7 @@ function SpendingDonutChart({ summary }: { summary: MonthSummary }) {
             <>
               <span className="text-[12px] font-bold text-slate-600">{categoryById(activeCategory.id).bn}</span>
               <span className="text-[16px] font-extrabold text-slate-900">{tk(activeCategory.poisha)}</span>
-              <span className="text-[12px] font-semibold text-emerald-600">{activeCategory.pct}%</span>
+              <span className="text-[12px] font-semibold text-emerald-600">{bnDigits(String(activeCategory.pct))}%</span>
             </>
           ) : (
             <>
@@ -1228,7 +1240,7 @@ function SpendingDonutChart({ summary }: { summary: MonthSummary }) {
             key={c.id}
             style={{ width: `${c.pct}%`, backgroundColor: CATEGORY_STYLES[c.id]?.hex ?? "#64748b" }}
             className={`transition-all duration-200 ${hoveredId === c.id ? "brightness-110" : ""}`}
-            title={`${categoryById(c.id).bn}: ${tk(c.poisha)} (${c.pct}%)`}
+            title={`${categoryById(c.id).bn}: ${tk(c.poisha)} (${bnDigits(String(c.pct))}%)`}
             onMouseEnter={() => setHoveredId(c.id)}
             onMouseLeave={() => setHoveredId(null)}
           />
@@ -1256,7 +1268,7 @@ function SpendingDonutChart({ summary }: { summary: MonthSummary }) {
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-slate-800">{tk(c.poisha)}</span>
                 <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[12px] text-slate-500 font-mono">
-                  {c.pct}%
+                  {bnDigits(String(c.pct))}%
                 </span>
               </div>
             </li>
@@ -1302,8 +1314,8 @@ function MfsFeeCalculatorPanel() {
                 {config.source ? <a href={config.source.url} target="_blank" rel="noopener noreferrer" className="block text-[12px] font-semibold text-emerald-700 underline min-h-[44px] min-w-[44px]">উৎস: {config.source.label} · {config.source.checked}</a> : <span className="block text-[12px] font-semibold text-amber-700">যাচাই হয়নি — নিজের হার দিয়ে মিলিয়ে নিন</span>}
               </div>
               <div className="text-right">
-                <span className="font-bold text-slate-900 font-mono">চার্জ: ৳{(res.feePoisha / 100).toFixed(2)}</span>
-                <span className="block text-[12px] text-slate-500 font-mono">মোট: ৳{(res.totalWithFeePoisha / 100).toFixed(2)}</span>
+                <span className="font-bold text-slate-900 font-mono">চার্জ: ৳{bnDigits((res.feePoisha / 100).toFixed(2))}</span>
+                <span className="block text-[12px] text-slate-500 font-mono">মোট: ৳{bnDigits((res.totalWithFeePoisha / 100).toFixed(2))}</span>
               </div>
             </div>
           );
@@ -1339,7 +1351,7 @@ function CashFlowDeficitAndBakiPanel() {
   }, [debtTaka, weeks, customerName, merchantName]);
 
   const fmtTk = (poisha: number) =>
-    "৳" + (poisha / 100).toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    "৳" + bnDigits((poisha / 100).toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 2 }));
 
   return (
     <section aria-labelledby="cashflow-h" className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">

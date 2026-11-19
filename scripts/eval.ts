@@ -125,6 +125,23 @@ for (const a of ANSWERS) {
   }
 }
 
+// --- 3b. Health triage: how often routine questions are sent to 999 (fixed rules or the model's "urgent") ---
+// The model is told "when in doubt, urgent", so this measures the cost of that caution on everyday wording.
+const ROUTINE = [
+  "my knee hurts when I climb stairs", "I have had a dry cough for a week", "pimples on my face and back",
+  "my eyes itch in the morning", "tooth pain when I drink cold water", "I feel tired after lunch",
+  "mild headache since this morning", "my period is a few days late", "itchy rash on my arm", "my back hurts after sitting all day",
+  "হাঁটুতে ব্যথা করে সিঁড়ি উঠলে", "এক সপ্তাহ ধরে শুকনো কাশি", "মুখে ব্রণ উঠছে", "দাঁতে ঠান্ডা পানি লাগলে শিরশির করে", "চুল পড়ে যাচ্ছে",
+  "pet e gas hoy khaoar por", "matha alpo betha korche", "ghum kom hoy raate", "hat e chulkani", "komor e betha onek din dhore",
+];
+const triage = { routine: 0, falseUrgent: 0, fromModel: 0, examples: [] as string[] };
+for (const text of ROUTINE) {
+  const r = await call("/api/health/assist", { mode: "route", text, lang: /[\u0980-\u09FF]/.test(text) ? "bn" : "en" });
+  triage.routine++;
+  if (r.engine && !["rule-based", "template"].includes(r.engine)) triage.fromModel++;
+  if (r.emergency === true) { triage.falseUrgent++; triage.examples.push(text); }
+}
+
 // --- 4. FeeGuard: gross - itemised fees = net, to the poisha, on 2,000 generated inputs ---------
 let seed = 20261121;
 const rand = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 2 ** 32);
@@ -153,6 +170,7 @@ const results = {
   probes,
   pitch,
   coach,
+  triage,
   fees,
   latencyMs,
 };

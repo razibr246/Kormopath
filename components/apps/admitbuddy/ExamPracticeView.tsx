@@ -34,8 +34,10 @@ import {
   calculateExamScore,
   sanitizeExamAttempts,
 } from "@/lib/examPractice";
-import { usePersistentState, storageKey } from "@/lib/clientStore";
+import { usePersistentState, storageKey, readStored } from "@/lib/clientStore";
 import { bnDigits } from "@/lib/contract";
+import { UpgradeModal } from "@/components/pricing/UpgradeModal";
+import { isFeatureGated, sanitizeSession, getStoredSession, type UserSession } from "@/lib/session";
 
 export function ExamPracticeView() {
   const [selectedTrack, setSelectedTrack] = useState<ExamTrackId>("medical");
@@ -61,6 +63,20 @@ export function ExamPracticeView() {
     [],
     sanitizeExamAttempts
   );
+
+  const [session, setSession] = useState<UserSession | null>(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+  useEffect(() => {
+    setSession(getStoredSession());
+    const onSession = () => setSession(getStoredSession());
+    window.addEventListener("kormopath:session-change", onSession);
+    window.addEventListener("storage", onSession);
+    return () => {
+      window.removeEventListener("kormopath:session-change", onSession);
+      window.removeEventListener("storage", onSession);
+    };
+  }, []);
 
   const trackInfo = useMemo(
     () => EXAM_TRACKS.find((t) => t.id === selectedTrack) ?? EXAM_TRACKS[0],
@@ -104,13 +120,21 @@ export function ExamPracticeView() {
     return () => clearInterval(interval);
   }, [examActive, secondsRemaining]);
 
-  const handleStartExam = () => {
+  const handleStartExamDirect = () => {
     setUserAnswers({});
     setCurrentQIndex(0);
     setLatestAttempt(null);
     setSecondsRemaining(trackInfo.durationMinutes * 60);
     setExamActive(true);
     setMode("exam");
+  };
+
+  const handleStartExam = () => {
+    if (isFeatureGated(session, "admitbuddy", "practice_exams")) {
+      setShowUpgradeModal(true);
+      return;
+    }
+    handleStartExamDirect();
   };
 
   const handleSelectOption = (questionId: string, optionIndex: number) => {
@@ -867,6 +891,17 @@ export function ExamPracticeView() {
           )}
         </div>
       )}
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        targetAppId="admitbuddy"
+        targetAppNameBn="AdmitBuddy ভর্তি প্রস্তুতি ও মডেল টেস্ট"
+        featureNameBn="পূর্ণাঙ্গ মডেল টেস্ট ও ওএমআর সিমুলেশন"
+        lang="bn"
+        onSuccess={() => {
+          handleStartExamDirect();
+        }}
+      />
     </div>
   );
 }

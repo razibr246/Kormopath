@@ -36,7 +36,7 @@ test("llm: schema failure sends the issues back once and accepts the repaired an
   assert.equal(r?.data.name, "Fixed");
   assert.equal(m.prompts.length, 2);
   assert.match(m.prompts[1], /failed validation:\nname: Required\nReturn corrected JSON only\./);
-  assert.ok(l.steps.some((s) => s.startsWith("zod|warn|Schema failed (1 issues)")));
+  assert.ok(l.steps.some((s) => s.startsWith("zod|warn|Schema failed (1 issues: name: Required)")));
 });
 
 test("llm: invalid JSON triggers the repair prompt", async () => {

@@ -36,7 +36,8 @@ const has = (t: string, words: readonly string[]) => words.filter((w) => t.inclu
 // ---------------------------------------------------------------------------------------------
 export type RedFlagId =
   | "chest_pain" | "breathing" | "stroke" | "bleeding" | "unconscious" | "seizure"
-  | "pregnancy_bleeding" | "poisoning" | "self_harm" | "child_fever_danger" | "severe_injury" | "swelling_throat" | "labour";
+  | "pregnancy_bleeding" | "poisoning" | "self_harm" | "child_fever_danger" | "severe_injury" | "swelling_throat" | "labour"
+  | "severe_abdominal" | "pregnancy_warning";
 
 export interface RedFlag {
   id: RedFlagId;
@@ -65,7 +66,7 @@ export const RED_FLAGS: readonly RedFlag[] = [
     keywords: ["বিষ খেয়েছে", "বিষ খেয়ে", "কীটনাশক খেয়েছে", "কীটনাশক খেয়ে", "ঘুমের ওষুধ বেশি", "poison", "pesticide", "swallowed", "overdose"] },
   { id: "self_harm", bn: "নিজের ক্ষতি করার চেষ্টা বা আত্মহত্যার কথা ভাবা", en: "Self-harm or thoughts of ending one's life", source: NHS_999,
     keywords: ["আত্মহত্যা", "মরে যেতে চাই", "নিজের ক্ষতি", "বাঁচতে চাই না", "suicide", "kill myself", "self harm", "self-harm", "end my life"] },
-  { id: "child_fever_danger", bn: "জ্বরে শিশুর খিঁচুনি, ঘাড় শক্ত, চেপে দিলে মিলায় না এমন র‍্যাশ, ঘুম থেকে জাগানো যাচ্ছে না", en: "A child with fever and a fit, stiff neck, a rash that doesn't fade, or hard to wake", source: NHS_CHILD_FEVER,
+  { id: "child_fever_danger", bn: "জ্বরে শিশুর খিঁচুনি, ঘাড় শক্ত, চেপে দিলে মিলায় না এমন র‍্যাশ, ঘুম থেকে জাগানো যাচ্ছে না; ৩ মাসের কম বয়সী শিশুর জ্বর; শিশুর ডায়াপার ভিজছে না (পানিশূন্যতা)", en: "A child with fever and a fit, stiff neck, a rash that doesn't fade, or hard to wake; a baby under 3 months with a fever; a baby with no wet nappy (dehydration)", source: NHS_CHILD_FEVER,
     keywords: ["ঘাড় শক্ত", "র‍্যাশ মিলায় না", "বাচ্চা জাগছে না", "শিশু জাগছে না", "stiff neck", "rash that does not fade", "rash doesn't fade", "child hard to wake", "baby not waking"] },
   { id: "severe_injury", bn: "গুরুতর আঘাত: বড় দুর্ঘটনা, বড় পোড়া, সাপে কাটা বা চোখে কেমিক্যাল", en: "Severe injuries: a serious accident, a large burn, a snake bite or chemicals in the eye", source: NHS_999,
     keywords: ["বড় দুর্ঘটনা", "সড়ক দুর্ঘটনা", "মাথায় গুরুতর আঘাত", "হাড় বেরিয়ে", "serious accident", "road accident", "severe injury", "head injury"] },
@@ -73,6 +74,10 @@ export const RED_FLAGS: readonly RedFlag[] = [
     keywords: ["গলা ফুলে", "জিভ ফুলে", "ঠোঁট ফুলে", "মুখ ফুলে গেছে", "throat swelling", "tongue swelling", "lips swelling", "anaphylaxis"] },
   { id: "labour", bn: "প্রসব শুরু: পানি ভাঙা, ঘন ঘন তীব্র ব্যথা, বাচ্চা আসছে", en: "Labour: waters breaking, frequent strong contractions, baby coming", source: NHS_999,
     keywords: ["পানি ভেঙেছে", "প্রসব ব্যথা", "বাচ্চা হচ্ছে", "লেবার পেইন", "waters broke", "waters breaking", "labour pain", "labor pain", "baby coming"] },
+  { id: "severe_abdominal", bn: "হঠাৎ তীব্র পেটব্যথা, বা পেট পাথরের মতো শক্ত হয়ে গেছে", en: "Sudden, severe tummy pain, or a belly that is hard and rigid", source: NHS_999,
+    keywords: ["পেট শক্ত হয়ে গেছে", "হঠাৎ তীব্র পেটব্যথা", "belly is rigid", "stomach is rigid", "sudden severe stomach pain", "sudden severe abdominal pain"] },
+  { id: "pregnancy_warning", bn: "গর্ভাবস্থায় তীব্র মাথাব্যথা, চোখে ঝাপসা দেখা, বা মুখ-হাত হঠাৎ ফুলে যাওয়া", en: "In pregnancy: a severe headache, blurred vision, or sudden swelling of the face or hands", source: NHS_999,
+    keywords: ["pregnant severe headache", "pregnant blurry vision", "pregnant blurred vision", "গর্ভাবস্থায় তীব্র মাথাব্যথা", "গর্ভাবস্থায় চোখে ঝাপসা"] },
 ];
 
 export const redFlagById = (id: string): RedFlag | undefined => RED_FLAGS.find((r) => r.id === id);
@@ -102,18 +107,26 @@ const RED_FLAG_PATTERNS: Partial<Record<RedFlagId, readonly RegExp[]>> = {
   ],
   unconscious: [/(collaps|ja+g(che|e) na|j[ae]gche na|s?h?ara dicche na|সাড়া নেই|passed out|blacked out|unresponsive|not waking|won'?t wake|can'?t wake|অজ্ঞান|জ্ঞান হার|জ্ঞান নেই|অচেতন|বেহুঁশ|ogyan|behush|giye porese|পড়ে গেছে[\s\S]{0,20}উঠছে না)/i],
   bleeding: [
+    /((vomit\w*|throw\w* up|throwing up|\bbomi)[\s\S]{0,20}(blood|\brokto|রক্ত)|রক্ত ?বমি|বমির সাথে রক্ত|\brokto ?bomi|(black|tarry|\bkalo)[\s\S]{0,15}(stool|poo|poop|paykhana|paikhana|পায়খানা)|কালো পায়খানা|blood in (his|her|my )?(stool|poo))/i,
     P("(bleed|blood|রক্ত|\\brokto)", "(a lot|lots|heavy|heavily|won'?t stop|not stop|keeps|pouring|gushing|spurting|থামছে না|থামে না|বন্ধ হচ্ছে না|অনেক|প্রচুর|বেশি|beshi|thamche na|bondho hocche na)"),
     P("(a lot of|lots of|heavy|so much|অনেক|প্রচুর|\\bonek|prochur)", "(blood|bleed|রক্ত|\\brokto)"),
   ],
-  self_harm: [/(want to die|don'?t want to live|do not want to live|killing myself|cut(ting)? myself|নিজেকে শেষ|বেঁচে থাকতে চাই না|bachte ich?c?ha kore na|bachte icche kore na|sui?si?de|sucide|suicde|wanna die|wish i (was|were) dead|kill (myself|himself|herself)|end (it all|my life|everything)|ending (it all|everything|my life)|not (be|wake up) (here )?tomorrow|suicid|no reason to live|hurt myself|মরে যেতে চাই|মরে যাব|মরতে চাই|বাঁচতে ইচ্ছা করে না|বাঁচতে চাই না|আত্মহত্যা|nijeke shesh|more jete chai|morte chai|bachte chai na)/i],
-  stroke: [P("(face|mouth|মুখ|\\bmukh)", "(droop|bank|bent|crooked|twist|বেঁকে|বাঁকা|ঝুলে|beke|baka)"), /(can'?t|cannot|unable to) (lift|raise|move) (his|her|my|one|the)? ?(arm|hand|leg)/i, P("(speech|talk|কথা|\\bkotha)", "(slur|jumbl|জড়িয়ে|jorie|জড়ানো)"), /(worst headache|sudden(ly)? (a )?(severe|terrible|very bad) headache|thunderclap|জীবনের সবচেয়ে (খারাপ|তীব্র) মাথা ?ব্যথা|হঠাৎ (খুব )?তীব্র মাথা ?ব্যথা)/i, /(sudden(ly)? (weak|numb)|one side[\s\S]{0,15}(weak|numb|paraly)|এক পাশ[\s\S]{0,15}(অবশ|দুর্বল))/i],
-  poisoning: [P("(drank|swallow|ate|খেয়ে ফেলেছে|খেয়েছে|kheye(che|feleche)?)", "(poison|বিষ|\\bbish|pesticide|কীটনাশক|kerosene|কেরোসিন|bleach|ব্লিচ|rat poison|ইঁদুরের বিষ)"), P("(poison|বিষ|\\bbish|pesticide|কীটনাশক|kerosene|কেরোসিন|bleach|ব্লিচ)", "(drank|swallow|kheye|খেয়ে|খেয়েছে|gile|গিলে)"), /(overdose|too many (pills|tablets)|(whole|full|entire) (strip|bottle|packet) of|(took|taken|swallowed)[\s\S]{0,25}sleeping (pills|tablets)|অনেকগুলো (ট্যাবলেট|ওষুধ) খেয়ে|ঘুমের (ট্যাবলেট|ওষুধ|বড়ি)[\s\S]{0,20}(অনেক|খেয়ে|খেয়েছে)|ghumer (oshudh|osud|tablet)[\s\S]{0,20}(onek|kheye))/i, /\b([1-9]\d+)\b[\s\S]{0,25}(pill|tablet|capsule)|([১-৯][০-৯]+)[\s\S]{0,20}(ট্যাবলেট|বড়ি|ওষুধ)/i],
+  self_harm: [/(plan(ning|ned)? (to|for) (hang|kill|end|overdose|jump)|(hang|hanging) (myself|himself|herself)|গলায় দড়ি|gola(y|e)? dori|jibon ?ta? shesh|জীবন(টা)? শেষ (করে|করব|করতে)|নিজেকে শেষ করে)/i, /(want to die|don'?t want to live|do not want to live|killing myself|cut(ting)? myself|নিজেকে শেষ|বেঁচে থাকতে চাই না|bachte ich?c?ha kore na|bachte icche kore na|sui?si?de|sucide|suicde|wanna die|wish i (was|were) dead|kill (myself|himself|herself)|end (it all|my life|everything)|ending (it all|everything|my life)|not (be|wake up) (here )?tomorrow|suicid|no reason to live|hurt myself|মরে যেতে চাই|মরে যাব|মরতে চাই|বাঁচতে ইচ্ছা করে না|বাঁচতে চাই না|আত্মহত্যা|nijeke shesh|more jete chai|morte chai|bachte chai na)/i],
+  stroke: [
+    /(sudden(ly)?[\s\S]{0,15}(can'?t see|cannot see|went blind|blind|lost (his|her|my )?(sight|vision))|হঠাৎ[\s\S]{0,15}(চোখে দেখ(ছে|তে পারছে) না|দেখতে পাচ্ছে না|অন্ধ)|hothat[\s\S]{0,15}(dekhte (pare|pache|pacche) na|chokhe dekhe na))/i,P("(face|mouth|মুখ|\\bmukh)", "(droop|bank|bent|crooked|twist|বেঁকে|বাঁকা|ঝুলে|beke|baka)"), /(can'?t|cannot|unable to) (lift|raise|move) (his|her|my|one|the)? ?(arm|hand|leg)/i, P("(speech|talk|কথা|\\bkotha)", "(slur|jumbl|জড়িয়ে|jorie|জড়ানো)"), /(worst headache|sudden(ly)? (a )?(severe|terrible|very bad) headache|thunderclap|জীবনের সবচেয়ে (খারাপ|তীব্র) মাথা ?ব্যথা|হঠাৎ (খুব )?তীব্র মাথা ?ব্যথা)/i, /(sudden(ly)? (weak|numb)|one side[\s\S]{0,15}(weak|numb|paraly)|এক পাশ[\s\S]{0,15}(অবশ|দুর্বল))/i],
+  poisoning: [
+    /(অনেক(গুলো|গুলি|গুলা)?[\s\S]{0,12}(প্যারাসিটামল|নাপা|ট্যাবলেট|ওষুধ|বড়ি)[\s\S]{0,15}খেয়ে|\bonek(gulo|guli)?[\s\S]{0,12}(paracetamol|napa|tablet|oshudh|osud|oshud)[\s\S]{0,15}kheye|(তেলাপোকা|ইঁদুর|মশার)[\s\S]{0,10}(ওষুধ|বিষ)[\s\S]{0,10}খেয়ে)/i,P("(drank|swallow|ate|খেয়ে ফেলেছে|খেয়েছে|kheye(che|feleche)?)", "(poison|বিষ|\\bbish|pesticide|কীটনাশক|kerosene|কেরোসিন|bleach|ব্লিচ|rat poison|ইঁদুরের বিষ)"), P("(poison|বিষ|\\bbish|pesticide|কীটনাশক|kerosene|কেরোসিন|bleach|ব্লিচ)", "(drank|swallow|kheye|খেয়ে|খেয়েছে|gile|গিলে)"), /(overdose|too many (pills|tablets)|(whole|full|entire) (strip|bottle|packet) of|(took|taken|swallowed)[\s\S]{0,25}sleeping (pills|tablets)|অনেকগুলো (ট্যাবলেট|ওষুধ) খেয়ে|ঘুমের (ট্যাবলেট|ওষুধ|বড়ি)[\s\S]{0,20}(অনেক|খেয়ে|খেয়েছে)|ghumer (oshudh|osud|tablet)[\s\S]{0,20}(onek|kheye))/i, /\b([1-9]\d+)\b[\s\S]{0,25}(pill|tablet|capsule)|([১-৯][০-৯]+)[\s\S]{0,20}(ট্যাবলেট|বড়ি|ওষুধ)/i],
   seizure: [/(\bfit(s|ting)?\b[\s\S]{0,15}(won'?t stop|again)|shaking[\s\S]{0,20}(can'?t stop|won'?t stop|uncontroll)|convuls|জ্ঞান হারিয়ে কাঁপছে)/i],
-  child_fever_danger: [P("(baby|infant|child|newborn|বাচ্চা|শিশু|\\bbaccha)", "(breath|শ্বাস)", "(fast|very fast|quick|দ্রুত|ঘন ঘন)"), P("(baby|infant|newborn|বাচ্চা|শিশু|\\bshishu|\\bbaccha|\\bbachcha)", "(not feeding|won'?t feed|খাচ্ছে না|limp|নিস্তেজ|nisteje|nistej|blue|নীল)"), P("(neck|ঘাড়|\\bghar)", "(stiff|শক্ত|shokto|shakto)"), P("(stiff|শক্ত)", "(neck|ঘাড়)")],
+  child_fever_danger: [
+    /(\b([0-2]|one|two)[ -]?(month|mon|mo)s?[ -]?old\b[\s\S]{0,40}(fever|temperature|\bjor\b|জ্বর|hot)|(fever|temperature|\bjor\b|জ্বর)[\s\S]{0,40}\b([0-2]|one|two)[ -]?(month|mo)s?[ -]?old\b|(newborn|নবজাতক)[\s\S]{0,30}(fever|জ্বর|\bjor\b|temperature)|([০-২]|এক|দুই) মাসের[\s\S]{0,30}জ্বর)/i,
+    /(no wet (nappy|nappies|diaper)|(nappy|nappies|diaper)[\s\S]{0,15}(dry|not wet)|hasn'?t (peed|weed|passed urine)|ডায়াপার[\s\S]{0,15}(ভিজছে না|শুকনো)|প্রস্রাব করছে না[\s\S]{0,20}(বাচ্চা|শিশু)|(বাচ্চা|শিশু)[\s\S]{0,20}প্রস্রাব করছে না)/i,P("(baby|infant|child|newborn|বাচ্চা|শিশু|\\bbaccha)", "(breath|শ্বাস)", "(fast|very fast|quick|দ্রুত|ঘন ঘন)"), P("(baby|infant|newborn|বাচ্চা|শিশু|\\bshishu|\\bbaccha|\\bbachcha)", "(not feeding|won'?t feed|খাচ্ছে না|limp|নিস্তেজ|nisteje|nistej|blue|নীল)"), P("(neck|ঘাড়|\\bghar)", "(stiff|শক্ত|shokto|shakto)"), P("(stiff|শক্ত)", "(neck|ঘাড়)")],
   pregnancy_bleeding: [P("(pregnan|গর্ভ|পোয়াতি|\\bpet e baccha|\\bgorbho)", "(bleed|blood|রক্ত|\\brokto|spotting|স্পটিং)")],
   swelling_throat: [P("(throat|tongue|lips?|গলা|জিভ|ঠোঁট|\\bgola|\\bjibh)", "(swell|ফুলে|fule)")],
+  severe_abdominal: [/((belly|stomach|tummy|abdomen|\bpet\b)[\s\S]{0,20}(hard as|rigid|like a board|board-?like|stone)|sudden(ly)? (severe|terrible|unbearable|very bad) (stomach|abdominal|belly|tummy) pain|পেট[\s\S]{0,15}(পাথরের মতো|শক্ত হয়ে)|হঠাৎ[\s\S]{0,10}পেটে তীব্র ব্যথা)/i],
+  pregnancy_warning: [P("(pregnan|গর্ভ|পোয়াতি|\\bgorbho)", "(severe headache|bad headache|terrible headache|blur|blurry|vision|তীব্র মাথা ?ব্যথা|ঝাপসা|swell\\w* (face|hands)|মুখ ফুলে|হাত ফুলে)"), P("(severe headache|blur|blurry|vision|তীব্র মাথা ?ব্যথা|ঝাপসা)", "(pregnan|গর্ভ|পোয়াতি)")],
   labour: [/(waters? (has |have )?(broke|broken|breaking)|প্রসব(ের)? ব্যথা|prosob(er)? (betha|batha)|contractions? (every|are)|পানি ভাঙ)/i],
-  severe_injury: [/(hit by (a )?(car|bus|truck|bike)|fell from|পড়ে গিয়ে মাথা|মাথা ফেটে|accident[\s\S]{0,25}(blood|unconscious|head|rokto|মাথা|অজ্ঞান|রক্ত)|এক্সিডেন্ট[\s\S]{0,25}(রক্ত|অজ্ঞান|মাথা)|দুর্ঘটনা[\s\S]{0,25}(রক্ত|অজ্ঞান|মাথা))/i,
+  severe_injury: [
+    /(\b(sh?ap)\s*e?\s*(kamr|kete|kat)\w*|current (lege|legeche|lagse)|electric(al)? shock|electrocut\w*|কারেন্টে? (লেগে|লেগেছে|শক)|বিদ্যুৎস্পৃষ্ট|shock kheye)/i,/(hit by (a )?(car|bus|truck|bike)|fell from|পড়ে গিয়ে মাথা|মাথা ফেটে|accident[\s\S]{0,25}(blood|unconscious|head|rokto|মাথা|অজ্ঞান|রক্ত)|এক্সিডেন্ট[\s\S]{0,25}(রক্ত|অজ্ঞান|মাথা)|দুর্ঘটনা[\s\S]{0,25}(রক্ত|অজ্ঞান|মাথা))/i,
     /(snake ?bit|bitten by a snake|সাপে (কেটেছে|কামড়)|sap(e)? (keteche|kamr)|shap(e)? keteche|boiling (water|oil)|scald|(large|big|bad|whole|serious) burn|burn(ed|t)?[\s\S]{0,25}(face|chest|whole|large|hot water|boiling)|গরম (পানি|তেল)[\s\S]{0,20}(পুড়|ঝলস)|পুড়ে গেছে|ঝলসে গেছে|chemical[\s\S]{0,25}eye|eye[\s\S]{0,25}(chemical|acid|bleach)|চোখে[\s\S]{0,15}(কেমিক্যাল|এসিড|অ্যাসিড|ব্লিচ)|acid (attack|thrown|splash))/i],
 };
 

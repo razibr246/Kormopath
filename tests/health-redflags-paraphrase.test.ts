@@ -97,6 +97,14 @@ const URGENT: Array<[string, string]> = [
   ["worst headache of his life", "stroke"], ["snake bit my son", "severe_injury"],
   ["spilled boiling water on her arm", "severe_injury"], ["চোখে কেমিক্যাল পড়েছে", "severe_injury"],
   ["pregnant and spotting heavily", "pregnancy_bleeding"],
+  // judge round 3 (offline misses; the model check caught them live, the fixed rules must too)
+  ["vomited blood twice", "bleeding"], ["black tarry stool and dizzy", "bleeding"],
+  ["I have a plan to hang myself", "self_harm"], ["jibon ta shesh kore dite chai", "self_harm"],
+  ["অনেকগুলো প্যারাসিটামল খেয়ে ফেলেছে", "poisoning"], ["স্বামী তেলাপোকার ওষুধ খেয়েছে, বমি করছে", "poisoning"],
+  ["sap e kamrieche", "severe_injury"], ["current lege porse", "severe_injury"],
+  ["2-month-old, fever 101", "child_fever_danger"], ["my baby has had no wet nappy since morning", "child_fever_danger"],
+  ["suddenly he can't see from his right eye", "stroke"], ["belly hard as a board", "severe_abdominal"],
+  ["8 months pregnant, severe headache and blurry vision", "pregnancy_warning"],
 ];
 
 const ROUTINE = [
@@ -109,6 +117,9 @@ const ROUTINE = [
   "matha betha korche", "pet e gas", "gola betha r jor", "kashi hocche", "chokhe chulkani",
   // judge re-score round 2: must stay calm
   "I sweat a lot at night", "my neck is a bit sore", "I take 2 tablets for blood pressure", "I take 10 mg once a day",
+  // judge round 3: must stay calm
+  "I vomited twice after dinner", "my stool is a bit hard", "I plan to visit my doctor", "current account bank",
+  "my 2 year old has a cold", "pregnant, mild back pain", "stomach upset since yesterday", "shap dekhechi bagane", "headache during exams",
 ];
 
 test(`red flags: ${URGENT.length} everyday phrasings all raise the right flag`, () => {

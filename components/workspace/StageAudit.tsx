@@ -254,12 +254,20 @@ export function StageAudit({
                 </ul>
                 {/* The proof, readable without hovering (projector, phone): each grounded skill with its exact quoted line. */}
                 {(() => {
-                  const quoted = result.skills.filter((s) => s.evidence);
+                  // Skills found on the same source line are listed together under that one quote.
+                  const groups = new Map<string, string[]>();
+                  for (const sk of result.skills) {
+                    if (!sk.evidence) continue;
+                    const names = groups.get(sk.evidence) ?? [];
+                    names.push(sk.name + (sk.origin === "github" ? " (GitHub)" : ""));
+                    groups.set(sk.evidence, names);
+                  }
+                  const quoted = [...groups.entries()];
                   if (!quoted.length) return null;
-                  const row = (s: (typeof quoted)[number]) => (
-                    <li key={"q-" + s.name + s.origin} className="flex flex-col gap-0.5 sm:flex-row sm:gap-2">
-                      <span className="shrink-0 font-semibold text-ink">{s.name}{s.origin === "github" ? " (GitHub)" : ""}</span>
-                      <span className="font-mono text-[12px] italic text-slate-700">“{s.evidence}”</span>
+                  const row = ([evidence, names]: (typeof quoted)[number]) => (
+                    <li key={"q-" + evidence} className="flex flex-col gap-0.5 sm:flex-row sm:gap-2">
+                      <span className="shrink-0 font-semibold text-ink">{names.join(", ")}</span>
+                      <span className="font-mono text-[12px] italic text-slate-700">“{evidence}”</span>
                     </li>
                   );
                   return (

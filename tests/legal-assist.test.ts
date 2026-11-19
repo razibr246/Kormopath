@@ -93,3 +93,17 @@ test("guard round 2: 'you qualify', sure court outcomes, easy wins and 'costs no
     assert.ok(checkAnswer(a, { userText: "", crisis: false } as never).some((i) => i.code === "promise"), a);
   }
 });
+
+test("guard round 3: chances, 'sure to get', quick wins, 'completely free', jail promises and number-less helplines are blocked", () => {
+  for (const a of ["Your chances are very good.", "You are sure to get maintenance.", "You can easily get a divorce in a week.", "Legal aid is completely free, no charges.", "He will go to jail for this."]) {
+    assert.ok(checkAnswer(a, { crisis: false }).some((i) => i.code === "promise"), a);
+  }
+  assert.ok(checkAnswer("Please call the helpline for help.", { crisis: false }).some((i) => i.code === "unknown_number"));
+  assert.deepEqual(checkAnswer("Call the legal aid helpline 16699 for free advice.", { crisis: false }), []);
+});
+
+test("child helpline 1098 is verified with a source and allowed in answers", () => {
+  const child = HELPLINES.find((h) => h.number === "1098");
+  assert.ok(child && child.source.url.startsWith("https://") && /^\d{4}-\d{2}-\d{2}$/.test(child.source.checked));
+  assert.ok(ALLOWED_HELPLINE_NUMBERS.has("1098"));
+});
