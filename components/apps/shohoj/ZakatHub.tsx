@@ -64,7 +64,7 @@ export function ZakatHub() {
             "Enter your assets, gold, silver and debts; you type today's gold and silver rate yourself from BAJUS or your jeweller. Everything is worked out on this phone and sent nowhere.",
           )}</p>
         </div>
-        <button type="button" onClick={() => setLang(bn ? "en" : "bn")} className="kp-chip !h-11 !rounded-full !text-[12px] font-semibold !min-w-[44px]" aria-label={bn ? "Switch to English" : "বাংলায় দেখুন"}>{bn ? "EN" : "বাং"}</button>
+        <button type="button" onClick={() => setLang(bn ? "en" : "bn")} className="kp-chip !h-11 !rounded-full !text-[12px] font-semibold !min-w-[44px]" aria-label={bn ? "EN, Switch to English" : "বাং, বাংলায় দেখুন"}>{bn ? "EN" : "বাং"}</button>
       </div>
 
       {/* 1. Cash-like assets and debts */}

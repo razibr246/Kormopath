@@ -370,8 +370,8 @@ export function SourceTag({
   );
   const cls = `inline-flex flex-wrap items-center gap-x-1 rounded-md border px-1.5 py-0.5 text-[12px] leading-snug ${CONF_STYLE[confidence]}`;
   return url ? (
-    <a href={url} target="_blank" rel="noopener noreferrer" aria-label={`${CONF_LABEL[confidence]}${label ? ` · ${label}` : ""} (নতুন ট্যাবে খোলে)`} className={`${cls} min-h-[32px] hover:underline`}>
-      {body} ↗
+    <a href={url} target="_blank" rel="noopener noreferrer" className={`${cls} min-h-[32px] hover:underline`}>
+      {body} <span aria-hidden="true">↗</span><span className="sr-only"> (নতুন ট্যাবে খোলে)</span>
     </a>
   ) : (
     <span className={cls}>{body}</span>

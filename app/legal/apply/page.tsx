@@ -19,7 +19,7 @@ export default function LegalApply() {
               : "Five steps make a draft you can print or read out at the legal aid office. It is not submitted anywhere."}
           </p>
         </div>
-        <button type="button" onClick={() => setLang(bn ? "en" : "bn")} className="kp-chip !h-9 !rounded-full !text-[13px] font-semibold" aria-label={bn ? "Switch to English" : "বাংলায় দেখুন"}>{bn ? "EN" : "বাং"}</button>
+        <button type="button" onClick={() => setLang(bn ? "en" : "bn")} className="kp-chip !h-9 !rounded-full !text-[13px] font-semibold" aria-label={bn ? "EN, Switch to English" : "বাং, বাংলায় দেখুন"}>{bn ? "EN" : "বাং"}</button>
       </header>
       <ApplyWizard lang={lang} />
     </>

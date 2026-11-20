@@ -140,6 +140,7 @@ export function DoctorDirectory() {
       </section>
 
       <section aria-label={T("ডাক্তারদের তালিকা", "Doctors")} data-testid="doctor-list">
+        <h2 className="sr-only">{T("ডাক্তারদের তালিকা", "Doctors")}</h2>
         {list.length === 0 ? <p className="rounded-2xl border border-slate-200 bg-white p-5 text-[15px] text-slate-600">{T("এই ফিল্টারে কোনো ডাক্তার নেই। ফিল্টার কমিয়ে দেখুন।", "No doctor matches these filters. Try fewer filters.")}</p> : (
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {list.map((d, i) => {

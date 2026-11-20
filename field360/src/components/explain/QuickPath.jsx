@@ -39,7 +39,7 @@ export default function QuickPath() {
       </div>
 
       {/* Fluid progress track */}
-      <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-black/[0.06] shadow-inner" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
+      <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-black/[0.06] shadow-inner" role="progressbar" aria-label={T('কাজের অগ্রগতি', 'Progress')} aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
         <div className="h-full rounded-full bg-gradient-to-r from-primary-600 via-primary-500 to-paddy-500 transition-all duration-500 ease-[var(--ease-spring)]" style={{ width: `${Math.max(4, pct)}%` }} />
       </div>
 

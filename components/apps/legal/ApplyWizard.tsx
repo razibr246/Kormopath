@@ -262,7 +262,7 @@ export function ApplyWizard({ lang }: { lang: Lang }) {
             {issues.length > 0 ? (
               <ul className="space-y-1 rounded-xl border border-amber-300 bg-amber-50 p-3 text-[14.5px] text-amber-950">{issues.map((i) => <li key={i}>• {i}</li>)}</ul>
             ) : (
-              <pre className="max-h-[360px] overflow-auto whitespace-pre-wrap rounded-xl border border-slate-200 bg-slate-50 p-4 font-sans text-[14.5px] leading-[1.7] text-slate-900">{preview}</pre>
+              <pre tabIndex={0} className="max-h-[360px] overflow-auto whitespace-pre-wrap rounded-xl border border-slate-200 bg-slate-50 p-4 font-sans text-[14.5px] leading-[1.7] text-slate-900">{preview}</pre>
             )}
             <p className="text-[13.5px] text-slate-600">{bn ? NOT_LEGAL_ADVICE_BN : NOT_LEGAL_ADVICE_EN}</p>
           </div>

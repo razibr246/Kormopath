@@ -196,7 +196,7 @@ export function Assistant() {
               <option value="bn">{T("ভাষা: বাংলা", "Language: Bangla")}</option>
               {INDIGENOUS_LANGUAGES.map((l) => <option key={l.id} value={l.id}>{T(`ভাষা: ${l.bn} (আনুমানিক)`, `Language: ${l.en} (approximate)`)}</option>)}
             </select>
-            <button type="button" onClick={() => setLang(bn ? "en" : "bn")} className="kp-chip !h-11 !rounded-full !text-[13px] font-semibold" aria-label={bn ? "Switch to English" : "বাংলায় দেখুন"}>{bn ? "EN" : "বাং"}</button>
+            <button type="button" onClick={() => setLang(bn ? "en" : "bn")} className="kp-chip !h-11 !rounded-full !text-[13px] font-semibold" aria-label={bn ? "EN, Switch to English" : "বাং, বাংলায় দেখুন"}>{bn ? "EN" : "বাং"}</button>
           </div>
         </div>
         <p className="max-w-[62ch] rounded-xl border border-indigo-200 bg-indigo-50/60 px-3 py-2 text-[13.5px] leading-relaxed text-indigo-950">{bn ? NOT_LEGAL_ADVICE_BN : NOT_LEGAL_ADVICE_EN}</p>
@@ -262,7 +262,7 @@ export function Assistant() {
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); } }}
               placeholder={T("যেমন: স্বামী ভরণপোষণ দেন না, কী করতে পারি?", "e.g. My husband does not pay maintenance — what can I do?")}
               className="min-w-0 flex-1 resize-none rounded-xl border border-slate-300 px-3 py-2.5 text-[15px] leading-relaxed" />
-            <button type="submit" data-testid="assist-send" disabled={busy || !input.trim()} className="kp-btn-primary min-h-[48px] disabled:opacity-50"><Send size={17} aria-hidden /> <span className="hidden sm:inline">{T("পাঠান", "Send")}</span></button>
+            <button type="submit" data-testid="assist-send" aria-label={T("পাঠান", "Send")} disabled={busy || !input.trim()} className="kp-btn-primary min-h-[48px] disabled:opacity-50"><Send size={17} aria-hidden /> <span className="hidden sm:inline">{T("পাঠান", "Send")}</span></button>
           </form>
         </>
       )}

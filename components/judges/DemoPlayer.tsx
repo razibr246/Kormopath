@@ -98,7 +98,7 @@ export function DemoPlayer() {
             <span className="flex h-6 w-6 items-center justify-center rounded-md bg-orange-100 text-orange-700">
               <Clock size={14} />
             </span>
-            <h3 className="text-[15px] font-bold text-slate-900">Interactive Chapter Jump Markers</h3>
+            <h2 className="text-[15px] font-bold text-slate-900">Interactive Chapter Jump Markers</h2>
           </div>
           <span className="text-[12px] font-mono text-slate-500">
             {Math.floor(currentTime / 60)}:{String(Math.floor(currentTime % 60)).padStart(2, "0")} / 2:00
@@ -113,7 +113,7 @@ export function DemoPlayer() {
                 onClick={() => seekTo(ch.seconds)}
                 className={`group flex flex-col rounded-xl border p-2.5 text-left transition-all ${
                   isActive
-                    ? "border-orange-500 bg-orange-500 text-white shadow-sm ring-2 ring-orange-400/30"
+                    ? "border-orange-800 bg-orange-800 text-white shadow-sm ring-2 ring-orange-500/30"
                     : "border-slate-200 bg-slate-50/70 hover:border-orange-300 hover:bg-white text-slate-800"
                 }`}
               >
@@ -130,7 +130,7 @@ export function DemoPlayer() {
                 <span className="mt-1.5 block text-[13px] font-bold leading-tight line-clamp-1">{ch.title}</span>
                 <span
                   className={`mt-0.5 block text-[11px] leading-tight line-clamp-1 ${
-                    isActive ? "text-white/80" : "text-slate-500"
+                    isActive ? "text-orange-50" : "text-slate-500"
                   }`}
                 >
                   {ch.subtitle}

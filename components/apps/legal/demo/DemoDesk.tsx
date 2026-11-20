@@ -42,7 +42,7 @@ export function DemoDesk() {
           <p className="mt-1 text-[14px] leading-relaxed text-amber-900">{bn ? DEMO_RULES_NOTE_BN : DEMO_RULES_NOTE_EN} {T("কোনো লগইন নেই, কিছুই কোথাও পাঠানো হয় না; পরিবর্তন শুধু এই ফোনে থাকে।", "There are no logins and nothing is sent anywhere; changes stay on this phone.")}</p>
         </div>
         <div className="flex gap-2">
-          <button type="button" onClick={() => setLang(bn ? "en" : "bn")} className="kp-chip !min-h-[44px] !rounded-full !leading-[1.4]" aria-label={bn ? "Switch to English" : "বাংলায় দেখুন"}>{bn ? "EN" : "বাং"}</button>
+          <button type="button" onClick={() => setLang(bn ? "en" : "bn")} className="kp-chip !min-h-[44px] !rounded-full !leading-[1.4]" aria-label={bn ? "EN, Switch to English" : "বাং, বাংলায় দেখুন"}>{bn ? "EN" : "বাং"}</button>
           <button type="button" onClick={reset} data-testid="demo-reset" className="kp-btn-ghost min-h-[44px] px-3 text-[14px]"><RotateCcw size={16} aria-hidden /> {T("রিসেট", "Reset")}</button>
         </div>
       </div>

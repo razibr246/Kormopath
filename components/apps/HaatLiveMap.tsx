@@ -200,10 +200,11 @@ export function HaatLiveMap({
 
       {/* Layer selector bar */}
       <div className="flex flex-wrap items-center justify-between gap-2 text-[12px]">
-        <div className="flex flex-wrap items-center gap-1.5" role="tablist" aria-label="ম্যাপের স্তরসমূহ">
+        <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="ম্যাপের স্তরসমূহ">
           <button
             type="button"
             onClick={() => setActiveLayer("all")}
+            aria-pressed={activeLayer === "all"}
             className={`rounded-full px-3 py-1 font-bold transition-all ${
               activeLayer === "all"
                 ? "bg-stone-900 text-white shadow-xs"
@@ -215,6 +216,7 @@ export function HaatLiveMap({
           <button
             type="button"
             onClick={() => setActiveLayer("fleet")}
+            aria-pressed={activeLayer === "fleet"}
             className={`rounded-full px-3 py-1 font-bold transition-all ${
               activeLayer === "fleet"
                 ? "bg-emerald-800 text-white shadow-xs"
@@ -226,6 +228,7 @@ export function HaatLiveMap({
           <button
             type="button"
             onClick={() => setActiveLayer("hubs")}
+            aria-pressed={activeLayer === "hubs"}
             className={`rounded-full px-3 py-1 font-bold transition-all ${
               activeLayer === "hubs"
                 ? "bg-amber-700 text-white shadow-xs"
@@ -414,7 +417,7 @@ export function HaatLiveMap({
                         className="cursor-pointer transition-transform hover:scale-125"
                         role="button"
                         tabIndex={0}
-                        aria-label={`${hub.nameBn} (${isMokam ? "পাইকারি মোকাম" : "স্থানীয় হাট"})`}
+                        aria-label={`${hub.districtBn} · ${hub.nameBn} (${isMokam ? "পাইকারি মোকাম" : "স্থানীয় হাট"})`}
                       >
                         {/* Ripple ring for selected */}
                         {isSelected && (

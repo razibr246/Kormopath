@@ -29,7 +29,7 @@ export default function LegalHome() {
           <div className="min-w-0">
             <div className="flex items-center justify-between gap-3">
               <p className="kp-eyebrow">{T("বিনামূল্যে আইনি সহায়তা", "Free legal aid")}</p>
-              <button type="button" onClick={() => setLang(bn ? "en" : "bn")} className="kp-chip !h-9 !rounded-full !text-[13px] font-semibold" aria-label={bn ? "Switch to English" : "বাংলায় দেখুন"}>{bn ? "EN" : "বাং"}</button>
+              <button type="button" onClick={() => setLang(bn ? "en" : "bn")} className="kp-chip !h-9 !rounded-full !text-[13px] font-semibold" aria-label={bn ? "EN, Switch to English" : "বাং, বাংলায় দেখুন"}>{bn ? "EN" : "বাং"}</button>
             </div>
             <h1 id="lg-hero-h" className="mt-3 text-[clamp(30px,5vw,50px)] font-semibold leading-[1.08] text-slate-900 motion-safe:animate-rise-in">
               {bn ? <>আইনি সমস্যায় <em className="kp-em">একা নন</em></> : <>With a legal problem, <em className="kp-em">you are not alone</em></>}

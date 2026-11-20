@@ -269,7 +269,7 @@ export function MessLedger() {
           type="button"
           onClick={() => setLang(bn ? "en" : "bn")}
           className="kp-chip !h-11 !rounded-full !text-[12px] font-semibold !min-w-[44px]"
-          aria-label={bn ? "Switch to English" : "বাংলায় দেখুন"}
+          aria-label={bn ? "EN, Switch to English" : "বাং, বাংলায় দেখুন"}
         >
           {bn ? "EN" : "বাং"}
         </button>

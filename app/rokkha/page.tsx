@@ -545,7 +545,7 @@ function LostMoney({ bn, T, links }: Txt & { links: string }) {
         <button type="button" onClick={copy} className="kp-btn-primary min-h-[44px] rounded-xl px-4 font-bold min-w-[44px]"><ClipboardCopy size={16} aria-hidden /> {T("কপি করুন", "Copy")}</button>
         <span aria-live="polite" className="text-[13px] font-semibold text-emerald-800">{copied}</span>
       </div>
-      <pre className="mt-3 max-h-[360px] overflow-auto whitespace-pre-wrap break-words rounded-2xl bg-white p-4 font-mono text-[13px] leading-relaxed text-slate-800 ring-1 ring-line" aria-label={T("রিপোর্টের লেখা", "Report text")}>{text}</pre>
+      <pre tabIndex={0} className="mt-3 max-h-[360px] overflow-auto whitespace-pre-wrap break-words rounded-2xl bg-white p-4 font-mono text-[13px] leading-relaxed text-slate-800 ring-1 ring-line" aria-label={T("রিপোর্টের লেখা", "Report text")}>{text}</pre>
     </section>
   );
 }

@@ -298,6 +298,7 @@ export function UserNavBadge({ lang = "bn", className = "", onOpenLogin }: UserN
           <button
             type="button"
             onClick={handleOpenLogin}
+            aria-label={bn ? "শুরু করুন" : "Get started"}
             className="group inline-flex min-h-[44px] h-[44px] items-center gap-1.5 rounded-full bg-gradient-to-r from-[#0e4d36] to-[#0a3827] hover:from-[#0b402c] hover:to-[#082b1e] px-5 text-[14px] font-bold text-white shadow-[0_2px_8px_rgba(14,77,54,0.35)] hover:shadow-[0_4px_14px_rgba(14,77,54,0.45)] border border-emerald-500/25 active:scale-[0.98] transition-all duration-200"
           >
             <span>{bn ? "শুরু করুন" : "Get started"}</span>

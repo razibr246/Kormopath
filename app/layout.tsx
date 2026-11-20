@@ -1,9 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Noto_Serif_Bengali, JetBrains_Mono } from "next/font/google";
+import { Fraunces, Noto_Serif_Bengali, JetBrains_Mono, Hind_Siliguri } from "next/font/google";
 import "@fontsource-variable/inter";
-import "@fontsource/hind-siliguri/400.css";
-import "@fontsource/hind-siliguri/600.css";
-import "@fontsource/hind-siliguri/700.css";
 import "./globals.css";
 import { StorageNotice } from "@/components/layout/StorageNotice";
 import { LazyBuddy, LazyCommandPalette } from "@/components/buddy/LazyGlobals";
@@ -13,8 +10,10 @@ import { KormoPathMarkDefs } from "@/components/brand/KormoPathMarkDefs";
 
 // Self-hosted at build time by next/font: no request to Google from the visitor's browser.
 const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", display: "swap", axes: ["opsz"], preload: false });
-// Bangla serif only styles headings; not preloaded, so it never delays the first paint.
-const bnSerif = Noto_Serif_Bengali({ subsets: ["bengali"], variable: "--font-bn-serif", display: "swap", weight: ["600", "700"], preload: false });
+// The Bangla fonts are preloaded: the home hero is Bangla, and fonts that arrived after the first paint reflowed the
+// heading and pushed the search box down (layout shift 0.18). next/font also adds a size-matched fallback.
+const bnSerif = Noto_Serif_Bengali({ subsets: ["bengali"], variable: "--font-bn-serif", display: "swap", weight: ["600", "700"], preload: true });
+const hind = Hind_Siliguri({ subsets: ["bengali", "latin"], variable: "--font-hind", display: "swap", weight: ["400", "600", "700"], preload: true });
 const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains", display: "swap", weight: ["400", "700"], preload: false });
 
 export const metadata: Metadata = {
@@ -103,7 +102,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   };
 
   return (
-    <html lang="bn" className={`scroll-smooth ${fraunces.variable} ${bnSerif.variable} ${jetbrains.variable}`} suppressHydrationWarning>
+    <html lang="bn" className={`scroll-smooth ${fraunces.variable} ${bnSerif.variable} ${hind.variable} ${jetbrains.variable}`} suppressHydrationWarning>
       <head>
         <script
           type="application/ld+json"

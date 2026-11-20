@@ -179,8 +179,8 @@
 }
 
 /* ---------- Staged reveal in reading order ---------- */
+/* Slide only: content starting at opacity 0 delayed Largest Contentful Paint (see kp-rise in globals.css). */
 .hb-reveal > * {
-  opacity: 0;
   transform: translateY(10px);
   animation: hb-rise 0.55s cubic-bezier(.2, .8, .2, 1) forwards;
 }
@@ -190,7 +190,7 @@
 .hb-reveal > *:nth-child(4) { animation-delay: 250ms; }
 .hb-reveal > *:nth-child(5) { animation-delay: 320ms; }
 .hb-reveal > *:nth-child(n + 6) { animation-delay: 380ms; }
-@keyframes hb-rise { to { opacity: 1; transform: none; } }
+@keyframes hb-rise { to { transform: none; } }
 
 /* ---------- Shared card + section heading ---------- */
 .hb-card {

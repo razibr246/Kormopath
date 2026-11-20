@@ -17,7 +17,7 @@ function stickerFile(): string | null {
 export function BuildathonSticker() {
   const src = stickerFile();
   return (
-    <div className="relative z-50 border-b border-amber-300 bg-gradient-to-r from-amber-100 via-yellow-50 to-amber-100 print:hidden" role="note" aria-label={LABEL}>
+    <aside className="relative z-50 border-b border-amber-300 bg-gradient-to-r from-amber-100 via-yellow-50 to-amber-100 print:hidden" aria-label={LABEL}>
       <div className="mx-auto flex max-w-7xl flex-nowrap items-center justify-center gap-x-2 px-2 sm:gap-x-3 sm:px-4">
       <a
         href="https://yunet-aignite26.devpost.com/"
@@ -42,6 +42,6 @@ export function BuildathonSticker() {
         <span className="rounded-full bg-amber-900 px-3 py-1 text-[12px] font-bold text-amber-50 group-hover:bg-amber-800"><span className="sm:hidden">Judge tour →</span><span className="hidden sm:inline">Judges: 3-minute tour →</span></span>
       </a>
       </div>
-    </div>
+    </aside>
   );
 }

@@ -62,7 +62,7 @@ export default function MediationPage() {
               )}
             </p>
           </div>
-          <button type="button" onClick={() => setLang(bn ? "en" : "bn")} className="kp-chip !h-9 font-semibold" aria-label={bn ? "Switch to English" : "বাংলায় দেখুন"}>{bn ? "EN" : "বাং"}</button>
+          <button type="button" onClick={() => setLang(bn ? "en" : "bn")} className="kp-chip !h-9 font-semibold" aria-label={bn ? "EN, Switch to English" : "বাং, বাংলায় দেখুন"}>{bn ? "EN" : "বাং"}</button>
         </div>
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <Handshake size={18} className="text-indigo-700" aria-hidden />

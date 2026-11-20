@@ -141,7 +141,7 @@ export function EmergencyFinder() {
             <h1 id="em-h" className="mt-1 text-[clamp(28px,5vw,44px)] font-semibold leading-[1.1] text-slate-900">{T("কাছের জরুরি ", "Nearest emergency ")}<em className="kp-em">{T("হাসপাতাল", "hospital")}</em></h1>
             <p className="mt-2 text-[15px] leading-relaxed text-slate-700">{T("জীবন ঝুঁকিতে থাকলে আগে ৯৯৯-এ ফোন করুন। তারপর কাছের যে হাসপাতাল আপনার সমস্যার চিকিৎসা দিতে পারে, তা খুঁজুন।", "If a life is at risk, call 999 first. Then find the nearest hospital that can treat this kind of emergency.")}</p>
           </div>
-          <button type="button" onClick={() => setLang(bn ? "en" : "bn")} className="kp-chip !h-9 !rounded-full !text-[13px] font-semibold" aria-label={bn ? "Switch to English" : "বাংলায় দেখুন"}>{bn ? "EN" : "বাং"}</button>
+          <button type="button" onClick={() => setLang(bn ? "en" : "bn")} className="kp-chip !h-9 !rounded-full !text-[13px] font-semibold" aria-label={bn ? "EN, Switch to English" : "বাং, বাংলায় দেখুন"}>{bn ? "EN" : "বাং"}</button>
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-[auto_1fr] sm:items-center">
           <a href="tel:999" className="inline-flex min-h-[56px] items-center justify-center gap-2 rounded-2xl bg-red-700 px-6 text-[19px] font-bold leading-[1.4] text-white hover:bg-red-800" data-testid="call-999">

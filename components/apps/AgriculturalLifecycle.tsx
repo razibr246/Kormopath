@@ -26,6 +26,15 @@ export interface AgriStage {
   color: string;
 }
 
+/** Darker ink of each stage colour for small text on its own 10% tint (WCAG AA 4.5:1); the tint keeps the hue. */
+const STAGE_INK: Record<string, string> = {
+  "#15803d": "#14532d",
+  "#0284c7": "#075985",
+  "#d97706": "#92400e",
+  "#b45309": "#78350f",
+  "#059669": "#065f46",
+};
+
 export const AGRI_STAGES: AgriStage[] = [
   {
     id: 1,
@@ -442,7 +451,7 @@ export function AgriculturalLifecycle() {
           <div className="flex items-center justify-between">
             <span
               className="text-[12px] font-extrabold uppercase px-2.5 py-0.5 rounded-full"
-              style={{ backgroundColor: `${stage.color}18`, color: stage.color }}
+              style={{ backgroundColor: `${stage.color}18`, color: STAGE_INK[stage.color] ?? stage.color }}
             >
               {stage.titleEn}
             </span>
