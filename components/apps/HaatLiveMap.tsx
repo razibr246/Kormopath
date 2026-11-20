@@ -1,5 +1,6 @@
 "use client";
 import { useState, useMemo, useEffect } from "react";
+import { BANGLADESH_LAND, BANGLADESH_RIVERS, HAAT_GEO_SOURCE } from "@/lib/haatGeo";
 import {
   MapPin,
   Truck,
@@ -44,6 +45,16 @@ interface HaatLiveMapProps {
   onSelectHub?: (hub: MandiHub) => void;
 }
 
+
+// Label anchors are real coordinates (projected with geoToSvg), not hand-placed pixels.
+const RIVER_LABELS: { text: string; lat: number; lon: number; rotate?: number; sea?: boolean }[] = [
+  { text: "যমুনা নদী", lat: 25.12, lon: 89.86, rotate: 84 },
+  { text: "পদ্মা নদী", lat: 24.08, lon: 89.0, rotate: 22 },
+  { text: "মেঘনা নদী", lat: 22.95, lon: 90.98, rotate: 62 },
+  { text: "তিস্তা", lat: 26.02, lon: 89.15, rotate: 48 },
+  { text: "সুরমা", lat: 25.14, lon: 91.72 },
+  { text: "বঙ্গোপসাগর", lat: 21.35, lon: 90.35, sea: true },
+];
 export function HaatLiveMap({
   currentTrip,
   selectedDistrictId = "bogura",
@@ -284,75 +295,51 @@ export function HaatLiveMap({
                     <stop offset="100%" stopColor="#047857" />
                   </linearGradient>
 
+                  <linearGradient id="haat-sea" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#f6f8f3" />
+                    <stop offset="70%" stopColor="#eaf3f6" />
+                    <stop offset="100%" stopColor="#d6eaf2" />
+                  </linearGradient>
+                  <filter id="haat-land-shadow" x="-5%" y="-5%" width="110%" height="110%">
+                    <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="#2f5a3a" floodOpacity="0.18" />
+                  </filter>
                   <filter id="mandi-shadow" x="-20%" y="-20%" width="140%" height="140%">
                     <feDropShadow dx="0" dy="2" stdDeviation="2" floodOpacity="0.25" />
                   </filter>
                 </defs>
 
-                {/* Stylized Bangladesh Boundary Polygon (Smooth approximate geometric hull) */}
-                <path
-                  d="M 175 45 
-                     L 245 42 
-                     L 275 90 
-                     L 345 125 
-                     L 395 140 
-                     L 435 220 
-                     L 405 270 
-                     L 435 340 
-                     L 455 460 
-                     L 420 560 
-                     L 375 500 
-                     L 345 460 
-                     L 300 470 
-                     L 255 520 
-                     L 190 510 
-                     L 145 480 
-                     L 135 380 
-                     L 115 310 
-                     L 95 240 
-                     L 130 190 
-                     L 140 120 
-                     Z"
-                  fill="url(#bg-map-grad)"
-                  stroke="#a8c79f"
-                  strokeWidth="2"
-                  strokeLinejoin="round"
-                />
+                {/* Sea: the Bay of Bengal and neighbouring land read as soft water around the real coast */}
+                <rect x="0" y="0" width={mapW} height={mapH} fill="url(#haat-sea)" />
 
-                {/* Major River Lines: Padma, Jamuna, Meghna */}
-                {/* Jamuna River (North to Confluence) */}
-                <path
-                  d="M 200 80 Q 205 160, 220 220 T 240 310"
-                  fill="none"
-                  stroke="#9fd3e8"
-                  strokeWidth="4.5"
-                  strokeLinecap="round"
-                  opacity="0.8"
-                />
-                {/* Padma River (West to Confluence) */}
-                <path
-                  d="M 115 250 Q 180 270, 240 310 T 310 370"
-                  fill="none"
-                  stroke="#9fd3e8"
-                  strokeWidth="5"
-                  strokeLinecap="round"
-                  opacity="0.8"
-                />
-                {/* Lower Meghna (Confluence to Bay) */}
-                <path
-                  d="M 310 370 Q 330 430, 350 490 T 365 540"
-                  fill="none"
-                  stroke="#9fd3e8"
-                  strokeWidth="6"
-                  strokeLinecap="round"
-                  opacity="0.85"
-                />
+                {/* Bangladesh: real border and islands (Natural Earth 10m), projected exactly like the markers */}
+                <g filter="url(#haat-land-shadow)">
+                  {BANGLADESH_LAND.map((d, i) => (
+                    <path key={i} d={d} fill="url(#bg-map-grad)" stroke="#8fb889" strokeWidth="1.1" strokeLinejoin="round" />
+                  ))}
+                </g>
 
-                {/* River Labels */}
-                <text x="185" y="160" fill="#2d6f82" fontSize="12" fontStyle="italic">যমুনা নদী</text>
-                <text x="150" y="275" fill="#2d6f82" fontSize="12" fontStyle="italic">পদ্মা নদী</text>
-                <text x="325" y="440" fill="#2d6f82" fontSize="12" fontStyle="italic">মেঘনা নদী</text>
-                <text x="245" y="580" fill="#2d6f82" fontSize="12" fontWeight="bold" opacity="0.65">বঙ্গোপসাগর</text>
+                {/* Main rivers: OpenStreetMap courses, a pale bank under a deeper core */}
+                {BANGLADESH_RIVERS.map((r) => (
+                  <g key={r.id} aria-hidden="true">
+                    {r.paths.map((d, i) => (
+                      <path key={"b" + i} d={d} fill="none" stroke="#cfe8f2" strokeWidth={r.width + 2.4} strokeLinecap="round" strokeLinejoin="round" />
+                    ))}
+                    {r.paths.map((d, i) => (
+                      <path key={"c" + i} d={d} fill="none" stroke="#7fbcd6" strokeWidth={r.width} strokeLinecap="round" strokeLinejoin="round" opacity="0.95" />
+                    ))}
+                  </g>
+                ))}
+
+                {/* River and sea labels at their real positions */}
+                {RIVER_LABELS.map((l) => {
+                  const pt = geoToSvg(l.lat, l.lon, mapW, mapH);
+                  return (
+                    <text key={l.text} x={pt.x} y={pt.y} fill="#2d6f82" fontSize={l.sea ? 13 : 11.5} fontStyle={l.sea ? "normal" : "italic"} fontWeight={l.sea ? "bold" : "normal"} opacity={l.sea ? 0.7 : 0.95} textAnchor="middle" transform={l.rotate ? `rotate(${l.rotate} ${pt.x} ${pt.y})` : undefined} style={{ paintOrder: "stroke" }} stroke="#f4faf7" strokeWidth="3">
+                      {l.text}
+                    </text>
+                  );
+                })}
+                <text x={mapW - 8} y={mapH - 8} textAnchor="end" fontSize="8.5" fill="#5b7a72" opacity="0.85">{HAAT_GEO_SOURCE.label}</text>
 
                 {/* National Transit Corridors (Highways) */}
                 {TRANSIT_CORRIDORS.map((corridor) => {
@@ -450,8 +437,8 @@ export function HaatLiveMap({
                           filter="url(#mandi-shadow)"
                         />
 
-                        {/* Label */}
-                        <text
+                        {/* Label: one district name per district (two Dhaka hubs would print "ঢাকা" on top of each other) */}
+                        {(isSelected || MANDI_HUBS.findIndex((h) => h.districtBn === hub.districtBn) === MANDI_HUBS.indexOf(hub)) && <text
                           y={isSelected ? "-11" : "-8"}
                           textAnchor="middle"
                           fontSize={isSelected ? "13" : "12"}
@@ -460,7 +447,7 @@ export function HaatLiveMap({
                           className="pointer-events-none drop-shadow-[0_1px_2px_rgba(255,255,255,0.9)]"
                         >
                           {hub.districtBn}
-                        </text>
+                        </text>}
                       </g>
                     );
                   })}
