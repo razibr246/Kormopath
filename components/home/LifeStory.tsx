@@ -234,6 +234,16 @@ function Story({ lang }: { lang: Lang }) {
     tuftRef.current = rafiRef.current.querySelector(".kp-hair-tuft");
     // Lip-sync: two incommensurate sines give a natural, never-repeating open/close rhythm.
     const lips = (time: number) => Math.sin(time * 13) + 0.8 * Math.sin(time * 7.7 + 1.3) > 0.35;
+    // Game-style procedural layers on top of the key poses.
+    // Idle noise: three incommensurate sines, so nothing ever freezes and nothing ever visibly repeats.
+    const noise = (time: number, seed: number) => (Math.sin(time * 0.71 + seed) + 0.6 * Math.sin(time * 1.37 + seed * 2.1) + 0.35 * Math.sin(time * 2.93 + seed * 3.7)) / 1.95;
+    // Eye saccades: every 1.2–3 s the eyes jump to a new point near where they were looking (deterministic per slot).
+    const hash1 = (n: number) => { const v = Math.sin(n * 127.1 + 311.7) * 43758.5453; return v - Math.floor(v); };
+    const saccade = (time: number, seed: number) => {
+      let acc = 0, slot = 0;
+      while (acc + 1.2 + hash1(slot + seed) * 1.8 < time % 40) { acc += 1.2 + hash1(slot + seed) * 1.8; slot++; }
+      return [(hash1(slot * 3 + seed) - 0.5) * 0.9, (hash1(slot * 7 + seed) - 0.5) * 0.7] as const;
+    };
     let raf = 0, last = performance.now(), t = 0, shown = -1, lastUi = 0, shownEpi = false;
     let receipts: Array<{ el: SVGGElement; cx: number; cy: number }> | null = null;
     const written: Record<string, number> = {};
@@ -274,6 +284,10 @@ function Story({ lang }: { lang: Lang }) {
       const target = channels(goal);
       // While Buddy talks he looks up at it; while the app opens his free hand comes to the phone and taps.
       if (saying === "buddy") { target.eye = 1; target.eyeY = -1.4; target.head -= 22; target.neck -= 8; target.brow = 0.9; }
+      else { const [sx, sy] = saccade(t, 3); target.eye += sx; target.eyeY += sy; }
+      // Momentum lean: he leans into his own speed (forward when walking, back a touch when stopping).
+      const hipV = body.velocity("hipX");
+      target.lumbar += Math.max(-4, Math.min(6, hipV * 0.07));
       if (lastPhone && bA > 0.15 && bS < 0.5 && (key === "phone" || key === "kneelPhone")) {
         target.fhX = lastPhone[0] - 1.5;
         target.fhY = lastPhone[1] + 2 + Math.max(0, Math.sin(t * 7.5)) * 3.2;
@@ -281,6 +295,9 @@ function Story({ lang }: { lang: Lang }) {
       // Walking in: the hips' goal advances at a steady pace; the spring and the stepping feet follow it.
       if (walkOffset < 0) { walkOffset = Math.min(0, walkOffset + WALK_SPEED * dt); target.hipX += walkOffset; }
       const raw = body.step(target, dt);
+      // Idle noise on the head, chest and hands (a few units at most), on top of the springs.
+      raw.head += noise(t, 1) * 1.6; raw.chest += noise(t, 4) * 0.9;
+      raw.nhX += noise(t, 7) * 1.2; raw.nhY += noise(t, 9) * 1; raw.fhX += noise(t, 11) * 1.2; raw.fhY += noise(t, 13) * 1;
       const breath = Math.sin(t * ((2 * Math.PI) / 3.8));
       const standing = goal.hipY < 215 ? 1 : 0;
       const pose: Record<string, number | string> = { ...goal, ...raw, chest: raw.chest + breath * 1.3, hipY: raw.hipY + breath * 0.5, hipX: raw.hipX + standing * Math.sin(t * 0.55) * 1.6 };
@@ -309,6 +326,12 @@ function Story({ lang }: { lang: Lang }) {
         pose.nfLift = g.n.lift; pose.ffLift = g.f.lift; pose.nfRoll = g.n.roll; pose.ffRoll = g.f.roll;
         // Each swing tips the body over the planted foot a little.
         pose.lumbar = (pose.lumbar as number) + (g.n.lift + g.f.lift) * 0.12;
+        // Gait bob: the hips rise as the swinging leg passes under them and settle at the heel strike;
+        // the head counter-rotates against the spine so the gaze stays level (head stabilisation).
+        const swingK = Math.max(feet.n.k, feet.f.k);
+        const bob = swingK >= 0 ? -Math.sin(Math.PI * swingK) * 2.6 + (swingK > 0.85 ? (swingK - 0.85) * 8 : 0) : 0;
+        pose.hipY = (pose.hipY as number) + bob;
+        pose.head = (pose.head as number) - ((pose.lumbar as number) - goal.lumbar) * 0.55;
       } else {
         feet.n = footAt(raw.nfX); feet.f = footAt(raw.ffX);
       }
@@ -344,7 +367,8 @@ function Story({ lang }: { lang: Lang }) {
         const asking = local < 0.74;
         const fg = asking ? FATHER_POSES.ask : FATHER_POSES.happy;
         const fr = dad.step(channels(fg), dt);
-        const fpose: Record<string, number | string> = { ...fg, ...fr, chest: fr.chest + Math.sin(t * 1.5 + 1) * 1.1 };
+        const fpose: Record<string, number | string> = { ...fg, ...fr, chest: fr.chest + Math.sin(t * 1.5 + 1) * 1.1 + noise(t, 21) * 0.8, head: fr.head + noise(t, 23) * 1.4 };
+        { const [sx, sy] = saccade(t, 17); fpose.eye = (fpose.eye as number) + sx; fpose.eyeY = (fpose.eyeY as number) + sy; }
         // He talks with his open hand while he asks, in the field and over the land.
         if (asking && local < BEATS.buddy[0]) {
           fpose.nhX = (fpose.nhX as number) + Math.sin(t * 2.2) * 6; fpose.nhY = (fpose.nhY as number) + Math.sin(t * 3.1 + 0.5) * 5;
