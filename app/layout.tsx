@@ -9,6 +9,7 @@ import { StorageNotice } from "@/components/layout/StorageNotice";
 import { LazyBuddy, LazyCommandPalette } from "@/components/buddy/LazyGlobals";
 import { BuildathonSticker } from "@/components/layout/BuildathonSticker";
 import { PwaSupport } from "@/components/layout/PwaSupport";
+import { KormoPathMarkDefs } from "@/components/brand/KormoPathMarkDefs";
 
 // Self-hosted at build time by next/font: no request to Google from the visitor's browser.
 const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", display: "swap", axes: ["opsz"], preload: false });
@@ -110,6 +111,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="min-h-screen bg-paper text-ink antialiased selection:bg-kept-soft selection:text-kept" suppressHydrationWarning>
+        <KormoPathMarkDefs />
         <StorageNotice />
         <a className="skip-link" href="#main">মূল কনটেন্টে যান</a>
         <BuildathonSticker />
