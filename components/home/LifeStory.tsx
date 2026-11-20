@@ -14,13 +14,15 @@
 // Accessibility: with reduced motion (or before the script runs) the same seven chapters render as a plain list.
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import { ArrowRight, Briefcase, Check, GraduationCap, Percent, Pill, ShieldCheck, Sprout, Volume2, Wallet, type LucideIcon } from "lucide-react";
+import { ArrowRight, Briefcase, Check, GraduationCap, Maximize, Pause, Percent, Pill, Play, RotateCcw, ShieldCheck, Sprout, Volume2, Wallet, type LucideIcon } from "lucide-react";
+import { storageKey, usePersistentState } from "@/lib/clientStore";
 import Farmer, { LOOKS, farmerPainter, type FarmerLook } from "@/field360/src/components/farmwork/Farmer";
 import { solve, inHand } from "@/field360/src/components/farmwork/rig";
 import { blink } from "@/field360/src/engine/motion";
 import { BEATS, STAGES, STORY_END, STORY_HERO, STORY_TITLE, beat, stageAt, type Stage } from "@/lib/lifeStory";
 import { FATHER_POSES, NUMERIC_CHANNELS, POSES, RIG_GROUND, SPRINGS, SPRING_DEFAULT, type RigPose } from "@/lib/lifeStoryPoses";
 import { springInit, springSet, springStep } from "@/lib/spring";
+import type React from "react";
 import EVAL from "@/lib/eval-results.json";
 import { bnDigits } from "@/lib/contract";
 
@@ -129,134 +131,169 @@ function Scenery({ id }: { id: Stage["id"] }) {
   );
 }
 
-function PhoneProp({ glow }: { glow: string }) {
-  return (
-    <g>
-      <rect x="-4" y="-13" width="9" height="17" rx="2" fill="#1e2530" stroke="#0e1218" strokeWidth=".8" />
-      <rect x="-2.7" y="-11.4" width="6.4" height="13.6" rx="1" fill={glow} />
-    </g>
-  );
-}
+// ---------- the story player ----------
+/** Seconds per chapter: problem ≈ 3 s, Buddy ≈ 2.4 s, the app ≈ 3.7 s, the solution ≈ 3 s. */
+const CHAPTER_SECONDS = 11;
+const DURATION = STAGES.length * CHAPTER_SECONDS;
+const APP_GLOW: Record<Stage["id"], string> = { study: "#9cc3ff", work: "#9fe3c9", earn: "#ffd58a", home: "#ffb08a", health: "#ffa3b4", field: "#c8ec8f", protect: "#ffd27a" };
+const clock = (s: number, bn: boolean) => {
+  const v = `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+  return bn ? bnDigits(v) : v;
+};
+const sanitizeBool = (raw: unknown) => (typeof raw === "boolean" ? raw : null);
 
-// ---------- the interactive story ----------
 function Story({ lang }: { lang: Lang }) {
   const bn = lang === "bn";
-  const outer = useRef<HTMLDivElement>(null);
   const stageEl = useRef<HTMLDivElement>(null);
-  const rafiRef = useRef<SVGGElement>(null), fatherRef = useRef<SVGGElement>(null), phoneRef = useRef<SVGGElement>(null);
+  const rafiRef = useRef<SVGGElement>(null), fatherRef = useRef<SVGGElement>(null), phoneRef = useRef<SVGGElement>(null), screenRef = useRef<SVGRectElement>(null);
   const buddyRef = useRef<SVGGElement>(null), sunRef = useRef<SVGGElement>(null), rainRef = useRef<SVGGElement>(null);
+  const camRef = useRef<SVGGElement>(null), beamRef = useRef<SVGPathElement>(null);
+  const scrubRef = useRef<HTMLInputElement>(null), timeRef = useRef<HTMLSpanElement>(null);
   const [index, setIndex] = useState(0);
-  // Portrait screens frame Rafi and Buddy above the app card (the scene runs on below its usual ground).
+  const [playing, setPlaying] = useState(false);
+  const [ended, setEnded] = useState(false);
+  const [started, setStarted] = useState(false);
+  const [autoplay, setAutoplay] = usePersistentState<boolean>(storageKey("platform", "storyAutoplay"), true, sanitizeBool);
   const [portrait, setPortrait] = useState(false);
+  // Everything the frame loop reads lives in refs, so play/pause/seek never restart the loop.
+  const ctl = useRef({ time: 0, playing: false, scrubbing: false, userPaused: false, visible: false, autoplay: true, portrait: false });
+  ctl.current.autoplay = autoplay;
+  ctl.current.portrait = portrait;
+  const stage = STAGES[index];
+  const Icon = ICONS[stage.id];
+  const ev = evidence(stage.id, bn);
+
+  const play = () => { const c = ctl.current; if (c.time >= DURATION - 0.05) c.time = 0; c.playing = true; c.userPaused = false; setPlaying(true); setEnded(false); setStarted(true); };
+  const pause = (byUser = true) => { const c = ctl.current; c.playing = false; if (byUser) c.userPaused = true; setPlaying(false); };
+  const seek = (s: number) => { const c = ctl.current; c.time = Math.min(DURATION, Math.max(0, s)); setEnded(false); setStarted(true); };
+
   useEffect(() => {
     const m = window.matchMedia("(max-aspect-ratio: 1/1)");
     const set = () => setPortrait(m.matches);
     set(); m.addEventListener("change", set);
     return () => m.removeEventListener("change", set);
   }, []);
-  const portraitRef = useRef(false);
-  portraitRef.current = portrait;
-  const stage = STAGES[index];
-  const Icon = ICONS[stage.id];
-  const ev = evidence(stage.id, bn);
 
   useEffect(() => {
-    const root = outer.current, box = stageEl.current;
-    if (!root || !box || !rafiRef.current || !fatherRef.current) return;
+    const box = stageEl.current;
+    if (!box || !rafiRef.current || !fatherRef.current) return;
+    const c = ctl.current;
     const paintRafi = farmerPainter(rafiRef.current, RAFI);
     const paintFather = farmerPainter(fatherRef.current, FATHER);
     const body = springSet(SPRINGS, SPRING_DEFAULT), dad = springSet(SPRINGS, SPRING_DEFAULT);
-    let prog = springInit(0), buddyX = springInit(320), buddyY = springInit(120), mood = springInit(0), headV = springInit(0);
-    let visible = false, raf = 0, last = performance.now(), t = 0, shown = -1;
-
-    const target = () => {
-      const r = root.getBoundingClientRect();
-      const span = Math.max(1, r.height - window.innerHeight);
-      return Math.min(1, Math.max(0, -r.top / span));
-    };
+    let buddyX = springInit(320), buddyY = springInit(120), mood = springInit(0), headV = springInit(0);
+    let zoom = springInit(1), panX = springInit(0);
+    let raf = 0, last = performance.now(), t = 0, shown = -1, lastUi = 0;
     const channels = (p: RigPose) => { const o: Record<string, number> = {}; for (const k of NUMERIC_CHANNELS) o[k] = p[k] as number; return o; };
 
     const frame = (now: number) => {
       const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt;
-      // The story position itself rides a spring, so a flick of the wheel glides instead of jumping.
-      prog = springStep(prog, target(), dt, { f: 1.6, z: 1 });
-      const { index: i, local } = stageAt(prog.y);
+      if (c.playing && !c.scrubbing) {
+        c.time += dt;
+        if (c.time >= DURATION) { c.time = DURATION; c.playing = false; setPlaying(false); setEnded(true); }
+      }
+      const { index: i, local } = stageAt(c.time / DURATION);
       if (i !== shown) { shown = i; setIndex(i); }
       const st = STAGES[i];
       const bP = beat(local, BEATS.problem), bB = beat(local, BEATS.buddy), bA = beat(local, BEATS.app), bS = beat(local, BEATS.solved);
-      // Which key pose he is heading for; the springs do the moving.
-      const key = local < 0.34 ? st.poses[0] : local < 0.74 ? st.poses[1] : st.poses[2];
-      const goal = POSES[key];
+      // Which key pose he is heading for; the springs do the moving (weight, overshoot, settle).
+      const goal = POSES[local < 0.34 ? st.poses[0] : local < 0.74 ? st.poses[1] : st.poses[2]];
       const raw = body.step(channels(goal), dt);
-      // Secondary motion: breath through the chest and hips, a slow weight shift while he stands.
       const breath = Math.sin(t * ((2 * Math.PI) / 3.8));
       const standing = goal.hipY < 215 ? 1 : 0;
       const pose = { ...goal, ...raw, chest: raw.chest + breath * 1.3, hipY: raw.hipY + breath * 0.5, hipX: raw.hipX + standing * Math.sin(t * 0.55) * 1.6 };
       const sk = solve(pose, RIG_GROUND);
       paintRafi(sk, { blink: blink(t, 3) });
-      // Phone in his near hand, glowing brighter once Buddy has found the app.
+      // The phone in his near hand; its screen takes the colour of the app Buddy names.
+      let phoneAt: [number, number] = [0, 0];
       const ph = phoneRef.current;
       if (ph) {
         const [x, y, a] = inHand(sk, "n", 8, -1);
+        phoneAt = [x, y];
         ph.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${(a + 90).toFixed(1)})`);
         ph.setAttribute("opacity", Math.min(1, Math.max(0, raw.phone)).toFixed(2));
+        screenRef.current?.setAttribute("fill", bA > 0.05 ? APP_GLOW[st.id] : "#cfd8dc");
       }
-      // The father: present in the field and the last chapter; asking first, pleased once solved.
       const fd = fatherRef.current!;
       const withDad = st.cast.includes("father");
       fd.style.opacity = withDad ? "1" : "0";
       if (withDad) {
         const fg = local < 0.74 && st.id === "field" ? FATHER_POSES.ask : FATHER_POSES.happy;
         const fr = dad.step(channels(fg), dt);
-        const fpose = { ...fg, ...fr, chest: fr.chest + Math.sin(t * 1.5 + 1) * 1.1 };
-        const fsk = solve(fpose, RIG_GROUND);
+        const fsk = solve({ ...fg, ...fr, chest: fr.chest + Math.sin(t * 1.5 + 1) * 1.1 }, RIG_GROUND);
         headV = springStep(headV, dad.velocity("head"), dt, { f: 2, z: 0.5 });
         paintFather(fsk, { blink: blink(t, 11), tail: -headV.y * 0.9 + Math.sin(t * 2.1) * 4, tailBend: Math.sin(t * 1.7) * 3 });
       }
-      // Buddy floats near his head on a loose spring (it trails, overshoots a little, bobs).
+      // Buddy floats near his head on a loose spring: it trails, overshoots a little, bobs.
       const head = sk.atlas as [number, number];
-      const pt = portraitRef.current;
+      const pt = c.portrait;
       buddyX = springStep(buddyX, head[0] + (pt ? 50 : 78), dt, { f: 0.9, z: 0.55 });
-      buddyY = springStep(buddyY, head[1] - (pt ? 22 : 70) + Math.sin(t * 1.9) * 5, dt, { f: 0.9, z: 0.55 });
+      buddyY = springStep(buddyY, Math.max(40, head[1] - (pt ? 22 : 66)) + Math.sin(t * 1.9) * 5, dt, { f: 0.9, z: 0.55 });
+      const talk = bB * (1 - bS);
       const bd = buddyRef.current;
       if (bd) {
-        const talk = bB * (1 - bS);
         bd.setAttribute("transform", `translate(${buddyX.y.toFixed(1)} ${buddyY.y.toFixed(1)}) scale(${(1 + talk * 0.18 + Math.sin(t * 6) * talk * 0.03).toFixed(3)})`);
         bd.style.setProperty("--talk", talk.toFixed(3));
       }
+      // Buddy's light on the phone while it names the app.
+      const beam = beamRef.current;
+      if (beam) {
+        const k = bA * (1 - bS) * Math.min(1, raw.phone);
+        const [bx, by] = [buddyX.y, buddyY.y + 10], [px, py] = phoneAt;
+        beam.setAttribute("d", `M${bx.toFixed(1)} ${by.toFixed(1)}Q${((bx + px) / 2 + 12).toFixed(1)} ${((by + py) / 2 - 6).toFixed(1)} ${px.toFixed(1)} ${(py - 4).toFixed(1)}`);
+        beam.setAttribute("opacity", k.toFixed(3));
+      }
+      // Camera: a slow push-in on the problem, back out (a touch toward the app card) as it resolves.
+      zoom = springStep(zoom, 1 + 0.07 * (1 - bA) * (1 - bS) - 0.02 * bS, dt, { f: 0.45, z: 1 });
+      panX = springStep(panX, pt ? 0 : -24 * bA * (1 - bS), dt, { f: 0.45, z: 1 });
+      const cx = RIG_DX + 205 * RIG_SCALE, cy = RIG_DY + 170 * RIG_SCALE;
+      camRef.current?.setAttribute("transform", `translate(${(cx + panX.y).toFixed(1)} ${cy.toFixed(1)}) scale(${zoom.y.toFixed(4)}) translate(${-cx} ${-cy})`);
       // Mood: grey rain while it is a problem, warm sun once solved.
       mood = springStep(mood, bS, dt, { f: 0.8, z: 1 });
       sunRef.current?.setAttribute("opacity", mood.y.toFixed(3));
       rainRef.current?.setAttribute("opacity", ((1 - mood.y) * (1 - bA * 0.6)).toFixed(3));
       const s = box.style;
-      s.setProperty("--b-problem", (bP * (1 - bB)).toFixed(3));
-      s.setProperty("--b-buddy", (bB * (1 - bS)).toFixed(3));
       s.setProperty("--b-app", bA.toFixed(3));
       s.setProperty("--b-solved", bS.toFixed(3));
       s.setProperty("--mood", mood.y.toFixed(3));
       s.setProperty("--local", local.toFixed(3));
+      s.setProperty("--p", (c.time / DURATION).toFixed(4));
       const sayNow = bS > 0.5 ? "solved" : bB > 0.5 ? "buddy" : "problem";
       if (box.dataset.say !== sayNow) box.dataset.say = sayNow;
-      if (visible) raf = requestAnimationFrame(frame);
+      if (now - lastUi > 120) {
+        lastUi = now;
+        if (scrubRef.current && !c.scrubbing) scrubRef.current.value = String(Math.round((c.time / DURATION) * 1000));
+        if (timeRef.current) timeRef.current.textContent = clock(c.time, bn);
+      }
+      if (c.visible) raf = requestAnimationFrame(frame);
     };
     const io = new IntersectionObserver(([e]) => {
-      visible = e.isIntersecting;
+      c.visible = e.isIntersecting;
       cancelAnimationFrame(raf);
-      if (visible) { last = performance.now(); raf = requestAnimationFrame(frame); }
-    }, { rootMargin: "120px" });
-    io.observe(root);
-    // Start at the right pose (no swoop from the default when arriving mid-story).
-    const p0 = target(); prog = springInit(p0);
-    const s0 = stageAt(p0); body.snap(channels(POSES[STAGES[s0.index].poses[0]]));
+      if (c.visible) {
+        last = performance.now(); raf = requestAnimationFrame(frame);
+        // Auto-play: start when it comes into view, unless the visitor paused it or it has ended.
+        if (c.autoplay && !c.userPaused && !c.playing && c.time < DURATION - 0.05 && e.intersectionRatio >= 0.45) { c.playing = true; setPlaying(true); setStarted(true); }
+      } else if (c.playing) { c.playing = false; setPlaying(false); }
+    }, { threshold: [0, 0.45] });
+    io.observe(box);
+    body.snap(channels(POSES[STAGES[0].poses[0]]));
     dad.snap(channels(FATHER_POSES.ask));
     frame(performance.now());
     return () => { io.disconnect(); cancelAnimationFrame(raf); };
-  }, []);
+  }, [bn]);
 
-  const jump = (i: number) => {
-    const r = outer.current!.getBoundingClientRect();
-    const span = r.height - window.innerHeight;
-    window.scrollTo({ top: window.scrollY + r.top + span * ((i + 0.62) / STAGES.length), behavior: "smooth" });
+  const onKey = (e: React.KeyboardEvent) => {
+    if ((e.target as HTMLElement).closest("input,button") && e.key !== "Escape" && (e.target as HTMLElement).tagName !== "DIV") return;
+    if (e.key === " " || e.key === "k") { e.preventDefault(); ctl.current.playing ? pause() : play(); }
+    else if (e.key === "ArrowRight") { e.preventDefault(); seek(ctl.current.time + 5); }
+    else if (e.key === "ArrowLeft") { e.preventDefault(); seek(ctl.current.time - 5); }
+    else if (e.key === "Home") { e.preventDefault(); seek(0); }
+  };
+  const fullscreen = () => {
+    const el = stageEl.current;
+    if (!el) return;
+    if (document.fullscreenElement) document.exitFullscreen?.(); else el.requestFullscreen?.().catch(() => {});
   };
 
   const line = (x: { bn: string; en: string }) => (bn ? x.bn : x.en);
@@ -264,49 +301,68 @@ function Story({ lang }: { lang: Lang }) {
   const v = (name: string, k = 1): CSSProperties => ({ opacity: `calc(var(${name}) * ${k})` as unknown as number });
 
   return (
-    <div ref={outer} style={{ height: `${STAGES.length * 125 + 40}vh` }} className="kp-ls-bleed relative" data-testid="life-story">
-      <div ref={stageEl} className="kp-ls sticky top-0 h-[100svh] overflow-hidden" data-say="problem" style={{ ["--mood" as string]: 0 }}>
-        {/* sky: grey and heavy while there is a problem, warm once solved (blended by --mood) */}
+    <div className="mx-auto w-full max-w-[1280px]" data-testid="life-story">
+      <div ref={stageEl} tabIndex={0} onKeyDown={onKey} role="region" aria-roledescription={bn ? "ভিডিও" : "video"} aria-label={line(STORY_TITLE)}
+        className="kp-ls relative h-[min(86svh,780px)] overflow-hidden rounded-[22px] outline-none ring-emerald-600 focus-visible:ring-4 sm:aspect-video sm:h-auto sm:rounded-[30px]" data-say="problem" style={{ ["--mood" as string]: 0 }}>
         <div className="kp-ls-sky absolute inset-0" aria-hidden="true" />
         <svg className="absolute inset-0 h-full w-full" viewBox={portrait ? "222 -170 520 1000" : `0 0 ${VB.w} ${VB.h}`} preserveAspectRatio={portrait ? "xMidYMid slice" : "xMidYMax slice"} aria-hidden="true">
           <defs>
             <radialGradient id="kp-ls-sun" cx="50%" cy="50%" r="50%"><stop offset="0" stopColor="#fff1c9" /><stop offset=".45" stopColor="#f6c56b" stopOpacity=".85" /><stop offset="1" stopColor="#f6c56b" stopOpacity="0" /></radialGradient>
             <radialGradient id="kp-ls-orb" cx="38%" cy="32%" r="70%"><stop offset="0" stopColor="#e9fff6" /><stop offset=".35" stopColor="#5fd3a6" /><stop offset=".8" stopColor="#0e6b4f" /><stop offset="1" stopColor="#084532" /></radialGradient>
+            <linearGradient id="kp-ls-beam" x1="0" x2="1"><stop offset="0" stopColor="#bfffe5" stopOpacity=".95" /><stop offset="1" stopColor="#5fd3a6" stopOpacity=".2" /></linearGradient>
+            <radialGradient id="kp-ls-vignette" cx="50%" cy="45%" r="75%"><stop offset=".6" stopColor="#000" stopOpacity="0" /><stop offset="1" stopColor="#1d1712" stopOpacity=".28" /></radialGradient>
           </defs>
-          {/* watermark: the chapter number and name, huge and faint */}
           <text x="40" y="250" className="kp-ls-mark" fontSize="250">{num(stage.n)}</text>
           <text x="48" y="330" className="kp-ls-mark" fontSize="84">{line(stage.label)}</text>
           <g ref={sunRef} opacity="0"><circle cx="820" cy="140" r="150" fill="url(#kp-ls-sun)" /><circle cx="820" cy="140" r="38" fill="#ffd27a" /></g>
-          {/* far hills and near ground, tinted by the chapter */}
-          <path d="M0 470C140 420 260 440 380 452S640 410 780 430 960 450 1000 440V620H0Z" className="kp-ls-hill-far" />
-          <path d="M0 540C180 512 360 524 520 536S820 512 1000 528V620H0Z" className="kp-ls-hill" />
-          <g ref={rainRef}>
-            {Array.from({ length: 46 }, (_, i) => (
-              <line key={i} x1={(i * 97) % 1000} y1={-40 - ((i * 53) % 300)} x2={(i * 97) % 1000 - 9} y2={-10 - ((i * 53) % 300)} className="kp-ls-rain" style={{ animationDelay: `${-((i * 37) % 100) / 100}s` }} />
+          {/* clouds drift; heavy grey in the problem, small and white once solved */}
+          <g className="kp-ls-clouds">
+            {[[120, 110, 1], [470, 70, 0.8], [760, 120, 1.15], [300, 180, 0.6]].map(([x, y, k], i) => (
+              <path key={i} className="kp-ls-cloud" style={{ animationDelay: `${-i * 9}s` }} transform={`translate(${x} ${y}) scale(${k})`} d="M-70 20c-24 0-30-30-6-36 2-26 38-34 52-14 10-22 52-20 56 6 26-4 38 30 12 44z" />
             ))}
           </g>
-          <g transform={`translate(${RIG_DX} ${RIG_DY}) scale(${RIG_SCALE})`}>
-            <g key={stage.id} className="kp-ls-props"><Scenery id={stage.id} /></g>
-            <g ref={fatherRef} transform={`translate(${FATHER_X + 200} 0) scale(-1 1)`} style={{ transition: "opacity .6s" }}><Farmer look={FATHER} /></g>
-            <g ref={rafiRef}><Farmer look={RAFI} /></g>
-            <g ref={phoneRef} opacity="0"><PhoneProp glow="#9fe3c9" /></g>
-            {/* Buddy: the same green orb as the assistant in the corner */}
-            <g ref={buddyRef} className="kp-ls-buddy">
-              <circle r="21" className="kp-ls-buddy-ring" />
-              <circle r="15" fill="url(#kp-ls-orb)" />
-              <ellipse cx="-5" cy="-6" rx="4.6" ry="2.6" fill="#fff" opacity=".75" />
-              <circle cx="5" cy="-1" r="2.2" fill="#fff" opacity=".9" className="kp-ls-buddy-eye" />
+          <g ref={camRef}>
+            <path d="M0 470C140 420 260 440 380 452S640 410 780 430 960 450 1000 440V620H0Z" className="kp-ls-hill-far" />
+            <path d="M0 540C180 512 360 524 520 536S820 512 1000 528V620H0Z" className="kp-ls-hill" />
+            <g ref={rainRef}>
+              {Array.from({ length: 46 }, (_, i) => (
+                <line key={i} x1={(i * 97) % 1000} y1={-40 - ((i * 53) % 300)} x2={(i * 97) % 1000 - 9} y2={-10 - ((i * 53) % 300)} className="kp-ls-rain" style={{ animationDelay: `${-((i * 37) % 100) / 100}s` }} />
+              ))}
+              {Array.from({ length: 14 }, (_, i) => (
+                <ellipse key={`s${i}`} cx={40 + i * 70 + ((i * 31) % 40)} cy={548 + ((i * 17) % 40)} rx="7" ry="1.8" className="kp-ls-splash" style={{ animationDelay: `${-((i * 23) % 100) / 100}s` }} />
+              ))}
             </g>
+            {/* sun motes rise once the problem is solved */}
+            <g className="kp-ls-motes">
+              {Array.from({ length: 14 }, (_, i) => <circle key={i} cx={180 + i * 52} cy={520 - ((i * 41) % 180)} r={1.6 + (i % 3)} style={{ animationDelay: `${-i * 0.7}s` }} />)}
+            </g>
+            <g transform={`translate(${RIG_DX} ${RIG_DY}) scale(${RIG_SCALE})`}>
+              <g key={stage.id} className="kp-ls-props"><Scenery id={stage.id} /></g>
+              <g ref={fatherRef} transform={`translate(${FATHER_X + 200} 0) scale(-1 1)`} style={{ transition: "opacity .6s" }}><Farmer look={FATHER} /></g>
+              <g ref={rafiRef}><Farmer look={RAFI} /></g>
+              <path ref={beamRef} fill="none" stroke="url(#kp-ls-beam)" strokeWidth="2.4" strokeLinecap="round" strokeDasharray="3 4" className="kp-ls-beam" opacity="0" />
+              <g ref={phoneRef} opacity="0">
+                <rect x="-4" y="-13" width="9" height="17" rx="2" fill="#1e2530" stroke="#0e1218" strokeWidth=".8" />
+                <rect ref={screenRef} x="-2.7" y="-11.4" width="6.4" height="13.6" rx="1" fill="#cfd8dc" />
+              </g>
+              <g ref={buddyRef} className="kp-ls-buddy">
+                <circle r="21" className="kp-ls-buddy-ring" />
+                <circle r="15" fill="url(#kp-ls-orb)" />
+                <ellipse cx="-5" cy="-6" rx="4.6" ry="2.6" fill="#fff" opacity=".75" />
+                <circle cx="5" cy="-1" r="2.2" fill="#fff" opacity=".9" />
+              </g>
+            </g>
+            <path d="M0 600H1000V1100H0Z" className="kp-ls-hill" />
           </g>
-          <path d="M0 600H1000V1100H0Z" className="kp-ls-hill" />
+          <rect x="-200" y="-400" width="1400" height="1600" fill="url(#kp-ls-vignette)" pointerEvents="none" />
         </svg>
 
-        {/* chapter rail */}
-        <nav aria-label={bn ? "সাতটি অধ্যায়" : "Seven chapters"} className="kp-ls-rail absolute inset-x-0 top-[80px] z-20 mx-auto flex max-w-[1100px] gap-1.5 overflow-x-auto px-3 sm:top-[96px] sm:gap-2">
+        {/* chapters: jump to any */}
+        <nav aria-label={bn ? "সাতটি অধ্যায়" : "Seven chapters"} className="kp-ls-rail absolute inset-x-0 top-3 z-20 flex gap-1.5 overflow-x-auto px-3 sm:top-4 sm:justify-center sm:gap-2">
           {STAGES.map((s, i) => {
             const I = ICONS[s.id];
             return (
-              <button key={s.id} type="button" onClick={() => jump(i)} aria-current={i === index ? "step" : undefined}
+              <button key={s.id} type="button" onClick={() => { seek(i * CHAPTER_SECONDS + 0.2); if (!ctl.current.playing) play(); }} aria-current={i === index ? "step" : undefined}
                 className={`kp-ls-chip ${i === index ? "kp-ls-chip-on" : i < index ? "kp-ls-chip-done" : ""}`}>
                 <I size={14} aria-hidden="true" /><span>{line(s.label)}</span>
                 {i === index && <i className="kp-ls-chip-fill" aria-hidden="true" />}
@@ -315,26 +371,26 @@ function Story({ lang }: { lang: Lang }) {
           })}
         </nav>
 
-        {/* title, then the dialogue: Rafi's problem → Buddy → Rafi's solution, as voice lines */}
-        <div className="absolute bottom-3 left-3 right-3 z-10 sm:bottom-auto sm:left-[5%] sm:right-auto sm:top-[150px] sm:w-[min(520px,44vw)]">
+        {/* the dialogue: Rafi's problem → Buddy → Rafi's solution, as voice lines */}
+        <div className="absolute bottom-[64px] left-3 right-3 z-10 sm:bottom-auto sm:left-[4%] sm:right-auto sm:top-[70px] sm:w-[min(500px,42%)]">
           <p className="kp-eyebrow !text-emerald-900 hidden sm:block">{line(STORY_TITLE)} · {bn ? `অধ্যায় ${num(stage.n)}` : `Chapter ${num(stage.n)}`}</p>
-          <div className="relative min-h-[150px] sm:mt-2 sm:min-h-[150px]">
+          <div className="relative min-h-[150px] sm:mt-2">
             {([
-              ["--b-problem", line(STORY_HERO), line(stage.problem), "kp-ls-say-rafi kp-ls-say-problem"],
-              ["--b-buddy", bn ? "বাডি" : "Buddy", line(stage.buddy), "kp-ls-say-buddy kp-ls-say-buddyline"],
-              ["--b-solved", line(STORY_HERO), line(stage.solution), "kp-ls-say-rafi kp-ls-say-happy kp-ls-say-solved"],
-            ] as const).map(([cv, who, text, cls]) => (
-              <figure key={cv} className={`kp-ls-say ${cls}`}>
+              [line(STORY_HERO), line(stage.problem), "kp-ls-say-rafi kp-ls-say-problem"],
+              [bn ? "বাডি" : "Buddy", line(stage.buddy), "kp-ls-say-buddy kp-ls-say-buddyline"],
+              [line(STORY_HERO), line(stage.solution), "kp-ls-say-rafi kp-ls-say-happy kp-ls-say-solved"],
+            ] as const).map(([who, text, cls]) => (
+              <figure key={cls} className={`kp-ls-say ${cls}`}>
                 <figcaption><span className="kp-ls-wave" aria-hidden="true"><i /><i /><i /><i /></span>{who}</figcaption>
                 <blockquote>{text}</blockquote>
-                <button type="button" className="kp-ls-listen" onClick={() => say(`${who}: ${text}`, lang)} aria-label={bn ? `শুনুন: ${who}` : `Listen: ${who}`}><Volume2 size={14} aria-hidden="true" />{bn ? "শুনুন" : "Listen"}</button>
+                <button type="button" className="kp-ls-listen" onClick={() => { pause(); say(`${who}: ${text}`, lang); }} aria-label={bn ? `শুনুন: ${who}` : `Listen: ${who}`}><Volume2 size={14} aria-hidden="true" />{bn ? "শুনুন" : "Listen"}</button>
               </figure>
             ))}
           </div>
         </div>
 
         {/* the real app, ticking through what it does */}
-        <aside aria-label={line(stage.app.name)} className="kp-ls-app absolute left-3 right-3 top-[130px] z-10 sm:left-auto sm:right-[5%] sm:top-[150px] sm:w-[340px]" style={{ opacity: "var(--b-app)" as unknown as number, transform: "translateY(calc((1 - var(--b-app)) * 24px))" }}>
+        <aside aria-label={line(stage.app.name)} className="kp-ls-app absolute left-3 right-3 top-[60px] z-10 sm:left-auto sm:right-[4%] sm:top-[70px] sm:w-[330px]" style={{ opacity: "var(--b-app)" as unknown as number, transform: "translateY(calc((1 - var(--b-app)) * 24px))" }}>
           <div className="flex items-center gap-2.5 border-b border-line pb-2.5">
             <span className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200"><Icon size={18} aria-hidden="true" /></span>
             <div className="min-w-0"><p className="text-[11.5px] font-semibold text-slate-500">KormoPath</p><p className="truncate text-[15.5px] font-bold text-slate-900">{line(stage.app.name)}</p></div>
@@ -352,8 +408,34 @@ function Story({ lang }: { lang: Lang }) {
           </Link>
         </aside>
 
-        <p className="absolute bottom-1 right-3 z-10 hidden text-[11px] text-slate-600 sm:block">{bn ? "রাফি ও তার পরিবার কাল্পনিক চরিত্র; অ্যাপের প্রতিটি সুবিধা আসল।" : "Rafi and his family are fictional; every app feature is real."}</p>
+        {/* poster: before it starts (auto-play off) and after it ends */}
+        {(!started || ended) && (
+          <button type="button" onClick={play} className="kp-ls-poster absolute inset-0 z-30 grid place-items-center" aria-label={ended ? (bn ? "আবার দেখুন" : "Watch again") : (bn ? "গল্পটি দেখুন" : "Play the story")}>
+            <span className="kp-ls-bigplay">{ended ? <RotateCcw size={30} aria-hidden="true" /> : <Play size={34} aria-hidden="true" />}</span>
+            <span className="mt-3 rounded-full bg-[#1d1712]/80 px-4 py-1.5 text-[15px] font-bold text-[#fbf3e8]">{ended ? (bn ? "আবার দেখুন" : "Watch again") : (bn ? `গল্পটি দেখুন · ${clock(DURATION, true)}` : `Play the story · ${clock(DURATION, false)}`)}</span>
+          </button>
+        )}
+
+        {/* controls */}
+        <div className="kp-ls-controls absolute inset-x-0 bottom-0 z-40 flex items-center gap-2 px-3 pb-2.5 pt-6 sm:gap-3 sm:px-5 sm:pb-3.5">
+          <button type="button" onClick={() => (playing ? pause() : play())} className="kp-ls-ctl" aria-label={playing ? (bn ? "থামান" : "Pause") : (bn ? "চালান" : "Play")} data-testid="story-play">
+            {playing ? <Pause size={18} aria-hidden="true" /> : <Play size={18} aria-hidden="true" />}
+          </button>
+          <span className="shrink-0 font-mono text-[12.5px] font-semibold tabular-nums text-white"><span ref={timeRef}>{clock(0, bn)}</span> / {clock(DURATION, bn)}</span>
+          <div className="kp-ls-track relative flex-1">
+            <input ref={scrubRef} type="range" min={0} max={1000} defaultValue={0} className="kp-ls-scrub w-full" aria-label={bn ? "গল্পের সময়" : "Story position"}
+              onPointerDown={() => { ctl.current.scrubbing = true; }}
+              onPointerUp={() => { ctl.current.scrubbing = false; }}
+              onChange={(e) => seek((Number(e.currentTarget.value) / 1000) * DURATION)} />
+            {STAGES.slice(1).map((s, i) => <i key={s.id} className="kp-ls-tick" style={{ left: `${((i + 1) / STAGES.length) * 100}%` }} aria-hidden="true" />)}
+          </div>
+          <button type="button" role="switch" aria-checked={autoplay} onClick={() => setAutoplay(!autoplay)} className={`kp-ls-auto ${autoplay ? "kp-ls-auto-on" : ""}`} data-testid="story-autoplay">
+            <i aria-hidden="true" /><span className="hidden sm:inline">{bn ? "অটো-প্লে" : "Autoplay"}</span><span className="sr-only sm:hidden">{bn ? "অটো-প্লে" : "Autoplay"}</span>
+          </button>
+          <span className="hidden sm:contents"><button type="button" onClick={fullscreen} className="kp-ls-ctl" aria-label={bn ? "পূর্ণ পর্দা" : "Full screen"}><Maximize size={17} aria-hidden="true" /></button></span>
+        </div>
       </div>
+      <p className="mt-2 px-1 text-[12.5px] text-slate-500">{bn ? "রাফি ও তার পরিবার কাল্পনিক চরিত্র; অ্যাপের প্রতিটি সুবিধা আসল। স্পেস: চালান/থামান · ← →: ৫ সেকেন্ড" : "Rafi and his family are fictional; every app feature is real. Space: play/pause · ← →: 5 seconds"}</p>
     </div>
   );
 }
@@ -407,7 +489,7 @@ export function LifeStory({ lang }: { lang: Lang }) {
           {bn ? <>একটি জীবন, <em className="kp-em">সাতটি অধ্যায়</em></> : <>One life, <em className="kp-em">seven chapters</em></>}
         </h2>
         <p className="mt-3 max-w-2xl text-[17px] leading-relaxed text-slate-600">
-          {bn ? "রাজশাহীর কৃষক পরিবারের ছেলে রাফি (কাল্পনিক)। ভর্তি থেকে প্রথম আয়, মায়ের অসুখ থেকে বাবার মাঠ আর প্রতারকের এসএমএস: প্রতিটি মোড়ে সে কী সমস্যায় পড়ে, বাডি কোন অ্যাপ দেখায়, আর কী বদলায়। নিচে স্ক্রল করুন।" : "Rafi (fictional), from a farming family in Rajshahi. From admission to his first pay, his mother's fever, his father's field and a scammer's SMS: at every turn, the problem, the app Buddy points to, and what changes. Scroll down."}
+          {bn ? "রাজশাহীর কৃষক পরিবারের ছেলে রাফি (কাল্পনিক)। ভর্তি থেকে প্রথম আয়, মায়ের অসুখ থেকে বাবার মাঠ আর প্রতারকের এসএমএস: প্রতিটি মোড়ে সে কী সমস্যায় পড়ে, বাডি কোন অ্যাপ দেখায়, আর কী বদলায়। চালিয়ে দেখুন: প্রায় দেড় মিনিট।" : "Rafi (fictional), from a farming family in Rajshahi. From admission to his first pay, his mother's fever, his father's field and a scammer's SMS: at every turn, the problem, the app Buddy points to, and what changes. Press play: about a minute and a half."}
         </p>
       </div>
       <div ref={wrap} className="mt-8">{animated ? <Story lang={lang} /> : <div className="mx-auto max-w-[1100px]"><StoryList lang={lang} /></div>}</div>
