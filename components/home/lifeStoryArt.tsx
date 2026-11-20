@@ -101,7 +101,7 @@ export function Backdrop({ id }: { id: StageId }): { far: ReactNode; mid: ReactN
         mid: (
           <Room>
             {/* a calendar and a shelf of books; a bulb that lights when the plan is clear */}
-            <g transform="translate(170 250)"><rect width="74" height="92" rx="3" className="kp-ls-paper" /><rect width="74" height="20" rx="3" className="kp-ls-cal-head" />{Array.from({ length: 12 }, (_, i) => <rect key={i} x={8 + (i % 4) * 16} y={30 + Math.floor(i / 4) * 18} width="10" height="10" className="kp-ls-cal-day" />)}</g>
+            <g transform="translate(170 250)"><rect width="74" height="92" rx="3" className="kp-ls-paper" /><rect width="74" height="20" rx="3" className="kp-ls-cal-head" />{Array.from({ length: 12 }, (_, i) => <rect key={i} x={8 + (i % 4) * 16} y={30 + Math.floor(i / 4) * 18} width="10" height="10" className="kp-ls-cal-day" style={{ ["--i" as string]: i }} />)}</g>
             <g transform="translate(300 300)"><rect width="150" height="8" className="kp-ls-shelf" />{["#c0563b", "#3f8f86", "#d9a441", "#4a5a8a", "#8a5a3a", "#6f9a3e"].map((c, i) => <rect key={i} x={6 + i * 22} y={-34 + (i % 2) * 4} width="16" height={34 - (i % 2) * 4} fill={c} />)}</g>
             <g className="kp-ls-bulb"><path d="M560 -40V120" className="kp-ls-wire" /><circle cx="560" cy="132" r="13" className="kp-ls-bulb-glass" /><circle cx="560" cy="132" r="90" className="kp-ls-bulb-glow" /></g>
           </Room>

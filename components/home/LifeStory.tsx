@@ -87,7 +87,9 @@ function Scenery({ id }: { id: Stage["id"] }) {
     <g>{desk}
       <path d="M262 224l6-36h52l-4 36z" fill="#2c3440" /><path d="M267 220l5-28h42l-3 28z" fill="#9fe3c9" className="kp-ls-screen" />
       <path d="M250 224h82l-4 4h-74z" fill="#3a4350" />
-      <path d="M275 199h24M273 205h30M272 211h20" stroke="#1d5a4c" strokeWidth="1.6" strokeLinecap="round" />
+      {/* code types itself; a verified badge lands on the screen once the passport is signed */}
+      <path d="M275 199h24M273 205h30M272 211h20" stroke="#1d5a4c" strokeWidth="1.6" strokeLinecap="round" className="kp-ls-code" />
+      <g className="kp-ls-badge" transform="translate(304 200)"><circle r="6.5" fill="#0e6b4f" stroke="#fff" strokeWidth="1.2" /><path d="M-3 0l2 2.3 4-4.6" stroke="#fff" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" /></g>
     </g>
   );
   if (id === "earn") return (
@@ -100,7 +102,7 @@ function Scenery({ id }: { id: Stage["id"] }) {
     <g>
       <rect x="276" y="262" width="34" height="38" rx="5" fill="#d9b07a" stroke="#a87c48" /><path d="M280 262c0-14 26-14 26 0" fill="none" stroke="#a87c48" strokeWidth="2.4" />
       <circle cx="286" cy="258" r="6" fill="#4e7b3c" /><circle cx="298" cy="256" r="7" fill="#c0563b" /><path d="M303 262l10-16" stroke="#6b8f3c" strokeWidth="4" strokeLinecap="round" />
-      <g className="kp-ls-receipts"><path d="M120 272l14-4 4 14-14 4z" fill="#f6efe2" /><path d="M96 286l12-2 2 12-12 2z" fill="#f6efe2" /><path d="M140 290l13 1-1 9-13-1z" fill="#efe6d4" /></g>
+      <g className="kp-ls-receipts"><g className="kp-ls-receipt"><path d="M120 272l14-4 4 14-14 4z" fill="#f6efe2" /></g><g className="kp-ls-receipt"><path d="M96 286l12-2 2 12-12 2z" fill="#f6efe2" /></g><g className="kp-ls-receipt"><path d="M140 290l13 1-1 9-13-1z" fill="#efe6d4" /></g></g>
     </g>
   );
   if (id === "health") return (
@@ -110,7 +112,10 @@ function Scenery({ id }: { id: Stage["id"] }) {
       <ellipse cx="258" cy="222" rx="18" ry="8" fill="#f6efe2" stroke="#ddd2bf" />
       {/* mother asleep under a kantha, her saree's end over her hair; the quilt rises and falls with her breath */}
       <circle cx="262" cy="214" r="10" fill="#9c6242" /><path d="M251 212c2-12 20-14 23-2-6-4-15-5-23 2z" fill="#a33b4a" />
-      <path d="M262 216c2 1.6 4 1.6 5 .4" stroke="#5e3a28" strokeWidth="1" fill="none" />
+      {/* her eyes: closed with fever, open and smiling once she has been seen in time */}
+      <path d="M257.4 211.4q1.6 1 3.2 0M264 211.4q1.6 1 3.2 0" stroke="#5e3a28" strokeWidth=".9" fill="none" className="kp-ls-eyes-shut" />
+      <g className="kp-ls-eyes-open"><circle cx="259" cy="211" r="1.1" fill="#2a1d16" /><circle cx="265.6" cy="211" r="1.1" fill="#2a1d16" /><path d="M261 216.4q3 2.6 6 0" stroke="#5e3a28" strokeWidth="1" fill="none" /></g>
+      <path d="M262 216c2 1.6 4 1.6 5 .4" stroke="#5e3a28" strokeWidth="1" fill="none" className="kp-ls-eyes-shut" />
       <path className="kp-ls-breath" d="M270 226c20-14 70-14 110-4v8H270z" fill="#c0563b" /><path className="kp-ls-breath" d="M282 220c18-4 50-4 90 2" stroke="#f4cf87" strokeWidth="1.4" strokeDasharray="4 3" fill="none" />
       <path d="M232 196v-30m0 0h10" stroke="#9aa7a3" strokeWidth="2" />
     </g>
@@ -135,7 +140,10 @@ function Scenery({ id }: { id: Stage["id"] }) {
 // ---------- the story player ----------
 /** Seconds per chapter: problem ≈ 3 s, Buddy ≈ 2.4 s, the app ≈ 3.7 s, the solution ≈ 3 s. */
 const CHAPTER_SECONDS = 11;
-const DURATION = STAGES.length * CHAPTER_SECONDS;
+const CHAPTERS_END = STAGES.length * CHAPTER_SECONDS;
+/** The epilogue: sunrise over the field, father and son, the apps rising like sky lanterns. */
+const EPILOGUE_SECONDS = 7;
+const DURATION = CHAPTERS_END + EPILOGUE_SECONDS;
 const APP_GLOW: Record<Stage["id"], string> = { study: "#9cc3ff", work: "#9fe3c9", earn: "#ffd58a", home: "#ffb08a", health: "#ffa3b4", field: "#c8ec8f", protect: "#ffd27a" };
 const clock = (s: number, bn: boolean) => {
   const v = `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
@@ -149,13 +157,14 @@ function Story({ lang }: { lang: Lang }) {
   const rafiRef = useRef<SVGGElement>(null), fatherRef = useRef<SVGGElement>(null), phoneRef = useRef<SVGGElement>(null), screenRef = useRef<SVGRectElement>(null);
   const buddyRef = useRef<SVGGElement>(null), sunRef = useRef<SVGGElement>(null), rainRef = useRef<SVGGElement>(null);
   const camRef = useRef<SVGGElement>(null), beamRef = useRef<SVGPathElement>(null), fgRef = useRef<SVGGElement>(null);
-  const farRef = useRef<SVGGElement>(null);
+  const farRef = useRef<SVGGElement>(null), coinsRef = useRef<SVGGElement>(null), smsRef = useRef<SVGGElement>(null);
   const dustN = useRef<SVGEllipseElement>(null), dustF = useRef<SVGEllipseElement>(null), rimRef = useRef<SVGRectElement>(null);
   const scrubRef = useRef<HTMLInputElement>(null), timeRef = useRef<HTMLSpanElement>(null);
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [ended, setEnded] = useState(false);
   const [started, setStarted] = useState(false);
+  const [epilogue, setEpilogue] = useState(false);
   const [autoplay, setAutoplay] = usePersistentState<boolean>(storageKey("platform", "storyAutoplay"), true, sanitizeBool);
   const [portrait, setPortrait] = useState(false);
   // Everything the frame loop reads lives in refs, so play/pause/seek never restart the loop.
@@ -196,7 +205,13 @@ function Story({ lang }: { lang: Lang }) {
     const tuft = rafiRef.current.querySelector(".kp-hair-tuft");
     // Lip-sync: two incommensurate sines give a natural, never-repeating open/close rhythm.
     const lips = (time: number) => Math.sin(time * 13) + 0.8 * Math.sin(time * 7.7 + 1.3) > 0.35;
-    let raf = 0, last = performance.now(), t = 0, shown = -1, lastUi = 0;
+    let raf = 0, last = performance.now(), t = 0, shown = -1, lastUi = 0, shownEpi = false;
+    let receipts: Array<{ el: SVGGElement; cx: number; cy: number }> | null = null;
+    const written: Record<string, number> = {};
+    const setVar = (name: string, v: number, step: number) => {
+      if (written[name] !== undefined && Math.abs(written[name] - v) < step && v !== 0 && v !== 1) return;
+      written[name] = v; box.style.setProperty(name, v.toFixed(4));
+    };
     const channels = (p: RigPose) => { const o: Record<string, number> = {}; for (const k of NUMERIC_CHANNELS) o[k] = p[k] as number; return o; };
 
     const frame = (now: number) => {
@@ -205,7 +220,10 @@ function Story({ lang }: { lang: Lang }) {
         c.time += dt;
         if (c.time >= DURATION) { c.time = DURATION; c.playing = false; setPlaying(false); setEnded(true); }
       }
-      const { index: i, local } = stageAt(c.time / DURATION);
+      const epi = c.time >= CHAPTERS_END;
+      if (epi !== shownEpi) { shownEpi = epi; setEpilogue(epi); box.dataset.epi = epi ? "1" : "0"; }
+      // In the epilogue the field chapter is held at its solved end: sunrise, both of them cheering.
+      const { index: i, local } = epi ? { index: 5, local: 1 } : stageAt(c.time / CHAPTERS_END);
       if (i !== shown) {
         // A new chapter: under the title card, he is moved back off his mark and walks in.
         const first = POSES[STAGES[i].poses[0]];
@@ -215,7 +233,7 @@ function Story({ lang }: { lang: Lang }) {
           walkOffset = -ENTRANCE;
           feet.n = footAt(first.nfX - ENTRANCE); feet.f = footAt(first.ffX - ENTRANCE);
         }
-        shown = i; setIndex(i);
+        shown = i; setIndex(i); receipts = null;
       }
       const st = STAGES[i];
       const bP = beat(local, BEATS.problem), bB = beat(local, BEATS.buddy), bA = beat(local, BEATS.app), bS = beat(local, BEATS.solved);
@@ -310,12 +328,16 @@ function Story({ lang }: { lang: Lang }) {
       // Buddy floats near his head on a loose spring: it trails, overshoots a little, bobs.
       const head = sk.atlas as [number, number];
       const pt = c.portrait;
-      buddyX = springStep(buddyX, head[0] + (pt ? 50 : 78), dt, { f: 0.9, z: 0.55 });
-      buddyY = springStep(buddyY, Math.max(40, head[1] - (pt ? 22 : 66)) + Math.sin(t * 1.9) * 5, dt, { f: 0.9, z: 0.55 });
+      // In the epilogue Buddy settles between father and son, at their head height.
+      buddyX = springStep(buddyX, epi ? head[0] + 68 : head[0] + (pt ? 50 : 78), dt, { f: 0.9, z: 0.55 });
+      buddyY = springStep(buddyY, (epi ? head[1] + 6 : Math.max(40, head[1] - (pt ? 22 : 66))) + Math.sin(t * 1.9) * 5, dt, { f: 0.9, z: 0.55 });
       const talk = bB * (1 - bS);
       const bd = buddyRef.current;
       if (bd) {
-        bd.setAttribute("transform", `translate(${buddyX.y.toFixed(1)} ${buddyY.y.toFixed(1)}) scale(${(1 + talk * 0.18 + Math.sin(t * 6) * talk * 0.03).toFixed(3)})`);
+        const base = 1 + talk * 0.18 + Math.sin(t * 6) * talk * 0.03;
+        const speed = Math.hypot(buddyX.v, buddyY.v), ang = (Math.atan2(buddyY.v, buddyX.v) * 180) / Math.PI;
+        const st2 = 1 + Math.min(0.22, speed * 0.0018); // stretch along the motion, squash across it
+        bd.setAttribute("transform", `translate(${buddyX.y.toFixed(1)} ${buddyY.y.toFixed(1)}) rotate(${ang.toFixed(1)}) scale(${(base * st2).toFixed(3)} ${(base / st2).toFixed(3)}) rotate(${(-ang).toFixed(1)})`);
         bd.style.setProperty("--talk", talk.toFixed(3));
       }
       // Buddy's light on the phone while it names the app.
@@ -339,13 +361,48 @@ function Story({ lang }: { lang: Lang }) {
       mood = springStep(mood, bS, dt, { f: 0.8, z: 1 });
       sunRef.current?.setAttribute("opacity", mood.y.toFixed(3));
       rimRef.current?.setAttribute("opacity", (mood.y * 0.75).toFixed(3));
-      rainRef.current?.setAttribute("opacity", ((1 - mood.y) * (1 - bA * 0.6)).toFixed(3));
-      const s = box.style;
-      s.setProperty("--b-app", bA.toFixed(3));
-      s.setProperty("--b-solved", bS.toFixed(3));
-      s.setProperty("--mood", mood.y.toFixed(3));
-      s.setProperty("--local", local.toFixed(3));
-      s.setProperty("--p", (c.time / DURATION).toFixed(4));
+      const rainK = (1 - mood.y) * (1 - bA * 0.6);
+      rainRef.current?.setAttribute("opacity", (st.id === "field" ? Math.max(rainK, 0.42 * mood.y) : rainK).toFixed(3));
+      // ---- story beats: a prop acts out what the app does ----
+      const phoneOk = lastPhone && raw.phone > 0.3;
+      // Home: the scattered receipts fly into his phone while the app opens (arc, spin, shrink).
+      if (st.id === "home") {
+        if (!receipts || receipts.length === 0) receipts = Array.from(box.querySelectorAll<SVGGElement>(".kp-ls-receipt")).map((el) => { const b = el.getBBox(); return { el, cx: b.x + b.width / 2, cy: b.y + b.height / 2 }; });
+        const k = Math.min(1, bA * 1.15);
+        for (const [j, rc] of receipts.entries()) {
+          const kk = Math.min(1, Math.max(0, k * 1.3 - j * 0.15));
+          const e = kk * kk * (3 - 2 * kk);
+          const [tx, ty] = phoneOk ? lastPhone! : [rc.cx, rc.cy];
+          const dx = (tx - rc.cx) * e, dy = (ty - rc.cy) * e - Math.sin(Math.PI * e) * 34;
+          rc.el.setAttribute("transform", `translate(${dx.toFixed(1)} ${dy.toFixed(1)}) rotate(${(e * 200).toFixed(0)} ${rc.cx} ${rc.cy}) scale(1)`);
+          rc.el.style.opacity = String(1 - e * 0.95);
+        }
+      }
+      // Earn: ৳ coins rise out of the phone while FeeGuard opens.
+      const coins = coinsRef.current;
+      if (coins) {
+        const show = st.id === "earn" && phoneOk ? bA * (1 - bS) : 0;
+        coins.style.opacity = show.toFixed(3);
+        if (show > 0) for (const [j, el] of Array.from(coins.children).entries()) {
+          const ph2 = (t * 0.9 + j / 3) % 1;
+          el.setAttribute("transform", `translate(${(lastPhone![0] + Math.sin(ph2 * 6 + j) * 7 + (j - 1) * 6).toFixed(1)} ${(lastPhone![1] - 8 - ph2 * 46).toFixed(1)}) scale(${(0.7 + ph2 * 0.5).toFixed(2)})`);
+          (el as SVGGElement).style.opacity = (Math.sin(Math.PI * ph2)).toFixed(2);
+        }
+      }
+      // Protect: the scam SMS beside his phone; Rokkha's warning pops onto it as the app opens.
+      const sms = smsRef.current;
+      if (sms) {
+        const show = st.id === "protect" && phoneOk ? 1 - bS : 0;
+        sms.style.opacity = show.toFixed(3);
+        if (show > 0) sms.setAttribute("transform", `translate(${(lastPhone![0] + 12).toFixed(1)} ${(lastPhone![1] - 30).toFixed(1)})`);
+        const warn = sms.querySelector<SVGGElement>(".kp-ls-warn");
+        const wk = beat(local, [BEATS.app[0], BEATS.app[0] + 0.12]);
+        warn?.setAttribute("transform", `translate(6 32) scale(${(0.6 + 0.4 * wk + Math.sin(Math.PI * wk) * 0.18).toFixed(3)})`);
+        if (warn) warn.style.opacity = wk.toFixed(3);
+      }
+      // CSS variables restyle every element that reads them, so write one only when it visibly changes.
+      setVar("--b-app", bA, 0.01); setVar("--b-solved", bS, 0.01); setVar("--mood", mood.y, 0.008);
+      setVar("--local", local, 0.004); setVar("--p", c.time / DURATION, 0.0015);
       const sayNow = bS > 0.5 ? "solved" : bB > 0.5 ? "buddy" : "problem";
       if (box.dataset.say !== sayNow) box.dataset.say = sayNow;
       if (now - lastUi > 120) {
@@ -439,6 +496,18 @@ function Story({ lang }: { lang: Lang }) {
                 <rect x="-4" y="-13" width="9" height="17" rx="2" fill="#1e2530" stroke="#0e1218" strokeWidth=".8" />
                 <rect ref={screenRef} x="-2.7" y="-11.4" width="6.4" height="13.6" rx="1" fill="#cfd8dc" />
               </g>
+              {/* story-beat props, moved by the frame loop */}
+              <g ref={coinsRef} style={{ opacity: 0 }}>
+                {[0, 1, 2].map((j) => <g key={j}><circle r="5.2" fill="#f4cf87" stroke="#c99041" strokeWidth="1" /><text y="2.6" textAnchor="middle" fontSize="7.4" fontWeight="700" fill="#7a5520">৳</text></g>)}
+              </g>
+              <g ref={smsRef} style={{ opacity: 0 }}>
+                <path d="M0 0h58a5 5 0 0 1 5 5v12a5 5 0 0 1-5 5H10l-6 6 1-6H0a5 5 0 0 1-5-5V5a5 5 0 0 1 5-5z" fill="#fffdf9" stroke="#c9bda8" strokeWidth=".8" />
+                <text x="29" y="14.5" textAnchor="middle" fontSize="7.2" fontWeight="700" fill="#3b302a">{bn ? "‘ওটিপি দিন’" : "‘Send the OTP’"}</text>
+                <g className="kp-ls-warn" style={{ opacity: 0 }}>
+                  <rect x="-2" y="-6" width="52" height="12" rx="6" fill="#b3261e" />
+                  <text x="24" y="2.6" textAnchor="middle" fontSize="6.6" fontWeight="800" fill="#fff">{bn ? "⚠ প্রতারণার লক্ষণ" : "⚠ Scam signs"}</text>
+                </g>
+              </g>
               <g ref={buddyRef} className="kp-ls-buddy">
                 <circle r="21" className="kp-ls-buddy-ring" />
                 <circle r="15" fill="url(#kp-ls-orb)" />
@@ -460,10 +529,28 @@ function Story({ lang }: { lang: Lang }) {
 
         {/* title card: wipes across at each chapter change, like a film's chapter slate */}
         {started && (
-          <div key={`wipe-${stage.id}`} className="kp-ls-wipe pointer-events-none absolute inset-0 z-[25] grid place-items-center" aria-hidden="true">
+          <div key={epilogue ? "wipe-epi" : `wipe-${stage.id}`} className="kp-ls-wipe pointer-events-none absolute inset-0 z-[25] grid place-items-center" aria-hidden="true">
             <div className="text-center">
-              <p className="font-mono text-[clamp(44px,8vw,110px)] font-bold leading-none text-[#f4cf87]">{num(stage.n)}</p>
-              <p className="mt-2 text-[clamp(24px,3.6vw,46px)] font-semibold text-[#fbf3e8]">{line(stage.label)}</p>
+              <p className="font-mono text-[clamp(44px,8vw,110px)] font-bold leading-none text-[#f4cf87]">{epilogue ? "✦" : num(stage.n)}</p>
+              <p className="mt-2 text-[clamp(24px,3.6vw,46px)] font-semibold text-[#fbf3e8]">{epilogue ? (bn ? "নতুন ভোর" : "A new dawn") : line(stage.label)}</p>
+            </div>
+          </div>
+        )}
+
+        {/* epilogue: the seven apps rise like fanush (sky lanterns) into the sunrise; the closing line settles */}
+        {epilogue && (
+          <div className="kp-ls-epi pointer-events-none absolute inset-0 z-[15]" aria-live="polite">
+            {STAGES.map((s, i) => {
+              const I = ICONS[s.id];
+              return (
+                <span key={s.id} className="kp-ls-lantern" style={{ left: `${8 + i * 13.5}%`, animationDelay: `${0.25 + (i % 3) * 0.35 + i * 0.12}s`, ["--sway" as string]: `${(i % 2 ? 1 : -1) * (10 + (i % 3) * 6)}px` }}>
+                  <I size={20} aria-hidden="true" /><em>{line(s.label)}</em>
+                </span>
+              );
+            })}
+            <div className="kp-ls-epi-text absolute inset-x-4 top-[7%] text-center">
+              <p className="text-[clamp(24px,3.4vw,44px)] font-semibold leading-tight text-[#1d1712]">{bn ? <>কর্মপথ: <em className="kp-em">প্রতিটি মোড়ে পাশে</em></> : <>KormoPath: <em className="kp-em">beside you at every turn</em></>}</p>
+              <p className="mx-auto mt-3 max-w-xl text-[clamp(14px,1.5vw,18px)] font-medium text-[#3d3630]">{line(STORY_END)}</p>
             </div>
           </div>
         )}
@@ -473,10 +560,10 @@ function Story({ lang }: { lang: Lang }) {
           {STAGES.map((s, i) => {
             const I = ICONS[s.id];
             return (
-              <button key={s.id} type="button" onClick={() => { seek(i * CHAPTER_SECONDS + 0.2); if (!ctl.current.playing) play(); }} aria-current={i === index ? "step" : undefined}
-                className={`kp-ls-chip ${i === index ? "kp-ls-chip-on" : i < index ? "kp-ls-chip-done" : ""}`}>
+              <button key={s.id} type="button" onClick={() => { seek(i * CHAPTER_SECONDS + 0.2); if (!ctl.current.playing) play(); }} aria-current={i === index && !epilogue ? "step" : undefined}
+                className={`kp-ls-chip ${i === index && !epilogue ? "kp-ls-chip-on" : i < index || epilogue ? "kp-ls-chip-done" : ""}`}>
                 <I size={14} aria-hidden="true" /><span>{line(s.label)}</span>
-                {i === index && <i className="kp-ls-chip-fill" aria-hidden="true" />}
+                {i === index && !epilogue && <i className="kp-ls-chip-fill" aria-hidden="true" />}
               </button>
             );
           })}
@@ -484,7 +571,7 @@ function Story({ lang }: { lang: Lang }) {
 
         {/* the dialogue: Rafi's problem → Buddy → Rafi's solution, as voice lines */}
         <div className="absolute bottom-[64px] left-3 right-3 z-10 sm:bottom-auto sm:left-[4%] sm:right-auto sm:top-[70px] sm:w-[min(500px,42%)]">
-          <p className="kp-eyebrow kp-ls-title !text-emerald-900 hidden sm:block">{line(STORY_TITLE)} · {bn ? `অধ্যায় ${num(stage.n)}` : `Chapter ${num(stage.n)}`}</p>
+          <p className="kp-eyebrow kp-ls-title hidden sm:block">{line(STORY_TITLE)} · {bn ? `অধ্যায় ${num(stage.n)}` : `Chapter ${num(stage.n)}`}</p>
           <div className="relative min-h-[150px] sm:mt-2">
             {([
               [line(STORY_HERO), line(stage.problem), "kp-ls-say-rafi kp-ls-say-problem"],
@@ -541,7 +628,8 @@ function Story({ lang }: { lang: Lang }) {
               onPointerDown={() => { ctl.current.scrubbing = true; }}
               onPointerUp={() => { ctl.current.scrubbing = false; }}
               onChange={(e) => seek((Number(e.currentTarget.value) / 1000) * DURATION)} />
-            {STAGES.slice(1).map((s, i) => <i key={s.id} className="kp-ls-tick" style={{ left: `${((i + 1) / STAGES.length) * 100}%` }} aria-hidden="true" />)}
+            {STAGES.map((s, i) => (i === 0 ? null : <i key={s.id} className="kp-ls-tick" style={{ left: `${((i * CHAPTER_SECONDS) / DURATION) * 100}%` }} aria-hidden="true" />))}
+            <i className="kp-ls-tick kp-ls-tick-epi" style={{ left: `${(CHAPTERS_END / DURATION) * 100}%` }} aria-hidden="true" />
           </div>
           <button type="button" role="switch" aria-checked={autoplay} onClick={() => setAutoplay(!autoplay)} className={`kp-ls-auto ${autoplay ? "kp-ls-auto-on" : ""}`} data-testid="story-autoplay">
             <i aria-hidden="true" /><span className="hidden sm:inline">{bn ? "অটো-প্লে" : "Autoplay"}</span><span className="sr-only sm:hidden">{bn ? "অটো-প্লে" : "Autoplay"}</span>

@@ -63,8 +63,9 @@ export const NUMERIC_CHANNELS = Object.keys(STAND).filter((k) => typeof STAND[k 
  * (it turns first), and the hands are quick with a small overshoot, so a gesture lands and settles.
  */
 export const SPRINGS: Record<string, { f: number; z: number; r?: number }> = {
-  hipX: { f: 1.1, z: 0.9 }, hipY: { f: 1.3, z: 0.85 },
-  lumbar: { f: 1.4, z: 0.8 }, chest: { f: 1.6, z: 0.75 }, neck: { f: 1.9, z: 0.72 }, head: { f: 2.2, z: 0.7, r: 0.4 },
+  // r < 0 is anticipation: the hips and spine dip the other way an instant before a big move, as a body does.
+  hipX: { f: 1.1, z: 0.9 }, hipY: { f: 1.3, z: 0.85, r: -0.25 },
+  lumbar: { f: 1.4, z: 0.8, r: -0.2 }, chest: { f: 1.6, z: 0.75, r: -0.2 }, neck: { f: 1.9, z: 0.72 }, head: { f: 2.2, z: 0.7, r: 0.4 },
   nhX: { f: 2.3, z: 0.62 }, nhY: { f: 2.3, z: 0.62 }, fhX: { f: 2.1, z: 0.6 }, fhY: { f: 2.1, z: 0.6 },
   nfX: { f: 1.8, z: 0.95 }, ffX: { f: 1.8, z: 0.95 },
   eye: { f: 4, z: 0.9 }, eyeY: { f: 4, z: 0.9 }, brow: { f: 3, z: 0.8 }, phone: { f: 2.5, z: 1 },
