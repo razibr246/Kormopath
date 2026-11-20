@@ -21,7 +21,7 @@ import { solve, inHand } from "@/field360/src/components/farmwork/rig";
 import { blink } from "@/field360/src/engine/motion";
 import { BEATS, STAGES, STORY_END, STORY_HERO, STORY_TITLE, beat, stageAt, type Stage } from "@/lib/lifeStory";
 import { FATHER_POSES, NUMERIC_CHANNELS, POSES, RIG_GROUND, SPRINGS, SPRING_DEFAULT, type RigPose } from "@/lib/lifeStoryPoses";
-import { springInit, springSet, springStep } from "@/lib/spring";
+import { footAt, springInit, springSet, springStep, stepFeet } from "@/lib/spring";
 import type React from "react";
 import EVAL from "@/lib/eval-results.json";
 import { bnDigits } from "@/lib/contract";
@@ -147,7 +147,8 @@ function Story({ lang }: { lang: Lang }) {
   const stageEl = useRef<HTMLDivElement>(null);
   const rafiRef = useRef<SVGGElement>(null), fatherRef = useRef<SVGGElement>(null), phoneRef = useRef<SVGGElement>(null), screenRef = useRef<SVGRectElement>(null);
   const buddyRef = useRef<SVGGElement>(null), sunRef = useRef<SVGGElement>(null), rainRef = useRef<SVGGElement>(null);
-  const camRef = useRef<SVGGElement>(null), beamRef = useRef<SVGPathElement>(null);
+  const camRef = useRef<SVGGElement>(null), beamRef = useRef<SVGPathElement>(null), fgRef = useRef<SVGGElement>(null);
+  const dustN = useRef<SVGEllipseElement>(null), dustF = useRef<SVGEllipseElement>(null), rimRef = useRef<SVGRectElement>(null);
   const scrubRef = useRef<HTMLInputElement>(null), timeRef = useRef<HTMLSpanElement>(null);
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -184,6 +185,11 @@ function Story({ lang }: { lang: Lang }) {
     let buddyX = springInit(320), buddyY = springInit(120), mood = springInit(0), headV = springInit(0);
     let zoom = springInit(1), panX = springInit(0), hair = springInit(0);
     let lastPhone: [number, number] | null = null;
+    // Feet are planted and step on their own (lib/spring.ts stepFeet): walking emerges from the hips moving.
+    const feet = { n: footAt(216), f: footAt(184) };
+    const ENTRANCE = 74; // he walks in from this far left at the start of a standing chapter
+    const WALK_SPEED = 66; // rig units per second: slower than the feet can step (a stride per step), so it is a walk, not a lunge
+    let walkOffset = 0;
     const tuft = rafiRef.current.querySelector(".kp-hair-tuft");
     // Lip-sync: two incommensurate sines give a natural, never-repeating open/close rhythm.
     const lips = (time: number) => Math.sin(time * 13) + 0.8 * Math.sin(time * 7.7 + 1.3) > 0.35;
@@ -197,7 +203,17 @@ function Story({ lang }: { lang: Lang }) {
         if (c.time >= DURATION) { c.time = DURATION; c.playing = false; setPlaying(false); setEnded(true); }
       }
       const { index: i, local } = stageAt(c.time / DURATION);
-      if (i !== shown) { shown = i; setIndex(i); }
+      if (i !== shown) {
+        // A new chapter: under the title card, he is moved back off his mark and walks in.
+        const first = POSES[STAGES[i].poses[0]];
+        if (first.hipY < 215 && local < 0.2) {
+          // The cut is hidden by the title card: his whole body takes the new chapter's opening pose, off his mark.
+          body.snap({ ...channels(first), hipX: first.hipX - ENTRANCE });
+          walkOffset = -ENTRANCE;
+          feet.n = footAt(first.nfX - ENTRANCE); feet.f = footAt(first.ffX - ENTRANCE);
+        }
+        shown = i; setIndex(i);
+      }
       const st = STAGES[i];
       const bP = beat(local, BEATS.problem), bB = beat(local, BEATS.buddy), bA = beat(local, BEATS.app), bS = beat(local, BEATS.solved);
       // Which key pose he is heading for; the springs do the moving (weight, overshoot, settle).
@@ -212,6 +228,8 @@ function Story({ lang }: { lang: Lang }) {
         target.fhX = lastPhone[0] - 1.5;
         target.fhY = lastPhone[1] + 2 + Math.max(0, Math.sin(t * 7.5)) * 3.2;
       }
+      // Walking in: the hips' goal advances at a steady pace; the spring and the stepping feet follow it.
+      if (walkOffset < 0) { walkOffset = Math.min(0, walkOffset + WALK_SPEED * dt); target.hipX += walkOffset; }
       const raw = body.step(target, dt);
       const breath = Math.sin(t * ((2 * Math.PI) / 3.8));
       const standing = goal.hipY < 215 ? 1 : 0;
@@ -224,7 +242,36 @@ function Story({ lang }: { lang: Lang }) {
         pose.mouth = lips(t) ? "open" : saying === "solved" ? "smile" : goal.mouth;
       }
       if (bA > 0.2 && bS < 0.5 && goal.phone) pose.nhWrist = (pose.nhWrist as number) + Math.sin(t * 5) * 4; // thumb scrolling
+      // Feet: while he stands, each foot stays planted until the hips have moved too far from it, then steps.
+      if (goal.hipY < 215) {
+        const hx = pose.hipX as number;
+        // Predictive placement: each foot steps to where the hips will be a step from now, not where they are.
+        const lead = body.velocity("hipX") * 0.28;
+        const g = stepFeet(feet, { n: hx + lead + (goal.nfX - goal.hipX), f: hx + lead + (goal.ffX - goal.hipX) }, dt, t, 7);
+        pose.nfX = feet.n.x; pose.ffX = feet.f.x;
+        // Arms swing against the legs while he walks (only an arm that is not holding the phone or his head).
+        const walking = walkOffset < 0 || feet.n.k >= 0 || feet.f.k >= 0;
+        if (walking) {
+          const swing = ((feet.n.x - feet.f.x) - (goal.nfX - goal.ffX)) * 0.45;
+          if (key !== "phone" && key !== "cheer") { pose.nhX = (pose.nhX as number) - swing; pose.nhY = (pose.nhY as number) - Math.abs(swing) * 0.2; }
+          if (key === "phone" || key === "stand") { pose.fhX = (pose.fhX as number) + swing; pose.fhY = (pose.fhY as number) - Math.abs(swing) * 0.2; }
+        }
+        pose.nfLift = g.n.lift; pose.ffLift = g.f.lift; pose.nfRoll = g.n.roll; pose.ffRoll = g.f.roll;
+        // Each swing tips the body over the planted foot a little.
+        pose.lumbar = (pose.lumbar as number) + (g.n.lift + g.f.lift) * 0.12;
+      } else {
+        feet.n = footAt(raw.nfX); feet.f = footAt(raw.ffX);
+      }
       const sk = solve(pose, RIG_GROUND);
+      // A puff of dust where a heel lands.
+      for (const [el, ft] of [[dustN.current, feet.n], [dustF.current, feet.f]] as const) {
+        if (!el) continue;
+        const age = t - ft.strikeAt;
+        el.setAttribute("cx", (ft.x + 2).toFixed(1));
+        el.setAttribute("rx", (5 + age * 34).toFixed(1));
+        el.setAttribute("ry", (1.6 + age * 5).toFixed(1));
+        el.setAttribute("opacity", Math.max(0, 0.38 * (1 - age / 0.55)).toFixed(3));
+      }
       // The lungi trails the hips; the hair tuft swings on an under-damped spring driven by the head's motion.
       paintRafi(sk, { blink: blink(t, 3), drag: -body.velocity("hipX") * 0.6 });
       hair = springStep(hair, -body.velocity("head") * 0.9 + Math.sin(t * 1.3) * 3, dt, { f: 2.4, z: 0.32 });
@@ -281,9 +328,12 @@ function Story({ lang }: { lang: Lang }) {
       panX = springStep(panX, pt ? 0 : -24 * bA * (1 - bS), dt, { f: 0.45, z: 1 });
       const cx = RIG_DX + 205 * RIG_SCALE, cy = RIG_DY + 170 * RIG_SCALE;
       camRef.current?.setAttribute("transform", `translate(${(cx + panX.y).toFixed(1)} ${cy.toFixed(1)}) scale(${zoom.y.toFixed(4)}) translate(${-cx} ${-cy})`);
+      // Foreground: nearer than everything, so it moves more with the camera (parallax depth).
+      fgRef.current?.setAttribute("transform", `translate(${(cx + panX.y * 1.8).toFixed(1)} ${cy.toFixed(1)}) scale(${(1 + (zoom.y - 1) * 1.6).toFixed(4)}) translate(${-cx} ${-cy})`);
       // Mood: grey rain while it is a problem, warm sun once solved.
       mood = springStep(mood, bS, dt, { f: 0.8, z: 1 });
       sunRef.current?.setAttribute("opacity", mood.y.toFixed(3));
+      rimRef.current?.setAttribute("opacity", (mood.y * 0.75).toFixed(3));
       rainRef.current?.setAttribute("opacity", ((1 - mood.y) * (1 - bA * 0.6)).toFixed(3));
       const s = box.style;
       s.setProperty("--b-app", bA.toFixed(3));
@@ -343,6 +393,7 @@ function Story({ lang }: { lang: Lang }) {
             <radialGradient id="kp-ls-sun" cx="50%" cy="50%" r="50%"><stop offset="0" stopColor="#fff1c9" /><stop offset=".45" stopColor="#f6c56b" stopOpacity=".85" /><stop offset="1" stopColor="#f6c56b" stopOpacity="0" /></radialGradient>
             <radialGradient id="kp-ls-orb" cx="38%" cy="32%" r="70%"><stop offset="0" stopColor="#e9fff6" /><stop offset=".35" stopColor="#5fd3a6" /><stop offset=".8" stopColor="#0e6b4f" /><stop offset="1" stopColor="#084532" /></radialGradient>
             <linearGradient id="kp-ls-beam" x1="0" x2="1"><stop offset="0" stopColor="#bfffe5" stopOpacity=".95" /><stop offset="1" stopColor="#5fd3a6" stopOpacity=".2" /></linearGradient>
+            <radialGradient id="kp-ls-rim" cx="82%" cy="20%" r="80%"><stop offset="0" stopColor="#ffd27a" stopOpacity=".95" /><stop offset=".55" stopColor="#f6a04d" stopOpacity=".35" /><stop offset="1" stopColor="#f6a04d" stopOpacity="0" /></radialGradient>
             <radialGradient id="kp-ls-vignette" cx="50%" cy="45%" r="75%"><stop offset=".6" stopColor="#000" stopOpacity="0" /><stop offset="1" stopColor="#1d1712" stopOpacity=".28" /></radialGradient>
           </defs>
           <text x="40" y="250" className="kp-ls-mark" fontSize="250">{num(stage.n)}</text>
@@ -372,6 +423,8 @@ function Story({ lang }: { lang: Lang }) {
             <g transform={`translate(${RIG_DX} ${RIG_DY}) scale(${RIG_SCALE})`}>
               <g key={stage.id} className="kp-ls-props"><Scenery id={stage.id} /></g>
               <g ref={fatherRef} transform={`translate(${FATHER_X + 200} 0) scale(-1 1)`} style={{ transition: "opacity .6s" }}><Farmer look={FATHER} /></g>
+              <ellipse ref={dustN} cy={RIG_GROUND + 1} rx="5" ry="1.6" fill="#b9a383" opacity="0" />
+              <ellipse ref={dustF} cy={RIG_GROUND + 1} rx="5" ry="1.6" fill="#b9a383" opacity="0" />
               <g ref={rafiRef}><Farmer look={RAFI} /></g>
               <path ref={beamRef} fill="none" stroke="url(#kp-ls-beam)" strokeWidth="2.4" strokeLinecap="round" strokeDasharray="3 4" className="kp-ls-beam" opacity="0" />
               <g ref={phoneRef} opacity="0">
@@ -387,8 +440,25 @@ function Story({ lang }: { lang: Lang }) {
             </g>
             <path d="M0 600H1000V1100H0Z" className="kp-ls-hill" />
           </g>
+          {/* foreground: blurred grass at the frame's edges, nearer than the actors */}
+          <g ref={fgRef} className="kp-ls-fg">
+            <path d="M-20 640C10 560 30 520 42 470C50 530 62 560 70 640ZM30 640C52 580 80 548 104 520C96 570 92 600 96 640ZM-30 640C-10 590 -4 560 0 530C16 580 24 610 26 640Z" />
+            <path d="M1020 640C990 560 972 522 962 478C952 532 940 566 934 640ZM970 640C948 582 922 552 898 528C906 574 910 604 906 640Z" />
+          </g>
+          {/* warm rim light from the sun once the problem is solved */}
+          <rect ref={rimRef} x="-200" y="-400" width="1400" height="1600" fill="url(#kp-ls-rim)" opacity="0" style={{ mixBlendMode: "soft-light" }} pointerEvents="none" />
           <rect x="-200" y="-400" width="1400" height="1600" fill="url(#kp-ls-vignette)" pointerEvents="none" />
         </svg>
+
+        {/* title card: wipes across at each chapter change, like a film's chapter slate */}
+        {started && (
+          <div key={`wipe-${stage.id}`} className="kp-ls-wipe pointer-events-none absolute inset-0 z-[25] grid place-items-center" aria-hidden="true">
+            <div className="text-center">
+              <p className="font-mono text-[clamp(44px,8vw,110px)] font-bold leading-none text-[#f4cf87]">{num(stage.n)}</p>
+              <p className="mt-2 text-[clamp(24px,3.6vw,46px)] font-semibold text-[#fbf3e8]">{line(stage.label)}</p>
+            </div>
+          </div>
+        )}
 
         {/* chapters: jump to any */}
         <nav aria-label={bn ? "সাতটি অধ্যায়" : "Seven chapters"} className="kp-ls-rail absolute inset-x-0 top-3 z-20 flex gap-1.5 overflow-x-auto px-3 sm:top-4 sm:justify-center sm:gap-2">

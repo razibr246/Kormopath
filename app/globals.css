@@ -1339,3 +1339,11 @@ body:has(.kp-ls-bleed) { overflow-x: clip; }
 .kp-ls-auto-on i::after { transform: translateX(13px); }
 .kp-ls:fullscreen { border-radius: 0; width: 100vw; height: 100vh; aspect-ratio: auto; }
 @media (prefers-reduced-motion: reduce) { .kp-ls-cloud, .kp-ls-splash, .kp-ls-motes circle, .kp-ls-beam { animation: none; } }
+/* Story player: chapter slate, foreground depth */
+.kp-ls-wipe { background: linear-gradient(115deg, #0a4a37 0%, #0e6b4f 55%, #15896a 100%); animation: kp-ls-wipe 1.25s cubic-bezier(.7, 0, .2, 1) both; }
+.kp-ls-wipe > div { animation: kp-ls-slate 1.25s ease both; }
+@keyframes kp-ls-wipe { 0%, 42% { clip-path: inset(0 0 0 0); } 100% { clip-path: inset(0 0 0 100%); } }
+@keyframes kp-ls-slate { 0% { opacity: 0; transform: translateY(12px) scale(.96); } 18%, 40% { opacity: 1; transform: none; } 70%, 100% { opacity: 0; transform: translateX(40px); } }
+.kp-ls-fg path { fill: color-mix(in oklab, #4f5b4b calc((1 - var(--mood)) * 100%), #5f8a3a); }
+.kp-ls-fg { filter: blur(3px); opacity: .9; }
+@media (prefers-reduced-motion: reduce) { .kp-ls-wipe, .kp-ls-wipe > div { animation-duration: .01s; } }

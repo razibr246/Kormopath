@@ -44,3 +44,40 @@ export function springSet(params: Record<string, SpringParams>, fallback: Spring
     snap(targets: Record<string, number>) { for (const k in targets) state[k] = springInit(targets[k]); },
   };
 }
+
+/**
+ * Procedural stepping (as in games): each foot stays planted until the hips have moved too far from where it wants
+ * to stand, then that one foot swings to a new spot in an arc (heel off, swing with lift, heel strike) while the
+ * other holds the weight. Walking emerges from the hips moving; standing still, the feet stay exactly put.
+ */
+export type Foot = { x: number; from: number; to: number; k: number; strikeAt: number };
+export const footAt = (x: number): Foot => ({ x, from: x, to: x, k: -1, strikeAt: -99 });
+
+export const STEP_SECONDS = 0.26;
+export const MAX_STRIDE = 34;
+
+export function stepFeet(feet: { n: Foot; f: Foot }, want: { n: number; f: number }, dt: number, now: number, threshold = 9) {
+  const swinging = feet.n.k >= 0 || feet.f.k >= 0;
+  if (!swinging) {
+    const en = Math.abs(want.n - feet.n.x), ef = Math.abs(want.f - feet.f.x);
+    const side: "n" | "f" = en >= ef ? "n" : "f";
+    const err = Math.max(en, ef);
+    if (err > threshold) {
+      const ft = feet[side], dir = Math.sign(want[side] - ft.x);
+      // Step a little past where it wants to be (a lead), never further than a stride.
+      ft.from = ft.x; ft.to = ft.x + dir * Math.min(MAX_STRIDE, err + Math.min(6, err * 0.2)); ft.k = 0;
+    }
+  }
+  const out = { n: { lift: 0, roll: 0 }, f: { lift: 0, roll: 0 } };
+  for (const side of ["n", "f"] as const) {
+    const ft = feet[side];
+    if (ft.k < 0) continue;
+    ft.k += dt / STEP_SECONDS;
+    if (ft.k >= 1) { ft.k = -1; ft.x = ft.to; ft.strikeAt = now; continue; }
+    const e = ft.k * ft.k * (3 - 2 * ft.k);
+    ft.x = ft.from + (ft.to - ft.from) * e;
+    out[side].lift = Math.sin(Math.PI * ft.k) * 10;
+    out[side].roll = ft.k < 0.35 ? 22 * (ft.k / 0.35) : -12 * (1 - ft.k); // toe-off, then heel-first landing
+  }
+  return out;
+}
