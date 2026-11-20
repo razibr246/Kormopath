@@ -321,21 +321,25 @@ export default function HomePage() {
               )}
             </ul>
 
+            {/* One primary and one secondary action, the rest as quiet links (the way large product sites do it). */}
             <div className="mt-8 flex flex-wrap items-center gap-3">
               {/* B2C: first value with no sign-up. The workspace opens straight away; profiles and plans are optional. */}
               <Link href="/workspace" prefetch={true} className="kp-btn-primary kp-btn-lg" data-testid="hero-start">
-                <Briefcase size={18} /> {bn ? "এখনই শুরু করুন · সাইন-আপ লাগবে না" : "Start now · no sign-up"}
+                <Briefcase size={18} /> {bn ? "এখনই শুরু করুন" : "Start now"}
               </Link>
               <a href="#apps-showcase" className="kp-btn-ghost kp-btn-lg">
                 {bn ? "সব অ্যাপ দেখুন" : "See all apps"} <ArrowRight size={17} />
               </a>
-              <Link href="/pricing" prefetch={true} className="kp-btn-ghost kp-btn-lg" data-testid="hero-pricing">
-                <Sparkles size={18} /> {bn ? "ফ্রি ও পেইড প্ল্যান" : "Free & paid plans"}
-              </Link>
-              <button type="button" onClick={() => setLoginModalOpen(true)} className="kp-btn-ghost kp-btn-lg">
-                {bn ? "ডেমো প্রোফাইল" : "Demo profiles"}
-              </button>
             </div>
+            <p className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-[14.5px] text-slate-600">
+              <span className="inline-flex items-center gap-1.5"><Lock size={14} className="text-emerald-700" aria-hidden="true" />{bn ? "সাইন-আপ লাগবে না, ফ্রি" : "No sign-up, free"}</span>
+              <button type="button" onClick={() => setLoginModalOpen(true)} className="font-semibold text-emerald-800 underline-offset-4 hover:underline" data-testid="hero-demo-profiles">
+                {bn ? "ডেমো প্রোফাইলে ঘুরে দেখুন" : "Try a demo profile"}
+              </button>
+              <Link href="/pricing" prefetch={true} className="inline-flex items-center gap-1 font-semibold text-emerald-800 underline-offset-4 hover:underline" data-testid="hero-pricing">
+                <Sparkles size={14} aria-hidden="true" /> {bn ? "ফ্রি ও পেইড প্ল্যান" : "Free & paid plans"}
+              </Link>
+            </p>
           </div>
 
           <div className="kp-rise kp-rise-2 mx-auto w-full max-w-[540px]">
@@ -352,7 +356,7 @@ export default function HomePage() {
         {/* Trust strip */}
         <section aria-label={bn ? "আমাদের প্রতিশ্রুতি" : "Our promises"} className="kp-trust grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            { icon: Lock, t: bn ? "লগইন নেই" : "No login", d: bn ? "নাম, ফোন বা ইমেইল চাওয়া হয় না" : "No name, phone or email asked" },
+            { icon: Lock, t: bn ? "অ্যাকাউন্ট লাগে না" : "No account needed", d: bn ? "নাম, ফোন বা ইমেইল চাওয়া হয় না" : "No name, phone or email asked" },
             { icon: Database, t: bn ? "ডেটা আপনার" : "Your data", d: bn ? "ডিভাইসে থাকে; সেটিংসে রপ্তানি বা মুছুন" : "On your device; export or delete in Settings" },
             { icon: Scale, t: bn ? "নিয়মে হিসাব" : "Rule-based maths", d: bn ? "ফি, কর ও মোট: কোডে, এআই নয়" : "Fees, tax and totals in code, not AI" },
             { icon: ShieldCheck, t: bn ? "উৎস দেখানো" : "Sources shown", d: bn ? "দাম, তারিখ বা মাত্রা বানানো হয় না" : "No invented prices, dates or doses" },

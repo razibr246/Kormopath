@@ -80,7 +80,7 @@ export function SignedInHome({ session, home, apps, lang, onShowPublic, onSwitch
         <div className="flex items-center gap-4">
           <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-emerald-50 text-[30px] ring-1 ring-emerald-200" aria-hidden="true">{AVATAR[session.personaId] ?? "🙂"}</span>
           <div className="min-w-0">
-            <p className={`kp-eyebrow ${bn ? "!tracking-normal" : ""}`}>{bn ? "আপনার হোম" : "Your home"}</p>
+            <p className="kp-eyebrow">{bn ? "আপনার হোম" : "Your home"}</p>
             <h1 id="me-title" className="mt-1 text-[clamp(26px,3.6vw,38px)] font-semibold leading-tight text-slate-900">
               {bn ? `${greet.bn}, ${firstName}` : `${greet.en}, ${firstName}`}
             </h1>

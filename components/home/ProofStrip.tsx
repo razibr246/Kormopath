@@ -18,8 +18,9 @@ const triage = (EVAL as unknown as { triage?: Triage }).triage;
 const STATS: Stat[] = [
   { value: EVAL.audit.verifiedQuoteFound, total: EVAL.audit.verified, bn: "দক্ষতা সিভি থেকে হুবহু উদ্ধৃত", en: "skills quoted word for word from the CV" },
   { value: EVAL.probes.filter((p) => p.passed).length, total: EVAL.probes.length, bn: "ফাঁদ-সিভিতে কোনো দক্ষতা বানানো হয়নি", en: "trap CVs: no skill invented" },
-  { value: EVAL.pitch.amountsNotInContract, total: EVAL.pitch.amountsFound, bn: "পিচে চুক্তির বাইরের ডলার অঙ্ক", en: "dollar amounts in pitches outside the contract" },
-  ...(triage ? [{ value: triage.falseUrgent, total: triage.routine, bn: "সাধারণ স্বাস্থ্য প্রশ্নে ভুল জরুরি সতর্কতা", en: "routine health questions wrongly sent to 999" }] : []),
+  // Shown as the good count (amounts that match), so a zero failure reads as a full score, not as "0".
+  { value: EVAL.pitch.amountsFound - EVAL.pitch.amountsNotInContract, total: EVAL.pitch.amountsFound, bn: "পিচের ডলার অঙ্ক চুক্তির সঙ্গে মেলে", en: "pitch dollar amounts match the contract" },
+  ...(triage ? [{ value: triage.routine - triage.falseUrgent, total: triage.routine, bn: "সাধারণ স্বাস্থ্য প্রশ্নে ভুল জরুরি সতর্কতা দেয়নি", en: "routine health questions kept out of a false 999 alert" }] : []),
   { value: EVAL.fees.cases, bn: "ফি-হিসাবের ঘটনা, প্রতিটি পয়সা পর্যন্ত মেলে", en: "fee cases that reconcile to the poisha" },
 ];
 
