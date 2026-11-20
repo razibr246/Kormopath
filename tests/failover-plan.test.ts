@@ -24,3 +24,12 @@ test("failover: a model that answered 503 or timed out is tried last; a success 
   models.clear("gemini-4-hydrogen");
   assert.deepEqual(attemptPlan(MODELS, 1, models, keys).models, MODELS);
 });
+
+test("rotateKeys: requests start at the next healthy key; failed keys stay last", async () => {
+  const { rotateKeys } = await import("../lib/cooldown.ts");
+  assert.deepEqual(rotateKeys([0, 1, 2, 3], [], 0), [0, 1, 2, 3]);
+  assert.deepEqual(rotateKeys([0, 1, 2, 3], [], 1), [1, 2, 3, 0]);
+  assert.deepEqual(rotateKeys([0, 1, 2, 3], [], 5), [1, 2, 3, 0]);
+  assert.deepEqual(rotateKeys([1, 2, 3, 0], [0], 2), [3, 1, 2, 0]);
+  assert.deepEqual(rotateKeys([0], [0], 3), [0]);
+});

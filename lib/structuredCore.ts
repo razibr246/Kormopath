@@ -99,3 +99,35 @@ export async function runStructured<T>(o: RunOptions<T>): Promise<StructuredResu
   o.log("zod", "Model output still invalid after repair, falling back", "fallback");
   return null;
 }
+
+/**
+ * Hedged call for speed: start `first`; if it has not answered within `delayMs` (or it already failed), start
+ * `second` too, and return whichever non-null answer arrives first. Returns null only when both fail.
+ * The slower call is left to finish in the background; its result is ignored.
+ */
+export function hedge<T>(
+  first: () => Promise<T | null>,
+  second: (() => Promise<T | null>) | null,
+  delayMs: number,
+  onSecondStart?: (reason: "slow" | "failed") => void,
+): Promise<{ value: T; by: "first" | "second" } | null> {
+  return new Promise((resolve) => {
+    let done = false, pending = 1, started = false;
+    const finish = (v: { value: T; by: "first" | "second" } | null) => { if (!done) { done = true; resolve(v); } };
+    const settle = (by: "first" | "second") => (v: T | null) => {
+      if (done) return;
+      if (v !== null && v !== undefined) return finish({ value: v, by });
+      pending--;
+      if (by === "first" && !started) startSecond("failed");
+      else if (pending === 0) finish(null);
+    };
+    const startSecond = (reason: "slow" | "failed") => {
+      if (started || done || !second) { if (!second && pending === 0) finish(null); return; }
+      started = true; pending++;
+      onSecondStart?.(reason);
+      second().then(settle("second"), () => settle("second")(null));
+    };
+    const timer = setTimeout(() => startSecond("slow"), Math.max(0, delayMs));
+    first().then(settle("first"), () => settle("first")(null)).finally(() => { if (done) clearTimeout(timer); });
+  });
+}

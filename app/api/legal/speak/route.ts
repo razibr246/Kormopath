@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { checkRateLimitShared, rateLimitResponse } from "@/lib/rateLimit";
 import { Tracer } from "@/lib/trace";
+import { ttsGet, ttsKey, ttsPut } from "@/lib/ttsCache";
 import { TTS_MODELS, geminiAvailable, interact, outputAudio } from "@/lib/gemini";
 
 export const runtime = "nodejs";
@@ -17,12 +18,18 @@ const STYLE = {
 };
 
 export async function POST(req: Request) {
-  const rl = await checkRateLimitShared(req, { limit: 20, windowMs: 60_000, bucket: "legal-speak" });
+  const rl = await checkRateLimitShared(req, { limit: 60, windowMs: 60_000, bucket: "legal-speak" });
   if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds, rl.store);
   const p = Body.safeParse(await req.json().catch(() => null));
   if (!p.success) return NextResponse.json({ error: "text missing or too long" }, { status: 400 });
   if (!geminiAvailable()) return NextResponse.json({ error: "voice not configured" }, { status: 503 });
   const tracer = new Tracer("Legal Voice");
+  const ck = ttsKey(VOICE, STYLE[p.data.lang], p.data.text);
+  const hit = ttsGet(ck);
+  if (hit) {
+    tracer.log("tts-cache", "Same line spoken recently; played from memory", "ok", 0);
+    return NextResponse.json({ ...hit, trace: tracer.steps }, { headers: { "Cache-Control": "no-store" } });
+  }
   const res = await interact(tracer, {
     input: [{ type: "user_input", content: [{ type: "text", text: p.data.text, annotations: [{ type: "speech_metadata", style: STYLE[p.data.lang] }] }] }],
     response_format: { type: "audio" },
@@ -33,5 +40,6 @@ export async function POST(req: Request) {
     tracer.log("browser-voice", "No audio; the page speaks with the browser's own voice", "fallback");
     return NextResponse.json({ error: "voice unavailable", trace: tracer.steps }, { status: 502 });
   }
+  ttsPut(ck, p.data.text, { audio: audio.data, mimeType: audio.mimeType, model: res.model });
   return NextResponse.json({ audio: audio.data, mimeType: audio.mimeType, model: res.model, trace: tracer.steps }, { headers: { "Cache-Control": "no-store" } });
 }

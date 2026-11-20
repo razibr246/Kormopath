@@ -61,3 +61,14 @@ export function attemptPlan(models: readonly string[], keyCount: number, modelCo
   const keyOrder = keyCooldown.order(Array.from({ length: keyCount }, (_, i) => String(i))).map(Number);
   return { models: modelCooldown.order(models), keyOrder, deferredKeys: keyOrder.filter((i) => keyCooldown.remainingMs(String(i)) > 0) };
 }
+
+/**
+ * Round-robin over healthy keys: request n starts at healthy key (n mod count), so a pool of keys shares the load
+ * instead of key 1 taking every first attempt. Keys that failed recently stay at the end, in their order.
+ */
+export function rotateKeys(keyOrder: readonly number[], deferred: readonly number[], n: number): number[] {
+  const live = keyOrder.filter((k) => !deferred.includes(k));
+  if (!live.length) return [...keyOrder];
+  const start = ((n % live.length) + live.length) % live.length;
+  return [...live.slice(start), ...live.slice(0, start), ...keyOrder.filter((k) => deferred.includes(k))];
+}

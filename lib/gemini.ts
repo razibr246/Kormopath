@@ -1,6 +1,7 @@
 import "server-only";
 import type { Tracer } from "./trace";
-import { attemptPlan, createCooldown, RATE_LIMIT_COOLDOWN_MS, TIMEOUT_COOLDOWN_MS } from "./cooldown";
+import { attemptPlan, createCooldown, rotateKeys, RATE_LIMIT_COOLDOWN_MS, TIMEOUT_COOLDOWN_MS } from "./cooldown";
+let roundRobin = 0;
 import { apiVersionFor } from "./geminiVersion";
 export { apiVersionFor };
 
@@ -106,7 +107,10 @@ export async function interact(
     tracer.log("gemini", "No GEMINI_API_KEY set", "fallback");
     return null;
   }
-  const { models, keyOrder, deferredKeys } = attemptPlan(options.models ?? TEXT_MODELS, keys.length, cooldown, keyCooldown);
+  const plan = attemptPlan(options.models ?? TEXT_MODELS, keys.length, cooldown, keyCooldown);
+  const { models, deferredKeys } = plan;
+  // Share the load across the key pool: each request starts at the next healthy key.
+  const keyOrder = rotateKeys(plan.keyOrder, deferredKeys, roundRobin++);
   if (deferredKeys.length) tracer.log("gemini", `${deferredKeys.length} key(s) refused recently; tried last`, "warn");
   for (const model of models) {
     const left = cooldown.remainingMs(model);

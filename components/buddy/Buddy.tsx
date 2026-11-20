@@ -22,6 +22,7 @@ import {
   Square,
 } from "lucide-react";
 import { banglaShare, prepareBanglaSpeech } from "@/lib/banglaSpeech";
+import { splitSpeech } from "@/lib/speechChunks";
 import { storageKey, usePersistentState } from "@/lib/clientStore";
 
 export const CREW_APPS = [
@@ -502,45 +503,57 @@ export function Buddy() {
       return;
     }
 
-    // 1. Try server Gemini TTS for Bengali audio
+    // 1. Gemini Bangla voice, sentence by sentence: the short first chunk plays as soon as it is ready, and each next
+    //    chunk is synthesised while the current one plays (one abort controller stops the whole queue).
+    const chunks = splitSpeech(text.slice(0, 4000), 90, 320);
     const controller = new AbortController();
     speechAbortRef.current = controller;
     setSpeechLoading(true);
-
-    try {
-      const response = await fetch("/api/buddy/speech", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ text }),
-        signal: controller.signal,
-      });
-      const data = (await response.json().catch(() => ({}))) as { audio?: string; error?: string; mimeType?: string };
-      if (response.ok && data.audio) {
-        const bytes = Uint8Array.from(atob(data.audio), (char) => char.charCodeAt(0));
-        const blob = new Blob([bytes], { type: data.mimeType || "audio/wav" });
-        const url = URL.createObjectURL(blob);
+    type Clip = { audio: string; mimeType?: string } | null;
+    const fetchClip = (part: string): Promise<Clip> =>
+      fetch("/api/buddy/speech", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ text: part }), signal: controller.signal })
+        .then(async (r) => {
+          const d = (await r.json().catch(() => ({}))) as { audio?: string; mimeType?: string };
+          return r.ok && d.audio ? { audio: d.audio, mimeType: d.mimeType } : null;
+        })
+        .catch(() => null);
+    const playClip = (clip: { audio: string; mimeType?: string }) =>
+      new Promise<boolean>((resolve) => {
+        const bytes = Uint8Array.from(atob(clip.audio), (char) => char.charCodeAt(0));
+        const url = URL.createObjectURL(new Blob([bytes], { type: clip.mimeType || "audio/wav" }));
+        if (speechUrlRef.current) URL.revokeObjectURL(speechUrlRef.current);
         speechUrlRef.current = url;
         const audio = new Audio(url);
         audioRef.current = audio;
-        audio.onplay = () => {
-          setIsNaturalVoice(true);
-          setIsSpeaking(true);
-        };
-        audio.onended = () => stopSpeaking();
-        audio.onerror = () => {
-          fallbackDeviceVoice(text);
-        };
-        await audio.play();
+        audio.onplay = () => { setIsNaturalVoice(true); setIsSpeaking(true); };
+        audio.onended = () => resolve(true);
+        audio.onerror = () => resolve(false);
+        audio.onpause = () => resolve(!controller.signal.aborted);
+        audio.play().catch(() => resolve(false));
+      });
+
+    let next: Promise<Clip> | null = chunks.length ? fetchClip(chunks[0]) : null;
+    for (let i = 0; i < chunks.length; i++) {
+      const clip = await next;
+      if (controller.signal.aborted) return;
+      next = i + 1 < chunks.length ? fetchClip(chunks[i + 1]) : null;
+      if (i === 0) setSpeechLoading(false);
+      if (!clip) {
+        // This chunk could not be voiced: the device voice reads it and the rest.
+        if (speechAbortRef.current === controller) speechAbortRef.current = null;
+        fallbackDeviceVoice(chunks.slice(i).join(" "));
         return;
       }
-    } catch (err) {
-      if (err instanceof DOMException && err.name === "AbortError") return;
-    } finally {
-      if (speechAbortRef.current === controller) {
-        speechAbortRef.current = null;
-        setSpeechLoading(false);
+      const ok = await playClip(clip);
+      if (controller.signal.aborted) return;
+      if (!ok) {
+        if (speechAbortRef.current === controller) speechAbortRef.current = null;
+        fallbackDeviceVoice(chunks.slice(i).join(" "));
+        return;
       }
     }
+    if (chunks.length) { stopSpeaking(); return; }
+    if (speechAbortRef.current === controller) { speechAbortRef.current = null; setSpeechLoading(false); }
 
     // 2. Seamlessly fall back to browser device voice
     fallbackDeviceVoice(text);

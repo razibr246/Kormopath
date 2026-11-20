@@ -1,4 +1,5 @@
 "use client";
+import { splitSpeech } from "@/lib/speechChunks";
 import { useEffect, useRef, useState } from "react";
 import { Mic, MicOff, Phone, PhoneOff, RotateCcw, Send } from "lucide-react";
 import { PROBLEM_CATEGORIES } from "@/lib/legal/taxonomy";
@@ -32,32 +33,30 @@ const bnNum = (v: string | number) => String(v).replace(/\d/g, (d) => "০১২
 export const KEYPAD = PROBLEM_CATEGORIES.filter((c) => !c.freeText && c.id !== "other").slice(0, 10).map((c, i) => ({ key: i === 9 ? "0" : String(i + 1), cat: c }));
 
 let currentAudio: HTMLAudioElement | null = null;
+let speakGen = 0; // bumped by stopSpeaking(), so a stopped call never plays a queued chunk
 
-/** Speaks text with Gemini TTS, falling back to the browser voice. Resolves when speech ends or is stopped. */
-export async function speakText(text: string, lang: "bn" | "en"): Promise<void> {
-  stopSpeaking();
-  const clean = text.replace(/\s+/g, " ").trim().slice(0, 1200);
-  if (!clean) return;
-  try {
-    const r = await fetch("/api/legal/speak", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ text: clean, lang }) });
-    if (r.ok) {
-      const j = (await r.json()) as { audio?: string; mimeType?: string };
-      if (j.audio) {
-        await new Promise<void>((resolve) => {
-          const a = new Audio(`data:${j.mimeType || "audio/wav"};base64,${j.audio}`);
-          currentAudio = a;
-          a.onended = () => resolve();
-          a.onerror = () => resolve();
-          a.onpause = () => resolve();
-          a.play().catch(() => resolve());
-        });
-        return;
-      }
-    }
-  } catch { /* fall through to the browser voice */ }
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-  await new Promise<void>((resolve) => {
-    const u = new SpeechSynthesisUtterance(clean);
+type Clip = { audio?: string; mimeType?: string } | null;
+const fetchClip = (text: string, lang: "bn" | "en"): Promise<Clip> =>
+  fetch("/api/legal/speak", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ text, lang }) })
+    .then((r) => (r.ok ? (r.json() as Promise<Clip>) : null))
+    .catch(() => null);
+
+function playClip(clip: { audio: string; mimeType?: string }, gen: number): Promise<void> {
+  return new Promise<void>((resolve) => {
+    if (gen !== speakGen) return resolve();
+    const a = new Audio(`data:${clip.mimeType || "audio/wav"};base64,${clip.audio}`);
+    currentAudio = a;
+    a.onended = () => resolve();
+    a.onerror = () => resolve();
+    a.onpause = () => resolve();
+    a.play().catch(() => resolve());
+  });
+}
+
+function browserSpeak(text: string, lang: "bn" | "en", gen: number): Promise<void> {
+  if (gen !== speakGen || typeof window === "undefined" || !("speechSynthesis" in window)) return Promise.resolve();
+  return new Promise<void>((resolve) => {
+    const u = new SpeechSynthesisUtterance(text);
     u.lang = lang === "bn" ? "bn-BD" : "en-GB";
     u.rate = 0.95;
     u.onend = () => resolve();
@@ -66,7 +65,29 @@ export async function speakText(text: string, lang: "bn" | "en"): Promise<void> 
   });
 }
 
+/**
+ * Speaks text with Gemini TTS, sentence by sentence: the first short chunk starts playing as soon as it is ready,
+ * and each next chunk is synthesised while the current one plays. Any chunk that fails is read, with the rest, by
+ * the browser's own Bangla voice. Resolves when speech ends or is stopped.
+ */
+export async function speakText(text: string, lang: "bn" | "en"): Promise<void> {
+  stopSpeaking();
+  const gen = speakGen;
+  const chunks = splitSpeech(text.slice(0, 1200));
+  if (!chunks.length) return;
+  let next: Promise<Clip> | null = fetchClip(chunks[0], lang);
+  for (let i = 0; i < chunks.length; i++) {
+    const clip = await next;
+    if (gen !== speakGen) return;
+    next = i + 1 < chunks.length ? fetchClip(chunks[i + 1], lang) : null;
+    if (!clip?.audio) return browserSpeak(chunks.slice(i).join(" "), lang, gen);
+    await playClip({ audio: clip.audio, mimeType: clip.mimeType }, gen);
+    if (gen !== speakGen) return;
+  }
+}
+
 export function stopSpeaking() {
+  speakGen++;
   if (currentAudio) { currentAudio.pause(); currentAudio = null; }
   if (typeof window !== "undefined" && "speechSynthesis" in window) window.speechSynthesis.cancel();
 }
