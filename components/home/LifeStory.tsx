@@ -287,6 +287,9 @@ function Story({ lang }: { lang: Lang }) {
       // While Buddy talks he looks up at it; while the app opens his free hand comes to the phone and taps.
       if (saying === "buddy") { target.eye = 1; target.eyeY = -1.4; target.head -= 22; target.neck -= 8; target.brow = 0.9; }
       else { const [sx, sy] = saccade(t, 3); target.eye += sx; target.eyeY += sy; }
+      // Surprise: the moment Buddy appears his eyes go wide and his brows jump, then settle (a fast, bouncy spring).
+      const startle = beat(local, [BEATS.buddy[0] - 0.02, BEATS.buddy[0] + 0.03]) * (1 - beat(local, [BEATS.buddy[0] + 0.05, BEATS.buddy[0] + 0.12]));
+      target.wide += startle; target.brow += startle * 1.2; target.squint *= 1 - startle;
       // Momentum lean: he leans into his own speed (forward when walking, back a touch when stopping).
       const hipV = body.velocity("hipX");
       target.lumbar += Math.max(-4, Math.min(6, hipV * 0.07));

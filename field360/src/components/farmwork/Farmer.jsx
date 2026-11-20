@@ -356,8 +356,11 @@ export function farmerPainter(root, look) {
     set(el.neckShade, 'd', ns.d); set(el.neckShade, 'opacity', (0.55 * ns.o).toFixed(2));
     place(el.head, sk.atlas, sk.head);
     // eyes: the blink squashes the eye toward its lid; `eye` slides the pupil toward what he is about to do
-    const shut = clamp01(x.blink ?? 0);
-    set(el.eye, 'transform', `translate(11.6 -16.7) scale(1 ${f1(1 - 0.9 * shut)}) translate(-11.6 16.7)`);
+    // Lids: a blink shuts them; squint (p.squint 0..1) narrows them in a smile or under fatigue; wide (p.wide) opens
+    // them in surprise. All three combine, so a startled blink still reads.
+    const shut = Math.max(clamp01(x.blink ?? 0), clamp01(p.squint ?? 0) * 0.5);
+    const open = Math.max(0.08, 1 - 0.9 * shut + clamp01(p.wide ?? 0) * 0.32);
+    set(el.eye, 'transform', `translate(11.6 -16.7) scale(1 ${(Math.round(open * 100) / 100)}) translate(-11.6 16.7)`);
     set(el.pupil, 'cx', f1(12 + (p.eye ?? 0) * 1.1));
     set(el.pupil, 'cy', f1(-16.7 + (p.eyeY ?? 0) * 0.8));
     set(el.brow, 'transform', `translate(0 ${f1(-(p.brow ?? 0) * 1.4)}) rotate(${f1(p.browTilt ?? 0)} 9 -20.8)`);
