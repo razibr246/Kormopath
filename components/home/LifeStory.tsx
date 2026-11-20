@@ -14,7 +14,7 @@
 // Accessibility: with reduced motion (or before the script runs) the same seven chapters render as a plain list.
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import { ArrowRight, Briefcase, Check, GraduationCap, Maximize, Pause, Percent, Pill, Play, RotateCcw, ShieldCheck, Sprout, Volume2, Wallet, type LucideIcon } from "lucide-react";
+import { ArrowRight, Briefcase, Check, GraduationCap, Maximize, Pause, Percent, Pill, Play, RotateCcw, Scale, Sprout, Volume2, Wallet, type LucideIcon } from "lucide-react";
 import { storageKey, usePersistentState } from "@/lib/clientStore";
 import Farmer, { LOOKS, farmerPainter, type FarmerLook } from "@/field360/src/components/farmwork/Farmer";
 import { solve, inHand } from "@/field360/src/components/farmwork/rig";
@@ -27,7 +27,7 @@ import EVAL from "@/lib/eval-results.json";
 import { bnDigits } from "@/lib/contract";
 
 type Lang = "bn" | "en";
-const ICONS: Record<Stage["id"], LucideIcon> = { study: GraduationCap, work: Briefcase, earn: Percent, home: Wallet, health: Pill, field: Sprout, protect: ShieldCheck };
+const ICONS: Record<Stage["id"], LucideIcon> = { study: GraduationCap, work: Briefcase, earn: Percent, home: Wallet, health: Pill, field: Sprout, protect: Scale };
 
 const RAFI: FarmerLook = { skin: "#9a5f3c", hair: "#1c1714", shirt: "#3f8f86", shirtLine: "#2a6a63", sleeve: true, lungi: "#2f4a7a", check: "#8fa9d6", hat: "hair" };
 const FATHER: FarmerLook = { ...LOOKS.tomato, lungi: "#5b3b2a", check: "#c79a72" };
@@ -182,7 +182,11 @@ function Story({ lang }: { lang: Lang }) {
     const paintFather = farmerPainter(fatherRef.current, FATHER);
     const body = springSet(SPRINGS, SPRING_DEFAULT), dad = springSet(SPRINGS, SPRING_DEFAULT);
     let buddyX = springInit(320), buddyY = springInit(120), mood = springInit(0), headV = springInit(0);
-    let zoom = springInit(1), panX = springInit(0);
+    let zoom = springInit(1), panX = springInit(0), hair = springInit(0);
+    let lastPhone: [number, number] | null = null;
+    const tuft = rafiRef.current.querySelector(".kp-hair-tuft");
+    // Lip-sync: two incommensurate sines give a natural, never-repeating open/close rhythm.
+    const lips = (time: number) => Math.sin(time * 13) + 0.8 * Math.sin(time * 7.7 + 1.3) > 0.35;
     let raf = 0, last = performance.now(), t = 0, shown = -1, lastUi = 0;
     const channels = (p: RigPose) => { const o: Record<string, number> = {}; for (const k of NUMERIC_CHANNELS) o[k] = p[k] as number; return o; };
 
@@ -197,19 +201,41 @@ function Story({ lang }: { lang: Lang }) {
       const st = STAGES[i];
       const bP = beat(local, BEATS.problem), bB = beat(local, BEATS.buddy), bA = beat(local, BEATS.app), bS = beat(local, BEATS.solved);
       // Which key pose he is heading for; the springs do the moving (weight, overshoot, settle).
-      const goal = POSES[local < 0.34 ? st.poses[0] : local < 0.74 ? st.poses[1] : st.poses[2]];
-      const raw = body.step(channels(goal), dt);
+      const key = local < 0.34 ? st.poses[0] : local < 0.74 ? st.poses[1] : st.poses[2];
+      const goal = POSES[key];
+      const saying = bS > 0.5 ? "solved" : bB > 0.5 ? "buddy" : "problem";
+      const rafiTalks = (saying === "problem" && local > BEATS.problem[0] && local < BEATS.buddy[0] + 0.02) || (saying === "solved" && local < 0.97);
+      const target = channels(goal);
+      // While Buddy talks he looks up at it; while the app opens his free hand comes to the phone and taps.
+      if (saying === "buddy") { target.eye = 1; target.eyeY = -1.4; target.head -= 22; target.neck -= 8; target.brow = 0.9; }
+      if (lastPhone && bA > 0.15 && bS < 0.5 && (key === "phone" || key === "kneelPhone")) {
+        target.fhX = lastPhone[0] - 1.5;
+        target.fhY = lastPhone[1] + 2 + Math.max(0, Math.sin(t * 7.5)) * 3.2;
+      }
+      const raw = body.step(target, dt);
       const breath = Math.sin(t * ((2 * Math.PI) / 3.8));
       const standing = goal.hipY < 215 ? 1 : 0;
-      const pose = { ...goal, ...raw, chest: raw.chest + breath * 1.3, hipY: raw.hipY + breath * 0.5, hipX: raw.hipX + standing * Math.sin(t * 0.55) * 1.6 };
+      const pose: Record<string, number | string> = { ...goal, ...raw, chest: raw.chest + breath * 1.3, hipY: raw.hipY + breath * 0.5, hipX: raw.hipX + standing * Math.sin(t * 0.55) * 1.6 };
+      // Talking: the head nods on the stresses, a free hand gestures, a cheering fist pumps; the mouth moves.
+      if (rafiTalks) {
+        pose.head = (pose.head as number) + Math.sin(t * 4.3) * 2.2;
+        if (key === "stand" || key === "phone") { pose.fhX = (pose.fhX as number) + Math.sin(t * 2.6) * 5; pose.fhY = (pose.fhY as number) + Math.sin(t * 3.4) * 4; pose.fhShape = "open"; }
+        if (key === "cheer") pose.fhY = (pose.fhY as number) - Math.abs(Math.sin(t * 3.2)) * 7;
+        pose.mouth = lips(t) ? "open" : saying === "solved" ? "smile" : goal.mouth;
+      }
+      if (bA > 0.2 && bS < 0.5 && goal.phone) pose.nhWrist = (pose.nhWrist as number) + Math.sin(t * 5) * 4; // thumb scrolling
       const sk = solve(pose, RIG_GROUND);
-      paintRafi(sk, { blink: blink(t, 3) });
+      // The lungi trails the hips; the hair tuft swings on an under-damped spring driven by the head's motion.
+      paintRafi(sk, { blink: blink(t, 3), drag: -body.velocity("hipX") * 0.6 });
+      hair = springStep(hair, -body.velocity("head") * 0.9 + Math.sin(t * 1.3) * 3, dt, { f: 2.4, z: 0.32 });
+      tuft?.setAttribute("transform", `rotate(${hair.y.toFixed(2)} 1 -34)`);
       // The phone in his near hand; its screen takes the colour of the app Buddy names.
       let phoneAt: [number, number] = [0, 0];
       const ph = phoneRef.current;
       if (ph) {
         const [x, y, a] = inHand(sk, "n", 8, -1);
         phoneAt = [x, y];
+        lastPhone = [x, y];
         ph.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${(a + 90).toFixed(1)})`);
         ph.setAttribute("opacity", Math.min(1, Math.max(0, raw.phone)).toFixed(2));
         screenRef.current?.setAttribute("fill", bA > 0.05 ? APP_GLOW[st.id] : "#cfd8dc");
@@ -218,9 +244,16 @@ function Story({ lang }: { lang: Lang }) {
       const withDad = st.cast.includes("father");
       fd.style.opacity = withDad ? "1" : "0";
       if (withDad) {
-        const fg = local < 0.74 && st.id === "field" ? FATHER_POSES.ask : FATHER_POSES.happy;
+        const asking = local < 0.74;
+        const fg = asking ? FATHER_POSES.ask : FATHER_POSES.happy;
         const fr = dad.step(channels(fg), dt);
-        const fsk = solve({ ...fg, ...fr, chest: fr.chest + Math.sin(t * 1.5 + 1) * 1.1 }, RIG_GROUND);
+        const fpose: Record<string, number | string> = { ...fg, ...fr, chest: fr.chest + Math.sin(t * 1.5 + 1) * 1.1 };
+        // He talks with his open hand while he asks, in the field and over the land.
+        if (asking && local < BEATS.buddy[0]) {
+          fpose.nhX = (fpose.nhX as number) + Math.sin(t * 2.2) * 6; fpose.nhY = (fpose.nhY as number) + Math.sin(t * 3.1 + 0.5) * 5;
+          fpose.head = (fpose.head as number) + Math.sin(t * 3.7) * 2; fpose.mouth = lips(t + 0.7) ? "open" : "calm";
+        }
+        const fsk = solve(fpose, RIG_GROUND);
         headV = springStep(headV, dad.velocity("head"), dt, { f: 2, z: 0.5 });
         paintFather(fsk, { blink: blink(t, 11), tail: -headV.y * 0.9 + Math.sin(t * 2.1) * 4, tailBend: Math.sin(t * 1.7) * 3 });
       }
@@ -403,9 +436,12 @@ function Story({ lang }: { lang: Lang }) {
             ))}
           </ul>
           {ev && <p className="mt-2.5 rounded-lg bg-amber-50 px-2.5 py-1.5 text-[12.5px] font-semibold text-amber-900 ring-1 ring-amber-200" style={v("--b-solved")}>{ev}</p>}
-          <Link href={stage.app.href} prefetch={false} className="mt-2.5 inline-flex items-center gap-1 text-[13.5px] font-bold text-emerald-800 hover:underline">
-            {bn ? "অ্যাপটি খুলুন" : "Open the app"} <ArrowRight size={14} aria-hidden="true" />
-          </Link>
+          <p className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1">
+            <Link href={stage.app.href} prefetch={false} className="inline-flex items-center gap-1 text-[13.5px] font-bold text-emerald-800 hover:underline">
+              {stage.also ? line({ bn: "আইনি সহায়তা খুলুন", en: "Open Legal Aid" }) : bn ? "অ্যাপটি খুলুন" : "Open the app"} <ArrowRight size={14} aria-hidden="true" />
+            </Link>
+            {stage.also && <Link href={stage.also.href} prefetch={false} className="inline-flex items-center gap-1 text-[13.5px] font-bold text-emerald-800 hover:underline">{bn ? `${stage.also.name.bn} খুলুন` : `Open ${stage.also.name.en}`} <ArrowRight size={14} aria-hidden="true" /></Link>}
+          </p>
         </aside>
 
         {/* poster: before it starts (auto-play off) and after it ends */}

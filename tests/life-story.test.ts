@@ -6,7 +6,7 @@ import { HELPLINES } from "../lib/legal/data.ts";
 
 test("seven chapters in the home page's life-cycle order, each with a real app route", () => {
   assert.deepEqual(STAGES.map((s) => s.id), ["study", "work", "earn", "home", "health", "field", "protect"]);
-  const routes = ["/admitbuddy", "/workspace", "/feeguard", "/shohoj-budget", "/mediscan/emergency", "/krishi/field#/farmer", "/rokkha"];
+  const routes = ["/admitbuddy", "/workspace", "/feeguard", "/shohoj-budget", "/mediscan/emergency", "/krishi/field#/farmer", "/legal"];
   assert.deepEqual(STAGES.map((s) => s.app.href), routes);
   for (const s of STAGES) {
     for (const l of [s.label, s.problem, s.buddy, s.solution, s.app.name, ...s.steps]) assert.ok(l.bn.trim() && l.en.trim(), s.id);

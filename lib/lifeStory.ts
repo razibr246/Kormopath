@@ -26,6 +26,8 @@ export type Stage = {
   /** What Buddy tells him: which app, and why. */
   buddy: Line;
   app: { name: Line; href: string };
+  /** A second real app in the same chapter (Rokkha beside Legal Aid). */
+  also?: { name: Line; href: string };
   /** Three to four real things the app does for this problem, ticked one by one on the app card. */
   steps: Line[];
   /** The outcome, spoken by Rafi once it is solved. */
@@ -125,17 +127,18 @@ export const STAGES: Stage[] = [
     poses: ["shade", "phone", "cheer"], cast: ["father"],
   },
   {
-    id: "protect", n: 7, label: { bn: "সুরক্ষা", en: "Protect" },
-    problem: { bn: "এসএমএস এল: ‘আপনার বিকাশ বন্ধ হবে, এখনই ওটিপি দিন।’ দেব?", en: "An SMS: ‘Your bKash will be closed, send the OTP now.’ Should I?" },
-    buddy: { bn: "থামো! রক্ষায় মেসেজটা যাচাই করো: কোন কথাটা প্রতারণার লক্ষণ, হুবহু দেখাবে। ওটিপি কাউকে দিও না।", en: "Stop! Check it in Rokkha: it quotes the exact words that are scam signs. Never share an OTP." },
-    app: { name: { bn: "রক্ষা", en: "Rokkha" }, href: "/rokkha" },
+    id: "protect", n: 7, label: { bn: "সুরক্ষা ও আইন", en: "Protect & law" },
+    problem: { bn: "এসএমএস এল: ‘বিকাশ বন্ধ হবে, ওটিপি দিন।’ আবার পাশের জমির লোক বাবার জমির সীমানা ঠেলে দিচ্ছে। উকিলের টাকা কোথায়?", en: "An SMS: ‘Your bKash will close, send the OTP.’ And a neighbour is pushing into Father's land. How do we pay a lawyer?" },
+    buddy: { bn: "ওটিপি কাউকে দিও না: রক্ষায় মেসেজটা যাচাই করো। আর জমির বিরোধে আইনি সহায়তায় দেখো বিনামূল্যে সাহায্য পেতে পারো কি না, আবেদনের খসড়া আর মধ্যস্থতার প্রস্তুতি।", en: "Never share an OTP: check the SMS in Rokkha. For the land dispute, Legal Aid shows whether you may get free help, an application draft and how to prepare for mediation." },
+    app: { name: { bn: "রক্ষা ও আইনি সহায়তা", en: "Rokkha & Legal Aid" }, href: "/legal" },
+    also: { name: { bn: "রক্ষা", en: "Rokkha" }, href: "/rokkha" },
     steps: [
-      { bn: "প্রতারণার লক্ষণ, মেসেজের হুবহু কথাসহ", en: "Scam signs, quoting the message's exact words" },
-      { bn: "টাকা পাঠানোর আগে বিরতি", en: "A pause before sending money" },
-      { bn: "লক্ষণ না পেলেও বলে না যে ‘নিরাপদ’", en: "Never says ‘safe’, even with no signs found" },
-      { bn: "বিনামূল্যে আইনি সহায়তা: ১৬৬৯৯", en: "Free legal aid: 16699" },
+      { bn: "প্রতারণার লক্ষণ, মেসেজের হুবহু কথাসহ; ‘নিরাপদ’ কখনো বলে না", en: "Scam signs quoting the exact words; it never says ‘safe’" },
+      { bn: "বিনামূল্যে আইনি সহায়তা পেতে পারেন কি না: সিদ্ধান্ত লিগ্যাল এইড অফিসের", en: "Whether you may get free legal aid: the legal aid office decides" },
+      { bn: "আবেদনের খসড়া আর মধ্যস্থতার প্রস্তুতি", en: "An application draft and mediation prep" },
+      { bn: "আইনি সহায়তা হেল্পলাইন ১৬৬৯৯; পরামর্শ নয়, আইনি তথ্য", en: "Legal aid helpline 16699; legal information, not advice" },
     ],
-    solution: { bn: "ওটিপি দিইনি, টাকাও যায়নি। এখন বাবা-মাকেও শিখিয়ে দিয়েছি।", en: "I never sent the OTP and lost nothing. Now I have taught my parents too." },
+    solution: { bn: "ওটিপি দিইনি, টাকা যায়নি। জমির বিষয়ে বাবাকে নিয়ে লিগ্যাল এইড অফিসে আবেদন করেছি, মধ্যস্থতার জন্য।", en: "I never sent the OTP and lost nothing. And with Father I applied to the legal aid office for mediation over the land." },
     poses: ["phone", "phone", "cheer"], cast: ["father"],
   },
 ];
