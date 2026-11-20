@@ -532,11 +532,13 @@ export function Buddy() {
         audio.play().catch(() => resolve(false));
       });
 
-    let next: Promise<Clip> | null = chunks.length ? fetchClip(chunks[0]) : null;
+    // Up to three sentences are synthesised ahead of the one playing, so playback never waits on the network.
+    const clips: Array<Promise<Clip> | undefined> = [];
+    const ensure = (j: number) => { if (j < chunks.length && !clips[j]) clips[j] = fetchClip(chunks[j]); };
     for (let i = 0; i < chunks.length; i++) {
-      const clip = await next;
+      for (let j = i; j <= i + 3; j++) ensure(j);
+      const clip = await clips[i];
       if (controller.signal.aborted) return;
-      next = i + 1 < chunks.length ? fetchClip(chunks[i + 1]) : null;
       if (i === 0) setSpeechLoading(false);
       if (!clip) {
         // This chunk could not be voiced: the device voice reads it and the rest.

@@ -111,3 +111,34 @@ export const issuesText = (issues: GuardIssue[]): string => issues.map((i) => `$
 
 export const HELPLINE_IDS = HELPLINES.map((h) => h.id) as [HelplineId, ...HelplineId[]];
 export const LAW_IDS = Object.keys(LAWS) as [LawId, ...LawId[]];
+
+
+/**
+ * Turns what a model wrote in the helplines/laws arrays into known ids: an exact id, a helpline's exact number
+ * ("16699") or name, or a law's exact name. Anything else is dropped, so nothing is ever invented; the answer
+ * text is still checked by checkAnswer(). Saves a repair round trip when a model writes "16699" instead of
+ * "legal_aid".
+ */
+const fold = (x: string) => x.normalize("NFC").toLowerCase().replace(/[\s,.\-–—()]+/g, " ").trim();
+export function normalizeHelplineIds(raw: unknown): HelplineId[] {
+  if (!Array.isArray(raw)) return [];
+  const out = new Set<HelplineId>();
+  for (const v of raw) {
+    if (typeof v !== "string") continue;
+    const t = fold(v);
+    const h = HELPLINES.find((x) => x.id === v || fold(x.number) === t || fold(x.bn) === t || fold(x.en) === t);
+    if (h) out.add(h.id as HelplineId);
+  }
+  return [...out].slice(0, 4);
+}
+export function normalizeLawIds(raw: unknown): LawId[] {
+  if (!Array.isArray(raw)) return [];
+  const out = new Set<LawId>();
+  for (const v of raw) {
+    if (typeof v !== "string") continue;
+    const t = fold(v);
+    const l = Object.values(LAWS).find((x) => x.id === v || fold(x.bn) === t || fold(x.en) === t);
+    if (l) out.add(l.id as LawId);
+  }
+  return [...out].slice(0, 4);
+}

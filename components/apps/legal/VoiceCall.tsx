@@ -65,23 +65,32 @@ function browserSpeak(text: string, lang: "bn" | "en", gen: number): Promise<voi
   });
 }
 
+/** How many sentences are synthesised ahead of the one playing, so playback never waits on the network. */
+const LOOKAHEAD = 3;
+
 /**
  * Speaks text with Gemini TTS, sentence by sentence: the first short chunk starts playing as soon as it is ready,
- * and each next chunk is synthesised while the current one plays. Any chunk that fails is read, with the rest, by
- * the browser's own Bangla voice. Resolves when speech ends or is stopped.
+ * and up to LOOKAHEAD next chunks are synthesised while it plays. A chunk that fails (no key, quota used up, network)
+ * is read by the browser's own Bangla voice and the natural voice carries on with the next one, so the call never
+ * stops mid-answer. Resolves when speech ends or is stopped.
  */
 export async function speakText(text: string, lang: "bn" | "en"): Promise<void> {
   stopSpeaking();
   const gen = speakGen;
   const chunks = splitSpeech(text.slice(0, 1200));
   if (!chunks.length) return;
-  let next: Promise<Clip> | null = fetchClip(chunks[0], lang);
+  const clips: Array<Promise<Clip> | undefined> = [];
+  const ensure = (j: number) => { if (j < chunks.length && !clips[j]) clips[j] = fetchClip(chunks[j], lang); };
+  let failed = 0;
   for (let i = 0; i < chunks.length; i++) {
-    const clip = await next;
+    for (let j = i; j <= i + LOOKAHEAD; j++) ensure(j);
+    const clip = await clips[i];
     if (gen !== speakGen) return;
-    next = i + 1 < chunks.length ? fetchClip(chunks[i + 1], lang) : null;
-    if (!clip?.audio) return browserSpeak(chunks.slice(i).join(" "), lang, gen);
-    await playClip({ audio: clip.audio, mimeType: clip.mimeType }, gen);
+    if (clip?.audio) await playClip({ audio: clip.audio, mimeType: clip.mimeType }, gen);
+    // Two failures in a row mean the voice service is out (quota or offline): the device voice reads the rest at once.
+    else if (++failed >= 2) return browserSpeak(chunks.slice(i).join(" "), lang, gen);
+    else await browserSpeak(chunks[i], lang, gen);
+    if (clip?.audio) failed = 0;
     if (gen !== speakGen) return;
   }
 }

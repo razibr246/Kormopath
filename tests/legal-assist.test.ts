@@ -107,3 +107,12 @@ test("child helpline 1098 is verified with a source and allowed in answers", () 
   assert.ok(child && child.source.url.startsWith("https://") && /^\d{4}-\d{2}-\d{2}$/.test(child.source.checked));
   assert.ok(ALLOWED_HELPLINE_NUMBERS.has("1098"));
 });
+
+test("id normalizers: numbers and exact names map to ids; anything else is dropped", async () => {
+  const { normalizeHelplineIds, normalizeLawIds } = await import("../lib/legal/assistGuard.ts");
+  const legalAid = HELPLINES.find((h) => h.id === "legal_aid")!;
+  assert.deepEqual(normalizeHelplineIds(["16699", "legal_aid", legalAid.en, "12345", 7]), ["legal_aid"]);
+  assert.deepEqual(normalizeHelplineIds("16699"), []);
+  assert.deepEqual(normalizeLawIds([LAWS.legal_aid_2000.en, LAWS.legal_aid_2000.bn, "Some Made-up Act, 2031"]), ["legal_aid_2000"]);
+  assert.ok(normalizeHelplineIds(HELPLINES.map((h) => h.number).concat(HELPLINES.map((h) => h.id))).length <= 4);
+});
