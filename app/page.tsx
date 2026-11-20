@@ -36,6 +36,9 @@ import {
   type LucideIcon, Tractor } from "lucide-react";
 const PersonaLoginModal = dynamic(() => import("@/components/auth/PersonaLoginModal").then((m) => m.PersonaLoginModal), { ssr: false });
 import { CustomizableDashboard } from "@/components/home/CustomizableDashboard";
+import { SignedInHome, type HomeApp } from "@/components/home/SignedInHome";
+import { getStoredSession, type UserSession } from "@/lib/session";
+import { personaHome } from "@/lib/personaHome";
 
 type Lang = "en" | "bn";
 const sanitizeLanguage = (value: unknown): Lang | null => value === "en" || value === "bn" ? value : null;
@@ -222,6 +225,26 @@ export default function HomePage() {
   }, [bn]);
 
   const [loginModalOpen, setLoginModalOpen] = useState(false);
+
+  // Two front doors, like large web platforms: visitors get the public landing page, a signed-in demo profile gets
+  // its own home. The session is read after mount, so the server and first client render are the same (public).
+  const [session, setSession] = useState<UserSession | null>(null);
+  const [showPublic, setShowPublic] = useState(false);
+  useEffect(() => {
+    const read = () => { setSession(getStoredSession()); setShowPublic(false); };
+    read();
+    window.addEventListener("kormopath:session-change", read);
+    window.addEventListener("storage", read);
+    return () => { window.removeEventListener("kormopath:session-change", read); window.removeEventListener("storage", read); };
+  }, []);
+  const home = personaHome(session?.personaId);
+  const personal = !!(session && home && !showPublic);
+  const homeApps: HomeApp[] = [
+    { id: "workspace", href: "/workspace", icon: Briefcase, tone: "bg-emerald-50 text-emerald-800 ring-emerald-200",
+      name: { bn: "ওয়ার্কস্পেস", en: "Workspace" },
+      line: { bn: "সিভি থেকে স্কিল পাসপোর্ট, ভাইভা, চুক্তি আর পেআউটের হিসাব।", en: "CV to skill passport, viva, contract and payout maths." } },
+    ...[...TOOLS.earn, ...TOOLS.life, ...TOOLS.farm],
+  ];
   const [toolsViewMode, setToolsViewMode] = useState<"catalog" | "custom">("catalog");
 
   const goToTopMatch = (event: FormEvent) => {
@@ -241,6 +264,15 @@ export default function HomePage() {
       <Navbar lang={lang} setLang={setLang} usdBdt={fx.usdBdt} fxLive={fx.live} fxSource={fx.source} onOpenEcosystem={() => setIsEcosystemOpen(true)} isEcosystemOpen={isEcosystemOpen} />
 
       <main id="main" className="mx-auto max-w-[1320px] px-4 sm:px-6">
+        {session && home && showPublic && (
+          <p className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-[14px] text-amber-950" data-testid="public-preview-bar">
+            {bn ? "আপনি পাবলিক পেজ দেখছেন, যা দর্শকেরা দেখেন।" : "You are viewing the public page visitors see."}
+            <button type="button" onClick={() => setShowPublic(false)} className="font-semibold underline">{bn ? "আমার হোমে ফিরুন" : "Back to my home"}</button>
+          </p>
+        )}
+        {personal && session && home ? (
+          <SignedInHome session={session} home={home} apps={homeApps} lang={lang} onShowPublic={() => { setShowPublic(true); window.scrollTo({ top: 0 }); }} onSwitchProfile={() => setLoginModalOpen(true)} />
+        ) : (<>
         {/* ============ HERO ============ */}
         <section aria-labelledby="hero-title" className="kp-hero grid items-center gap-10 pb-10 pt-12 sm:pt-16 lg:grid-cols-[1.08fr_.92fr] lg:gap-6 lg:pt-20">
           <div className="kp-rise">
@@ -585,6 +617,7 @@ export default function HomePage() {
             </button>
           </div>
         </section>
+        </>)}
       </main>
 
       <Footer />
