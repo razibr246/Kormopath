@@ -19,7 +19,14 @@ export function PwaSupport() {
   const [dismissed, setDismissed] = usePersistentState<boolean>(storageKey("platform", "installDismissed"), false, (raw) => (typeof raw === "boolean" ? raw : null));
 
   useEffect(() => {
-    if (process.env.NODE_ENV !== "production" || !("serviceWorker" in navigator)) return;
+    if (!("serviceWorker" in navigator)) return;
+    if (process.env.NODE_ENV !== "production") {
+      // Dev chunk names carry no content hash, so a worker left over from a production run on this localhost port
+      // would keep serving old code and cause hydration errors. In development, remove it and its caches.
+      navigator.serviceWorker.getRegistrations().then((regs) => regs.forEach((r) => r.unregister())).catch(() => {});
+      if ("caches" in window) caches.keys().then((keys) => keys.filter((k) => k.startsWith("kp-")).forEach((k) => caches.delete(k))).catch(() => {});
+      return;
+    }
     navigator.serviceWorker.register("/sw.js").catch(() => { /* offline support is optional; the site works without it */ });
   }, []);
 

@@ -1,13 +1,17 @@
 /* KormoPath service worker: lets visited pages open without a connection.
  * - API calls (/api/*) are never cached: answers stay live and private data never lands in a cache.
  * - Pages: network first; the last good copy is used only when offline; otherwise /offline.
- * - Hashed build assets (/_next/static) are immutable, so they are served cache first.
+ * - Content-hashed build assets (/_next/static/<buildId|media|chunks>/…-<hash>.ext) are immutable: cache first.
+ * - Everything else static (public JSON, images, fonts, hospital data) can change under the same name: served from
+ *   cache at once and refreshed in the background (stale-while-revalidate), so updates reach returning visitors.
  * - Map tiles (OSM / MapLibre / Carto) and hospital datasets are cached offline for field and emergency use.
  * Bump VERSION to drop old caches after a release that changes this file's behaviour. */
-const VERSION = "kp-v2-5";
+const VERSION = "kp-v2-6";
 const PAGES = `${VERSION}-pages`;
 const ASSETS = `${VERSION}-assets`;
 const TILES = `${VERSION}-tiles`;
+/** A content hash in the file name (Next.js production chunks, CSS, media; fonts add "-s"): 8+ hex chars before the extension. */
+const HASHED = /[-./][0-9a-f]{8,}(?:[-.][a-z]{1,2})?\.(?:js|css|woff2?|png|jpe?g|svg|webp|avif|ico|mjs)$/;
 
 const PRECACHE_ASSETS = [
   "/offline",
@@ -102,16 +106,31 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Static assets, images, and public GeoJSON hospital datasets
-  if (
-    url.pathname.startsWith("/_next/static/") ||
-    url.pathname.startsWith("/health/") ||
-    /\.(?:woff2?|png|svg|ico|json)$/.test(url.pathname)
-  ) {
+  // Build assets whose name carries a content hash never change: cache first.
+  if (url.pathname.startsWith("/_next/static/") && HASHED.test(url.pathname)) {
     event.respondWith(
       caches.match(request).then((hit) => hit || fetch(request).then((res) => {
         if (res.ok) { const copy = res.clone(); caches.open(ASSETS).then((c) => c.put(request, copy)); }
         return res;
+      })),
+    );
+    return;
+  }
+
+  // Other static files (public JSON, images, fonts, hospital data) may change under the same name: answer from the
+  // cache at once when there is a copy, and refresh it from the network in the background.
+  // Build files without a content hash (a dev server's chunks, build manifests) always come from the network.
+  if (url.pathname.startsWith("/_next/static/")) return;
+
+  if (
+    url.pathname.startsWith("/health/") ||
+    /\.(?:woff2?|png|svg|ico|json)$/.test(url.pathname)
+  ) {
+    event.respondWith(
+      caches.open(ASSETS).then((cache) => cache.match(request).then((hit) => {
+        const fresh = fetch(request).then((res) => { if (res.ok) cache.put(request, res.clone()); return res; });
+        if (hit) { event.waitUntil(fresh.catch(() => {})); return hit; }
+        return fresh;
       })),
     );
     return;
