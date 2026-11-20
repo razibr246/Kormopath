@@ -246,6 +246,7 @@ export default function Farmer({ look, slots = {} }) {
           <circle data-k="pupil" cx="12" cy="-16.7" r="1.3" fill="#1e1814" />
         </g>
         <path d="M9.2 -16.8C10.4 -18.3 13 -18.3 14 -16.8" fill="none" stroke={line} strokeWidth="1.1" strokeLinecap="round" />
+        <ellipse data-k="blush" cx="11" cy="-10.4" rx="3.6" ry="2" fill="#e0705a" opacity="0" />
         <path data-k="brow" d="M8.6 -20.6Q11.6 -22.4 15.2 -20.8" fill="none" stroke={L.hair} strokeWidth="1.9" strokeLinecap="round" />
         {L.mustache && <path d="M13.2 -7.4C15.3 -8.8 17.9 -8.6 19.1 -7.2C17.6 -6.1 15.3 -6 13.2 -7.4Z" fill={L.mustache} />}
         <path data-k="mouth" fill="none" stroke="#6a382c" strokeWidth="1.3" strokeLinecap="round" />
@@ -294,7 +295,7 @@ export function farmerPainter(root, look) {
   const q = (k) => root.querySelector(`[data-k="${k}"]`);
   const el = {};
   for (const s of ['n', 'f']) for (const k of ['ArmLine', 'ArmFill', 'ArmShade', 'Sleeve', 'SleeveShade', 'HandG', 'Hand', 'HandLine', 'LegLine', 'FootLine', 'LegFill', 'LegShade', 'Foot', 'Toes', 'Sole']) el[s + k] = q(s + k);
-  for (const k of ['shadow', 'lungi', 'folds', 'band', 'skinBody', 'body', 'bodyShadeB', 'bodyShadeF', 'seam', 'neckLine', 'neck', 'neckShade', 'head', 'eye', 'pupil', 'brow', 'mouth', 'tail', 'check']) el[k] = q(k);
+  for (const k of ['shadow', 'lungi', 'folds', 'band', 'skinBody', 'body', 'bodyShadeB', 'bodyShadeF', 'seam', 'neckLine', 'neck', 'neckShade', 'head', 'eye', 'pupil', 'brow', 'blush', 'mouth', 'tail', 'check']) el[k] = q(k);
   const set = (node, k, v) => node?.setAttribute(k, v);
   const place = (node, p, a = 0, s = 1) => set(node, 'transform', `translate(${pt(p)}) rotate(${f1(a)})${s === 1 ? '' : ` scale(${s})`}`);
   const shapes = { n: null, f: null, mouth: null };
@@ -359,7 +360,8 @@ export function farmerPainter(root, look) {
     set(el.eye, 'transform', `translate(11.6 -16.7) scale(1 ${f1(1 - 0.9 * shut)}) translate(-11.6 16.7)`);
     set(el.pupil, 'cx', f1(12 + (p.eye ?? 0) * 1.1));
     set(el.pupil, 'cy', f1(-16.7 + (p.eyeY ?? 0) * 0.8));
-    set(el.brow, 'transform', `translate(0 ${f1(-(p.brow ?? 0) * 1.4)})`);
+    set(el.brow, 'transform', `translate(0 ${f1(-(p.brow ?? 0) * 1.4)}) rotate(${f1(p.browTilt ?? 0)} 9 -20.8)`);
+    if (el.blush) set(el.blush, 'opacity', (Math.max(0, Math.min(1, p.blush ?? 0)) * 0.42).toFixed(2));
     const mouth = p.mouth ?? 'calm';
     if (shapes.mouth !== mouth) { set(el.mouth, 'd', MOUTHS[mouth] ?? MOUTHS.calm); set(el.mouth, 'fill', mouth === 'open' ? '#5a2e25' : 'none'); shapes.mouth = mouth; }
     if (el.tail) set(el.tail, 'd', tail((x.tail ?? 0) - sk.head + 18, (x.tailBend ?? 0) + 6));

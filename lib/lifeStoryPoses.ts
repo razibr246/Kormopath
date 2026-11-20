@@ -14,6 +14,10 @@ export type RigPose = {
   nfX: number; ffX: number; nfLift: number; ffLift: number; nfRoll: number; ffRoll: number;
   nhX: number; nhY: number; fhX: number; fhY: number; nhWrist: number; fhWrist: number;
   eye: number; eyeY: number; brow: number;
+  /** Brow angle in degrees: negative lifts the front of the brow (worry), positive lowers it (focus). */
+  browTilt: number;
+  /** Warmth in the cheek, 0..1 (joy, relief). */
+  blush: number;
   nhShape: "relax" | "open" | "grip" | "pinch" | "cup" | "flat";
   fhShape: "relax" | "open" | "grip" | "pinch" | "cup" | "flat";
   mouth: "calm" | "smile" | "effort" | "open";
@@ -25,35 +29,35 @@ const STAND: RigPose = {
   hipX: 200, hipY: 200, lumbar: 2, chest: 4, neck: 6, head: 4,
   nfX: 216, ffX: 184, nfLift: 0, ffLift: 0, nfRoll: 0, ffRoll: 0,
   nhX: 207, nhY: 213, fhX: 191, fhY: 215, nhWrist: 0, fhWrist: 0,
-  eye: 0, eyeY: 0, brow: 0, nhShape: "relax", fhShape: "relax", mouth: "calm", phone: 0,
+  eye: 0, eyeY: 0, brow: 0, browTilt: 0, blush: 0, nhShape: "relax", fhShape: "relax", mouth: "calm", phone: 0,
 };
 const SIT: Partial<RigPose> = { hipX: 190, hipY: 250, nfX: 236, ffX: 226 };
 const KNEEL: Partial<RigPose> = { hipX: 188, hipY: 238, nfX: 230, ffX: 150, ffRoll: 40 };
 
 export const POSES: Record<Pose, RigPose> = {
-  stand: { ...STAND, mouth: "smile", brow: 0.3 },
+  stand: { ...STAND, mouth: "smile", brow: 0.3, blush: 0.5 },
   // A hand pressed to his forehead, head down: the weight of the problem.
-  worry: { ...STAND, lumbar: 6, chest: 11, neck: 16, head: 20, fhX: 229, fhY: 124, fhShape: "flat", fhWrist: -35, eyeY: 1, brow: 1.4, mouth: "effort" },
+  worry: { ...STAND, lumbar: 6, chest: 11, neck: 16, head: 20, fhX: 229, fhY: 124, fhShape: "flat", fhWrist: -35, eyeY: 1, brow: 1.4, browTilt: -12, mouth: "effort" },
   // Phone up in the near hand, head bowed to it.
-  phone: { ...STAND, chest: 8, neck: 18, head: 24, nhX: 238, nhY: 150, nhShape: "grip", nhWrist: -10, eye: 1, eyeY: 1, brow: 0.4, phone: 1 },
+  phone: { ...STAND, chest: 8, neck: 18, head: 24, nhX: 238, nhY: 150, nhShape: "grip", nhWrist: -10, eye: 1, eyeY: 1, brow: 0.4, browTilt: 4, phone: 1 },
   // Solved: chest open, far fist up, phone at his chest, smiling up.
-  cheer: { ...STAND, nfX: 221, ffX: 179, lumbar: -2, chest: -4, neck: -6, head: -12, nhX: 233, nhY: 170, nhShape: "grip", nhWrist: -20, fhX: 224, fhY: 66, fhShape: "grip", fhWrist: -80, eye: 0.6, eyeY: -0.7, brow: 0.6, mouth: "smile", phone: 1 },
+  cheer: { ...STAND, nfX: 221, ffX: 179, lumbar: -2, chest: -4, neck: -6, head: -12, nhX: 233, nhY: 170, nhShape: "grip", nhWrist: -20, fhX: 224, fhY: 66, fhShape: "grip", fhWrist: -80, eye: 0.6, eyeY: -0.7, brow: 0.6, mouth: "smile", blush: 0.9, phone: 1 },
   // At the desk, head sunk into his hands.
-  sitWorry: { ...STAND, ...SIT, lumbar: 22, chest: 46, neck: 52, head: 56, nhX: 241, nhY: 194, fhX: 236, fhY: 197, nhShape: "cup", fhShape: "cup", nhWrist: -40, fhWrist: -40, eyeY: 1, brow: 1.5, mouth: "effort" } as RigPose,
+  sitWorry: { ...STAND, ...SIT, lumbar: 22, chest: 46, neck: 52, head: 56, nhX: 241, nhY: 194, fhX: 236, fhY: 197, nhShape: "cup", fhShape: "cup", nhWrist: -40, fhWrist: -40, eyeY: 1, brow: 1.5, browTilt: -14, mouth: "effort" } as RigPose,
   sitPhone: { ...STAND, ...SIT, lumbar: 8, chest: 14, neck: 20, head: 26, nhX: 226, nhY: 186, nhShape: "grip", nhWrist: -10, fhX: 233, fhY: 224, fhShape: "flat", eye: 1, eyeY: 1, brow: 0.3, phone: 1 } as RigPose,
   // Upright at the desk, hands on the keyboard, smiling.
-  sitWork: { ...STAND, ...SIT, lumbar: 5, chest: 9, neck: 6, head: 2, nhX: 247, nhY: 222, fhX: 240, fhY: 224, nhShape: "flat", fhShape: "flat", eye: 1, eyeY: 0.6, brow: 0.4, mouth: "smile" } as RigPose,
+  sitWork: { ...STAND, ...SIT, lumbar: 5, chest: 9, neck: 6, head: 2, nhX: 247, nhY: 222, fhX: 240, fhY: 224, nhShape: "flat", fhShape: "flat", eye: 1, eyeY: 0.6, brow: 0.4, mouth: "smile", blush: 0.7 } as RigPose,
   // Down on one knee by his mother's bed, a hand to her forehead.
-  kneel: { ...STAND, ...KNEEL, lumbar: 16, chest: 26, neck: 30, head: 32, nhX: 262, nhY: 214, nhShape: "flat", nhWrist: 10, fhX: 214, fhY: 236, fhShape: "relax", eye: 1, eyeY: 0.8, brow: 1.3, mouth: "effort" } as RigPose,
+  kneel: { ...STAND, ...KNEEL, lumbar: 16, chest: 26, neck: 30, head: 32, nhX: 262, nhY: 214, nhShape: "flat", nhWrist: 10, fhX: 214, fhY: 236, fhShape: "relax", eye: 1, eyeY: 0.8, brow: 1.3, browTilt: -12, mouth: "effort" } as RigPose,
   kneelPhone: { ...STAND, ...KNEEL, lumbar: 8, chest: 12, neck: 20, head: 24, nhX: 226, nhY: 180, nhShape: "grip", nhWrist: -10, fhX: 214, fhY: 236, eye: 1, eyeY: 1, brow: 0.8, phone: 1 } as RigPose,
   // Looking up at the sky, a hand shading his eyes.
-  shade: { ...STAND, lumbar: 0, chest: -2, neck: -10, head: -18, fhX: 219, fhY: 117, fhShape: "flat", fhWrist: 100, eye: 0.6, eyeY: -1, brow: 1.1, mouth: "effort" },
+  shade: { ...STAND, lumbar: 0, chest: -2, neck: -10, head: -18, fhX: 219, fhY: 117, fhShape: "flat", fhWrist: 100, eye: 0.6, eyeY: -1, brow: 1.1, browTilt: 6, mouth: "effort" },
 };
 
 /** The father (mirrored to face Rafi): asking, then pleased. */
 export const FATHER_POSES = {
-  ask: { ...STAND, chest: 8, neck: 12, head: 10, nhX: 236, nhY: 176, nhShape: "open", nhWrist: -30, fhX: 192, fhY: 214, brow: 1, mouth: "open" } as RigPose,
-  happy: { ...STAND, lumbar: -1, chest: 0, neck: 0, head: -4, nhX: 210, nhY: 196, nhShape: "grip", fhX: 186, fhY: 196, fhShape: "grip", mouth: "smile", brow: 0.4 } as RigPose,
+  ask: { ...STAND, chest: 8, neck: 12, head: 10, nhX: 236, nhY: 176, nhShape: "open", nhWrist: -30, fhX: 192, fhY: 214, brow: 1, browTilt: -10, mouth: "open" } as RigPose,
+  happy: { ...STAND, lumbar: -1, chest: 0, neck: 0, head: -4, nhX: 210, nhY: 196, nhShape: "grip", fhX: 186, fhY: 196, fhShape: "grip", mouth: "smile", brow: 0.4, blush: 0.6 } as RigPose,
 } as const;
 
 export const NUMERIC_CHANNELS = Object.keys(STAND).filter((k) => typeof STAND[k as keyof RigPose] === "number") as Array<keyof RigPose>;
@@ -68,6 +72,6 @@ export const SPRINGS: Record<string, { f: number; z: number; r?: number }> = {
   lumbar: { f: 1.4, z: 0.8, r: -0.2 }, chest: { f: 1.6, z: 0.75, r: -0.2 }, neck: { f: 1.9, z: 0.72 }, head: { f: 2.2, z: 0.7, r: 0.4 },
   nhX: { f: 2.3, z: 0.62 }, nhY: { f: 2.3, z: 0.62 }, fhX: { f: 2.1, z: 0.6 }, fhY: { f: 2.1, z: 0.6 },
   nfX: { f: 1.8, z: 0.95 }, ffX: { f: 1.8, z: 0.95 },
-  eye: { f: 4, z: 0.9 }, eyeY: { f: 4, z: 0.9 }, brow: { f: 3, z: 0.8 }, phone: { f: 2.5, z: 1 },
+  eye: { f: 4, z: 0.9 }, eyeY: { f: 4, z: 0.9 }, brow: { f: 3, z: 0.8 }, browTilt: { f: 2.6, z: 0.85 }, blush: { f: 0.9, z: 1 }, phone: { f: 2.5, z: 1 },
 };
 export const SPRING_DEFAULT = { f: 1.8, z: 0.8 };

@@ -92,6 +92,29 @@ function Room({ night = false, children }: { night?: boolean; children?: ReactNo
   );
 }
 
+/**
+ * Light on the actors, drawn over everything in the set like a film grade: `multiply` tints the whole frame to the
+ * time of day (cool at night, gold in the afternoon, rose at dusk); `screen` adds light from a source in the scene
+ * (the laptop and the lamp spilling onto his face, the morning window once the plan is clear).
+ */
+export function Lighting({ id }: { id: StageId }): ReactNode {
+  const grade = (color: string, k: string) => <rect x="-300" y="-500" width="1600" height="1700" fill={color} className="kp-ls-grade" style={{ mixBlendMode: "multiply", opacity: k as unknown as number }} />;
+  const glow = (gid: string, cx: number, cy: number, r: number, color: string, k: string) => (
+    <>
+      <radialGradient id={gid} cx="50%" cy="50%" r="50%"><stop offset="0" stopColor={color} stopOpacity="1" /><stop offset="1" stopColor={color} stopOpacity="0" /></radialGradient>
+      <circle cx={cx} cy={cy} r={r} fill={`url(#${gid})`} style={{ mixBlendMode: "screen", opacity: k as unknown as number }} />
+    </>
+  );
+  switch (id) {
+    case "work": return <g pointerEvents="none">{grade("#2a3a66", "calc(.34 - var(--mood) * .08)")}{glow("kp-ls-lt-laptop", 600, 390, 230, "#9fe3c9", "calc(.42 + var(--mood) * .2)")}</g>;
+    case "health": return <g pointerEvents="none">{grade("#2b2f55", "calc(.3 - var(--mood) * .06)")}{glow("kp-ls-lt-lamp", 190, 300, 300, "#ffcf87", "calc(.34 + var(--mood) * .22)")}</g>;
+    case "study": return <g pointerEvents="none">{glow("kp-ls-lt-win", 720, 260, 360, "#ffe6a8", "calc(var(--mood) * .45)")}</g>;
+    case "earn": return <g pointerEvents="none">{grade("#ffcf8a", "calc(.08 + var(--mood) * .1)")}</g>;
+    case "protect": return <g pointerEvents="none">{grade("#e98b6a", "calc(.12 + var(--mood) * .08)")}{glow("kp-ls-lt-dusk", 900, 120, 420, "#ffb27a", "calc(.2 + var(--mood) * .2)")}</g>;
+    default: return null;
+  }
+}
+
 /** Per-chapter set: what sits behind the actors (`far` drifts least, then the room or the `mid` props). */
 export function Backdrop({ id }: { id: StageId }): { far: ReactNode; mid: ReactNode } {
   switch (id) {

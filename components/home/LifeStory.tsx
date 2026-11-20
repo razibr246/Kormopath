@@ -19,7 +19,7 @@ import { storageKey, usePersistentState } from "@/lib/clientStore";
 import Farmer, { LOOKS, farmerPainter, type FarmerLook } from "@/field360/src/components/farmwork/Farmer";
 import { solve, inHand } from "@/field360/src/components/farmwork/rig";
 import { blink } from "@/field360/src/engine/motion";
-import { Backdrop, INDOOR } from "@/components/home/lifeStoryArt";
+import { Backdrop, INDOOR, Lighting } from "@/components/home/lifeStoryArt";
 import { BEATS, STAGES, STORY_END, STORY_HERO, STORY_TITLE, beat, stageAt, type Stage } from "@/lib/lifeStory";
 import { FATHER_POSES, NUMERIC_CHANNELS, POSES, RIG_GROUND, SPRINGS, SPRING_DEFAULT, type RigPose } from "@/lib/lifeStoryPoses";
 import { footAt, springInit, springSet, springStep, stepFeet } from "@/lib/spring";
@@ -182,6 +182,7 @@ function Story({ lang }: { lang: Lang }) {
   // The painters hold references to the drawn parts, so they are rebuilt whenever a costume change remounts the figure.
   const paintRafiRef = useRef<ReturnType<typeof farmerPainter> | null>(null), paintFatherRef = useRef<ReturnType<typeof farmerPainter> | null>(null);
   const tuftRef = useRef<Element | null>(null);
+  const trailRef = useRef<SVGGElement>(null);
   const farRef = useRef<SVGGElement>(null), coinsRef = useRef<SVGGElement>(null), smsRef = useRef<SVGGElement>(null);
   const dustN = useRef<SVGEllipseElement>(null), dustF = useRef<SVGEllipseElement>(null), rimRef = useRef<SVGRectElement>(null);
   const scrubRef = useRef<HTMLInputElement>(null), timeRef = useRef<HTMLSpanElement>(null);
@@ -225,6 +226,7 @@ function Story({ lang }: { lang: Lang }) {
     const body = springSet(SPRINGS, SPRING_DEFAULT), dad = springSet(SPRINGS, SPRING_DEFAULT);
     let buddyX = springInit(320), buddyY = springInit(120), mood = springInit(0), headV = springInit(0);
     let zoom = springInit(1), panX = springInit(0), hair = springInit(0);
+    const trail: Array<[number, number]> = [];
     let lastPhone: [number, number] | null = null;
     // Feet are planted and step on their own (lib/spring.ts stepFeet): walking emerges from the hips moving.
     const feet = { n: footAt(216), f: footAt(184) };
@@ -392,6 +394,13 @@ function Story({ lang }: { lang: Lang }) {
         const st2 = 1 + Math.min(0.22, speed * 0.0018); // stretch along the motion, squash across it
         bd.setAttribute("transform", `translate(${buddyX.y.toFixed(1)} ${buddyY.y.toFixed(1)}) rotate(${ang.toFixed(1)}) scale(${(base * st2).toFixed(3)} ${(base / st2).toFixed(3)}) rotate(${(-ang).toFixed(1)})`);
         bd.style.setProperty("--talk", talk.toFixed(3));
+        trail.unshift([buddyX.y, buddyY.y]); if (trail.length > 12) trail.pop();
+        const tr = trailRef.current;
+        if (tr) for (const [j, el] of Array.from(tr.children).entries()) {
+          const at = trail[Math.min(trail.length - 1, 3 + j * 3)];
+          el.setAttribute("cx", at[0].toFixed(1)); el.setAttribute("cy", at[1].toFixed(1));
+          el.setAttribute("opacity", Math.min(0.28, speed * 0.0016) * (1 - j * 0.3) + "");
+        }
       }
       // Buddy's light on the phone while it names the app.
       const beam = beamRef.current;
@@ -405,7 +414,9 @@ function Story({ lang }: { lang: Lang }) {
       zoom = springStep(zoom, 1 + 0.07 * (1 - bA) * (1 - bS) - 0.02 * bS, dt, { f: 0.45, z: 1 });
       panX = springStep(panX, pt ? 0 : -24 * bA * (1 - bS), dt, { f: 0.45, z: 1 });
       const cx = RIG_DX + 205 * RIG_SCALE, cy = RIG_DY + 170 * RIG_SCALE;
-      camRef.current?.setAttribute("transform", `translate(${(cx + panX.y).toFixed(1)} ${cy.toFixed(1)}) scale(${zoom.y.toFixed(4)}) translate(${-cx} ${-cy})`);
+      // Handheld breath: a camera operator never holds perfectly still (well under a pixel of roll, a few of drift).
+      const hx = noise(t * 0.6, 41) * 2.2, hy = noise(t * 0.6, 43) * 1.6, hr = noise(t * 0.5, 47) * 0.18;
+      camRef.current?.setAttribute("transform", `translate(${(cx + panX.y + hx).toFixed(1)} ${(cy + hy).toFixed(1)}) rotate(${hr.toFixed(3)}) scale(${zoom.y.toFixed(4)}) translate(${-cx} ${-cy})`);
       // Foreground: nearer than everything, so it moves more with the camera (parallax depth).
       // Far layer (tree line, palms, houses): moves about half as much as the scene.
       farRef.current?.setAttribute("transform", `translate(${(-panX.y * 0.55).toFixed(1)} 0)`);
@@ -561,6 +572,8 @@ function Story({ lang }: { lang: Lang }) {
                   <text x="24" y="2.6" textAnchor="middle" fontSize="6.6" fontWeight="800" fill="#fff">{bn ? "⚠ প্রতারণার লক্ষণ" : "⚠ Scam signs"}</text>
                 </g>
               </g>
+              {/* Buddy's motion trail: ghosts of where it just was, only visible when it moves fast */}
+              <g ref={trailRef} aria-hidden="true">{[0, 1, 2].map((j) => <circle key={j} r={13 - j * 2.5} fill="#5fd3a6" opacity="0" />)}</g>
               <g ref={buddyRef} className="kp-ls-buddy">
                 <circle r="21" className="kp-ls-buddy-ring" />
                 <circle r="15" fill="url(#kp-ls-orb)" />
@@ -569,6 +582,8 @@ function Story({ lang }: { lang: Lang }) {
               </g>
             </g>
             <path d="M0 600H1000V1100H0Z" className="kp-ls-hill" />
+            {/* light on the actors: the scene's grade and its light sources, over everything in the set */}
+            <g key={`light-${stage.id}`} className="kp-ls-light">{epilogue ? null : <Lighting id={stage.id} />}</g>
           </g>
           {/* foreground: blurred grass at the frame's edges, nearer than the actors */}
           <g ref={fgRef} className="kp-ls-fg">
