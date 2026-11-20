@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { DataBackup } from "@/components/apps/DataBackup";
+import { ZapierIntegrationCard } from "@/components/apps/ZapierIntegrationCard";
 import { ShieldCheck, Download, Trash2, HardDrive } from "lucide-react";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { listKeys, removeStored, downloadText, type AppNamespace } from "@/lib/clientStore";
@@ -88,6 +89,8 @@ export default function SettingsPage() {
         </section>
 
         <DataBackup onRestore={() => force((n) => n + 1)} />
+
+        <ZapierIntegrationCard />
 
         <section aria-label="অ্যাপভিত্তিক ডেটা" className="space-y-3">
           {APPS.map((app) => {

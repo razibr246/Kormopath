@@ -11,6 +11,9 @@ import {
   Check,
   X,
   ArrowUpRight,
+  Sprout,
+  HeartPulse,
+  Compass,
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import {
@@ -103,12 +106,58 @@ export function UserNavBadge({ lang = "bn", className = "", onOpenLogin }: UserN
     );
   }
 
-  const getAvatarEmoji = (personaId?: string) => {
-    if (personaId === "rahim_uddin") return "🌾";
-    if (personaId === "lamia_akter") return "🩺";
-    if (personaId === "najeeb_ahmed") return "⭐";
-    return "👤";
-  };
+  function UserAvatarSquircle({
+    personaId,
+    size = "sm",
+  }: {
+    personaId?: string;
+    size?: "sm" | "md" | "lg";
+  }) {
+    let sizeClasses = "h-5 w-5 rounded-[6px]";
+    let iconSize = 12;
+    if (size === "md") {
+      sizeClasses = "h-7 w-7 rounded-[9px]";
+      iconSize = 15;
+    } else if (size === "lg") {
+      sizeClasses = "h-10 w-10 rounded-[13px]";
+      iconSize = 20;
+    }
+
+    if (personaId === "rahim_uddin") {
+      return (
+        <div
+          className={`relative flex shrink-0 items-center justify-center bg-gradient-to-br from-emerald-400 via-emerald-600 to-teal-800 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.6),0_2px_6px_rgba(16,185,129,0.35)] ring-1 ring-white/30 ${sizeClasses}`}
+        >
+          <Sprout size={iconSize} strokeWidth={2.4} />
+        </div>
+      );
+    }
+    if (personaId === "lamia_akter") {
+      return (
+        <div
+          className={`relative flex shrink-0 items-center justify-center bg-gradient-to-br from-sky-400 via-blue-600 to-indigo-800 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.6),0_2px_6px_rgba(37,99,235,0.35)] ring-1 ring-white/30 ${sizeClasses}`}
+        >
+          <HeartPulse size={iconSize} strokeWidth={2.4} />
+        </div>
+      );
+    }
+    if (personaId === "najeeb_ahmed") {
+      return (
+        <div
+          className={`relative flex shrink-0 items-center justify-center bg-gradient-to-br from-amber-400 via-orange-500 to-amber-700 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.6),0_2px_6px_rgba(245,158,11,0.35)] ring-1 ring-white/40 ${sizeClasses}`}
+        >
+          <Sparkles size={iconSize} strokeWidth={2.4} />
+        </div>
+      );
+    }
+    return (
+      <div
+        className={`relative flex shrink-0 items-center justify-center bg-gradient-to-br from-slate-500 via-slate-600 to-slate-800 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_2px_6px_rgba(71,85,105,0.3)] ring-1 ring-white/20 ${sizeClasses}`}
+      >
+        <Compass size={iconSize} strokeWidth={2.4} />
+      </div>
+    );
+  }
 
   const getTierBadgeStyle = (tier?: string) => {
     if (tier === "pro") {
@@ -137,12 +186,10 @@ export function UserNavBadge({ lang = "bn", className = "", onOpenLogin }: UserN
               onClick={() => setMenuOpen(!menuOpen)}
               aria-expanded={menuOpen}
               aria-haspopup="menu"
-              className="group inline-flex items-center gap-1.5 pl-2.5 pr-2 py-0.5 text-slate-800 transition-colors"
+              className="group inline-flex items-center gap-2 pl-2 pr-2 py-0.5 text-slate-800 transition-colors cursor-pointer"
               title={bn ? "প্রোফাইল মেনু ও ১-ক্লিক পরিবর্তন" : "Persona menu & 1-click switch"}
             >
-              <span className="text-base leading-none select-none">
-                {getAvatarEmoji(session.personaId)}
-              </span>
+              <UserAvatarSquircle personaId={session.personaId} size="sm" />
               <span className="max-w-[100px] xl:max-w-[120px] truncate text-[13px] font-semibold text-slate-900">
                 {bn ? session.nameBn : session.nameEn}
               </span>
@@ -166,7 +213,7 @@ export function UserNavBadge({ lang = "bn", className = "", onOpenLogin }: UserN
             <button
               type="button"
               onClick={handleLogout}
-              className="inline-flex h-7 w-7 items-center justify-center rounded-full text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors shrink-0"
+              className="inline-flex h-7 w-7 items-center justify-center rounded-full text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors shrink-0 cursor-pointer"
               title={bn ? "পাবলিক মোডে ফিরুন (লগআউট)" : "Return to Public Guest Mode (Logout)"}
               aria-label={bn ? "পাবলিক মোডে ফিরুন" : "Return to Public Guest Mode"}
             >
@@ -177,10 +224,10 @@ export function UserNavBadge({ lang = "bn", className = "", onOpenLogin }: UserN
               <div
                 role="menu"
                 aria-orientation="vertical"
-                className="absolute right-0 mt-2 w-72 origin-top-right rounded-2xl border border-slate-200/90 bg-white p-3 shadow-xl ring-1 ring-slate-900/10 z-[100] transition-all animate-in fade-in zoom-in-95 duration-150"
+                className="absolute right-0 mt-2 w-76 origin-top-right rounded-2xl border border-slate-200/90 bg-white/95 backdrop-blur-xl p-3 shadow-2xl ring-1 ring-slate-900/10 z-[100] transition-all animate-in fade-in zoom-in-95 duration-150"
               >
                 {/* Current Active Persona Details */}
-                <div className="rounded-xl bg-slate-50 p-2.5 border border-slate-200/60">
+                <div className="rounded-xl bg-slate-50/90 p-3 border border-slate-200/70 shadow-2xs">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                       {bn ? "বর্তমান প্রোফাইল" : "Active Persona"}
@@ -193,10 +240,10 @@ export function UserNavBadge({ lang = "bn", className = "", onOpenLogin }: UserN
                       {getTierLabel(session.tier)}
                     </span>
                   </div>
-                  <div className="mt-1.5 flex items-center gap-2.5">
-                    <span className="text-2xl">{getAvatarEmoji(session.personaId)}</span>
+                  <div className="mt-2 flex items-center gap-3">
+                    <UserAvatarSquircle personaId={session.personaId} size="lg" />
                     <div className="min-w-0">
-                      <p className="font-bold text-[14px] text-slate-900 truncate">
+                      <p className="font-display font-bold text-[14.5px] text-slate-900 truncate">
                         {bn ? session.nameBn : session.nameEn}
                       </p>
                       <p className="text-[11.5px] text-slate-500 truncate">
@@ -223,17 +270,17 @@ export function UserNavBadge({ lang = "bn", className = "", onOpenLogin }: UserN
                           key={p.id}
                           type="button"
                           onClick={() => handleSwitchPersona(p)}
-                          className={`flex w-full items-center justify-between rounded-xl px-2.5 py-2 text-left text-[12.5px] transition-colors ${
+                          className={`flex w-full items-center justify-between rounded-xl px-2.5 py-2 text-left text-[12.5px] transition-colors cursor-pointer ${
                             isCurrent
                               ? "bg-emerald-50 text-emerald-950 font-semibold border border-emerald-200"
                               : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
                           }`}
                         >
-                          <span className="flex items-center gap-2 min-w-0 truncate">
-                            <span>{getAvatarEmoji(p.id)}</span>
-                            <span className="truncate">{bn ? p.nameBn : p.nameEn}</span>
+                          <span className="flex items-center gap-2.5 min-w-0 truncate">
+                            <UserAvatarSquircle personaId={p.id} size="md" />
+                            <span className="truncate font-medium">{bn ? p.nameBn : p.nameEn}</span>
                           </span>
-                          <span className="flex items-center gap-1 shrink-0">
+                          <span className="flex items-center gap-1.5 shrink-0">
                             <span
                               className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase ${
                                 p.tier === "pro"

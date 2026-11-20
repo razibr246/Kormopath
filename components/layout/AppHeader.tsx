@@ -1,10 +1,12 @@
 "use client";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { ShieldCheck, Monitor, Lock, Trash2, X, AlertTriangle, RotateCcw } from "lucide-react";
+import { ShieldCheck, Monitor, Lock, Trash2, X, AlertTriangle, RotateCcw, Search, Phone, Info } from "lucide-react";
 import { AppSwitcherDropdown, APP_SHORT_NAME, type AppItem } from "@/components/layout/AppSwitcherDropdown";
 import { KormoPathLogo } from "@/components/brand/KormoPathLogo";
 import { UserNavBadge } from "@/components/auth/UserNavBadge";
+import { getAppMetadata } from "@/lib/appMeta";
+import { AppInfoModal } from "@/components/layout/AppInfoModal";
 
 function formatMmSs(sec: number): string {
   const m = Math.floor(sec / 60);
@@ -26,6 +28,7 @@ export function AppHeader({
   accent,
   privacyNote = "ডেটা শুধু এই ডিভাইসে",
   right,
+  hotline,
 }: {
   appId: AppItem["id"];
   href: string;
@@ -37,7 +40,19 @@ export function AppHeader({
   accent: string; // tailwind gradient classes for the icon tile, e.g. "from-rose-500 to-rose-700"
   privacyNote?: string | null;
   right?: ReactNode;
+  hotline?: { number: string; label: string; urgent?: boolean };
 }) {
+  // Metadata for the current app
+  const appMeta = getAppMetadata(appId);
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
+
+  // Quick Search Trigger
+  const openSearch = useCallback(() => {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("kormopath:open-command-palette"));
+    }
+  }, []);
+
   // ---- Union Digital Centre (UDC) / Shared PC Privacy Mode ----
   const [udcActive, setUdcActive] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(900); // 15 minutes
@@ -202,16 +217,38 @@ export function AppHeader({
           মূল অংশে যান
         </a>
         <div className="kp-nav mx-auto flex max-w-7xl items-center justify-between gap-3 px-2.5 py-2 sm:px-3">
-          <div className="kp-app-brand flex min-w-0 items-center gap-2.5 sm:gap-3">
-            <Link href={href} prefetch={true} className="flex min-w-0 items-center gap-2.5 group">
-              <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-gradient-to-br ${accent} text-white shadow-[inset_0_1px_0_rgba(255,255,255,.35),0_4px_12px_-2px_rgba(60,36,18,.35)] ring-1 ring-white/30 transition-transform duration-200 group-hover:scale-105`} aria-hidden>
+          <div className="kp-app-brand flex min-w-0 items-center gap-2 sm:gap-2.5">
+            <Link href={href} prefetch={true} className="flex min-w-0 items-center gap-2.5 sm:gap-3 group" title={`${shownName} - ${taglineBn}`}>
+              <span className={`relative flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-[14px] bg-gradient-to-br ${accent} text-white shadow-[inset_0_1px_0_rgba(255,255,255,.5),0_6px_16px_-3px_rgba(60,36,18,.25)] ring-1 ring-white/50 transition-all duration-200 group-hover:scale-105 group-hover:shadow-[inset_0_1px_0_rgba(255,255,255,.6),0_10px_22px_-3px_rgba(60,36,18,.35)] group-active:scale-95`} aria-hidden>
+                <span className="absolute inset-0 rounded-[14px] bg-gradient-to-t from-transparent via-white/10 to-white/20 pointer-events-none" />
                 {icon}
               </span>
               <span className="min-w-0">
-                <span className="kp-app-name block truncate font-display text-[18px] font-bold leading-tight tracking-tight text-slate-900 sm:text-[20px]">{shownName}</span>
-                <span className="kp-app-tagline mt-0.5 block truncate text-[11.5px] font-medium leading-none text-slate-600">{taglineBn}</span>
+                <span className="flex items-center gap-1.5 min-w-0">
+                  <span className="kp-app-name block truncate font-display text-[18px] font-bold leading-tight tracking-tight text-slate-900 sm:text-[20px]">{shownName}</span>
+                  {appMeta?.trustBadgeBn && (
+                    <span className="hidden xl:inline-flex items-center gap-1 rounded-full border border-indigo-200/80 bg-indigo-50/70 px-2 py-0.5 text-[10.5px] font-bold text-indigo-950 tracking-tight shadow-2xs">
+                      {appMeta.trustBadgeBn}
+                    </span>
+                  )}
+                </span>
+                <span className="kp-app-tagline mt-0.5 flex items-center gap-1.5 truncate text-[11.5px] font-medium leading-none text-slate-600">
+                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500 animate-pulse" title="ডিভাইসে অফলাইন প্রস্তুত" />
+                  <span className="truncate">{taglineBn}</span>
+                </span>
               </span>
             </Link>
+            {appMeta && (
+              <button
+                type="button"
+                onClick={() => setIsInfoOpen(true)}
+                className="hidden sm:grid h-7 w-7 shrink-0 place-items-center rounded-full border border-slate-200/90 bg-white/70 text-slate-500 hover:text-indigo-700 hover:border-indigo-300 hover:bg-white shadow-2xs backdrop-blur-xs transition-all hover:scale-105 active:scale-95"
+                title={`${shownName} সম্পর্কে বিস্তারিত জানুন ও হেল্পলাইন`}
+                aria-label={`${shownName} তথ্য ও হটলাইন`}
+              >
+                <Info size={13} />
+              </button>
+            )}
             {/* Desktop Logo Link */}
             <Link
               href="/"
@@ -234,7 +271,36 @@ export function AppHeader({
               <KormoPathLogo theme="light" variant="mark" size="sm" />
             </Link>
           </div>
-          <div className="kp-app-actions flex shrink-0 items-center gap-2 sm:gap-3">
+          <div className="kp-app-actions flex shrink-0 items-center gap-2 sm:gap-2.5">
+            {/* Quick Search / Command Palette Trigger */}
+            <button
+              type="button"
+              onClick={openSearch}
+              className="hidden sm:inline-flex h-8 items-center gap-1.5 rounded-full border border-slate-200/90 bg-white/70 px-2.5 text-[11.5px] font-medium text-slate-600 shadow-2xs backdrop-blur-sm transition-all hover:border-slate-300 hover:bg-white hover:text-slate-900"
+              title="অনুসন্ধান বা জাম্প (Cmd+K)"
+              aria-label="অনুসন্ধান প্যালেট খুলুন"
+            >
+              <Search size={12} className="text-slate-400" aria-hidden />
+              <span>খুঁজুন</span>
+              <kbd className="ml-0.5 rounded border border-slate-200 bg-slate-100/80 px-1 py-0.2 font-mono text-[9.5px] font-semibold text-slate-500">⌘K</kbd>
+            </button>
+
+            {/* Optional Hotline / Quick Direct Dial Badge */}
+            {hotline && (
+              <a
+                href={`tel:${hotline.number}`}
+                className={`inline-flex h-8 items-center gap-1.5 rounded-full border px-2.5 text-[11.5px] font-bold shadow-2xs transition-all hover:scale-102 active:scale-98 ${
+                  hotline.urgent
+                    ? "border-red-300 bg-red-50 text-red-900 hover:bg-red-100 hover:border-red-400"
+                    : "border-indigo-200 bg-indigo-50/90 text-indigo-900 hover:bg-indigo-100 hover:border-indigo-300"
+                }`}
+                title={`${hotline.label} (${hotline.number})`}
+              >
+                <Phone size={11} className={hotline.urgent ? "text-red-600 animate-pulse" : "text-indigo-600"} aria-hidden />
+                <span>{hotline.label}</span>
+                <span className="font-mono text-[11px] opacity-80">{hotline.number.replace(/\d/g, (d) => "০১২৩৪৫৬৭৮৯"[Number(d)])}</span>
+              </a>
+            )}
             {/* UDC / Shared Terminal Privacy Mode Toggle */}
             <div className="relative" ref={menuRef}>
               {udcActive ? (
@@ -326,6 +392,17 @@ export function AppHeader({
           </div>
         </div>
       </header>
+
+      {/* Interactive App Overview & Helplines Modal */}
+      {appMeta && (
+        <AppInfoModal
+          isOpen={isInfoOpen}
+          onClose={() => setIsInfoOpen(false)}
+          metadata={appMeta}
+          icon={icon}
+          accent={accent}
+        />
+      )}
     </>
   );
 }

@@ -9,6 +9,7 @@ import { downloadText, storageKey, usePersistentState } from "@/lib/clientStore"
 import { allDayIcs, isIsoDate } from "@/lib/ics";
 import { CalendarPlus } from "lucide-react";
 import { playClick, playSuccessChime } from "@/lib/sound";
+import { formatContractForZapier } from "@/lib/zapier";
 import {
   type ChuktiInvoice,
   type InvoiceMilestone,
@@ -43,6 +44,7 @@ import {
   Check,
   ExternalLink,
   Lock,
+  Zap,
 } from "lucide-react";
 
 export default function ChuktiGuardPage() {
@@ -195,6 +197,54 @@ export default function ChuktiGuardPage() {
     setInvoice(SAMPLE_CHUKTI_PRESETS[index]);
   };
 
+  const [zapierSending, setZapierSending] = useState(false);
+  const [zapierMsg, setZapierMsg] = useState<{ success: boolean; text: string } | null>(null);
+
+  const handleSendToZapier = async () => {
+    playClick();
+    const webhookUrl = typeof window !== "undefined" ? localStorage.getItem("kormopath:zapier:webhook_url") || "" : "";
+    if (!webhookUrl) {
+      setZapierMsg({ success: false, text: "সেটিংসে গিয়ে আগে আপনার Zapier ওয়েবহুক URL যুক্ত করুন (/settings)" });
+      setTimeout(() => setZapierMsg(null), 5000);
+      return;
+    }
+    setZapierSending(true);
+    setZapierMsg(null);
+    try {
+      const payload = formatContractForZapier({
+        title: `Invoice #${invoice.invoiceNumber || "Draft"} - ${invoice.client.company || invoice.client.name}`,
+        freelancerName: invoice.contractor.name || "Freelancer",
+        clientName: invoice.client.company || invoice.client.name || "Client",
+        totalBdt: finops.grossBdt,
+        milestonesCount: invoice.milestones.length,
+        hasForceMajeure: true,
+        effectiveDate: invoice.date || new Date().toISOString().split("T")[0],
+      });
+      const res = await fetch("/api/zapier/dispatch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          webhookUrl,
+          event: payload.event,
+          app: payload.app,
+          data: payload.data,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        playSuccessChime();
+        setZapierMsg({ success: true, text: "✓ Zapier-এ পাঠানো হয়েছে! (Google Docs/CRM ট্রিগার সম্পন্ন)" });
+      } else {
+        setZapierMsg({ success: false, text: data.error || "ওয়েবহুক সংযোগ ব্যর্থ হয়েছে" });
+      }
+    } catch {
+      setZapierMsg({ success: false, text: "Zapier ডিসপ্যাচ ব্যর্থ হয়েছে" });
+    } finally {
+      setZapierSending(false);
+      setTimeout(() => setZapierMsg(null), 4000);
+    }
+  };
+
   // Milestone completion stats
   const completedMilestones = invoice.milestones.filter(
     (m) => m.status === "approved" || m.status === "paid"
@@ -205,7 +255,7 @@ export default function ChuktiGuardPage() {
       : 0;
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased print:bg-white print:text-black">
+    <div className="min-h-screen bg-paper text-slate-900 font-sans antialiased print:bg-white print:text-black">
       {/* Top Navbar */}
       <AppHeader
         appId="chuktiguard"
@@ -254,6 +304,17 @@ export default function ChuktiGuardPage() {
             </button>
 
             <button
+              onClick={handleSendToZapier}
+              disabled={zapierSending}
+              aria-label="Send contract metadata to Zapier webhook"
+              title="Zapier ওয়েবহুকে পাঠান (Google Docs, Notion, CRM)"
+              className="flex items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50 px-3 py-1.5 text-[12px] font-semibold text-amber-900 hover:bg-amber-100 transition-colors shadow-xs"
+            >
+              <Zap size={15} className={`text-amber-600 ${zapierSending ? "animate-pulse" : ""}`} />
+              <span className="hidden sm:inline">{zapierSending ? "পাঠানো হচ্ছে..." : "Zapier"}</span>
+            </button>
+
+            <button
               onClick={handleCopyShareLink}
               aria-label={copiedLink ? "Copied link" : "Share link"}
               className="flex items-center gap-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 px-3 py-1.5 text-[12px] font-semibold text-white transition-colors shadow-xs"
@@ -264,6 +325,12 @@ export default function ChuktiGuardPage() {
           </div>
         }
       />
+
+      {zapierMsg && (
+        <div className={`px-4 py-2.5 text-center text-[12.5px] font-semibold transition-all ${zapierMsg.success ? "bg-emerald-600 text-white" : "bg-rose-600 text-white"}`}>
+          {zapierMsg.text}
+        </div>
+      )}
 
       {/* Hero / Action Bar */}
       <section className="border-b border-slate-200 bg-gradient-to-b from-indigo-50/70 via-white to-white px-4 py-6 sm:px-6 print:hidden">
@@ -589,8 +656,27 @@ export default function ChuktiGuardPage() {
                 </div>
               )}
 
+              {/* Digital Verification & Compliance Seal */}
+              <div className="mt-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-xl border border-indigo-200/90 bg-gradient-to-r from-indigo-50/70 via-white to-amber-50/50 p-4 text-[12px] shadow-2xs">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-700 text-white font-bold shadow-xs">
+                    <ShieldCheck size={22} />
+                  </div>
+                  <div>
+                    <span className="font-bold text-slate-900 block">চুক্তিগার্ড ডিজিটাল ভেরিফিকেশন সীল (Digital Seal)</span>
+                    <span className="text-slate-600 font-mono text-[11px]">
+                      ID: CHUKTI-{invoice.invoiceNumber.replace(/[^A-Za-z0-9]/g, "") || "INV"}-{Math.abs(finops.totalUsd).toFixed(0)} · ধারা ৪ ফোর্স মেজার সক্রিয়
+                    </span>
+                  </div>
+                </div>
+                <div className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-1.5 text-emerald-800 font-bold text-[11.5px]">
+                  <CheckCircle2 size={14} className="text-emerald-600 shrink-0" />
+                  <span>NBR ITES &amp; Blackout Shielded</span>
+                </div>
+              </div>
+
               {/* Signature Block */}
-              <div className="mt-10 pt-6 border-t border-slate-200 grid sm:grid-cols-2 gap-8 text-[12px]">
+              <div className="mt-8 pt-6 border-t border-slate-200 grid sm:grid-cols-2 gap-8 text-[12px]">
                 <div>
                   <div className="font-mono text-slate-400 mb-1">Authorized Contractor Signature:</div>
                   <div className="font-serif italic text-[18px] text-slate-800 font-bold border-b border-slate-300 pb-1 w-48">

@@ -345,6 +345,22 @@ export function SiriOrb({
   );
 }
 
+/** Client-side in-memory audio clip cache for instant repeat speech playback (< 2ms) */
+const clientAudioCache = new Map<string, { audio: string; mimeType?: string }>();
+
+/** Pre-warms device audio hardware during user touch/click gesture to eliminate playback spin-up delay */
+function prewarmAudioEngine() {
+  if (typeof window === "undefined") return;
+  try {
+    const silent = new Audio("data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=");
+    silent.volume = 0;
+    const p = silent.play();
+    if (p && typeof p.then === "function") {
+      p.then(() => silent.pause()).catch(() => {});
+    }
+  } catch {}
+}
+
 export function Buddy() {
   const pathname = usePathname();
   const routeApp = appForPath(pathname);
@@ -505,18 +521,37 @@ export function Buddy() {
 
     // 1. Gemini Bangla voice, sentence by sentence: the short first chunk plays as soon as it is ready, and each next
     //    chunk is synthesised while the current one plays (one abort controller stops the whole queue).
-    const chunks = splitSpeech(text.slice(0, 4000), 90, 320);
+    const chunks = splitSpeech(text.slice(0, 4000), 70, 250);
     const controller = new AbortController();
     speechAbortRef.current = controller;
     setSpeechLoading(true);
     type Clip = { audio: string; mimeType?: string } | null;
-    const fetchClip = (part: string): Promise<Clip> =>
-      fetch("/api/buddy/speech", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ text: part }), signal: controller.signal })
-        .then(async (r) => {
-          const d = (await r.json().catch(() => ({}))) as { audio?: string; mimeType?: string };
-          return r.ok && d.audio ? { audio: d.audio, mimeType: d.mimeType } : null;
-        })
-        .catch(() => null);
+    const fetchClip = async (part: string): Promise<Clip> => {
+      const key = part.trim();
+      const cached = clientAudioCache.get(key);
+      if (cached) return cached;
+      try {
+        const r = await fetch("/api/buddy/speech", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ text: part }),
+          signal: controller.signal,
+        });
+        const d = (await r.json().catch(() => ({}))) as { audio?: string; mimeType?: string };
+        if (r.ok && d.audio) {
+          const res = { audio: d.audio, mimeType: d.mimeType };
+          if (clientAudioCache.size >= 80) {
+            const firstKey = clientAudioCache.keys().next().value;
+            if (firstKey) clientAudioCache.delete(firstKey);
+          }
+          clientAudioCache.set(key, res);
+          return res;
+        }
+        return null;
+      } catch {
+        return null;
+      }
+    };
     const playClip = (clip: { audio: string; mimeType?: string }) =>
       new Promise<boolean>((resolve) => {
         const bytes = Uint8Array.from(atob(clip.audio), (char) => char.charCodeAt(0));
@@ -532,11 +567,11 @@ export function Buddy() {
         audio.play().catch(() => resolve(false));
       });
 
-    // Up to three sentences are synthesised ahead of the one playing, so playback never waits on the network.
+    // Up to four sentences are synthesised ahead of the one playing, so playback never waits on the network.
     const clips: Array<Promise<Clip> | undefined> = [];
     const ensure = (j: number) => { if (j < chunks.length && !clips[j]) clips[j] = fetchClip(chunks[j]); };
     for (let i = 0; i < chunks.length; i++) {
-      for (let j = i; j <= i + 3; j++) ensure(j);
+      for (let j = i; j <= i + 4; j++) ensure(j);
       const clip = await clips[i];
       if (controller.signal.aborted) return;
       if (i === 0) setSpeechLoading(false);
@@ -572,6 +607,7 @@ export function Buddy() {
 
   // Speech-To-Text (Web Speech API)
   const toggleListening = () => {
+    prewarmAudioEngine();
     if (isSpeaking || speechLoading) {
       stopSpeaking();
       return;
@@ -641,6 +677,7 @@ export function Buddy() {
   };
 
   const send = async (event?: FormEvent<HTMLFormElement>, suggested?: string) => {
+    prewarmAudioEngine();
     event?.preventDefault();
     const content = (suggested ?? input).trim();
     if (!content || loading) return;
@@ -773,7 +810,11 @@ export function Buddy() {
             </button>
             <button
               type="button"
-              onClick={() => { if (isSpeaking || speechLoading) stopSpeaking(); setVoiceEnabled(!voiceEnabled); }}
+              onClick={() => {
+                if (isSpeaking || speechLoading) stopSpeaking();
+                if (!voiceEnabled) prewarmAudioEngine();
+                setVoiceEnabled(!voiceEnabled);
+              }}
               className="bv2-icon"
               aria-pressed={voiceEnabled}
               aria-label={voiceEnabled ? (bn ? "কণ্ঠ বন্ধ করুন" : "Mute voice") : (bn ? "কণ্ঠ চালু করুন" : "Turn voice on")}

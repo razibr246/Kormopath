@@ -4,7 +4,7 @@
  * few requests. Splits only at sentence ends (। ? ! . and line breaks), or at a comma when a sentence is too long.
  * No imports, so it is unit-tested in tests/speech-chunks.test.ts.
  */
-export function splitSpeech(text: string, firstMax = 90, restMax = 260): string[] {
+export function splitSpeech(text: string, firstMax = 75, restMax = 260): string[] {
   const clean = (text ?? "").replace(/\s+/g, " ").trim();
   if (!clean) return [];
   const sentences = clean.match(/[^।?!.\n]+[।?!.]*\s*/g)?.map((s) => s.trim()).filter(Boolean) ?? [clean];

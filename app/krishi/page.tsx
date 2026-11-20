@@ -99,6 +99,7 @@ export default function KrishiPage() {
         taglineBn="খামারের খাতা"
         icon={<MaathSathiMark />}
         accent="from-transparent to-transparent"
+        hotline={{ number: "16123", label: "কৃষি ১৬১২৩" }}
         right={
           <span
             className="kp-chip hidden !h-8 !rounded-full !text-[12px] font-semibold sm:inline-flex"

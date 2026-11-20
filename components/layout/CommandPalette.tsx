@@ -243,7 +243,7 @@ export function CommandPalette() {
     setIsOpen(false);
   };
 
-  // Global Keyboard listener for Cmd+K / Ctrl+K
+  // Global Keyboard listener for Cmd+K / Ctrl+K and custom trigger event
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
@@ -254,8 +254,16 @@ export function CommandPalette() {
         setIsOpen(false);
       }
     }
+    const handleCustomOpen = () => {
+      setIsOpen(true);
+      playClick();
+    };
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener("kormopath:open-command-palette", handleCustomOpen);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("kormopath:open-command-palette", handleCustomOpen);
+    };
   }, []);
 
   // Focus input on open & prefetch primary routes

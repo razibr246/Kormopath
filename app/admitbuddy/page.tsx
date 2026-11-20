@@ -168,7 +168,7 @@ export default function AdmitBuddyPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#f7f7fd] text-slate-900 antialiased">
+    <div className="min-h-screen bg-paper text-slate-900 antialiased">
       <AppHeader taglineEn="University admission planner" appId="admitbuddy" href="/admitbuddy" name="AdmitBuddy" taglineBn="বিশ্ববিদ্যালয় ভর্তির পরিকল্পনা ও ট্র্যাকার" icon={<GraduationCap size={22} />} accent="from-indigo-600 to-blue-700" />
 
       <main id="main" className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 motion-safe:animate-rise-in">

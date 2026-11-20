@@ -21,7 +21,10 @@ const NAV = [
 ] as const;
 
 function openPalette() {
-  if (typeof window !== "undefined") window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true, metaKey: true }));
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("kormopath:open-command-palette"));
+    window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true, metaKey: true }));
+  }
 }
 
 /** Floating frosted navigation pill used on the home page, Workspace and passport pages. */

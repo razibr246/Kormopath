@@ -2,10 +2,11 @@
 import "./rokkha.css";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { AlertTriangle, BellRing, CheckCircle2, ClipboardCopy, ClipboardPaste, CloudRain, HandCoins, LifeBuoy, Link2, MessageSquareWarning, Phone, PhoneOff, ShieldCheck, Timer, Trash2, Users } from "lucide-react";
+import { AlertTriangle, BellRing, CheckCircle2, ClipboardCopy, ClipboardPaste, CloudRain, HandCoins, LifeBuoy, Link2, MessageSquareWarning, Phone, PhoneOff, ShieldCheck, ShieldAlert, Timer, Trash2, Users } from "lucide-react";
 import { AppHeader, SourceTag } from "@/components/layout/AppHeader";
 import { AppFooter } from "@/components/layout/AppFooter";
 import { storageKey, usePersistentState } from "@/lib/clientStore";
+import { ScamDefenseDrill } from "@/components/apps/rokkha/ScamDefenseDrill";
 import { DISTRICTS, type WeatherHour } from "@/lib/haatbazar";
 import {
   CALL_GUARD_POINTS, CALL_GUARD_SECONDS, GUARDIAN_ALERT_BN, GUARDIAN_ALERT_EN, LINK_FLAG_TEXT, MAX_GUARDIANS,
@@ -20,6 +21,7 @@ const SAMPLE_SMS = "প্রিয় গ্রাহক, আমি বিক�
 
 const NAV = [
   { href: "#check", bn: "বার্তা যাচাই", en: "Check a message", icon: MessageSquareWarning },
+  { href: "#drill", bn: "প্রতারক চেনার ড্রিল", en: "Scam defense drill", icon: ShieldAlert },
   { href: "#pause", bn: "টাকা পাঠানোর আগে", en: "Before you send", icon: Timer },
   { href: "#guardian", bn: "পরিবারের পাহারা", en: "Family guardian", icon: Users },
   { href: "#lost", bn: "টাকা হারিয়েছেন?", en: "Lost money?", icon: LifeBuoy },
@@ -90,6 +92,7 @@ export default function RokkhaPage() {
         taglineBn="প্রতারণা ও দুর্যোগে সুরক্ষা"
         icon={<ShieldCheck size={20} aria-hidden />}
         accent="from-amber-500 to-orange-700"
+        hotline={{ number: "999", label: "জরুরি ৯৯৯", urgent: true }}
         right={
           <button type="button" onClick={() => setLang(bn ? "en" : "bn")} className="kp-chip !h-11 !rounded-full !text-[12px] font-semibold !min-w-[44px]" aria-label={bn ? "Switch to English" : "বাংলায় দেখুন"}>
             {bn ? "EN" : "বাং"}
@@ -133,6 +136,7 @@ export default function RokkhaPage() {
         </nav>
 
         <MessageChecker bn={bn} T={T} shared={shared} guardians={guardians} onLinks={setReportLinks} />
+        <ScamDefenseDrill bn={bn} />
         <PauseFlow bn={bn} T={T} num={num} />
         <GuardianSection bn={bn} T={T} guardians={guardians} setGuardians={setGuardians} />
         <LostMoney bn={bn} T={T} links={reportLinks} />

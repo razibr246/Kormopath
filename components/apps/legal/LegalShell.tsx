@@ -29,7 +29,7 @@ const SHORT_BN: Record<string, string> = { emergency: "জরুরি", women_c
 export function HelpStrip() {
   const lines = STRIP.map((id) => HELPLINES.find((h) => h.id === id)!).filter(Boolean);
   return (
-    <aside aria-label="জরুরি সাহায্য" className="lg-strip" data-testid="legal-help-strip">
+    <aside aria-label="জরুরি সাহায্য" className="lg-strip items-center" data-testid="legal-help-strip">
       {lines.map((h) => (
         <a key={h.id} href={`tel:${h.number}`} className={`lg-strip-call ${h.id === "emergency" ? "lg-strip-urgent" : ""}`} title={`${h.bn} — উৎস: ${h.source.label}`}>
           <Phone size={15} aria-hidden />
@@ -38,6 +38,17 @@ export function HelpStrip() {
           <span className="hidden text-[13px] sm:inline">{h.bn}</span>
         </a>
       ))}
+      <button
+        type="button"
+        onClick={() => window.location.replace("https://www.google.com")}
+        className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-white/90 px-3 py-1.5 text-[12px] font-bold text-red-700 shadow-2xs hover:bg-red-50 hover:border-red-300 transition-colors"
+        title="তাৎক্ষণিকভাবে অন্য সাইটে চলে যান (ব্রাউজার স্ক্রিন সুরক্ষিত রাখতে)"
+        aria-label="নিরাপদ প্রস্থান (Quick Exit)"
+      >
+        <span className="h-2 w-2 rounded-full bg-red-600 animate-pulse" aria-hidden="true" />
+        <span className="hidden sm:inline">নিরাপদ প্রস্থান (Quick Exit)</span>
+        <span className="sm:hidden">প্রস্থান</span>
+      </button>
     </aside>
   );
 }
@@ -48,8 +59,17 @@ export function LegalShell({ children }: { children: React.ReactNode }) {
   const tabBar = useActiveTabIntoView<HTMLDivElement>(path);
   return (
     <div className="lg-root min-h-screen bg-paper">
-      <AppHeader appId="legal" href="/legal" name="আইনি সহায়তা" taglineBn="বিনামূল্যে আইনি সাহায্যের পথ" taglineEn="Your path to free legal aid" icon={<Scale size={22} />} accent="from-indigo-500 to-amber-500" />
-      <nav aria-label="আইনি সহায়তার অংশ" className="lg-nav" data-testid="legal-nav">
+      <AppHeader
+        appId="legal"
+        href="/legal"
+        name="আইনি সহায়তা"
+        taglineBn="বিনামূল্যে আইনি সাহায্যের পথ"
+        taglineEn="Your path to free legal aid"
+        icon={<Scale size={22} />}
+        accent="from-indigo-500 to-amber-500"
+        hotline={{ number: "16699", label: "টোল-ফ্রি" }}
+      />
+      <nav aria-label="আইনি সহায়তার অংশ" className="lg-nav sticky top-[68px] sm:top-[76px] z-30 transition-all shadow-2xs" data-testid="legal-nav">
         <div ref={tabBar} className="kp-tabbar mx-auto flex max-w-6xl gap-2 overflow-x-auto px-4 py-2 sm:px-6 [scrollbar-width:none]">
           {LEGAL_NAV.map((n) => (
             <Link key={n.href} href={n.href} aria-current={active(n.href) ? "page" : undefined} className={`lg-tab ${active(n.href) ? "lg-tab-on" : ""}`}>

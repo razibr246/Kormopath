@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import {
   X,
+  Minus,
+  Plus,
   CheckCircle2,
   ChevronRight,
   ShieldCheck,
@@ -18,6 +20,9 @@ import {
   ShieldCheck as ShieldIcon,
   Sprout,
   Wallet,
+  Fingerprint,
+  KeyRound,
+  Compass,
 } from "lucide-react";
 import { KormoPathLogo, KormoPathMark } from "@/components/brand/KormoPathLogo";
 import {
@@ -36,6 +41,63 @@ interface PersonaLoginModalProps {
   onClose: () => void;
   lang?: "bn" | "en";
   onSelectPersona?: (persona: UserPersona) => void;
+}
+
+/**
+ * macOS-grade squircle avatar tile with continuous curves,
+ * specular reflection, and vibrant multi-stop Apple gradients.
+ */
+function PersonaAvatar({ icon }: { icon: "farmer" | "health" | "pro" | "guest" }) {
+  if (icon === "farmer") {
+    return (
+      <div className="relative flex h-13 w-13 shrink-0 items-center justify-center rounded-[18px] bg-gradient-to-br from-emerald-400 via-emerald-600 to-teal-800 text-white shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.65),inset_0_-1.5px_2px_rgba(0,0,0,0.22),0_8px_20px_-4px_rgba(16,185,129,0.45)] ring-1 ring-white/35 group-hover:scale-105 group-hover:shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.8),0_10px_24px_-4px_rgba(16,185,129,0.55)] transition-all duration-200">
+        <Sprout size={25} strokeWidth={2.3} className="drop-shadow-xs" />
+        <span
+          className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-[7px] bg-gradient-to-br from-amber-300 via-amber-400 to-amber-600 text-[10px] text-amber-950 font-black shadow-[0_2px_5px_rgba(0,0,0,0.2),inset_0_1px_0.5px_rgba(255,255,255,0.7)] ring-1.5 ring-white select-none"
+          title="কৃষি ও পল্লী"
+        >
+          🌾
+        </span>
+      </div>
+    );
+  }
+  if (icon === "health") {
+    return (
+      <div className="relative flex h-13 w-13 shrink-0 items-center justify-center rounded-[18px] bg-gradient-to-br from-sky-400 via-blue-600 to-indigo-800 text-white shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.65),inset_0_-1.5px_2px_rgba(0,0,0,0.22),0_8px_20px_-4px_rgba(37,99,235,0.45)] ring-1 ring-white/35 group-hover:scale-105 group-hover:shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.8),0_10px_24px_-4px_rgba(37,99,235,0.55)] transition-all duration-200">
+        <HeartPulse size={25} strokeWidth={2.3} className="drop-shadow-xs" />
+        <span
+          className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-[7px] bg-gradient-to-br from-rose-400 via-rose-500 to-rose-700 text-[10px] text-white font-black shadow-[0_2px_5px_rgba(0,0,0,0.2),inset_0_1px_0.5px_rgba(255,255,255,0.7)] ring-1.5 ring-white select-none"
+          title="স্বাস্থ্য ও সেবা"
+        >
+          🩺
+        </span>
+      </div>
+    );
+  }
+  if (icon === "pro") {
+    return (
+      <div className="relative flex h-13 w-13 shrink-0 items-center justify-center rounded-[18px] bg-gradient-to-br from-amber-400 via-orange-500 to-amber-700 text-white shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.7),inset_0_-1.5px_2px_rgba(0,0,0,0.22),0_8px_20px_-4px_rgba(245,158,11,0.48)] ring-1 ring-white/40 group-hover:scale-105 group-hover:shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.85),0_10px_24px_-4px_rgba(245,158,11,0.6)] transition-all duration-200">
+        <Sparkles size={25} strokeWidth={2.3} className="drop-shadow-xs" />
+        <span
+          className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-[7px] bg-gradient-to-br from-amber-200 via-yellow-300 to-amber-500 text-[11px] text-amber-950 font-black shadow-[0_2px_5px_rgba(0,0,0,0.2),inset_0_1px_0.5px_rgba(255,255,255,0.7)] ring-1.5 ring-white select-none"
+          title="অল-অ্যাক্সেস প্রো"
+        >
+          ★
+        </span>
+      </div>
+    );
+  }
+  return (
+    <div className="relative flex h-13 w-13 shrink-0 items-center justify-center rounded-[18px] bg-gradient-to-br from-slate-500 via-slate-700 to-slate-900 text-white shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.55),inset_0_-1.5px_2px_rgba(0,0,0,0.25),0_8px_20px_-4px_rgba(51,65,85,0.4)] ring-1 ring-white/25 group-hover:scale-105 group-hover:shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.7),0_10px_24px_-4px_rgba(51,65,85,0.5)] transition-all duration-200">
+      <Compass size={25} strokeWidth={2.3} className="drop-shadow-xs" />
+      <span
+        className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-[7px] bg-gradient-to-br from-slate-200 via-slate-300 to-slate-400 text-[10px] text-slate-800 font-black shadow-[0_2px_5px_rgba(0,0,0,0.2),inset_0_1px_0.5px_rgba(255,255,255,0.7)] ring-1.5 ring-white select-none"
+        title="পাবলিক গেস্ট"
+      >
+        🌐
+      </span>
+    </div>
+  );
 }
 
 export function PersonaLoginModal({
@@ -143,17 +205,63 @@ export function PersonaLoginModal({
             </svg>
           </div>
 
-          {/* Top Poem Card: Jibanananda Das (Exact authentic quote from user reference) */}
-          <div className="relative z-10 rounded-2xl border border-emerald-400/25 bg-black/35 p-4 backdrop-blur-md shadow-inner">
-            <p className="font-serif text-[13px] leading-relaxed text-emerald-100 italic">
-              &ldquo;আবার আসিব ফিরে ধানসিঁড়ির তীরে — এই বাংলায়<br />
-              হয়তো মানুষ নয় — হয়তো বা শঙ্খচিল শালিখের বেশে;<br />
-              হয়তো ভোরের কাক হয়ে এই কার্তিকের নবান্নের দেশে<br />
-              কুয়াশার বুকে ভেসে একদিন আসিব এ কাঁঠাল-ছায়ায়;&rdquo;
-            </p>
-            <p className="mt-2 text-right font-sans text-[11.5px] font-semibold text-emerald-300">
-              — জীবনানন্দ দাশ, &ldquo;আবার আসিব ফিরে&rdquo;, রূপসী বাংলা
-            </p>
+          {/* Top Card: KormoPath Integrated Projects Showcase */}
+          <div className="relative z-10 rounded-2xl border border-emerald-400/25 bg-black/40 p-4 backdrop-blur-md shadow-inner">
+            <div className="flex items-center justify-between border-b border-emerald-500/20 pb-2 mb-2.5">
+              <div className="flex items-center gap-2">
+                <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                  <Sparkles size={13} />
+                </span>
+                <span className="font-display text-[13.5px] font-bold text-white tracking-tight">
+                  {bn ? "কর্মপথ প্রকল্প ও ইকোসিস্টেম" : "KormoPath Ecosystem"}
+                </span>
+              </div>
+              <span className="rounded-full bg-emerald-500/15 border border-emerald-400/30 px-2 py-0.5 text-[10px] font-bold text-emerald-300">
+                {bn ? "৮টি ডোমেইন টুলস" : "8 Domain Tools"}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 text-[11px] text-emerald-100/90">
+              <div className="rounded-xl bg-white/5 p-2 border border-white/5 hover:bg-white/10 transition-colors">
+                <div className="font-bold text-white flex items-center gap-1.5">
+                  <span className="text-amber-300">🌾</span>
+                  <span>{bn ? "মাঠসাথী ও হাট" : "Krishi & Haat"}</span>
+                </div>
+                <p className="mt-0.5 text-[10px] text-emerald-200/75 leading-tight">
+                  {bn ? "ফসল রোগ ও বাজার দর" : "Crop health & market"}
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-white/5 p-2 border border-white/5 hover:bg-white/10 transition-colors">
+                <div className="font-bold text-white flex items-center gap-1.5">
+                  <span className="text-sky-300">🩺</span>
+                  <span>{bn ? "মেডিস্ক্যান বিডি" : "MediScan BD"}</span>
+                </div>
+                <p className="mt-0.5 text-[10px] text-emerald-200/75 leading-tight">
+                  {bn ? "প্রেসক্রিপশন ও ৯৯৯" : "Prescription & 999"}
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-white/5 p-2 border border-white/5 hover:bg-white/10 transition-colors">
+                <div className="font-bold text-white flex items-center gap-1.5">
+                  <span className="text-rose-300">🛡️</span>
+                  <span>{bn ? "রক্ষা ও আইন" : "Rokkha & Legal"}</span>
+                </div>
+                <p className="mt-0.5 text-[10px] text-emerald-200/75 leading-tight">
+                  {bn ? "প্রতারণা রোধ ও ১৬৬৯৯" : "Anti-scam & 16699"}
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-white/5 p-2 border border-white/5 hover:bg-white/10 transition-colors">
+                <div className="font-bold text-white flex items-center gap-1.5">
+                  <span className="text-emerald-300">💼</span>
+                  <span>{bn ? "ফিগার্ড ও বাজেট" : "FinOps & Budget"}</span>
+                </div>
+                <p className="mt-0.5 text-[10px] text-emerald-200/75 leading-tight">
+                  {bn ? "ফ্রিল্যান্স ফি ও সংসার" : "Fee leakage & wallets"}
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Center: Dynamic Animated Civic Constellation Visual */}
@@ -190,14 +298,32 @@ export function PersonaLoginModal({
             </p>
           </div>
 
-          {/* Bottom Philosophy Card (From user reference image) */}
-          <div className="relative z-10 rounded-xl bg-black/40 p-3.5 border border-emerald-400/25 backdrop-blur-md">
-            <p className="font-serif text-[12.5px] leading-relaxed text-emerald-100 font-semibold">
-              &ldquo;যিনি মাঠে আছেন, সিদ্ধান্ত তাঁর। আমরা শুধু হিসাবটা হাতের কাছে আনি।&rdquo;
+          {/* Bottom Card: Theme & Architecture Guarantee */}
+          <div className="relative z-10 rounded-2xl bg-black/40 p-3.5 border border-emerald-400/25 backdrop-blur-md shadow-inner">
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="flex h-5 w-5 items-center justify-center rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                <ShieldCheck size={13} />
+              </span>
+              <span className="font-display text-[12.5px] font-bold text-white tracking-tight">
+                {bn ? "ডিভাইস-ফার্স্ট প্রাইভেসি ও ফ্রি সেবা" : "Device-First Privacy Architecture"}
+              </span>
+            </div>
+            <p className="text-[11.5px] leading-relaxed text-emerald-200/90 font-medium">
+              {bn
+                ? "কোনো গোপন ক্লাউড ডাটাবেজ নেই। আপনার সব হিসাব ও প্রেসক্রিপশন সম্পূর্ণ আপনার নিজস্ব ডিভাইসে সংরক্ষিত। জরুরি স্বাস্থ্য ও আইনি সেবা সবার জন্য চিরকাল ফ্রি।"
+                : "No cloud database. Sensitive health, contracts, and financial logs stay 100% on your local device. Essential emergency and civic legal aid stay permanently free."}
             </p>
-            <p className="mt-1 text-[11px] text-emerald-300/90">
-              {bn ? "দেশের মানুষের শ্রম, ঘাম ও মেধার আত্মনির্ভর প্ল্যাটফর্ম।" : "Self-reliant platform for Bangladeshi youth and citizens."}
-            </p>
+            <div className="mt-2.5 flex items-center gap-1.5 flex-wrap text-[10px] font-bold">
+              <span className="rounded-md bg-emerald-500/20 px-2 py-0.5 text-emerald-200 border border-emerald-400/25">
+                ⚡ {bn ? "অফলাইন পিডব্লিউএ" : "Offline PWA"}
+              </span>
+              <span className="rounded-md bg-emerald-500/20 px-2 py-0.5 text-emerald-200 border border-emerald-400/25">
+                🔒 {bn ? "জিরো ক্লাউড ট্র্যাকিং" : "Zero Cloud Tracking"}
+              </span>
+              <span className="rounded-md bg-amber-400/20 px-2 py-0.5 text-amber-200 border border-amber-400/25">
+                🇧🇩 {bn ? "নাগরিক অধিকার" : "Civic First"}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -208,57 +334,82 @@ export function PersonaLoginModal({
               <KormoPathLogo variant="compact" size="sm" theme="light" />
             </div>
 
-            {/* Header: Back button, Language, and Close */}
-            <div className="flex items-center justify-between">
-              <button
-                type="button"
-                onClick={onClose}
-                className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[13px] font-semibold text-slate-600 hover:bg-slate-200/80 hover:text-slate-900 transition-colors"
-              >
-                <span>← ফিরে যান</span>
-              </button>
+            {/* macOS Window Controls & Toolbar */}
+            <div className="flex items-center justify-between border-b border-slate-200/70 pb-3 mb-3">
+              {/* macOS Traffic Lights with Interactive Glyphs */}
+              <div className="group flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="relative h-3 w-3 rounded-full bg-[#ff5f57] border border-[#e0443e]/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_0.5px_1px_rgba(0,0,0,0.15)] cursor-pointer hover:brightness-95 transition-all flex items-center justify-center"
+                  title={bn ? "বন্ধ করুন" : "Close"}
+                  aria-label={bn ? "বন্ধ করুন" : "Close"}
+                >
+                  <X size={8} strokeWidth={2.5} className="opacity-0 group-hover:opacity-100 text-[#4d0000] font-black transition-opacity" />
+                </button>
+                <span className="relative h-3 w-3 rounded-full bg-[#febc2e] border border-[#d89e24]/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_0.5px_1px_rgba(0,0,0,0.15)] flex items-center justify-center">
+                  <Minus size={8} strokeWidth={2.5} className="opacity-0 group-hover:opacity-100 text-[#593d00] font-black transition-opacity" />
+                </span>
+                <span className="relative h-3 w-3 rounded-full bg-[#28c840] border border-[#1aab29]/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_0.5px_1px_rgba(0,0,0,0.15)] flex items-center justify-center">
+                  <Plus size={8} strokeWidth={2.5} className="opacity-0 group-hover:opacity-100 text-[#0a4810] font-black transition-opacity" />
+                </span>
+                <span className="ml-2.5 inline-flex items-center gap-1.5 text-[11.5px] font-mono text-slate-400 font-semibold select-none">
+                  <Lock size={10} className="text-slate-400" />
+                  <span>kormopath.auth</span>
+                </span>
+              </div>
 
+              {/* Language Switcher and Action Controls */}
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-0.5 text-[11px] font-medium text-slate-700 shadow-2xs">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12px] font-semibold text-slate-600 hover:bg-slate-200/70 hover:text-slate-900 transition-colors"
+                >
+                  <span>← ফিরে যান</span>
+                </button>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200/90 bg-white/90 backdrop-blur-xs px-2.5 py-0.5 text-[11px] font-semibold text-slate-700 shadow-2xs">
                   <Globe size={11} className="text-emerald-700" />
                   <span>{bn ? "বাংলা" : "English"}</span>
                 </span>
                 <button
                   type="button"
                   onClick={onClose}
-                  className="grid h-8 w-8 place-items-center rounded-full text-slate-400 hover:bg-slate-200/80 hover:text-slate-700 transition-colors"
+                  className="grid h-7 w-7 place-items-center rounded-full text-slate-400 hover:bg-slate-200/80 hover:text-slate-700 transition-colors"
                   aria-label={bn ? "বন্ধ করুন" : "Close"}
                 >
-                  <X size={18} />
+                  <X size={15} />
                 </button>
               </div>
             </div>
 
-            {/* Title & Friendly Prompt (Matches FieldShift reference prompt) */}
-            <div className="mt-4">
-              <h2 id="persona-modal-title" className="font-serif text-2xl font-bold tracking-tight text-slate-900">
+            {/* Title & Friendly Prompt */}
+            <div className="mt-2">
+              <h2 id="persona-modal-title" className="font-display text-[22px] sm:text-[24px] font-bold tracking-tight text-slate-900">
                 {bn ? "কর্মপথ প্রোফাইল বেছে নিন" : "Choose a KormoPath profile"}
               </h2>
-              <p className="mt-1 text-[13px] leading-relaxed text-slate-600">
+              <p className="mt-1 text-[13px] leading-relaxed text-slate-600 font-sans">
                 {bn
                   ? "এই নমুনায় কোনো পাসওয়ার্ড বা ওটিপি নেই। নিচে থেকে আপনার মোড বেছে নিলেই চলবে, পরে যেকোনো সময় বদলানো বা লগআউট করা যায়।"
                   : "No passwords or OTP required. Simply choose a mode below to enter instantly; you can switch or log out anytime."}
               </p>
             </div>
 
-            {/* Zero-Password Security Badge (Auth0 style from user reference) */}
-            <div className="mt-3 flex items-start gap-2.5 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50/70 p-3 text-[12px] text-emerald-950 border border-emerald-200/90 shadow-2xs">
-              <div className="grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-emerald-600 text-white shadow-xs">
-                <ShieldCheck size={16} />
+            {/* macOS Passkey / Zero-Password Biometric Banner */}
+            <div className="mt-3.5 flex items-center gap-3.5 rounded-2xl border border-emerald-500/25 bg-gradient-to-r from-emerald-500/10 via-teal-500/8 to-emerald-500/10 p-3.5 backdrop-blur-md shadow-xs">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-gradient-to-br from-emerald-500 to-teal-700 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.5),0_3px_10px_rgba(16,185,129,0.35)] ring-1 ring-white/30">
+                <Fingerprint size={22} strokeWidth={2.2} />
               </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-1.5 font-bold text-emerald-900">
-                  <span>{bn ? "জিরো-পাসওয়ার্ড সিকিউর ডেমো অথেনটিকেশন" : "Zero-Password Secure Demo Authentication"}</span>
-                  <span className="rounded bg-emerald-200/80 px-1.5 py-0.2 text-[10px] font-extrabold text-emerald-900">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-display font-bold text-[14px] text-emerald-950 tracking-tight">
+                    {bn ? "জিরো-পাসওয়ার্ড সিকিউর ডেমো অথেনটিকেশন" : "Zero-Password Secure Demo Authentication"}
+                  </span>
+                  <span className="rounded-full border border-emerald-500/35 bg-emerald-500/15 px-2 py-0.5 text-[10px] font-extrabold text-emerald-900 uppercase tracking-wide">
                     {bn ? "ডেমো মোড" : "Demo Mode"}
                   </span>
                 </div>
-                <p className="mt-0.5 text-[11.5px] text-emerald-800 leading-tight">
+                <p className="mt-0.5 text-[11.5px] text-emerald-800/90 leading-tight">
                   {bn
                     ? "পাসওয়ার্ডহীন মোবাইল ওটিপি বা ফিঙ্গারপ্রিন্ট আর্কিটেকচার · ডেটা সম্পূর্ণ আপনার ডিভাইসে সংরক্ষিত"
                     : "Passwordless biometric/OTP architecture · All data stays 100% private on your device"}
@@ -272,14 +423,14 @@ export function PersonaLoginModal({
                 const isSelected = selectedId === p.id;
                 const isCurrent = activeSession?.personaId === p.id;
 
-                let tierBadge = "bg-emerald-50 text-emerald-900 border-emerald-200 ring-1 ring-emerald-300/40";
+                let tierBadge = "bg-emerald-500/10 text-emerald-900 border-emerald-500/25";
                 let tierTitle = bn ? "ফ্রি ইউজার" : "Free User";
                 if (p.tier === "partial") {
-                  tierBadge = "bg-blue-50 text-blue-900 border-blue-200 ring-1 ring-blue-300/40";
+                  tierBadge = "bg-sky-500/10 text-sky-950 border-sky-500/25";
                   tierTitle = bn ? "পার্শিয়াল প্রো (১টি অ্যাপ)" : "Single App Pro";
                 }
                 if (p.tier === "pro") {
-                  tierBadge = "bg-amber-50 text-amber-950 border-amber-300 ring-1 ring-amber-400/40";
+                  tierBadge = "bg-amber-500/15 text-amber-950 border-amber-500/30";
                   tierTitle = bn ? "অল-অ্যাক্সেস ফুল প্রো" : "All-Access Pro";
                 }
 
@@ -288,41 +439,43 @@ export function PersonaLoginModal({
                     key={p.id}
                     type="button"
                     onClick={() => handleChoose(p)}
-                    className={`group relative flex w-full items-center justify-between rounded-2xl border p-3.5 text-left transition-all duration-200 ${
+                    className={`group relative flex w-full items-center justify-between rounded-[22px] border p-4 text-left transition-all duration-200 cursor-pointer ${
                       isSelected
-                        ? "border-emerald-600 bg-white ring-2 ring-emerald-500/30 shadow-md scale-[1.008]"
-                        : "border-slate-200/90 bg-white hover:border-emerald-400 hover:shadow-xs"
+                        ? "border-emerald-500/90 bg-gradient-to-r from-emerald-50/80 via-white to-white ring-2 ring-emerald-500/30 shadow-[0_8px_24px_-6px_rgba(16,185,129,0.25)] scale-[1.01]"
+                        : "border-slate-200/80 bg-white/95 hover:border-slate-300 hover:bg-white hover:shadow-[0_6px_20px_rgba(0,0,0,0.05)] active:scale-[0.995]"
                     }`}
                   >
-                    <div className="flex items-start gap-3.5 min-w-0 pr-3">
-                      {/* Avatar */}
-                      <div className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-xl font-bold shadow-inner border border-slate-200/70 group-hover:bg-emerald-50 group-hover:border-emerald-200 transition-colors">
-                        {p.avatarIcon === "farmer" && "🌾"}
-                        {p.avatarIcon === "health" && "🩺"}
-                        {p.avatarIcon === "pro" && "⭐"}
-                      </div>
+                    <div className="flex items-start gap-4 min-w-0 pr-3">
+                      {/* macOS Squircle Avatar Tile */}
+                      <PersonaAvatar icon={p.avatarIcon} />
 
-                      {/* Info */}
+                      {/* Info & Typography */}
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-bold text-[15px] text-slate-900">
+                          <span className="font-display font-bold text-[16.5px] sm:text-[17px] text-slate-900 tracking-tight">
                             {bn ? p.nameBn : p.nameEn}
                           </span>
-                          <span className={`rounded-md border px-2 py-0.5 text-[11px] font-extrabold ${tierBadge}`}>
+                          <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-bold tracking-tight shadow-2xs ${tierBadge}`}>
                             {tierTitle}
                           </span>
                           {isCurrent && (
-                            <span className="rounded-md bg-emerald-700 px-1.5 py-0.5 text-[10px] font-bold text-white shadow-2xs">
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-800 text-white px-2.5 py-0.5 text-[10.5px] font-bold shadow-xs">
+                              <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-300"></span>
+                              </span>
                               {bn ? "বর্তমান সক্রিয়" : "Active"}
                             </span>
                           )}
                         </div>
 
-                        <p className="mt-0.5 text-[12px] font-medium text-slate-500">
-                          {bn ? p.roleBn : p.roleEn} · {bn ? p.locationBn : p.locationEn}
+                        <p className="mt-0.5 text-[12px] font-semibold text-slate-500 flex items-center gap-1.5">
+                          <span>{bn ? p.roleBn : p.roleEn}</span>
+                          <span className="text-slate-300 font-bold">·</span>
+                          <span>{bn ? p.locationBn : p.locationEn}</span>
                         </p>
 
-                        <p className="mt-1 text-[12px] leading-snug text-slate-600 line-clamp-2">
+                        <p className="mt-1 text-[12.5px] leading-relaxed text-slate-600 line-clamp-2">
                           {p.descriptionBn}
                         </p>
                       </div>
@@ -331,12 +484,12 @@ export function PersonaLoginModal({
                     {/* Action Arrow / Check */}
                     <div className="shrink-0 pl-2">
                       {isSelected ? (
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-white shadow-xs">
-                          <CheckCircle2 size={18} />
+                        <div className="flex h-8.5 w-8.5 items-center justify-center rounded-full bg-emerald-600 text-white shadow-[0_2px_10px_rgba(16,185,129,0.45),inset_0_1px_1px_rgba(255,255,255,0.4)]">
+                          <CheckCircle2 size={19} strokeWidth={2.5} />
                         </div>
                       ) : (
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-700 transition-colors">
-                          <ChevronRight size={18} />
+                        <div className="flex h-8.5 w-8.5 items-center justify-center rounded-full bg-slate-100/90 text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-700 group-hover:translate-x-0.5 group-hover:shadow-xs transition-all">
+                          <ChevronRight size={19} strokeWidth={2.2} />
                         </div>
                       )}
                     </div>
@@ -348,26 +501,29 @@ export function PersonaLoginModal({
               <button
                 type="button"
                 onClick={handlePublicMode}
-                className={`group relative flex w-full items-center justify-between rounded-2xl border p-3.5 text-left transition-all duration-200 ${
+                className={`group relative flex w-full items-center justify-between rounded-[22px] border p-4 text-left transition-all duration-200 cursor-pointer ${
                   !activeSession
-                    ? "border-emerald-600 bg-white ring-2 ring-emerald-500/30 shadow-xs"
-                    : "border-slate-200/90 bg-white hover:border-slate-300 hover:shadow-2xs"
+                    ? "border-slate-500/90 bg-gradient-to-r from-slate-50 via-white to-white ring-2 ring-slate-500/25 shadow-[0_8px_20px_-6px_rgba(71,85,105,0.22)] scale-[1.01]"
+                    : "border-slate-200/80 bg-white/95 hover:border-slate-300 hover:bg-white hover:shadow-[0_6px_20px_rgba(0,0,0,0.05)] active:scale-[0.995]"
                 }`}
               >
-                <div className="flex items-start gap-3.5 min-w-0 pr-3">
-                  <div className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-xl font-bold shadow-inner border border-slate-200/70 group-hover:bg-slate-200/70 transition-colors">
-                    🌐
-                  </div>
+                <div className="flex items-start gap-4 min-w-0 pr-3">
+                  <PersonaAvatar icon="guest" />
+
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-bold text-[15px] text-slate-900">
+                      <span className="font-display font-bold text-[16.5px] sm:text-[17px] text-slate-900 tracking-tight">
                         {bn ? "সাধারণ পাবলিক ভিজিটর (লগইন ছাড়া)" : "Public Guest Mode (No Login)"}
                       </span>
-                      <span className="rounded-md border border-slate-300 bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-700">
+                      <span className="rounded-full border border-slate-300 bg-slate-100/90 px-2.5 py-0.5 text-[11px] font-bold text-slate-700 shadow-2xs">
                         {bn ? "পাবলিক গেস্ট" : "Guest"}
                       </span>
                       {!activeSession && (
-                        <span className="rounded-md bg-emerald-700 px-1.5 py-0.5 text-[10px] font-bold text-white shadow-2xs">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-800 text-white px-2.5 py-0.5 text-[10.5px] font-bold shadow-xs">
+                          <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-300"></span>
+                          </span>
                           {bn ? "বর্তমান সক্রিয়" : "Active"}
                         </span>
                       )}
@@ -380,11 +536,11 @@ export function PersonaLoginModal({
 
                 <div className="shrink-0 pl-2">
                   {!activeSession ? (
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-white shadow-xs">
-                      <CheckCircle2 size={18} />
+                    <div className="flex h-8.5 w-8.5 items-center justify-center rounded-full bg-emerald-600 text-white shadow-[0_2px_10px_rgba(16,185,129,0.45),inset_0_1px_1px_rgba(255,255,255,0.4)]">
+                      <CheckCircle2 size={19} strokeWidth={2.5} />
                     </div>
                   ) : (
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 group-hover:bg-slate-100 transition-colors">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100/80 text-slate-400 group-hover:bg-slate-200/80 transition-colors">
                       <ChevronRight size={18} />
                     </div>
                   )}
@@ -392,18 +548,23 @@ export function PersonaLoginModal({
               </button>
             </div>
 
-            {/* bKash Payment & Package Box (Exact requested packages & number) */}
-            <div className="mt-4 rounded-2xl border border-pink-200/80 bg-gradient-to-r from-pink-50/80 via-white to-pink-50/60 p-3.5 shadow-2xs">
+            {/* bKash Payment & Package Box */}
+            <div className="mt-4 rounded-2xl border border-pink-200/90 bg-gradient-to-r from-pink-50/80 via-white to-rose-50/60 p-4 shadow-2xs">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="grid h-6 w-6 place-items-center rounded-lg bg-[#e2136e] text-[11px] font-black text-white shadow-xs">
+                <div className="flex items-center gap-2.5">
+                  <span className="grid h-7 w-7 place-items-center rounded-xl bg-[#e2136e] text-[12px] font-black text-white shadow-xs">
                     b
                   </span>
-                  <span className="font-bold text-[13px] text-pink-900">
-                    {bn ? "বিকাশ পেমেন্ট ও প্রিমিয়াম প্যাকেজ" : "bKash Payment & Packages"}
-                  </span>
+                  <div>
+                    <span className="font-display font-bold text-[13.5px] text-pink-950 block leading-tight">
+                      {bn ? "বিকাশ পেমেন্ট ও প্রিমিয়াম প্যাকেজ" : "bKash Payment & Packages"}
+                    </span>
+                    <span className="text-[11px] font-medium text-pink-800">
+                      {bn ? "প্রস্তাবিত মূল্য · কোনো ফি নেওয়া হচ্ছে না" : "Proposed pricing · Demo only"}
+                    </span>
+                  </div>
                 </div>
-                <span className="rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-0.5 text-[12px] font-bold text-amber-900" data-testid="login-payments-closed">
+                <span className="rounded-full border border-amber-300 bg-amber-50 px-2.5 py-0.5 text-[11px] font-bold text-amber-900 shadow-2xs" data-testid="login-payments-closed">
                   {bn ? "পেমেন্ট এখনো চালু হয়নি" : "Payments not open yet"}
                 </span>
               </div>

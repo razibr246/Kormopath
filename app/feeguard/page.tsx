@@ -10,6 +10,7 @@ import {
   calculateFreelancerAIT, type Channel, type FeeValues, type FreelanceContractType,
 } from "@/lib/finops";
 import { usePersistentState, storageKey, downloadText, todayLocal } from "@/lib/clientStore";
+import { AnnualLeakageCard } from "@/components/apps/feeguard/AnnualLeakageCard";
 
 // Channel names and routes in Bangla for display; the engine's ids, numbers and steps are unchanged.
 const CHANNEL_BN: Record<string, { name: string; route: string }> = {
@@ -83,7 +84,7 @@ export default function FeeGuardPage() {
   const feesEdited = Object.keys(DEFAULT_FEES).some((k) => fees[k as keyof FeeValues] !== DEFAULT_FEES[k as keyof FeeValues]);
 
   return (
-    <div className="min-h-screen bg-[#f6f8f7] text-slate-900 antialiased">
+    <div className="min-h-screen bg-paper text-slate-900 antialiased">
       <AppHeader taglineEn="Freelance payout fee checker"
         appId="feeguard"
         href="/feeguard"
@@ -226,6 +227,13 @@ export default function FeeGuardPage() {
             ))}
           </div>
         </section>
+
+        {/* Annual Leakage & Channel Efficiency Audit */}
+        <AnnualLeakageCard
+          monthlyInvoiceUsd={invoiceUsd}
+          fxRate={fx}
+          channels={channels}
+        />
 
         {/* What the difference means */}
         <section className="grid gap-4 lg:grid-cols-2">

@@ -75,8 +75,8 @@ export async function POST(req: Request) {
   const system = ASSISTANT_SYSTEM + "\n\nSELECTED APP KNOWLEDGE:\n" + APP_GUIDE[appId]
     + "\n\n" + (lang === "bn" ? BANGLA_STYLE : ENGLISH_STYLE)
     + "\n\n" + (mode === "agent"
-      ? "ACTIVE AGENT: First answer the question in one or two sentences. Then give at most three numbered next steps the user can do now, each on its own line (use a newline before each number), each naming the exact app or screen to open in this platform. If something needs a fact you do not have (a price, date, dose, legal term), say plainly that it must be checked and where. End with one short follow-up question that moves the user forward. Never perform actions or claim that you did."
-      : "Answer the direct question and give clear steps.")
+      ? "ACTIVE AGENT: Give a crisp, direct 1-sentence opening (under 15 words) so spoken voice playback starts instantly, followed by clear actionable guidance. Then give at most three numbered next steps the user can do now, each on its own line (use a newline before each number), each naming the exact app or screen to open in this platform. If something needs a fact you do not have (a price, date, dose, legal term), say plainly that it must be checked and where. End with one short follow-up question that moves the user forward. Never perform actions or claim that you did."
+      : "Answer the direct question in clear, direct sentences so voice playback starts instantly.")
     + "\n" + (deepThinking ? "Check the answer against the selected app guide and avoid unsupported claims." : "Keep the answer concise and direct.");
   if (browse) {
     if (appId === "mediscan") return NextResponse.json({ error: "মেডিস্ক্যানে ব্যক্তিগত স্বাস্থ্যতথ্য ও ওষুধের তথ্য নিয়ে ওয়েব খোঁজ বন্ধ রাখা হয়েছে।" }, { status: 400 });

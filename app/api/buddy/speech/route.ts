@@ -18,12 +18,13 @@ const VOICE = process.env.GEMINI_TTS_VOICE || "Kore";
 const STYLE = "Warm, calm and friendly; standard Bangladeshi Bangla as spoken by an educated Dhaka speaker; natural pace with short pauses at each দাঁড়ি; no Kolkata or English accent.";
 
 export async function POST(req: Request) {
+  const t0 = performance.now();
   const rl = await checkRateLimitShared(req, { limit: 40, windowMs: 60_000, bucket: "buddy-speech" });
   if (!rl.success) return rateLimitResponse(rl.limit, rl.resetSeconds, rl.store);
 
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "বাংলা কণ্ঠে পড়ার জন্য লেখা দিন।" }, { status: 400 });
-  const spoken = prepareBanglaSpeech(parsed.data.text);
+  const spoken = prepareBanglaSpeech(parsed.data.text, undefined, { verbalizeNumbers: true });
   if (!spoken || banglaShare(spoken) < 0.6) return NextResponse.json({ error: "শুধু বাংলা লেখা বাংলা কণ্ঠে পড়া হয়।" }, { status: 400 });
   if (!geminiAvailable()) return NextResponse.json({ error: "বাংলা কণ্ঠ চালাতে সার্ভারে GEMINI_API_KEY যোগ করতে হবে।" }, { status: 503 });
 
@@ -31,19 +32,43 @@ export async function POST(req: Request) {
   const ck = ttsKey(VOICE, STYLE, spoken);
   const hit = ttsGet(ck);
   if (hit) {
-    tracer.log("tts-cache", "Same line spoken recently; played from memory", "ok", 0);
-    return NextResponse.json({ ...hit, trace: tracer.steps }, { headers: { "Cache-Control": "no-store" } });
+    const elapsed = Math.round((performance.now() - t0) * 10) / 10;
+    tracer.log("tts-cache", `Same line spoken recently; played from memory in ${elapsed}ms`, "ok", 0);
+    return NextResponse.json(
+      { ...hit, trace: tracer.steps, latencyMs: elapsed },
+      {
+        headers: {
+          "Cache-Control": "public, max-age=86400, stale-while-revalidate=604800",
+          "X-TTS-Model": hit.model || "cache",
+          "X-TTS-Chars": String(spoken.length),
+          "X-TTS-Cache-Hit": "1",
+          "X-TTS-Latency-Ms": String(elapsed),
+        },
+      }
+    );
   }
   const res = await interact(tracer, {
     input: [{ type: "user_input", content: [{ type: "text", text: spoken, annotations: [{ type: "speech_metadata", style: STYLE }] }] }],
     response_format: { type: "audio" },
     generation_config: { speech_config: [{ voice: VOICE }] },
-  }, { models: TTS_MODELS, apiVersion: "v1beta", label: "Bangla speech" });
+  }, { models: TTS_MODELS, apiVersion: "v1beta", attemptMs: 4500, timeoutMs: 12000, label: "Bangla speech" });
   const audio = res ? outputAudio(res.data) : null;
+  const elapsed = Math.round((performance.now() - t0) * 10) / 10;
   if (!res || !audio || audio.data.length > 12_000_000) {
     if (res) tracer.log(res.model, "No bounded audio in the response", "fail");
-    return NextResponse.json({ error: "বাংলা কণ্ঠ তৈরি করা যায়নি। একটু পরে আবার চেষ্টা করুন।", trace: tracer.steps }, { status: 502 });
+    return NextResponse.json({ error: "বাংলা কণ্ঠ তৈরি করা যায়নি। একটু পরে আবার চেষ্টা করুন।", trace: tracer.steps, latencyMs: elapsed }, { status: 502 });
   }
   ttsPut(ck, spoken, { audio: audio.data, mimeType: audio.mimeType, model: res.model });
-  return NextResponse.json({ audio: audio.data, mimeType: audio.mimeType, model: res.model, trace: tracer.steps }, { headers: { "Cache-Control": "no-store" } });
+  return NextResponse.json(
+    { audio: audio.data, mimeType: audio.mimeType, model: res.model, trace: tracer.steps, latencyMs: elapsed },
+    {
+      headers: {
+        "Cache-Control": "public, max-age=86400, stale-while-revalidate=604800",
+        "X-TTS-Model": res.model,
+        "X-TTS-Chars": String(spoken.length),
+        "X-TTS-Cache-Hit": "0",
+        "X-TTS-Latency-Ms": String(elapsed),
+      },
+    }
+  );
 }

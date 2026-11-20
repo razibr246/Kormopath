@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { createBackup, parseBackup, restoreBackup, isBackupKey, BACKUP_LIMIT } from "../lib/backup.ts";
+import { createBackup, parseBackup, restoreBackup, isBackupKey, BACKUP_LIMIT, backupSummary } from "../lib/backup.ts";
 
 class MemoryStorage {
   data = new Map<string, string>();
@@ -80,4 +80,19 @@ test("encrypted envelope with weak or malformed KDF settings is rejected", async
   const { decryptBackup } = await import("../lib/backup.ts");
   const bad = JSON.stringify({ format: "kormopath-backup-encrypted", version: 1, kdf: "PBKDF2-SHA256", iterations: 10, salt: "AA==", iv: "AA==", ciphertext: "AA==" });
   await assert.rejects(decryptBackup(bad, "whatever-long"), /Unsupported encrypted backup/);
+});
+
+test("backupSummary maps all known namespaces including zapier and legal", () => {
+  const backup = fixture({
+    "kormopath:shohoj:item": 1,
+    "kormopath:legal:item": 2,
+    "kormopath:zapier:item": 3,
+    "kp-ledger": [],
+  });
+  const summary = backupSummary(backup);
+  const names = summary.map((s) => s.name);
+  assert.ok(names.includes("Shohoj Budget"));
+  assert.ok(names.includes("আইনি সহায়তা"));
+  assert.ok(names.includes("Zapier অটোমেশন"));
+  assert.ok(names.includes("Workspace"));
 });

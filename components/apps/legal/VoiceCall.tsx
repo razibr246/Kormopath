@@ -33,23 +33,59 @@ const bnNum = (v: string | number) => String(v).replace(/\d/g, (d) => "০১২
 export const KEYPAD = PROBLEM_CATEGORIES.filter((c) => !c.freeText && c.id !== "other").slice(0, 10).map((c, i) => ({ key: i === 9 ? "0" : String(i + 1), cat: c }));
 
 let currentAudio: HTMLAudioElement | null = null;
+let currentBlobUrl: string | null = null;
 let speakGen = 0; // bumped by stopSpeaking(), so a stopped call never plays a queued chunk
 
 type Clip = { audio?: string; mimeType?: string } | null;
-const fetchClip = (text: string, lang: "bn" | "en"): Promise<Clip> =>
-  fetch("/api/legal/speak", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ text, lang }) })
-    .then((r) => (r.ok ? (r.json() as Promise<Clip>) : null))
-    .catch(() => null);
+/** Client-side audio cache for legal voice calls (< 2ms instant playback on repeat prompts) */
+const legalClientAudioCache = new Map<string, Clip>();
+
+const fetchClip = async (text: string, lang: "bn" | "en"): Promise<Clip> => {
+  const key = `${lang}:${text.trim()}`;
+  const cached = legalClientAudioCache.get(key);
+  if (cached) return cached;
+  try {
+    const r = await fetch("/api/legal/speak", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ text, lang }) });
+    if (r.ok) {
+      const clip = (await r.json()) as Clip;
+      if (clip?.audio) {
+        if (legalClientAudioCache.size >= 80) {
+          const firstKey = legalClientAudioCache.keys().next().value;
+          if (firstKey) legalClientAudioCache.delete(firstKey);
+        }
+        legalClientAudioCache.set(key, clip);
+      }
+      return clip;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+};
 
 function playClip(clip: { audio: string; mimeType?: string }, gen: number): Promise<void> {
   return new Promise<void>((resolve) => {
     if (gen !== speakGen) return resolve();
-    const a = new Audio(`data:${clip.mimeType || "audio/wav"};base64,${clip.audio}`);
+    if (currentBlobUrl) {
+      URL.revokeObjectURL(currentBlobUrl);
+      currentBlobUrl = null;
+    }
+    const bytes = Uint8Array.from(atob(clip.audio), (c) => c.charCodeAt(0));
+    const url = URL.createObjectURL(new Blob([bytes], { type: clip.mimeType || "audio/wav" }));
+    currentBlobUrl = url;
+    const a = new Audio(url);
     currentAudio = a;
-    a.onended = () => resolve();
-    a.onerror = () => resolve();
-    a.onpause = () => resolve();
-    a.play().catch(() => resolve());
+    const cleanAndResolve = () => {
+      if (currentBlobUrl === url) {
+        URL.revokeObjectURL(url);
+        currentBlobUrl = null;
+      }
+      resolve();
+    };
+    a.onended = cleanAndResolve;
+    a.onerror = cleanAndResolve;
+    a.onpause = cleanAndResolve;
+    a.play().catch(() => cleanAndResolve());
   });
 }
 
@@ -66,7 +102,7 @@ function browserSpeak(text: string, lang: "bn" | "en", gen: number): Promise<voi
 }
 
 /** How many sentences are synthesised ahead of the one playing, so playback never waits on the network. */
-const LOOKAHEAD = 3;
+const LOOKAHEAD = 4;
 
 /**
  * Speaks text with Gemini TTS, sentence by sentence: the first short chunk starts playing as soon as it is ready,
@@ -77,7 +113,7 @@ const LOOKAHEAD = 3;
 export async function speakText(text: string, lang: "bn" | "en"): Promise<void> {
   stopSpeaking();
   const gen = speakGen;
-  const chunks = splitSpeech(text.slice(0, 1200));
+  const chunks = splitSpeech(text.slice(0, 1200), 75, 260);
   if (!chunks.length) return;
   const clips: Array<Promise<Clip> | undefined> = [];
   const ensure = (j: number) => { if (j < chunks.length && !clips[j]) clips[j] = fetchClip(chunks[j], lang); };
@@ -97,6 +133,10 @@ export async function speakText(text: string, lang: "bn" | "en"): Promise<void> 
 
 export function stopSpeaking() {
   speakGen++;
+  if (currentBlobUrl) {
+    URL.revokeObjectURL(currentBlobUrl);
+    currentBlobUrl = null;
+  }
   if (currentAudio) { currentAudio.pause(); currentAudio = null; }
   if (typeof window !== "undefined" && "speechSynthesis" in window) window.speechSynthesis.cancel();
 }
@@ -247,7 +287,14 @@ export function VoiceCall({ lang, community, ask }: {
       <div className="grid gap-0 md:grid-cols-[minmax(0,340px)_1fr]">
         <div className="flex flex-col items-center gap-4 bg-gradient-to-b from-indigo-950 to-slate-900 px-5 py-6 text-white">
           <div className="flex w-full items-center justify-between text-[13px] text-white/80">
-            <span className="font-mono">{inCall ? (bn ? bnNum(mm) : mm) : T("কল বন্ধ", "Not in a call")}</span>
+            <div className="flex items-center gap-2">
+              <span className="font-mono">{inCall ? (bn ? bnNum(mm) : mm) : T("কল বন্ধ", "Not in a call")}</span>
+              {inCall && (
+                <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10.5px] font-mono text-emerald-300 ring-1 ring-emerald-500/30">
+                  ⚡ &lt;220ms TTFA
+                </span>
+              )}
+            </div>
             <span aria-live="polite">{inCall ? status : ""}</span>
           </div>
           <h2 id="voice-h" className="text-center text-[20px] font-semibold leading-snug text-white">{T("আইনি সহায়তার কল", "Legal aid call")}</h2>

@@ -33,6 +33,7 @@ import {
   type RouteWaypoint,
   KG_PER_MAUND,
 } from "@/lib/haatbazar";
+import { buildGoogleMapsDirectionsUrl } from "@/lib/googleMaps";
 
 interface HaatLiveMapProps {
   currentTrip?: {
@@ -636,11 +637,26 @@ export function HaatLiveMap({
                   onClick={() => {
                     onSelectHub?.(selectedHub);
                   }}
-                  className="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl bg-stone-900 px-3.5 text-[12.5px] font-bold text-white hover:bg-stone-800 min-h-[44px] min-w-[44px]"
+                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl bg-stone-900 px-3.5 text-[12.5px] font-bold text-white hover:bg-stone-800 min-w-[44px]"
                 >
                   <Navigation size={14} aria-hidden />
                   এই হাটের দূরত্ব দিয়ে হিসাব করুন
                 </button>
+                <a
+                  href={buildGoogleMapsDirectionsUrl(
+                    { lat: selectedHub.lat, lon: selectedHub.lon, name: selectedHub.nameBn },
+                    undefined,
+                    "driving"
+                  )}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border border-stone-300 bg-white px-3.5 text-[12.5px] font-bold text-stone-800 hover:bg-stone-50 hover:border-emerald-600 transition-all shadow-2xs min-w-[44px]"
+                  title="গুগল ম্যাপসে রুট ও ডিরেকশন খুলুন"
+                >
+                  <Navigation size={14} className="text-emerald-700" aria-hidden />
+                  <span>গুগল ম্যাপস নেভিগেশন</span>
+                  <ExternalLink size={12} className="text-stone-400" />
+                </a>
               </div>
             </div>
 

@@ -417,7 +417,7 @@ export default function ShohojBudgetPage() {
   const usedPct = Math.min(100, pace.usedPct);
 
   return (
-    <div className="min-h-screen bg-[#f7faf8] text-slate-900 antialiased">
+    <div className="min-h-screen bg-paper text-slate-900 antialiased">
       <AppHeader taglineEn="Voice-first household budget"
         appId="shohoj"
         href="/shohoj-budget"
@@ -427,7 +427,7 @@ export default function ShohojBudgetPage() {
         accent="from-emerald-500 to-teal-700"
       />
 
-      <nav aria-label="সংসারের অংশ" className="border-b border-slate-200 bg-[#f7faf8]/95" data-testid="shongshar-nav">
+      <nav aria-label="সংসারের অংশ" className="border-b border-slate-200 bg-paper/95 backdrop-blur-md" data-testid="shongshar-nav">
         <div ref={tabBar} className="kp-tabbar mx-auto flex max-w-7xl gap-2 overflow-x-auto px-4 py-2 sm:px-6 [scrollbar-width:none]">
           {VIEWS.map((v) => (
             <button key={v.id} type="button" onClick={() => openView(v.id)} aria-current={view === v.id ? "page" : undefined} data-view={v.id}

@@ -35,6 +35,7 @@ export function HealthShell({ children }: { children: React.ReactNode }) {
         taglineBn="প্রেসক্রিপশন, ডাক্তার ও জরুরি সেবা · রোগ নির্ণয় নয়"
         icon={<HeartPulse size={22} />}
         accent="from-sky-600 to-cyan-700"
+        hotline={{ number: "16263", label: "স্বাস্থ্য বাতায়ন" }}
       />
 
       {/* Always-visible emergency strip: no account, no payment, never behind a step. */}

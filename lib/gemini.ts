@@ -34,8 +34,11 @@ const API_REVISION = "2026-05-20";
 // them, and the current models are always appended, so a stale deployment setting cannot break AI.
 const RETIRED = /^gemini-(1\.|2\.|flash-lite-latest$|flash-latest$)/;
 const chain = (...names: Array<string | undefined>) => [...new Set(names.map((n) => n?.trim()).filter((n): n is string => Boolean(n) && !RETIRED.test(n!)))];
-export const TEXT_MODELS = chain(process.env.GEMINI_MODEL, process.env.GEMINI_FALLBACK_MODEL, "gemini-4-hydrogen", "gemini-3.5-flash-lite", "gemini-3.1-flash-lite");
-export const TTS_MODELS = chain(process.env.GEMINI_TTS_MODEL, "gemini-3.8-flash-tts", "gemini-3.8-flash-lite-tts");
+export const TEXT_MODELS = chain(process.env.GEMINI_MODEL, process.env.GEMINI_FALLBACK_MODEL, "gemini-4-hydrogen", "gemini-4-argon", "gemini-3.5-flash-lite", "gemini-3.1-flash-lite");
+export const REASONING_MODELS = chain(process.env.GEMINI_REASONING_MODEL, "gemini-4-carbon", "gemini-4-argon", "gemini-4-hydrogen");
+export const TTS_MODELS = chain(process.env.GEMINI_TTS_MODEL, "gemini-3.8-flash-lite-tts", "gemini-3.8-flash-tts");
+export const DECISION_MODELS = chain(process.env.GEMINI_DECISION_MODEL, "gemini-decision-1", "gemini-4-hydrogen", "gemini-3.5-flash-lite");
+export const VISION_MODELS = chain(process.env.GEMINI_VISION_MODEL, "gemini-4-hydrogen", "gemini-4-carbon", "gemini-3.5-flash-lite");
 
 /** GEMINI_API_KEY first, then any extra keys in GEMINI_API_KEYS (comma-separated). Never logged. */
 export function geminiKeys(): string[] {

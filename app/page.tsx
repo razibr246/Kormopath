@@ -20,7 +20,6 @@ import {
   CornerDownLeft,
   Database,
   GraduationCap,
-  LayoutGrid,
   Lock,
   MessageCircle,
   Mic,
@@ -37,7 +36,6 @@ import {
 const PersonaLoginModal = dynamic(() => import("@/components/auth/PersonaLoginModal").then((m) => m.PersonaLoginModal), { ssr: false });
 // The animated life story (farmer rig, springs, scenery) is its own chunk: it is far below the fold.
 const LifeStory = dynamic(() => import("@/components/home/LifeStory").then((m) => m.LifeStory));
-import { CustomizableDashboard } from "@/components/home/CustomizableDashboard";
 import { SignedInHome, type HomeApp } from "@/components/home/SignedInHome";
 import { getStoredSession, type UserSession } from "@/lib/session";
 import { personaHome } from "@/lib/personaHome";
@@ -240,8 +238,6 @@ export default function HomePage() {
       line: { bn: "সিভি থেকে স্কিল পাসপোর্ট, ভাইভা, চুক্তি আর পেআউটের হিসাব।", en: "CV to skill passport, viva, contract and payout maths." } },
     ...[...TOOLS.earn, ...TOOLS.life, ...TOOLS.farm],
   ];
-  const [toolsViewMode, setToolsViewMode] = useState<"catalog" | "custom">("catalog");
-
   const goToTopMatch = (event: FormEvent) => {
     event.preventDefault();
     if (results[0]) router.push(results[0].href);
@@ -425,43 +421,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* View switcher between default categorized catalog and customizable dashboard */}
-          <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-b border-line pb-4">
-            <div className="inline-flex rounded-2xl bg-slate-100 p-1 ring-1 ring-slate-900/5">
-              <button
-                type="button"
-                onClick={() => setToolsViewMode("catalog")}
-                className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-[14px] font-semibold transition-all ${
-                  toolsViewMode === "catalog"
-                    ? "bg-white text-slate-900 shadow-xs ring-1 ring-slate-900/10"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                <LayoutGrid size={16} className={toolsViewMode === "catalog" ? "text-emerald-700" : "text-slate-400"} />
-                <span>{bn ? "সব ১২টি টুল (ক্যাটালগ)" : "All 12 Tools (Catalog)"}</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setToolsViewMode("custom")}
-                className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-[14px] font-semibold transition-all ${
-                  toolsViewMode === "custom"
-                    ? "bg-white text-slate-900 shadow-xs ring-1 ring-slate-900/10"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                <Sparkles size={16} className={toolsViewMode === "custom" ? "text-amber-600" : "text-slate-400"} />
-                <span>{bn ? "আমার ড্যাশবোর্ড (কাস্টমাইজ)" : "My Dashboard (Customize)"}</span>
-              </button>
-            </div>
-            <p className="text-[13px] text-slate-500">
-              {toolsViewMode === "catalog"
-                ? bn ? "ক্যাটাগরি অনুযায়ী প্রতিটি টুলের বিবরণ ও ট্যাগ" : "Categorized view with tags and lines"
-                : bn ? "নিজের পছন্দমতো অ্যাপ সাজিয়ে ও পিন করে রাখুন" : "Pin and customize your preferred apps"}
-            </p>
-          </div>
-
-          {toolsViewMode === "catalog" ? (
-            (() => {
+          {(() => {
               const renderGroup = (group: (typeof GROUPS)[number], cols: string) => (
                 <div key={group.key} className="mt-12">
                   <div className="mb-4 flex items-baseline gap-3 border-b border-line pb-3">
@@ -512,12 +472,7 @@ export default function HomePage() {
                   </div>
                 </>
               );
-            })()
-          ) : (
-            <div className="mt-8">
-              <CustomizableDashboard lang={lang} />
-            </div>
-          )}
+          })()}
         </section>
 
         {/* ============ LIFE STORY: one person, seven chapters (animated) ============ */}

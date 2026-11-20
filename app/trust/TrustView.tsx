@@ -263,6 +263,45 @@ export function TrustView({ results: r, primaryModel }: { results: EvalResults; 
           </div>
         </section>
 
+        {/* 3.5. Gemini 2026 Model Tier & Privacy Invariant */}
+        <section aria-labelledby="gemini-arch-h" className="space-y-4 rounded-2xl border border-indigo-200 bg-gradient-to-br from-indigo-50/70 via-white to-blue-50/40 p-5 sm:p-6">
+          <div className="flex items-center gap-2">
+            <ShieldCheck size={22} className="text-indigo-700" />
+            <h2 id="gemini-arch-h" className="text-[20px] font-bold text-slate-900">
+              {t("Gemini 2026 Frontier Architecture & Privacy", "জেমিনাই ২০২৬ ফ্রন্টিয়ার আর্কিটেকচার ও প্রাইভেসি")}
+            </h2>
+          </div>
+          <p className="text-[13.5px] text-slate-700 leading-relaxed">
+            {t(
+              "KormoPath strictly utilizes the Google Gemini Interactions API and Decisions API with multi-tier key failovers and zero data storage.",
+              "কর্মপাথ গুগলের আধুনিক জেমিনাই ইন্টারঅ্যাকশনস এপিআই এবং ডিসিশনস এপিআই ব্যবহার করে, যেখানে মাল্টি-টিয়ার ফেইলওভার এবং সম্পূর্ণ ডাটা গোপনীয়তা নিশ্চিত করা হয়েছে।"
+            )}
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 text-[12.5px]">
+            <div className="rounded-xl border border-indigo-100 bg-white p-3.5 shadow-2xs">
+              <strong className="block font-bold text-indigo-950">Gemini 4 Frontier Family</strong>
+              <span className="text-slate-500 font-mono text-[11px]">gemini-4-carbon / argon / hydrogen</span>
+              <p className="mt-1.5 text-slate-600">
+                {t("1M token context for deep legal analysis, CV audit grounding, and multimodal vision.", "১ মিলিয়ন টোকেন কনটেক্সট সমৃদ্ধ শক্তিশালী রিজনিং ও মাল্টিমোডাল ভিশন ইঞ্জিন।")}
+              </p>
+            </div>
+            <div className="rounded-xl border border-indigo-100 bg-white p-3.5 shadow-2xs">
+              <strong className="block font-bold text-indigo-950">Gemini Decision 1</strong>
+              <span className="text-slate-500 font-mono text-[11px]">gemini-decision-1 (v1beta/decisions)</span>
+              <p className="mt-1.5 text-slate-600">
+                {t("0 output tokens with calibrated probabilities for scam alerts (Rokkha) and medical triage.", "জিরো আউটপুট টোকেন ও ক্যালিব্রেটেড সম্ভাব্যতা, যা হ্যালুসিনেশনমুক্ত প্রতারণা ও জরুরি স্বাস্থ্য স্ক্রিনিং করে।")}
+              </p>
+            </div>
+            <div className="rounded-xl border border-indigo-100 bg-white p-3.5 shadow-2xs sm:col-span-2 lg:col-span-1">
+              <strong className="block font-bold text-indigo-950">Zero-PII Privacy (store: false)</strong>
+              <span className="text-emerald-700 font-bold text-[11px]">১০০% অন-ডিভাইস / ডাটাবেজহীন</span>
+              <p className="mt-1.5 text-slate-600">
+                {t("Every call sends store: false. No logs are saved on Google servers. Offline requests fall back to deterministic algorithms.", "প্রতিটি কলে store: false পাঠানো হয়। গুগলে কোনো ডাটা সেভ থাকে না এবং অফলাইনে স্বয়ংক্রিয় নিয়মভিত্তিক অ্যালগরিদম কাজ করে।")}
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* 4. Honest limits */}
         <section aria-labelledby="limits-h" className="space-y-3 rounded-2xl border border-amber-300 bg-amber-50/70 p-5 sm:p-6">
           <h2 id="limits-h" className="flex items-center gap-2 text-[21px] font-bold text-slate-900">

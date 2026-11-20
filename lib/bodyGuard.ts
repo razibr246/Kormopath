@@ -12,7 +12,7 @@
  *  - Any declared length over the route's limit: 413. A malformed length: 400.
  */
 
-export const UPLOAD_ROUTES = ["/api/audit", "/api/receipt", "/api/mediscan/ocr", "/api/field360/doctor"];
+export const UPLOAD_ROUTES = ["/api/audit", "/api/receipt", "/api/mediscan/ocr", "/api/field360/doctor", "/api/krishi/vision"];
 export const UPLOAD_LIMIT = 6_500_000;
 export const DEFAULT_LIMIT = 256_000;
 

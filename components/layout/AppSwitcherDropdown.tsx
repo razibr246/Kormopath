@@ -336,6 +336,17 @@ export function AppSwitcherDropdown({
     };
   }, []);
 
+  // Instant Prefetch all ecosystem apps on menu open
+  useEffect(() => {
+    if (isOpen) {
+      APPS_LIST.forEach((app) => {
+        if (app.href.startsWith("/") && !app.href.includes("#")) {
+          router.prefetch(app.href);
+        }
+      });
+    }
+  }, [isOpen, router]);
+
   const handleSelect = (app: AppItem) => {
     setIsOpen(false);
     setRecentApps((previous) => [app.id, ...previous.filter((id) => id !== app.id)].slice(0, 4));

@@ -236,7 +236,14 @@ export function ambulanceStations(places: Place[], lat: number, lon: number): Ra
 // Links (no keys; nothing is sent by KormoPath)
 // ---------------------------------------------------------------------------------------------
 
-export const directionsUrl = (lat: number, lon: number) => `https://www.google.com/maps/dir/?api=1&destination=${lat.toFixed(6)},${lon.toFixed(6)}`;
+export const directionsUrl = (lat: number, lon: number, originLat?: number, originLon?: number, name?: string) => {
+  let url = `https://www.google.com/maps/dir/?api=1&destination=${lat.toFixed(6)},${lon.toFixed(6)}`;
+  if (name) url += ` (${encodeURIComponent(name)})`;
+  if (originLat !== undefined && originLon !== undefined) {
+    url += `&origin=${originLat.toFixed(6)},${originLon.toFixed(6)}`;
+  }
+  return url;
+};
 export const mapsPointUrl = (lat: number, lon: number) => `https://www.google.com/maps/search/?api=1&query=${lat.toFixed(6)},${lon.toFixed(6)}`;
 export const telHref = (phone: string) => `tel:${phone.replace(/[^\d+]/g, "")}`;
 

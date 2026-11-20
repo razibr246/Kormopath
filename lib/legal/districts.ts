@@ -94,3 +94,65 @@ export function extractDistrict(address: string): string | null {
   }
   return null;
 }
+
+export type DivisionId =
+  | "all"
+  | "dhaka"
+  | "chattogram"
+  | "rajshahi"
+  | "khulna"
+  | "barishal"
+  | "sylhet"
+  | "rangpur"
+  | "mymensingh";
+
+export interface Division {
+  id: DivisionId;
+  bn: string;
+  en: string;
+}
+
+export const DIVISIONS: readonly Division[] = [
+  { id: "all", bn: "সব বিভাগ", en: "All Divisions" },
+  { id: "dhaka", bn: "ঢাকা", en: "Dhaka" },
+  { id: "chattogram", bn: "চট্টগ্রাম", en: "Chattogram" },
+  { id: "rajshahi", bn: "রাজশাহী", en: "Rajshahi" },
+  { id: "khulna", bn: "খুলনা", en: "Khulna" },
+  { id: "barishal", bn: "বরিশাল", en: "Barishal" },
+  { id: "sylhet", bn: "সিলেট", en: "Sylhet" },
+  { id: "rangpur", bn: "রংপুর", en: "Rangpur" },
+  { id: "mymensingh", bn: "ময়মনসিংহ", en: "Mymensingh" },
+];
+
+export const DISTRICT_DIVISIONS: Record<string, DivisionId> = {
+  // Dhaka (13)
+  Dhaka: "dhaka", Gazipur: "dhaka", Narayanganj: "dhaka", Tangail: "dhaka",
+  Narsingdi: "dhaka", Madaripur: "dhaka", Shariatpur: "dhaka", Faridpur: "dhaka",
+  Gopalganj: "dhaka", Munshiganj: "dhaka", Manikganj: "dhaka", Kishoreganj: "dhaka", Rajbari: "dhaka",
+  // Chattogram (11)
+  Chattogram: "chattogram", Cumilla: "chattogram", Feni: "chattogram", Noakhali: "chattogram",
+  "Cox's Bazar": "chattogram", Brahmanbaria: "chattogram", Chandpur: "chattogram", Lakshmipur: "chattogram",
+  Bandarban: "chattogram", Khagrachhari: "chattogram", Rangamati: "chattogram",
+  // Rajshahi (8)
+  Rajshahi: "rajshahi", Bogura: "rajshahi", Pabna: "rajshahi", Sirajganj: "rajshahi",
+  Natore: "rajshahi", Naogaon: "rajshahi", Chapainawabganj: "rajshahi", Joypurhat: "rajshahi",
+  // Khulna (10)
+  Khulna: "khulna", Jashore: "khulna", Kushtia: "khulna", Bagerhat: "khulna",
+  Satkhira: "khulna", Jhenaidah: "khulna", Magura: "khulna", Narail: "khulna",
+  Chuadanga: "khulna", Meherpur: "khulna",
+  // Barishal (6)
+  Barishal: "barishal", Bhola: "barishal", Patuakhali: "barishal", Barguna: "barishal",
+  Pirojpur: "barishal", Jhalokathi: "barishal",
+  // Sylhet (4)
+  Sylhet: "sylhet", Sunamganj: "sylhet", Habiganj: "sylhet", Moulvibazar: "sylhet",
+  // Rangpur (8)
+  Rangpur: "rangpur", Dinajpur: "rangpur", Kurigram: "rangpur", Gaibandha: "rangpur",
+  Lalmonirhat: "rangpur", Nilphamari: "rangpur", Panchagarh: "rangpur", Thakurgaon: "rangpur",
+  // Mymensingh (4)
+  Mymensingh: "mymensingh", Jamalpur: "mymensingh", Netrokona: "mymensingh", Sherpur: "mymensingh",
+};
+
+export function getDivisionForDistrict(districtEn: string): DivisionId {
+  return DISTRICT_DIVISIONS[districtEn] || "dhaka";
+}
+
