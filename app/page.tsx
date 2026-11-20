@@ -35,6 +35,8 @@ import {
   Wallet,
   type LucideIcon, Tractor } from "lucide-react";
 const PersonaLoginModal = dynamic(() => import("@/components/auth/PersonaLoginModal").then((m) => m.PersonaLoginModal), { ssr: false });
+// The animated life story (farmer rig, springs, scenery) is its own chunk: it is far below the fold.
+const LifeStory = dynamic(() => import("@/components/home/LifeStory").then((m) => m.LifeStory));
 import { CustomizableDashboard } from "@/components/home/CustomizableDashboard";
 import { SignedInHome, type HomeApp } from "@/components/home/SignedInHome";
 import { getStoredSession, type UserSession } from "@/lib/session";
@@ -186,13 +188,6 @@ const LIFECYCLE: Array<{ icon: LucideIcon; tone: string; bn: string; en: string;
     links: [{ href: "/rokkha#call", bn: "কলে আছেন? থামুন", en: "On a call? Pause" }, { href: "/rokkha#check", bn: "এসএমএস যাচাই", en: "Check an SMS" }, { href: "/probaho#scam", bn: "প্রতারণা চিনুন", en: "Scam practice" }, { href: "/legal", bn: "বিনামূল্যে আইনি সহায়তা", en: "Free legal aid" }, { href: "/chuktiguard#dncrp", bn: "ভোক্তা অভিযোগ", en: "Consumer complaint" }, { href: "/settings", bn: "লক করা ব্যাকআপ", en: "Locked backup" }] },
 ];
 
-const PIPELINE = [
-  { n: "০১", bn: "যাচাই", en: "Audit", d: { bn: "সিভি আর পাবলিক গিটহাব থেকে প্রমাণসহ দক্ষতা।", en: "Skills with evidence from your CV and public GitHub." } },
-  { n: "০২", bn: "পরীক্ষা", en: "Prove", d: { bn: "ব্রাউজারের স্যান্ডবক্সে কোড চ্যালেঞ্জ আর মুখে ভাইভা।", en: "A sandboxed code challenge and a spoken viva." } },
-  { n: "০৩", bn: "চুক্তি", en: "Contract", d: { bn: "সরাসরি ক্লায়েন্টের জন্য প্রস্তাব আর রিভিউ করা চুক্তি।", en: "A pitch and a reviewed contract for a direct client." } },
-  { n: "০৪", bn: "টাকা", en: "Get paid", d: { bn: "ফি, কর আর প্রণোদনার নির্ধারিত হিসাব, মিলিয়ে দেখা।", en: "Fees, tax and incentive, reconciled to the taka." } },
-];
-
 export default function HomePage() {
   const router = useRouter();
   const [isEcosystemOpen, setIsEcosystemOpen] = useState(false);
@@ -301,7 +296,7 @@ export default function HomePage() {
                 autoComplete="off"
                 aria-controls="intent-results"
               />
-              <button type="button" onClick={() => window.dispatchEvent(new Event("kormopath:open-buddy"))} className="kp-intent-voice" aria-label={bn ? "বাডিকে বাংলায় বলুন" : "Ask Buddy by voice"} title={bn ? "বাডিকে বলুন" : "Ask Buddy"}>
+              <button type="button" onClick={() => window.dispatchEvent(new Event("kormopath:open-buddy"))} className="kp-intent-voice" aria-label={bn ? "বাডিকে বলুন, বাংলায়" : "Ask Buddy, by voice"} title={bn ? "বাডিকে বলুন" : "Ask Buddy"}>
                 <MessageCircle size={18} />
                 <span className="hidden sm:inline">{bn ? "বাডিকে বলুন" : "Ask Buddy"}</span>
               </button>
@@ -525,34 +520,8 @@ export default function HomePage() {
           )}
         </section>
 
-        {/* ============ WORKSPACE PIPELINE ============ */}
-        <section aria-labelledby="pipeline-title" className="kp-pipeline mt-24">
-          <div className="relative z-10 grid gap-10 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
-            <div>
-              <p className="kp-eyebrow !text-orange-300">{bn ? "মূল কাজ · ওয়ার্কস্পেস" : "The flagship · Workspace"}</p>
-              <h2 id="pipeline-title" className="mt-3 text-[clamp(30px,4vw,46px)] font-semibold leading-tight tracking-tight text-[#fbf3e8]">
-                {bn ? <>সিভি থেকে <em className="kp-em-dark">টাকা হাতে</em> পর্যন্ত</> : <>From CV to <em className="kp-em-dark">money in hand</em></>}
-              </h2>
-              <p className="mt-4 max-w-md text-[16px] leading-relaxed text-[#e2d3c2]">
-                {bn
-                  ? "একজন ফ্রিল্যান্সারের চারটি ধাপ এক জায়গায়। প্রতিটি ধাপে কী হলো, কোন মডেল বা নিয়ম চলল, সবই খোলা লগে দেখা যায়।"
-                  : "A freelancer's four steps in one place. Each step shows what ran, which model or rule, in an open log."}
-              </p>
-              <Link href="/workspace" className="kp-btn-sun kp-btn-lg mt-7">
-                {bn ? "ওয়ার্কস্পেস খুলুন" : "Open the Workspace"} <ArrowRight size={17} />
-              </Link>
-            </div>
-            <ol className="grid gap-3 sm:grid-cols-2">
-              {PIPELINE.map((step) => (
-                <li key={step.n} className="kp-step">
-                  <span className="font-mono text-[13px] font-bold text-orange-300">{step.n}</span>
-                  <strong className="mt-2 block font-display text-[22px] font-semibold text-[#fbf3e8]">{bn ? step.bn : step.en}</strong>
-                  <span className="mt-1.5 block text-[14.5px] leading-relaxed text-[#d6c5b2]">{bn ? step.d.bn : step.d.en}</span>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </section>
+        {/* ============ LIFE STORY: one person, seven chapters (animated) ============ */}
+        <LifeStory lang={lang} />
 
         {/* ============ FAQ ============ */}
         <section id="faq" aria-labelledby="faq-title" className="mx-auto mt-24 max-w-3xl scroll-mt-28">

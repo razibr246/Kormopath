@@ -83,7 +83,7 @@ export function Navbar(props?: {
         {bn ? "মূল অংশে সরাসরি যান" : "Skip to main content"}
       </a>
       <div className="kp-nav mx-auto flex items-center gap-1.5">
-        <Link href="/" prefetch={true} className="flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-2xl px-1 py-1" aria-label="KormoPath — হোম">
+        <Link href="/" prefetch={true} className="flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-2xl px-1 py-1">
           <span className="hidden sm:inline-flex"><KormoPathLogo theme="light" variant="full" size="sm" /></span>
           <span className="sm:hidden"><KormoPathLogo theme="light" variant="mark" size="sm" /></span>
         </Link>

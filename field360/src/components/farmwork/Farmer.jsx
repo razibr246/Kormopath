@@ -218,7 +218,9 @@ export default function Farmer({ look, slots = {} }) {
       <path data-k="neckShade" fill={dark} opacity=".55" />
       {/* head, drawn facing right around the top of the neck */}
       <g data-k="head">
-        {L.hat === 'band' && <path d="M-11.5 -16C-12.5 -26.5-5 -32.5 3 -32C11.5 -31.5 16.5 -25.5 16.5 -19C10 -24-2 -24.5-11.5 -16Z" fill={L.hair} />}
+        {(L.hat === 'band' || L.hat === 'hair') && <path d="M-11.5 -16C-12.5 -26.5-5 -32.5 3 -32C11.5 -31.5 16.5 -25.5 16.5 -19C10 -24-2 -24.5-11.5 -16Z" fill={L.hair} />}
+        {/* 'hair': bare head (the home page's young Rafi): a fuller crop with a fringe over the brow */}
+        {L.hat === 'hair' && <path d="M-12.4 -15C-14.6 -28-6 -35.4 3.6 -35C13.6 -34.6 19.6 -27.6 18.4 -19.8C16.4 -22.6 13.2 -23.8 10.6 -23.4C12 -21.6 12.2 -20.4 11.6 -19.4C8 -23.4 1.4 -24.4-4.2 -22.2C-7.6 -20.8-10.4 -18.4-12.4 -15Z" fill={L.hair} />}
         <path d="M-11.6 -13.6C-13.6 -8.8-11 -4.8-6.4 -3.4L-5 -10Z" fill={L.hair} />
         <path d="M-11.5 -16C-12.5 -26.5-5 -32.5 3 -32C11.5 -31.5 16.5 -25.5 16.5 -19L17.6 -15.2C20.4 -12.6 21 -10.3 19 -9.2C18.6 -7.2 17.7 -5.6 16.3 -4.6C15.6 -1.2 13.3 1.2 9.6 1.4C4.3 1.6.3 -.6-3.6 -3.8C-7.6 -7-11 -10-11.5 -16Z"
           fill={L.skin} stroke={line} strokeWidth="1.4" strokeLinejoin="round" />

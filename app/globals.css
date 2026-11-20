@@ -1256,3 +1256,58 @@ a:focus-visible, button:focus-visible, [role="tab"]:focus-visible, summary:focus
 .kp-proof-label { margin-top: 6px; font-size: 13.5px; line-height: 1.35; color: #3d3226; }
 .kp-proof-link { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; margin-top: 6px; font-weight: 700; font-size: 14.5px; color: #0f6b4f; }
 .kp-proof-link:hover { text-decoration: underline; }
+
+/* ===== Home: "একটি জীবন, সাতটি অধ্যায়" animated story (components/home/LifeStory.tsx) ===== */
+.kp-ls { --mood: 0; --b-problem: 0; --b-buddy: 0; --b-app: 0; --b-solved: 0; isolation: isolate; border-radius: 0; }
+.kp-ls-sky { background: linear-gradient(180deg, #aeb6b8 0%, #cfd3cc 55%, #ddd8cb 100%); }
+.kp-ls-sky::after { content: ""; position: absolute; inset: 0; opacity: var(--mood); background: linear-gradient(180deg, #ffe6b8 0%, #fbf0dc 48%, #f3ead8 100%); }
+.kp-ls-mark { fill: #2b2420; opacity: .07; font-family: var(--font-display); font-weight: 700; letter-spacing: -.02em; }
+.kp-ls-hill-far { fill: color-mix(in oklab, #8f9a92 calc((1 - var(--mood)) * 100%), #b6c98a); }
+.kp-ls-hill { fill: color-mix(in oklab, #7e8574 calc((1 - var(--mood)) * 100%), #8db35c); }
+.kp-ls-rain { stroke: #6f8590; stroke-width: 1.4; stroke-linecap: round; opacity: .55; animation: kp-ls-fall .85s linear infinite; }
+@keyframes kp-ls-fall { to { transform: translate(-60px, 680px); } }
+.kp-ls-props { animation: kp-ls-props-in .7s cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes kp-ls-props-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.kp-ls-paddy { transform-box: fill-box; transform-origin: 50% 100%; animation: kp-ls-sway 3.2s ease-in-out infinite; }
+@keyframes kp-ls-sway { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(4deg); } }
+.kp-ls-breath { transform-box: fill-box; transform-origin: 50% 100%; animation: kp-ls-breathe 3.6s ease-in-out infinite; }
+@keyframes kp-ls-breathe { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.12); } }
+.kp-ls-screen { animation: kp-ls-glow 2.4s ease-in-out infinite; }
+@keyframes kp-ls-glow { 0%, 100% { opacity: .85; } 50% { opacity: 1; } }
+.kp-ls-lamp { animation: kp-ls-glow 1.7s ease-in-out infinite; }
+.kp-ls-receipts { opacity: calc(1 - var(--mood)); }
+.kp-ls-buddy { --talk: 0; filter: drop-shadow(0 6px 10px rgba(8, 69, 50, .35)); }
+.kp-ls-buddy-ring { fill: none; stroke: #5fd3a6; stroke-width: 2; opacity: calc(.25 + var(--talk) * .6); transform-box: fill-box; transform-origin: center; animation: kp-ls-ring 1.6s ease-out infinite; }
+@keyframes kp-ls-ring { from { transform: scale(.85); } to { transform: scale(1.35); opacity: 0; } }
+.kp-ls-rail { scrollbar-width: none; }
+.kp-ls-rail::-webkit-scrollbar { display: none; }
+.kp-ls-chip { position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; flex: 0 0 auto; overflow: hidden; border-radius: 999px; padding: 0 14px; font-size: 13.5px; font-weight: 700; color: #3d3630; background: rgba(255, 253, 249, .78); border: 1px solid rgba(80, 60, 40, .16); backdrop-filter: blur(8px); transition: background .3s, color .3s; }
+.kp-ls-chip-done { color: #0e6b4f; }
+.kp-ls-chip-on { color: #fff; background: #0e6b4f; border-color: #0e6b4f; }
+.kp-ls-chip-fill { position: absolute; left: 0; bottom: 0; height: 3px; width: calc(var(--local, 0) * 100%); background: #f4cf87; }
+/* One voice line at a time: the frame loop names the active one (data-say), and it fades in as the last fades out. */
+.kp-ls-say { position: absolute; inset: auto 0 0 0; margin: 0; padding: 14px 16px 12px; border-radius: 20px; pointer-events: none; opacity: 0; transform: translateY(10px) scale(.985); transition: opacity .32s ease, transform .5s cubic-bezier(.2, .8, .2, 1); }
+.kp-ls-say figcaption { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; letter-spacing: .01em; }
+.kp-ls-say blockquote { margin: 6px 0 0; font-size: clamp(16px, 1.55vw, 19px); line-height: 1.55; font-weight: 600; }
+.kp-ls-say-rafi { background: rgba(255, 253, 249, .94); color: #2b2420; border: 1px solid rgba(80, 60, 40, .14); box-shadow: 0 14px 36px -18px rgba(40, 28, 16, .45); }
+.kp-ls-say-rafi figcaption { color: #a8432b; }
+.kp-ls-say-happy figcaption { color: #0e6b4f; }
+.kp-ls-say-buddy { background: linear-gradient(135deg, #0e6b4f, #08402f); color: #effff8; box-shadow: 0 16px 40px -18px rgba(8, 64, 47, .7); }
+.kp-ls-say-buddy figcaption { color: #9ff0cd; }
+.kp-ls[data-say="problem"] .kp-ls-say-problem, .kp-ls[data-say="buddy"] .kp-ls-say-buddyline, .kp-ls[data-say="solved"] .kp-ls-say-solved { pointer-events: auto; z-index: 1; opacity: 1; transform: none; transition-delay: .12s; }
+/* Full width, edge to edge; the page clips the scrollbar's sliver instead of scrolling sideways. */
+.kp-ls-bleed { width: 100vw; margin-left: calc(50% - 50vw); }
+body:has(.kp-ls-bleed) { overflow-x: clip; }
+.kp-ls-wave { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+.kp-ls-wave i { width: 3px; height: 100%; border-radius: 2px; background: currentColor; transform-origin: bottom; animation: kp-ls-wave .9s ease-in-out infinite; }
+.kp-ls-wave i:nth-child(2) { animation-delay: -.3s; } .kp-ls-wave i:nth-child(3) { animation-delay: -.6s; } .kp-ls-wave i:nth-child(4) { animation-delay: -.15s; }
+@keyframes kp-ls-wave { 0%, 100% { transform: scaleY(.3); } 50% { transform: scaleY(1); } }
+.kp-ls-listen { margin-top: 8px; display: inline-flex; align-items: center; gap: 5px; min-height: 32px; padding: 0 11px; border-radius: 999px; font-size: 12.5px; font-weight: 800; background: rgba(14, 107, 79, .1); color: #0e6b4f; }
+.kp-ls-say-buddy .kp-ls-listen { background: rgba(255, 255, 255, .14); color: #effff8; }
+.kp-ls-app { padding: 14px 16px; border-radius: 22px; background: rgba(255, 253, 249, .96); border: 1px solid rgba(80, 60, 40, .14); box-shadow: 0 24px 60px -28px rgba(40, 28, 16, .55); backdrop-filter: blur(10px); }
+@media (min-width: 640px) { .kp-ls-say { inset: 0 0 auto 0; } }
+@media (max-width: 639px) {
+  .kp-ls-say { padding: 11px 13px 10px; }
+  .kp-ls-say blockquote { padding-right: 58px; } /* clear of the floating Buddy button */
+  .kp-ls-app { padding: 11px 13px; }
+}
