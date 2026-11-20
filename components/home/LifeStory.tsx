@@ -19,6 +19,7 @@ import { storageKey, usePersistentState } from "@/lib/clientStore";
 import Farmer, { LOOKS, farmerPainter, type FarmerLook } from "@/field360/src/components/farmwork/Farmer";
 import { solve, inHand } from "@/field360/src/components/farmwork/rig";
 import { blink } from "@/field360/src/engine/motion";
+import { Backdrop, INDOOR } from "@/components/home/lifeStoryArt";
 import { BEATS, STAGES, STORY_END, STORY_HERO, STORY_TITLE, beat, stageAt, type Stage } from "@/lib/lifeStory";
 import { FATHER_POSES, NUMERIC_CHANNELS, POSES, RIG_GROUND, SPRINGS, SPRING_DEFAULT, type RigPose } from "@/lib/lifeStoryPoses";
 import { footAt, springInit, springSet, springStep, stepFeet } from "@/lib/spring";
@@ -148,6 +149,7 @@ function Story({ lang }: { lang: Lang }) {
   const rafiRef = useRef<SVGGElement>(null), fatherRef = useRef<SVGGElement>(null), phoneRef = useRef<SVGGElement>(null), screenRef = useRef<SVGRectElement>(null);
   const buddyRef = useRef<SVGGElement>(null), sunRef = useRef<SVGGElement>(null), rainRef = useRef<SVGGElement>(null);
   const camRef = useRef<SVGGElement>(null), beamRef = useRef<SVGPathElement>(null), fgRef = useRef<SVGGElement>(null);
+  const farRef = useRef<SVGGElement>(null);
   const dustN = useRef<SVGEllipseElement>(null), dustF = useRef<SVGEllipseElement>(null), rimRef = useRef<SVGRectElement>(null);
   const scrubRef = useRef<HTMLInputElement>(null), timeRef = useRef<HTMLSpanElement>(null);
   const [index, setIndex] = useState(0);
@@ -161,6 +163,7 @@ function Story({ lang }: { lang: Lang }) {
   ctl.current.autoplay = autoplay;
   ctl.current.portrait = portrait;
   const stage = STAGES[index];
+  const set = Backdrop({ id: stage.id });
   const Icon = ICONS[stage.id];
   const ev = evidence(stage.id, bn);
 
@@ -329,6 +332,8 @@ function Story({ lang }: { lang: Lang }) {
       const cx = RIG_DX + 205 * RIG_SCALE, cy = RIG_DY + 170 * RIG_SCALE;
       camRef.current?.setAttribute("transform", `translate(${(cx + panX.y).toFixed(1)} ${cy.toFixed(1)}) scale(${zoom.y.toFixed(4)}) translate(${-cx} ${-cy})`);
       // Foreground: nearer than everything, so it moves more with the camera (parallax depth).
+      // Far layer (tree line, palms, houses): moves about half as much as the scene.
+      farRef.current?.setAttribute("transform", `translate(${(-panX.y * 0.55).toFixed(1)} 0)`);
       fgRef.current?.setAttribute("transform", `translate(${(cx + panX.y * 1.8).toFixed(1)} ${cy.toFixed(1)}) scale(${(1 + (zoom.y - 1) * 1.6).toFixed(4)}) translate(${-cx} ${-cy})`);
       // Mood: grey rain while it is a problem, warm sun once solved.
       mood = springStep(mood, bS, dt, { f: 0.8, z: 1 });
@@ -386,7 +391,7 @@ function Story({ lang }: { lang: Lang }) {
   return (
     <div className="mx-auto w-full max-w-[1280px]" data-testid="life-story">
       <div ref={stageEl} tabIndex={0} onKeyDown={onKey} role="region" aria-roledescription={bn ? "ভিডিও" : "video"} aria-label={line(STORY_TITLE)}
-        className="kp-ls relative h-[min(86svh,780px)] overflow-hidden rounded-[22px] outline-none ring-emerald-600 focus-visible:ring-4 sm:aspect-video sm:h-auto sm:rounded-[30px]" data-say="problem" style={{ ["--mood" as string]: 0 }}>
+        data-stage={stage.id} data-indoor={INDOOR[stage.id] ? "1" : "0"} className="kp-ls relative h-[min(86svh,780px)] overflow-hidden rounded-[22px] outline-none ring-emerald-600 focus-visible:ring-4 sm:aspect-video sm:h-auto sm:rounded-[30px]" data-say="problem" style={{ ["--mood" as string]: 0 }}>
         <div className="kp-ls-sky absolute inset-0" aria-hidden="true" />
         <svg className="absolute inset-0 h-full w-full" viewBox={portrait ? "222 -170 520 1000" : `0 0 ${VB.w} ${VB.h}`} preserveAspectRatio={portrait ? "xMidYMid slice" : "xMidYMax slice"} aria-hidden="true">
           <defs>
@@ -396,19 +401,22 @@ function Story({ lang }: { lang: Lang }) {
             <radialGradient id="kp-ls-rim" cx="82%" cy="20%" r="80%"><stop offset="0" stopColor="#ffd27a" stopOpacity=".95" /><stop offset=".55" stopColor="#f6a04d" stopOpacity=".35" /><stop offset="1" stopColor="#f6a04d" stopOpacity="0" /></radialGradient>
             <radialGradient id="kp-ls-vignette" cx="50%" cy="45%" r="75%"><stop offset=".6" stopColor="#000" stopOpacity="0" /><stop offset="1" stopColor="#1d1712" stopOpacity=".28" /></radialGradient>
           </defs>
-          <text x="40" y="250" className="kp-ls-mark" fontSize="250">{num(stage.n)}</text>
-          <text x="48" y="330" className="kp-ls-mark" fontSize="84">{line(stage.label)}</text>
-          <g ref={sunRef} opacity="0"><circle cx="820" cy="140" r="150" fill="url(#kp-ls-sun)" /><circle cx="820" cy="140" r="38" fill="#ffd27a" /></g>
+          <g ref={sunRef} opacity="0" className="kp-ls-outdoor"><circle cx="820" cy="140" r="150" fill="url(#kp-ls-sun)" /><circle cx="820" cy="140" r="38" fill="#ffd27a" /></g>
           {/* clouds drift; heavy grey in the problem, small and white once solved */}
-          <g className="kp-ls-clouds">
+          <g className="kp-ls-clouds kp-ls-outdoor">
             {[[120, 110, 1], [470, 70, 0.8], [760, 120, 1.15], [300, 180, 0.6]].map(([x, y, k], i) => (
               <path key={i} className="kp-ls-cloud" style={{ animationDelay: `${-i * 9}s` }} transform={`translate(${x} ${y}) scale(${k})`} d="M-70 20c-24 0-30-30-6-36 2-26 38-34 52-14 10-22 52-20 56 6 26-4 38 30 12 44z" />
             ))}
           </g>
           <g ref={camRef}>
-            <path d="M0 470C140 420 260 440 380 452S640 410 780 430 960 450 1000 440V620H0Z" className="kp-ls-hill-far" />
-            <path d="M0 540C180 512 360 524 520 536S820 512 1000 528V620H0Z" className="kp-ls-hill" />
-            <g ref={rainRef}>
+            <g ref={farRef}><g key={`far-${stage.id}`} className="kp-ls-props">{set.far}</g></g>
+            <path d="M0 470C140 420 260 440 380 452S640 410 780 430 960 450 1000 440V620H0Z" className="kp-ls-hill-far kp-ls-outdoor" />
+            <path d="M0 540C180 512 360 524 520 536S820 512 1000 528V620H0Z" className="kp-ls-hill kp-ls-outdoor" />
+            <g key={`mid-${stage.id}`} className="kp-ls-props">{set.mid}</g>
+            {/* watermark: the chapter number and name, huge and faint (on the sky, or on the room's wall) */}
+            <text x="40" y="250" className="kp-ls-mark" fontSize="250">{num(stage.n)}</text>
+            <text x="48" y="330" className="kp-ls-mark" fontSize="84">{line(stage.label)}</text>
+            <g ref={rainRef} className="kp-ls-outdoor">
               {Array.from({ length: 46 }, (_, i) => (
                 <line key={i} x1={(i * 97) % 1000} y1={-40 - ((i * 53) % 300)} x2={(i * 97) % 1000 - 9} y2={-10 - ((i * 53) % 300)} className="kp-ls-rain" style={{ animationDelay: `${-((i * 37) % 100) / 100}s` }} />
               ))}
@@ -476,7 +484,7 @@ function Story({ lang }: { lang: Lang }) {
 
         {/* the dialogue: Rafi's problem → Buddy → Rafi's solution, as voice lines */}
         <div className="absolute bottom-[64px] left-3 right-3 z-10 sm:bottom-auto sm:left-[4%] sm:right-auto sm:top-[70px] sm:w-[min(500px,42%)]">
-          <p className="kp-eyebrow !text-emerald-900 hidden sm:block">{line(STORY_TITLE)} · {bn ? `অধ্যায় ${num(stage.n)}` : `Chapter ${num(stage.n)}`}</p>
+          <p className="kp-eyebrow kp-ls-title !text-emerald-900 hidden sm:block">{line(STORY_TITLE)} · {bn ? `অধ্যায় ${num(stage.n)}` : `Chapter ${num(stage.n)}`}</p>
           <div className="relative min-h-[150px] sm:mt-2">
             {([
               [line(STORY_HERO), line(stage.problem), "kp-ls-say-rafi kp-ls-say-problem"],
