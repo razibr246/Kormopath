@@ -5,6 +5,8 @@ export type FarmerLook = {
   shirt?: string; shirtLine?: string; sleeve?: boolean; vest?: string; vestLine?: string;
   lungi: string; check: string; tuck?: boolean; sandals?: boolean;
   hat?: "gamcha" | "mathal" | "band" | "hair"; hatColor?: string; hatLine?: string;
+  /** Wardrobe beyond the lungi (home page life story). */
+  pants?: string; shoes?: string; longSleeve?: boolean; skirt?: "kurta" | "none"; hem?: number; hemDrop?: number;
 };
 export const LOOKS: Record<string, FarmerLook>;
 declare function Farmer(props: { look: FarmerLook; slots?: { back?: ReactNode; farHand?: ReactNode; mid?: ReactNode; nearHand?: ReactNode; front?: ReactNode } }): JSX.Element;

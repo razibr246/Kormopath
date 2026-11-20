@@ -30,8 +30,30 @@ import { bnDigits } from "@/lib/contract";
 type Lang = "bn" | "en";
 const ICONS: Record<Stage["id"], LucideIcon> = { study: GraduationCap, work: Briefcase, earn: Percent, home: Wallet, health: Pill, field: Sprout, protect: Scale };
 
-const RAFI: FarmerLook = { skin: "#9a5f3c", hair: "#1c1714", shirt: "#3f8f86", shirtLine: "#2a6a63", sleeve: true, lungi: "#2f4a7a", check: "#8fa9d6", hat: "hair" };
-const FATHER: FarmerLook = { ...LOOKS.tomato, lungi: "#5b3b2a", check: "#c79a72" };
+// Wardrobe: what each person would really wear in that situation (the costume changes under the chapter slate).
+const RAFI_BASE: FarmerLook = { skin: "#9a5f3c", hair: "#1c1714", shirt: "#3f8f86", shirtLine: "#2a6a63", sleeve: true, lungi: "#2f4a7a", check: "#8fa9d6", hat: "hair" };
+const WARDROBE: Record<Stage["id"], FarmerLook> = {
+  // a student at home in the morning: T-shirt and pajama, barefoot
+  study: { ...RAFI_BASE, shirt: "#e8b54f", shirtLine: "#a8792c", pants: "#8b929a", skirt: "none" },
+  // late-night coding: a dark long-sleeved top and dark trousers
+  work: { ...RAFI_BASE, shirt: "#3a4352", shirtLine: "#232a35", longSleeve: true, pants: "#2c3340", skirt: "none" },
+  // out on business (the payment, the bank): a light-blue shirt, trousers and shoes
+  earn: { ...RAFI_BASE, shirt: "#cfe0f2", shirtLine: "#8aa6c4", longSleeve: true, pants: "#2f3a4a", shoes: "#2a2018", skirt: "none" },
+  // the bazar: T-shirt, lungi and sandals, as it is worn there
+  home: { ...RAFI_BASE, sandals: true },
+  // taking Mother to hospital at night: a long-sleeved shirt, trousers, sandals
+  health: { ...RAFI_BASE, shirt: "#8a3f3a", shirtLine: "#5e2a26", longSleeve: true, pants: "#3d4654", sandals: true, skirt: "none" },
+  // in the field with Father: a ganji, the lungi tucked up, a gamchha round his head
+  field: { ...RAFI_BASE, shirt: undefined, sleeve: false, vest: "#f3efe6", vestLine: "#cfc6b5", lungi: "#4e7b3c", check: "#b8d39a", tuck: true, hat: "gamcha", hatColor: "#eef3e4", hatLine: "#3d7a46" },
+  // the legal aid office: a cream panjabi and pajama, sandals
+  protect: { ...RAFI_BASE, shirt: "#f4efe2", shirtLine: "#c9bc9a", longSleeve: true, skirt: "kurta", hem: 0.9, hemDrop: 5, pants: "#e4dccb", sandals: true },
+};
+const FATHER_FIELD: FarmerLook = { ...LOOKS.tomato, lungi: "#5b3b2a", check: "#c79a72" };
+// to the legal aid office: a white panjabi and pajama
+const FATHER_WARDROBE: Partial<Record<Stage["id"], FarmerLook>> = {
+  protect: { ...FATHER_FIELD, shirt: "#fbf8f1", shirtLine: "#cfc7b4", longSleeve: true, skirt: "kurta", hem: 0.95, hemDrop: 5, pants: "#e9e3d3", sandals: true },
+};
+const fatherLook = (id: Stage["id"]) => FATHER_WARDROBE[id] ?? FATHER_FIELD;
 
 // The scene: viewBox 1000 × 620; the rig (ground y 300) is drawn at this scale and offset.
 const VB = { w: 1000, h: 620 };
@@ -157,6 +179,9 @@ function Story({ lang }: { lang: Lang }) {
   const rafiRef = useRef<SVGGElement>(null), fatherRef = useRef<SVGGElement>(null), phoneRef = useRef<SVGGElement>(null), screenRef = useRef<SVGRectElement>(null);
   const buddyRef = useRef<SVGGElement>(null), sunRef = useRef<SVGGElement>(null), rainRef = useRef<SVGGElement>(null);
   const camRef = useRef<SVGGElement>(null), beamRef = useRef<SVGPathElement>(null), fgRef = useRef<SVGGElement>(null);
+  // The painters hold references to the drawn parts, so they are rebuilt whenever a costume change remounts the figure.
+  const paintRafiRef = useRef<ReturnType<typeof farmerPainter> | null>(null), paintFatherRef = useRef<ReturnType<typeof farmerPainter> | null>(null);
+  const tuftRef = useRef<Element | null>(null);
   const farRef = useRef<SVGGElement>(null), coinsRef = useRef<SVGGElement>(null), smsRef = useRef<SVGGElement>(null);
   const dustN = useRef<SVGEllipseElement>(null), dustF = useRef<SVGEllipseElement>(null), rimRef = useRef<SVGRectElement>(null);
   const scrubRef = useRef<HTMLInputElement>(null), timeRef = useRef<HTMLSpanElement>(null);
@@ -172,6 +197,10 @@ function Story({ lang }: { lang: Lang }) {
   ctl.current.autoplay = autoplay;
   ctl.current.portrait = portrait;
   const stage = STAGES[index];
+  useEffect(() => {
+    if (rafiRef.current) { paintRafiRef.current = farmerPainter(rafiRef.current, WARDROBE[stage.id]); tuftRef.current = rafiRef.current.querySelector(".kp-hair-tuft"); }
+    if (fatherRef.current) paintFatherRef.current = farmerPainter(fatherRef.current, fatherLook(stage.id));
+  }, [stage.id]);
   const set = Backdrop({ id: stage.id });
   const Icon = ICONS[stage.id];
   const ev = evidence(stage.id, bn);
@@ -191,8 +220,8 @@ function Story({ lang }: { lang: Lang }) {
     const box = stageEl.current;
     if (!box || !rafiRef.current || !fatherRef.current) return;
     const c = ctl.current;
-    const paintRafi = farmerPainter(rafiRef.current, RAFI);
-    const paintFather = farmerPainter(fatherRef.current, FATHER);
+    paintRafiRef.current = farmerPainter(rafiRef.current, WARDROBE[STAGES[0].id]);
+    paintFatherRef.current = farmerPainter(fatherRef.current, fatherLook(STAGES[0].id));
     const body = springSet(SPRINGS, SPRING_DEFAULT), dad = springSet(SPRINGS, SPRING_DEFAULT);
     let buddyX = springInit(320), buddyY = springInit(120), mood = springInit(0), headV = springInit(0);
     let zoom = springInit(1), panX = springInit(0), hair = springInit(0);
@@ -202,7 +231,7 @@ function Story({ lang }: { lang: Lang }) {
     const ENTRANCE = 74; // he walks in from this far left at the start of a standing chapter
     const WALK_SPEED = 66; // rig units per second: slower than the feet can step (a stride per step), so it is a walk, not a lunge
     let walkOffset = 0;
-    const tuft = rafiRef.current.querySelector(".kp-hair-tuft");
+    tuftRef.current = rafiRef.current.querySelector(".kp-hair-tuft");
     // Lip-sync: two incommensurate sines give a natural, never-repeating open/close rhythm.
     const lips = (time: number) => Math.sin(time * 13) + 0.8 * Math.sin(time * 7.7 + 1.3) > 0.35;
     let raf = 0, last = performance.now(), t = 0, shown = -1, lastUi = 0, shownEpi = false;
@@ -294,9 +323,9 @@ function Story({ lang }: { lang: Lang }) {
         el.setAttribute("opacity", Math.max(0, 0.38 * (1 - age / 0.55)).toFixed(3));
       }
       // The lungi trails the hips; the hair tuft swings on an under-damped spring driven by the head's motion.
-      paintRafi(sk, { blink: blink(t, 3), drag: -body.velocity("hipX") * 0.6 });
+      paintRafiRef.current?.(sk, { blink: blink(t, 3), drag: -body.velocity("hipX") * 0.6 });
       hair = springStep(hair, -body.velocity("head") * 0.9 + Math.sin(t * 1.3) * 3, dt, { f: 2.4, z: 0.32 });
-      tuft?.setAttribute("transform", `rotate(${hair.y.toFixed(2)} 1 -34)`);
+      tuftRef.current?.setAttribute("transform", `rotate(${hair.y.toFixed(2)} 1 -34)`);
       // The phone in his near hand; its screen takes the colour of the app Buddy names.
       let phoneAt: [number, number] = [0, 0];
       const ph = phoneRef.current;
@@ -323,7 +352,7 @@ function Story({ lang }: { lang: Lang }) {
         }
         const fsk = solve(fpose, RIG_GROUND);
         headV = springStep(headV, dad.velocity("head"), dt, { f: 2, z: 0.5 });
-        paintFather(fsk, { blink: blink(t, 11), tail: -headV.y * 0.9 + Math.sin(t * 2.1) * 4, tailBend: Math.sin(t * 1.7) * 3 });
+        paintFatherRef.current?.(fsk, { blink: blink(t, 11), tail: -headV.y * 0.9 + Math.sin(t * 2.1) * 4, tailBend: Math.sin(t * 1.7) * 3 });
       }
       // Buddy floats near his head on a loose spring: it trails, overshoots a little, bobs.
       const head = sk.atlas as [number, number];
@@ -487,10 +516,10 @@ function Story({ lang }: { lang: Lang }) {
             </g>
             <g transform={`translate(${RIG_DX} ${RIG_DY}) scale(${RIG_SCALE})`}>
               <g key={stage.id} className="kp-ls-props"><Scenery id={stage.id} /></g>
-              <g ref={fatherRef} transform={`translate(${FATHER_X + 200} 0) scale(-1 1)`} style={{ transition: "opacity .6s" }}><Farmer look={FATHER} /></g>
+              <g ref={fatherRef} transform={`translate(${FATHER_X + 200} 0) scale(-1 1)`} style={{ transition: "opacity .6s" }}><Farmer key={`dad-${fatherLook(stage.id) === FATHER_FIELD ? "field" : stage.id}`} look={fatherLook(stage.id)} /></g>
               <ellipse ref={dustN} cy={RIG_GROUND + 1} rx="5" ry="1.6" fill="#b9a383" opacity="0" />
               <ellipse ref={dustF} cy={RIG_GROUND + 1} rx="5" ry="1.6" fill="#b9a383" opacity="0" />
-              <g ref={rafiRef}><Farmer look={RAFI} /></g>
+              <g ref={rafiRef}><Farmer key={`rafi-${stage.id}`} look={WARDROBE[stage.id]} /></g>
               <path ref={beamRef} fill="none" stroke="url(#kp-ls-beam)" strokeWidth="2.4" strokeLinecap="round" strokeDasharray="3 4" className="kp-ls-beam" opacity="0" />
               <g ref={phoneRef} opacity="0">
                 <rect x="-4" y="-13" width="9" height="17" rx="2" fill="#1e2530" stroke="#0e1218" strokeWidth=".8" />

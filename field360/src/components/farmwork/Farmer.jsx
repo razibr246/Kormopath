@@ -129,10 +129,10 @@ function lungiShape(sk, look, drag) {
   const wb = add(Wst.p, mul(Wst.n, -12.6)), wf = add(Wst.p, mul(Wst.n, 13.8));
   const frame = (h, k) => { const u = unit([k[0] - h[0], k[1] - h[1]]); return { u, n: [u[1], -u[0]] }; };
   const N = frame(sk.hipN, sk.kneeN), F = frame(sk.hipF, sk.kneeF);
-  const reach = look.tuck ? 0.62 : 1.02;
+  const reach = look.hem ?? (look.tuck ? 0.62 : 1.02);
   const kn = mix(sk.hipN, sk.kneeN, reach), kf = mix(sk.hipF, sk.kneeF, reach);
   const hang = (fr) => unit([fr.u[0] * 0.45 - drag * 0.02, fr.u[1] * 0.45 + 0.55]);
-  const drop = look.tuck ? 3 : 8;
+  const drop = look.hemDrop ?? (look.tuck ? 3 : 8);
   const hn = add(add(kn, mul(N.n, 9.6)), mul(hang(N), drop));
   const hf = add(add(kf, mul(F.n, -9.6)), mul(hang(F), drop));
   const mid = [(hn[0] + hf[0]) / 2 - drag * 0.5, (hn[1] + hf[1]) / 2 + 2.4];
@@ -176,17 +176,24 @@ export default function Farmer({ look, slots = {} }) {
       <path data-k={`${s}HandLine`} fill="none" stroke={ln} strokeWidth=".9" strokeLinecap="round" opacity=".7" />
     </g>
   );
-  const leg = (s, skin, ln, dk) => (
-    <>
-      <path data-k={`${s}LegLine`} fill={ln} stroke={ln} strokeWidth="2.6" strokeLinejoin="round" />
-      <path data-k={`${s}FootLine`} d={FOOT} fill={ln} stroke={ln} strokeWidth="2.6" strokeLinejoin="round" />
-      <path data-k={`${s}LegFill`} fill={skin} />
-      <path data-k={`${s}LegShade`} fill={dk} />
-      <path data-k={`${s}Foot`} d={FOOT} fill={skin} />
-      <path data-k={`${s}Toes`} d="M15 6.6C17 7.6 19.6 7.8 22 7.2" fill="none" stroke={ln} strokeWidth=".9" strokeLinecap="round" opacity=".7" />
-      {L.sandals && <path data-k={`${s}Sole`} d="M-6.5 9.6L26 9.6" stroke="#4b3a2c" strokeWidth="2.6" strokeLinecap="round" />}
-    </>
-  );
+  // Trousers (L.pants) colour the whole leg with the same light and shade; shoes (L.shoes) cover the foot.
+  const leg = (s, skin, ln, dk) => {
+    const far = s === 'f';
+    const cloth = L.pants ? (far ? shade(L.pants, 0.86) : L.pants) : skin;
+    const clothLn = L.pants ? shade(L.pants, 0.58) : ln, clothDk = L.pants ? shade(L.pants, 0.74) : dk;
+    const foot = L.shoes ? (far ? shade(L.shoes, 0.86) : L.shoes) : skin, footLn = L.shoes ? shade(L.shoes, 0.55) : ln;
+    return (
+      <>
+        <path data-k={`${s}LegLine`} fill={clothLn} stroke={clothLn} strokeWidth="2.6" strokeLinejoin="round" />
+        <path data-k={`${s}FootLine`} d={FOOT} fill={footLn} stroke={footLn} strokeWidth="2.6" strokeLinejoin="round" />
+        <path data-k={`${s}LegFill`} fill={cloth} />
+        <path data-k={`${s}LegShade`} fill={clothDk} />
+        <path data-k={`${s}Foot`} d={FOOT} fill={foot} />
+        <path data-k={`${s}Toes`} d={L.shoes ? 'M-4 3.4C4 2.4 12 3.6 20 5.6' : 'M15 6.6C17 7.6 19.6 7.8 22 7.2'} fill="none" stroke={L.shoes ? shade(L.shoes, 1.6) : ln} strokeWidth=".9" strokeLinecap="round" opacity={L.shoes ? 0.45 : 0.7} />
+        {(L.sandals || L.shoes) && <path data-k={`${s}Sole`} d="M-6.5 9.6L26 9.6" stroke={L.shoes ? '#1c1714' : '#4b3a2c'} strokeWidth="2.6" strokeLinecap="round" />}
+      </>
+    );
+  };
   return (
     <g data-farmer={uid}>
       <defs>
@@ -205,9 +212,10 @@ export default function Farmer({ look, slots = {} }) {
       {leg('f', skinF, lineF, darkF)}
       {leg('n', L.skin, line, dark)}
       {/* lungi, then the shirt or vest over its waist */}
-      <path data-k="lungi" fill={`url(#lungi-${uid})`} stroke={shade(L.lungi, 0.62)} strokeWidth="1.6" strokeLinejoin="round" />
-      <path data-k="folds" fill="none" stroke={shade(L.lungi, 0.55)} strokeWidth="1.2" strokeLinecap="round" opacity=".5" />
-      <path data-k="band" stroke={shade(L.lungi, 0.7)} strokeWidth="4.2" strokeLinecap="round" />
+      {/* skirt: a lungi (default), a panjabi's long tail in the shirt's cloth ('kurta'), or nothing over trousers */}
+      <path data-k="lungi" fill={L.skirt === 'none' ? 'none' : L.skirt === 'kurta' ? cloth : `url(#lungi-${uid})`} stroke={L.skirt === 'none' ? 'none' : shade(L.skirt === 'kurta' ? cloth : L.lungi, 0.62)} strokeWidth="1.6" strokeLinejoin="round" />
+      <path data-k="folds" fill="none" stroke={L.skirt === 'none' ? 'none' : shade(L.skirt === 'kurta' ? cloth : L.lungi, 0.55)} strokeWidth="1.2" strokeLinecap="round" opacity=".5" />
+      <path data-k="band" stroke={L.skirt ? 'none' : shade(L.lungi, 0.7)} strokeWidth="4.2" strokeLinecap="round" />
       {L.vest && <path data-k="skinBody" fill={L.skin} stroke={line} strokeWidth="1.5" />}
       <path data-k="body" fill={cloth} stroke={clothLine} strokeWidth="1.6" strokeLinejoin="round" />
       <path data-k="bodyShadeB" fill={shade(cloth, 0.8)} />
@@ -309,8 +317,10 @@ export function farmerPainter(root, look) {
       const as1 = limbShade(sh, el1, u0, u1), as2 = limbShade(el1, wr, f0, ff);
       set(el[`${s}ArmShade`], 'd', as1.d + as2.d); set(el[`${s}ArmShade`], 'opacity', (0.55 * Math.max(as1.o, as2.o)).toFixed(2));
       if (el[`${s}Sleeve`]) {
-        const end = mix(sh, el1, 0.58);
-        set(el[`${s}Sleeve`], 'd', limb(sh, end, u0 + 2.6, u1 + 2.6));
+        // Short sleeves stop above the elbow; long ones (a shirt, a panjabi) run on down the forearm to a cuff.
+        const end = look.longSleeve ? el1 : mix(sh, el1, 0.58);
+        const cuff = mix(el1, wr, 0.84);
+        set(el[`${s}Sleeve`], 'd', limb(sh, end, u0 + 2.6, u1 + 2.6) + (look.longSleeve ? limb(el1, cuff, f0 + 2.4, ff + 2.2) : ''));
         const ss = limbShade(sh, end, u0 + 2.6, u1 + 2.6);
         set(el[`${s}SleeveShade`], 'd', ss.d); set(el[`${s}SleeveShade`], 'opacity', (0.7 * ss.o).toFixed(2));
       }
