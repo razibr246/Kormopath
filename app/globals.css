@@ -1264,7 +1264,7 @@ a:focus-visible, button:focus-visible, [role="tab"]:focus-visible, summary:focus
 .kp-ls-mark { fill: #2b2420; opacity: .07; font-family: var(--font-display); font-weight: 700; letter-spacing: -.02em; }
 .kp-ls-hill-far { fill: color-mix(in oklab, #8f9a92 calc((1 - var(--mood)) * 100%), #b6c98a); }
 .kp-ls-hill { fill: color-mix(in oklab, #7e8574 calc((1 - var(--mood)) * 100%), #8db35c); }
-.kp-ls-rain { stroke: #6f8590; stroke-width: 1.4; stroke-linecap: round; opacity: .55; animation: kp-ls-fall .85s linear infinite; }
+.kp-ls-rain { stroke: #6f8590; stroke-width: 1.4; stroke-linecap: round; opacity: .55; fill: none; }
 @keyframes kp-ls-fall { to { transform: translate(-60px, 680px); } }
 .kp-ls-props { animation: kp-ls-props-in .7s cubic-bezier(.2, .8, .2, 1) both; }
 @keyframes kp-ls-props-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
@@ -1284,7 +1284,11 @@ a:focus-visible, button:focus-visible, [role="tab"]:focus-visible, summary:focus
 .kp-ls-chip { position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; flex: 0 0 auto; overflow: hidden; border-radius: 999px; padding: 0 14px; font-size: 13.5px; font-weight: 700; color: #3d3630; background: rgba(255, 253, 249, .78); border: 1px solid rgba(80, 60, 40, .16); backdrop-filter: blur(8px); transition: background .3s, color .3s; }
 .kp-ls-chip-done { color: #0e6b4f; }
 .kp-ls-chip-on { color: #fff; background: #0e6b4f; border-color: #0e6b4f; }
-.kp-ls-chip-fill { position: absolute; left: 0; bottom: 0; height: 3px; width: calc(var(--local, 0) * 100%); background: #f4cf87; }
+/* scaleX, not width: a transform never triggers layout */
+.kp-ls-chip-fill { position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; transform: scaleX(var(--local, 0)); transform-origin: left; background: #f4cf87; }
+.kp-ls-overlay { position: absolute; inset: 0; pointer-events: none; will-change: opacity; }
+.kp-ls-rimlight { background: radial-gradient(ellipse 80% 80% at 82% 20%, rgba(255, 210, 122, .95), rgba(246, 160, 77, .35) 55%, rgba(246, 160, 77, 0) 100%); mix-blend-mode: soft-light; }
+.kp-ls-vignette { background: radial-gradient(ellipse 75% 75% at 50% 45%, rgba(0, 0, 0, 0) 60%, rgba(29, 23, 18, .28) 100%); }
 /* One voice line at a time: the frame loop names the active one (data-say), and it fades in as the last fades out. */
 .kp-ls-say { position: absolute; inset: auto 0 0 0; margin: 0; padding: 14px 16px 12px; border-radius: 20px; pointer-events: none; opacity: 0; transform: translateY(10px) scale(.985); transition: opacity .32s ease, transform .5s cubic-bezier(.2, .8, .2, 1); }
 .kp-ls-say figcaption { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; letter-spacing: .01em; }

@@ -13,13 +13,13 @@
 //
 // Accessibility: with reduced motion (or before the script runs) the same seven chapters render as a plain list.
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { ArrowRight, Briefcase, Check, GraduationCap, Maximize, Pause, Percent, Pill, Play, RotateCcw, Scale, Sprout, Volume2, VolumeX, Wallet, type LucideIcon } from "lucide-react";
 import { storageKey, usePersistentState } from "@/lib/clientStore";
 import Farmer, { LOOKS, farmerPainter, type FarmerLook } from "@/field360/src/components/farmwork/Farmer";
 import { solve, inHand } from "@/field360/src/components/farmwork/rig";
 import { blink } from "@/field360/src/engine/motion";
-import { Backdrop, INDOOR, Lighting } from "@/components/home/lifeStoryArt";
+import { Backdrop, GRADE, INDOOR, Lighting } from "@/components/home/lifeStoryArt";
 import type { StoryAudio } from "@/components/home/storyAudio";
 import { BEATS, STAGES, STORY_END, STORY_HERO, STORY_TITLE, beat, stageAt, type Stage } from "@/lib/lifeStory";
 import { FATHER_POSES, NUMERIC_CHANNELS, POSES, RIG_GROUND, SPRINGS, SPRING_DEFAULT, type RigPose } from "@/lib/lifeStoryPoses";
@@ -160,6 +160,17 @@ function Scenery({ id }: { id: Stage["id"] }) {
   );
 }
 
+/**
+ * Every raindrop as one path. Drops fall on a slant (−0.3 px across per px down), so each drop has a copy one cycle
+ * up-and-right (x + 186, y − 620): sliding the path by (−186, +620) over a cycle lands every copy exactly where its
+ * drop began, and the loop has no seam.
+ */
+const RAIN_CYCLE = 620, RAIN_SLANT = 0.3;
+const RAIN_PATH = Array.from({ length: 52 }, (_, i) => {
+  const x = -200 + ((i * 97) % 1400), y = (i * 53) % RAIN_CYCLE;
+  return `M${x} ${y}l-9 30M${x + RAIN_CYCLE * RAIN_SLANT} ${y - RAIN_CYCLE}l-9 30`;
+}).join("");
+
 // ---------- the story player ----------
 /** Seconds per chapter: problem ≈ 3 s, Buddy ≈ 2.4 s, the app ≈ 3.7 s, the solution ≈ 3 s. */
 const CHAPTER_SECONDS = 11;
@@ -183,9 +194,12 @@ function Story({ lang }: { lang: Lang }) {
   // The painters hold references to the drawn parts, so they are rebuilt whenever a costume change remounts the figure.
   const paintRafiRef = useRef<ReturnType<typeof farmerPainter> | null>(null), paintFatherRef = useRef<ReturnType<typeof farmerPainter> | null>(null);
   const tuftRef = useRef<Element | null>(null);
+  type Painted = [Parameters<ReturnType<typeof farmerPainter>>[0], Parameters<ReturnType<typeof farmerPainter>>[1]];
+  const lastRafi = useRef<Painted | null>(null), lastFather = useRef<Painted | null>(null);
   const trailRef = useRef<SVGGElement>(null);
+  const rainPathRef = useRef<SVGPathElement>(null), motesRef = useRef<SVGGElement>(null);
   const farRef = useRef<SVGGElement>(null), coinsRef = useRef<SVGGElement>(null), smsRef = useRef<SVGGElement>(null);
-  const dustN = useRef<SVGEllipseElement>(null), dustF = useRef<SVGEllipseElement>(null), rimRef = useRef<SVGRectElement>(null);
+  const dustN = useRef<SVGEllipseElement>(null), dustF = useRef<SVGEllipseElement>(null), rimRef = useRef<HTMLDivElement>(null);
   const scrubRef = useRef<HTMLInputElement>(null), timeRef = useRef<HTMLSpanElement>(null);
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -219,9 +233,18 @@ function Story({ lang }: { lang: Lang }) {
   useEffect(() => () => { audio.current?.close(); audio.current = null; }, []);
   ctl.current.portrait = portrait;
   const stage = STAGES[index];
-  useEffect(() => {
-    if (rafiRef.current) { paintRafiRef.current = farmerPainter(rafiRef.current, WARDROBE[stage.id]); tuftRef.current = rafiRef.current.querySelector(".kp-hair-tuft"); }
-    if (fatherRef.current) paintFatherRef.current = farmerPainter(fatherRef.current, fatherLook(stage.id));
+  // A costume change mounts a fresh, unposed figure. Rebuild its painter and pose it with the last skeleton before the
+  // browser paints (layout effect), so no frame ever shows the new figure unposed.
+  useLayoutEffect(() => {
+    if (rafiRef.current) {
+      paintRafiRef.current = farmerPainter(rafiRef.current, WARDROBE[stage.id]);
+      tuftRef.current = rafiRef.current.querySelector(".kp-hair-tuft");
+      if (lastRafi.current) paintRafiRef.current(lastRafi.current[0], lastRafi.current[1]);
+    }
+    if (fatherRef.current) {
+      paintFatherRef.current = farmerPainter(fatherRef.current, fatherLook(stage.id));
+      if (lastFather.current) paintFatherRef.current(lastFather.current[0], lastFather.current[1]);
+    }
   }, [stage.id]);
   const set = Backdrop({ id: stage.id });
   const Icon = ICONS[stage.id];
@@ -376,7 +399,9 @@ function Story({ lang }: { lang: Lang }) {
         el.setAttribute("opacity", Math.max(0, 0.38 * (1 - age / 0.55)).toFixed(3));
       }
       // The lungi trails the hips; the hair tuft swings on an under-damped spring driven by the head's motion.
-      paintRafiRef.current?.(sk, { blink: blink(t, 3), drag: -body.velocity("hipX") * 0.6 });
+      const rafiX = { blink: blink(t, 3), drag: -body.velocity("hipX") * 0.6 };
+      lastRafi.current = [sk, rafiX];
+      paintRafiRef.current?.(sk, rafiX);
       hair = springStep(hair, -body.velocity("head") * 0.9 + Math.sin(t * 1.3) * 3, dt, { f: 2.4, z: 0.32 });
       tuftRef.current?.setAttribute("transform", `rotate(${hair.y.toFixed(2)} 1 -34)`);
       // The phone in his near hand; its screen takes the colour of the app Buddy names.
@@ -406,7 +431,9 @@ function Story({ lang }: { lang: Lang }) {
         }
         const fsk = solve(fpose, RIG_GROUND);
         headV = springStep(headV, dad.velocity("head"), dt, { f: 2, z: 0.5 });
-        paintFatherRef.current?.(fsk, { blink: blink(t, 11), tail: -headV.y * 0.9 + Math.sin(t * 2.1) * 4, tailBend: Math.sin(t * 1.7) * 3 });
+        const dadX = { blink: blink(t, 11), tail: -headV.y * 0.9 + Math.sin(t * 2.1) * 4, tailBend: Math.sin(t * 1.7) * 3 };
+        lastFather.current = [fsk, dadX];
+        paintFatherRef.current?.(fsk, dadX);
       }
       // Buddy floats near his head on a loose spring: it trails, overshoots a little, bobs.
       const head = sk.atlas as [number, number];
@@ -452,7 +479,8 @@ function Story({ lang }: { lang: Lang }) {
       // Mood: grey rain while it is a problem, warm sun once solved.
       mood = springStep(mood, bS, dt, { f: 0.8, z: 1 });
       sunRef.current?.setAttribute("opacity", mood.y.toFixed(3));
-      rimRef.current?.setAttribute("opacity", (mood.y * 0.75).toFixed(3));
+      const rimO = (Math.round(mood.y * 0.75 * 50) / 50).toFixed(2);
+      if (rimRef.current && rimRef.current.style.opacity !== rimO) rimRef.current.style.opacity = rimO;
       const rainK = (1 - mood.y) * (1 - bA * 0.6);
       audio.current?.update({ playing: c.playing, mood: epi ? 1 : mood.y, rain: epi ? 0 : st.id === "field" ? Math.max(rainK, 0.4 * mood.y) : rainK, epilogue: epi, indoor: INDOOR[st.id] });
       rainRef.current?.setAttribute("opacity", (st.id === "field" ? Math.max(rainK, 0.42 * mood.y) : rainK).toFixed(3));
@@ -498,14 +526,27 @@ function Story({ lang }: { lang: Lang }) {
         prevWarn = show > 0 ? wk : 0;
       }
       // CSS variables restyle every element that reads them, so write one only when it visibly changes.
-      setVar("--b-app", bA, 0.01); setVar("--b-solved", bS, 0.01); setVar("--mood", mood.y, 0.008);
-      setVar("--local", local, 0.004); setVar("--p", c.time / DURATION, 0.0015);
+      // Inherited custom properties restyle every element under the one they are set on. So the story-wide ones
+      // (mood, app, solved) move in small steps, and the fast ones live only on the element that reads them.
+      setVar("--b-app", bA, 0.04); setVar("--b-solved", bS, 0.04); setVar("--mood", mood.y, 0.03);
+      const q = (v: number) => (Math.round(v * 400) / 400).toFixed(4);
+      const chipOn = box.querySelector<HTMLElement>(".kp-ls-chip-on");
+      if (chipOn && chipOn.style.getPropertyValue("--local") !== q(local)) chipOn.style.setProperty("--local", q(local));
+      const pv = q(c.time / DURATION);
+      if (scrubRef.current && scrubRef.current.style.getPropertyValue("--p") !== pv) scrubRef.current.style.setProperty("--p", pv);
+      if (box.dataset.p !== pv) box.dataset.p = pv; // read by tests; no selector uses it, so it restyles nothing
+      // Rain falls by moving one path; layers that cannot be seen are switched off, so they cost nothing.
+      const rainOn = !INDOOR[st.id] && Number(rainRef.current?.getAttribute("opacity") ?? 0) > 0.01;
+      if (rainRef.current) rainRef.current.style.display = rainOn ? "" : "none";
+      if (rainOn) { const fy = (t * 780) % RAIN_CYCLE; rainPathRef.current?.setAttribute("transform", `translate(${(-fy * RAIN_SLANT).toFixed(1)} ${fy.toFixed(1)})`); }
+      if (motesRef.current) motesRef.current.style.display = mood.y > 0.04 && !INDOOR[st.id] ? "" : "none";
       const sayNow = bS > 0.5 ? "solved" : bB > 0.5 ? "buddy" : "problem";
       if (box.dataset.say !== sayNow) box.dataset.say = sayNow;
       if (now - lastUi > 120) {
         lastUi = now;
         if (scrubRef.current && !c.scrubbing) scrubRef.current.value = String(Math.round((c.time / DURATION) * 1000));
-        if (timeRef.current) timeRef.current.textContent = clock(c.time, bn);
+        const label = clock(c.time, bn);
+        if (timeRef.current && timeRef.current.textContent !== label) timeRef.current.textContent = label;
       }
       if (c.visible) raf = requestAnimationFrame(frame);
     };
@@ -544,7 +585,7 @@ function Story({ lang }: { lang: Lang }) {
 
   return (
     <div className="mx-auto w-full max-w-[1280px]" data-testid="life-story">
-      <div ref={stageEl} tabIndex={0} onKeyDown={onKey} role="region" aria-roledescription={bn ? "ভিডিও" : "video"} aria-label={line(STORY_TITLE)}
+      <div ref={stageEl} tabIndex={0} onKeyDown={onKey} role="region" aria-roledescription={bn ? "ভিডিও" : "video"} aria-label={bn ? "গল্পের ভিডিও প্লেয়ার" : "Story video player"}
         data-stage={stage.id} data-indoor={INDOOR[stage.id] ? "1" : "0"} className="kp-ls relative h-[min(86svh,780px)] overflow-hidden rounded-[22px] outline-none ring-emerald-600 focus-visible:ring-4 sm:aspect-video sm:h-auto sm:rounded-[30px]" data-say="problem" style={{ ["--mood" as string]: 0 }}>
         <div className="kp-ls-sky absolute inset-0" aria-hidden="true" />
         <svg className="absolute inset-0 h-full w-full" viewBox={portrait ? "222 -170 520 1000" : `0 0 ${VB.w} ${VB.h}`} preserveAspectRatio={portrait ? "xMidYMid slice" : "xMidYMax slice"} aria-hidden="true">
@@ -570,16 +611,15 @@ function Story({ lang }: { lang: Lang }) {
             {/* watermark: the chapter number and name, huge and faint (on the sky, or on the room's wall) */}
             <text x="40" y="250" className="kp-ls-mark" fontSize="250">{num(stage.n)}</text>
             <text x="48" y="330" className="kp-ls-mark" fontSize="84">{line(stage.label)}</text>
+            {/* rain: every drop is one path, two screens tall, slid down by the frame loop (one element to move, not 46) */}
             <g ref={rainRef} className="kp-ls-outdoor">
-              {Array.from({ length: 46 }, (_, i) => (
-                <line key={i} x1={(i * 97) % 1000} y1={-40 - ((i * 53) % 300)} x2={(i * 97) % 1000 - 9} y2={-10 - ((i * 53) % 300)} className="kp-ls-rain" style={{ animationDelay: `${-((i * 37) % 100) / 100}s` }} />
-              ))}
-              {Array.from({ length: 14 }, (_, i) => (
-                <ellipse key={`s${i}`} cx={40 + i * 70 + ((i * 31) % 40)} cy={548 + ((i * 17) % 40)} rx="7" ry="1.8" className="kp-ls-splash" style={{ animationDelay: `${-((i * 23) % 100) / 100}s` }} />
+              <path ref={rainPathRef} d={RAIN_PATH} className="kp-ls-rain" />
+              {Array.from({ length: 6 }, (_, i) => (
+                <ellipse key={`s${i}`} cx={80 + i * 160 + ((i * 31) % 40)} cy={548 + ((i * 17) % 40)} rx="7" ry="1.8" className="kp-ls-splash" style={{ animationDelay: `${-((i * 23) % 100) / 100}s` }} />
               ))}
             </g>
             {/* sun motes rise once the problem is solved */}
-            <g className="kp-ls-motes">
+            <g ref={motesRef} className="kp-ls-motes">
               {Array.from({ length: 14 }, (_, i) => <circle key={i} cx={180 + i * 52} cy={520 - ((i * 41) % 180)} r={1.6 + (i % 3)} style={{ animationDelay: `${-i * 0.7}s` }} />)}
             </g>
             <g transform={`translate(${RIG_DX} ${RIG_DY}) scale(${RIG_SCALE})`}>
@@ -624,9 +664,11 @@ function Story({ lang }: { lang: Lang }) {
             <path d="M1020 640C990 560 972 522 962 478C952 532 940 566 934 640ZM970 640C948 582 922 552 898 528C906 574 910 604 906 640Z" />
           </g>
           {/* warm rim light from the sun once the problem is solved */}
-          <rect ref={rimRef} x="-200" y="-400" width="1400" height="1600" fill="url(#kp-ls-rim)" opacity="0" style={{ mixBlendMode: "soft-light" }} pointerEvents="none" />
-          <rect x="-200" y="-400" width="1400" height="1600" fill="url(#kp-ls-vignette)" pointerEvents="none" />
         </svg>
+        {/* grade, warm rim light and vignette: composited overlays (the GPU blends them; nothing is re-rasterised) */}
+        {!epilogue && GRADE[stage.id] && <div className="kp-ls-overlay" style={{ background: GRADE[stage.id]!.color, mixBlendMode: "multiply", opacity: GRADE[stage.id]!.k as unknown as number }} aria-hidden="true" />}
+        <div ref={rimRef} className="kp-ls-overlay kp-ls-rimlight" style={{ opacity: 0 }} aria-hidden="true" />
+        <div className="kp-ls-overlay kp-ls-vignette" aria-hidden="true" />
 
         {/* title card: wipes across at each chapter change, like a film's chapter slate */}
         {started && (

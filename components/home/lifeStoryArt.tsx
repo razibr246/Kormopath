@@ -97,8 +97,20 @@ function Room({ night = false, children }: { night?: boolean; children?: ReactNo
  * time of day (cool at night, gold in the afternoon, rose at dusk); `screen` adds light from a source in the scene
  * (the laptop and the lamp spilling onto his face, the morning window once the plan is clear).
  */
+/**
+ * The full-frame grade for each scene, as a colour and an opacity expression. It is drawn as an HTML overlay above the
+ * SVG (LifeStory.tsx), not inside it: inside, a frame-sized blend layer had to be re-rasterised with the scene on
+ * every frame; as its own composited layer the GPU blends it almost for free.
+ */
+export const GRADE: Partial<Record<StageId, { color: string; k: string }>> = {
+  work: { color: "#2a3a66", k: "calc(.34 - var(--mood) * .08)" },
+  health: { color: "#2b2f55", k: "calc(.3 - var(--mood) * .06)" },
+  earn: { color: "#ffcf8a", k: "calc(.08 + var(--mood) * .1)" },
+  protect: { color: "#e98b6a", k: "calc(.12 + var(--mood) * .08)" },
+};
+
+/** Light sources in the scene (inside the SVG, so they sit where the lamp, the laptop and the window are). */
 export function Lighting({ id }: { id: StageId }): ReactNode {
-  const grade = (color: string, k: string) => <rect x="-300" y="-500" width="1600" height="1700" fill={color} className="kp-ls-grade" style={{ mixBlendMode: "multiply", opacity: k as unknown as number }} />;
   const glow = (gid: string, cx: number, cy: number, r: number, color: string, k: string) => (
     <>
       <radialGradient id={gid} cx="50%" cy="50%" r="50%"><stop offset="0" stopColor={color} stopOpacity="1" /><stop offset="1" stopColor={color} stopOpacity="0" /></radialGradient>
@@ -106,11 +118,10 @@ export function Lighting({ id }: { id: StageId }): ReactNode {
     </>
   );
   switch (id) {
-    case "work": return <g pointerEvents="none">{grade("#2a3a66", "calc(.34 - var(--mood) * .08)")}{glow("kp-ls-lt-laptop", 600, 390, 230, "#9fe3c9", "calc(.42 + var(--mood) * .2)")}</g>;
-    case "health": return <g pointerEvents="none">{grade("#2b2f55", "calc(.3 - var(--mood) * .06)")}{glow("kp-ls-lt-lamp", 190, 300, 300, "#ffcf87", "calc(.34 + var(--mood) * .22)")}</g>;
+    case "work": return <g pointerEvents="none">{glow("kp-ls-lt-laptop", 600, 390, 230, "#9fe3c9", "calc(.42 + var(--mood) * .2)")}</g>;
+    case "health": return <g pointerEvents="none">{glow("kp-ls-lt-lamp", 190, 300, 300, "#ffcf87", "calc(.34 + var(--mood) * .22)")}</g>;
     case "study": return <g pointerEvents="none">{glow("kp-ls-lt-win", 720, 260, 360, "#ffe6a8", "calc(var(--mood) * .45)")}</g>;
-    case "earn": return <g pointerEvents="none">{grade("#ffcf8a", "calc(.08 + var(--mood) * .1)")}</g>;
-    case "protect": return <g pointerEvents="none">{grade("#e98b6a", "calc(.12 + var(--mood) * .08)")}{glow("kp-ls-lt-dusk", 900, 120, 420, "#ffb27a", "calc(.2 + var(--mood) * .2)")}</g>;
+    case "protect": return <g pointerEvents="none">{glow("kp-ls-lt-dusk", 900, 120, 420, "#ffb27a", "calc(.2 + var(--mood) * .2)")}</g>;
     default: return null;
   }
 }
