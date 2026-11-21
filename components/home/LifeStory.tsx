@@ -14,12 +14,13 @@
 // Accessibility: with reduced motion (or before the script runs) the same seven chapters render as a plain list.
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import { ArrowRight, Briefcase, Check, GraduationCap, Maximize, Pause, Percent, Pill, Play, RotateCcw, Scale, Sprout, Volume2, Wallet, type LucideIcon } from "lucide-react";
+import { ArrowRight, Briefcase, Check, GraduationCap, Maximize, Pause, Percent, Pill, Play, RotateCcw, Scale, Sprout, Volume2, VolumeX, Wallet, type LucideIcon } from "lucide-react";
 import { storageKey, usePersistentState } from "@/lib/clientStore";
 import Farmer, { LOOKS, farmerPainter, type FarmerLook } from "@/field360/src/components/farmwork/Farmer";
 import { solve, inHand } from "@/field360/src/components/farmwork/rig";
 import { blink } from "@/field360/src/engine/motion";
 import { Backdrop, INDOOR, Lighting } from "@/components/home/lifeStoryArt";
+import type { StoryAudio } from "@/components/home/storyAudio";
 import { BEATS, STAGES, STORY_END, STORY_HERO, STORY_TITLE, beat, stageAt, type Stage } from "@/lib/lifeStory";
 import { FATHER_POSES, NUMERIC_CHANNELS, POSES, RIG_GROUND, SPRINGS, SPRING_DEFAULT, type RigPose } from "@/lib/lifeStoryPoses";
 import { footAt, springInit, springSet, springStep, stepFeet } from "@/lib/spring";
@@ -194,8 +195,28 @@ function Story({ lang }: { lang: Lang }) {
   const [autoplay, setAutoplay] = usePersistentState<boolean>(storageKey("platform", "storyAutoplay"), true, sanitizeBool);
   const [portrait, setPortrait] = useState(false);
   // Everything the frame loop reads lives in refs, so play/pause/seek never restart the loop.
-  const ctl = useRef({ time: 0, playing: false, scrubbing: false, userPaused: false, visible: false, autoplay: true, portrait: false });
+  // Sound: soft music and sound design (components/home/storyAudio.ts), on by default and remembered on this device.
+  // Browsers only allow sound after a click, so it starts on the first press of play, a chapter, or the sound button.
+  const [sound, setSound] = usePersistentState<boolean>(storageKey("platform", "storySound"), true, sanitizeBool);
+  const [audible, setAudible] = useState(false);
+  const audio = useRef<StoryAudio | null>(null);
+  const ctl = useRef({ time: 0, playing: false, scrubbing: false, userPaused: false, visible: false, autoplay: true, portrait: false, sound: true });
   ctl.current.autoplay = autoplay;
+  ctl.current.sound = sound;
+  const startSound = async () => {
+    if (!ctl.current.sound) return;
+    if (!audio.current) {
+      try { const { StoryAudio } = await import("@/components/home/storyAudio"); audio.current = new StoryAudio(0.7); } catch { return; }
+    }
+    await audio.current.resume();
+    setAudible(audio.current.running);
+  };
+  const stopSound = () => { audio.current?.suspend(); setAudible(false); };
+  const toggleSound = () => {
+    const next = !sound; setSound(next); ctl.current.sound = next;
+    if (next) { void startSound(); } else stopSound();
+  };
+  useEffect(() => () => { audio.current?.close(); audio.current = null; }, []);
   ctl.current.portrait = portrait;
   const stage = STAGES[index];
   useEffect(() => {
@@ -206,8 +227,8 @@ function Story({ lang }: { lang: Lang }) {
   const Icon = ICONS[stage.id];
   const ev = evidence(stage.id, bn);
 
-  const play = () => { const c = ctl.current; if (c.time >= DURATION - 0.05) c.time = 0; c.playing = true; c.userPaused = false; setPlaying(true); setEnded(false); setStarted(true); };
-  const pause = (byUser = true) => { const c = ctl.current; c.playing = false; if (byUser) c.userPaused = true; setPlaying(false); };
+  const play = () => { const c = ctl.current; if (c.time >= DURATION - 0.05) c.time = 0; c.playing = true; c.userPaused = false; setPlaying(true); setEnded(false); setStarted(true); void startSound(); };
+  const pause = (byUser = true) => { const c = ctl.current; c.playing = false; if (byUser) c.userPaused = true; setPlaying(false); stopSound(); };
   const seek = (s: number) => { const c = ctl.current; c.time = Math.min(DURATION, Math.max(0, s)); setEnded(false); setStarted(true); };
 
   useEffect(() => {
@@ -247,6 +268,7 @@ function Story({ lang }: { lang: Lang }) {
       return [(hash1(slot * 3 + seed) - 0.5) * 0.9, (hash1(slot * 7 + seed) - 0.5) * 0.7] as const;
     };
     let raf = 0, last = performance.now(), t = 0, shown = -1, lastUi = 0, shownEpi = false;
+    let prevBB = 0, prevCoin = 0, prevWarn = 0;
     let receipts: Array<{ el: SVGGElement; cx: number; cy: number }> | null = null;
     const written: Record<string, number> = {};
     const setVar = (name: string, v: number, step: number) => {
@@ -259,10 +281,10 @@ function Story({ lang }: { lang: Lang }) {
       const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt;
       if (c.playing && !c.scrubbing) {
         c.time += dt;
-        if (c.time >= DURATION) { c.time = DURATION; c.playing = false; setPlaying(false); setEnded(true); }
+        if (c.time >= DURATION) { c.time = DURATION; c.playing = false; setPlaying(false); setEnded(true); window.setTimeout(() => { if (!ctl.current.playing) { audio.current?.suspend(); setAudible(false); } }, 3500); }
       }
       const epi = c.time >= CHAPTERS_END;
-      if (epi !== shownEpi) { shownEpi = epi; setEpilogue(epi); box.dataset.epi = epi ? "1" : "0"; }
+      if (epi !== shownEpi) { shownEpi = epi; setEpilogue(epi); box.dataset.epi = epi ? "1" : "0"; if (epi && c.playing) audio.current?.cue("rise"); }
       // In the epilogue the field chapter is held at its solved end: sunrise, both of them cheering.
       const { index: i, local } = epi ? { index: 5, local: 1 } : stageAt(c.time / CHAPTERS_END);
       if (i !== shown) {
@@ -274,10 +296,13 @@ function Story({ lang }: { lang: Lang }) {
           walkOffset = -ENTRANCE;
           feet.n = footAt(first.nfX - ENTRANCE); feet.f = footAt(first.ffX - ENTRANCE);
         }
+        if (shown >= 0 && c.playing) audio.current?.cue("whoosh");
         shown = i; setIndex(i); receipts = null;
       }
       const st = STAGES[i];
       const bP = beat(local, BEATS.problem), bB = beat(local, BEATS.buddy), bA = beat(local, BEATS.app), bS = beat(local, BEATS.solved);
+      if (c.playing && bB > 0.05 && prevBB <= 0.05 && !epi) audio.current?.cue("chime");
+      prevBB = bB;
       // Which key pose he is heading for; the springs do the moving (weight, overshoot, settle).
       const key = local < 0.34 ? st.poses[0] : local < 0.74 ? st.poses[1] : st.poses[2];
       const goal = POSES[key];
@@ -429,6 +454,7 @@ function Story({ lang }: { lang: Lang }) {
       sunRef.current?.setAttribute("opacity", mood.y.toFixed(3));
       rimRef.current?.setAttribute("opacity", (mood.y * 0.75).toFixed(3));
       const rainK = (1 - mood.y) * (1 - bA * 0.6);
+      audio.current?.update({ playing: c.playing, mood: epi ? 1 : mood.y, rain: epi ? 0 : st.id === "field" ? Math.max(rainK, 0.4 * mood.y) : rainK, epilogue: epi, indoor: INDOOR[st.id] });
       rainRef.current?.setAttribute("opacity", (st.id === "field" ? Math.max(rainK, 0.42 * mood.y) : rainK).toFixed(3));
       // ---- story beats: a prop acts out what the app does ----
       const phoneOk = lastPhone && raw.phone > 0.3;
@@ -452,6 +478,8 @@ function Story({ lang }: { lang: Lang }) {
         coins.style.opacity = show.toFixed(3);
         if (show > 0) for (const [j, el] of Array.from(coins.children).entries()) {
           const ph2 = (t * 0.9 + j / 3) % 1;
+          if (j === 0 && c.playing && ph2 < prevCoin) audio.current?.cue("coin");
+          if (j === 0) prevCoin = ph2;
           el.setAttribute("transform", `translate(${(lastPhone![0] + Math.sin(ph2 * 6 + j) * 7 + (j - 1) * 6).toFixed(1)} ${(lastPhone![1] - 8 - ph2 * 46).toFixed(1)}) scale(${(0.7 + ph2 * 0.5).toFixed(2)})`);
           (el as SVGGElement).style.opacity = (Math.sin(Math.PI * ph2)).toFixed(2);
         }
@@ -466,6 +494,8 @@ function Story({ lang }: { lang: Lang }) {
         const wk = beat(local, [BEATS.app[0], BEATS.app[0] + 0.12]);
         warn?.setAttribute("transform", `translate(6 32) scale(${(0.6 + 0.4 * wk + Math.sin(Math.PI * wk) * 0.18).toFixed(3)})`);
         if (warn) warn.style.opacity = wk.toFixed(3);
+        if (show > 0 && c.playing && wk > 0.5 && prevWarn <= 0.5) audio.current?.cue("warn");
+        prevWarn = show > 0 ? wk : 0;
       }
       // CSS variables restyle every element that reads them, so write one only when it visibly changes.
       setVar("--b-app", bA, 0.01); setVar("--b-solved", bS, 0.01); setVar("--mood", mood.y, 0.008);
@@ -485,8 +515,8 @@ function Story({ lang }: { lang: Lang }) {
       if (c.visible) {
         last = performance.now(); raf = requestAnimationFrame(frame);
         // Auto-play: start when it comes into view, unless the visitor paused it or it has ended.
-        if (c.autoplay && !c.userPaused && !c.playing && c.time < DURATION - 0.05 && e.intersectionRatio >= 0.45) { c.playing = true; setPlaying(true); setStarted(true); }
-      } else if (c.playing) { c.playing = false; setPlaying(false); }
+        if (c.autoplay && !c.userPaused && !c.playing && c.time < DURATION - 0.05 && e.intersectionRatio >= 0.45) { c.playing = true; setPlaying(true); setStarted(true); if (audio.current && c.sound) void audio.current.resume().then(() => setAudible(!!audio.current?.running)); }
+      } else if (c.playing) { c.playing = false; setPlaying(false); audio.current?.suspend(); setAudible(false); }
     }, { threshold: [0, 0.45] });
     io.observe(box);
     body.snap(channels(POSES[STAGES[0].poses[0]]));
@@ -631,7 +661,7 @@ function Story({ lang }: { lang: Lang }) {
           {STAGES.map((s, i) => {
             const I = ICONS[s.id];
             return (
-              <button key={s.id} type="button" onClick={() => { seek(i * CHAPTER_SECONDS + 0.2); if (!ctl.current.playing) play(); }} aria-current={i === index && !epilogue ? "step" : undefined}
+              <button key={s.id} type="button" onClick={() => { seek(i * CHAPTER_SECONDS + 0.2); if (!ctl.current.playing) play(); else void startSound(); }} aria-current={i === index && !epilogue ? "step" : undefined}
                 className={`kp-ls-chip ${i === index && !epilogue ? "kp-ls-chip-on" : i < index || epilogue ? "kp-ls-chip-done" : ""}`}>
                 <I size={14} aria-hidden="true" /><span>{line(s.label)}</span>
                 {i === index && !epilogue && <i className="kp-ls-chip-fill" aria-hidden="true" />}
@@ -688,6 +718,13 @@ function Story({ lang }: { lang: Lang }) {
           </button>
         )}
 
+        {/* autoplay starts silent (browser rule): one tap turns the music on */}
+        {playing && sound && !audible && (
+          <button type="button" onClick={() => void startSound()} className="kp-ls-soundhint absolute bottom-[64px] right-3 z-40 sm:bottom-[76px] sm:right-5" data-testid="story-sound-hint">
+            <Volume2 size={16} aria-hidden="true" /> {bn ? "সংগীত শুনতে চাপুন" : "Tap for music"}
+          </button>
+        )}
+
         {/* controls */}
         <div className="kp-ls-controls absolute inset-x-0 bottom-0 z-40 flex items-center gap-2 px-3 pb-2.5 pt-6 sm:gap-3 sm:px-5 sm:pb-3.5">
           <button type="button" onClick={() => (playing ? pause() : play())} className="kp-ls-ctl" aria-label={playing ? (bn ? "থামান" : "Pause") : (bn ? "চালান" : "Play")} data-testid="story-play">
@@ -702,6 +739,9 @@ function Story({ lang }: { lang: Lang }) {
             {STAGES.map((s, i) => (i === 0 ? null : <i key={s.id} className="kp-ls-tick" style={{ left: `${((i * CHAPTER_SECONDS) / DURATION) * 100}%` }} aria-hidden="true" />))}
             <i className="kp-ls-tick kp-ls-tick-epi" style={{ left: `${(CHAPTERS_END / DURATION) * 100}%` }} aria-hidden="true" />
           </div>
+          <button type="button" onClick={toggleSound} className="kp-ls-ctl" aria-pressed={sound} aria-label={sound ? (bn ? "শব্দ বন্ধ করুন" : "Mute") : (bn ? "শব্দ চালু করুন" : "Unmute")} data-testid="story-sound">
+            {sound ? <Volume2 size={17} aria-hidden="true" /> : <VolumeX size={17} aria-hidden="true" />}
+          </button>
           <button type="button" role="switch" aria-checked={autoplay} onClick={() => setAutoplay(!autoplay)} className={`kp-ls-auto ${autoplay ? "kp-ls-auto-on" : ""}`} data-testid="story-autoplay">
             <i aria-hidden="true" /><span className="hidden sm:inline">{bn ? "অটো-প্লে" : "Autoplay"}</span><span className="sr-only sm:hidden">{bn ? "অটো-প্লে" : "Autoplay"}</span>
           </button>

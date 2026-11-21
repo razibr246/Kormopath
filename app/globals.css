@@ -1423,3 +1423,6 @@ body:has(.kp-ls-bleed) { overflow-x: clip; }
 @media (max-width: 639px) { .kp-ls-lantern em { display: none; } .kp-ls-lantern > svg { padding: 8px; } }
 @media (prefers-reduced-motion: reduce) { .kp-ls-code, .kp-ls-lantern, .kp-ls-epi-text { animation: none; } .kp-ls-lantern { bottom: 40%; } }
 .kp-ls[data-epi="1"] .kp-ls-rail { opacity: 0; pointer-events: none; transition: opacity .4s ease-out; }
+.kp-ls-soundhint { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 0 14px; border-radius: 999px; font-size: 13.5px; font-weight: 800; color: #fff; background: rgba(14, 107, 79, .92); box-shadow: 0 10px 24px -10px rgba(8, 64, 47, .8); animation: kp-ls-hint 2.4s ease-in-out infinite; }
+@keyframes kp-ls-hint { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) { .kp-ls-soundhint { animation: none; } }
