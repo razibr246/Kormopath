@@ -59,7 +59,7 @@ const fatherLook = (id: Stage["id"]) => FATHER_WARDROBE[id] ?? FATHER_FIELD;
 // The scene: viewBox 1000 × 620; the rig (ground y 300) is drawn at this scale and offset.
 const VB = { w: 1000, h: 620 };
 const RIG_SCALE = 1.72, RIG_DX = 118, RIG_DY = 47; // rig ground 300 → scene y 563
-const FATHER_X = 300; // his hips, in rig units (mirrored, facing Rafi)
+const FATHER_X = 326; // his hips, in rig units (mirrored, facing Rafi): far enough that a gesture never cuts into Rafi // his hips, in rig units (mirrored, facing Rafi)
 
 /** Measured results (lib/eval-results.json), shown only where they belong to the stage's app. */
 function evidence(id: Stage["id"], bn: boolean): string | null {
@@ -515,11 +515,14 @@ function Story({ lang }: { lang: Lang }) {
       // Protect: the scam SMS beside his phone; Rokkha's warning pops onto it as the app opens.
       const sms = smsRef.current;
       if (sms) {
-        const show = st.id === "protect" && phoneOk ? 1 - bS : 0;
-        sms.style.opacity = show.toFixed(3);
-        if (show > 0) sms.setAttribute("transform", `translate(${(lastPhone![0] + 12).toFixed(1)} ${(lastPhone![1] - 30).toFixed(1)})`);
-        const warn = sms.querySelector<SVGGElement>(".kp-ls-warn");
         const wk = beat(local, [BEATS.app[0], BEATS.app[0] + 0.12]);
+        // Once Rokkha has flagged it, he deletes the message: it shrinks, lifts and fades.
+        const dk = beat(local, [BEATS.app[0] + 0.17, BEATS.app[0] + 0.27]);
+        const show = st.id === "protect" && phoneOk ? (1 - dk) * (1 - bS) : 0;
+        sms.style.opacity = show.toFixed(3);
+        // It sits in the open space behind him, clear of his father's face.
+        if (show > 0) sms.setAttribute("transform", `translate(${(lastPhone![0] - 92 + dk * 10).toFixed(1)} ${(lastPhone![1] + 30 - dk * 26).toFixed(1)}) scale(${(1 - dk * 0.45).toFixed(3)})`);
+        const warn = sms.querySelector<SVGGElement>(".kp-ls-warn");
         warn?.setAttribute("transform", `translate(6 32) scale(${(0.6 + 0.4 * wk + Math.sin(Math.PI * wk) * 0.18).toFixed(3)})`);
         if (warn) warn.style.opacity = wk.toFixed(3);
         if (show > 0 && c.playing && wk > 0.5 && prevWarn <= 0.5) audio.current?.cue("warn");
@@ -638,7 +641,7 @@ function Story({ lang }: { lang: Lang }) {
                 {[0, 1, 2].map((j) => <g key={j}><circle r="5.2" fill="#f4cf87" stroke="#c99041" strokeWidth="1" /><text y="2.6" textAnchor="middle" fontSize="7.4" fontWeight="700" fill="#7a5520">৳</text></g>)}
               </g>
               <g ref={smsRef} style={{ opacity: 0 }}>
-                <path d="M0 0h58a5 5 0 0 1 5 5v12a5 5 0 0 1-5 5H10l-6 6 1-6H0a5 5 0 0 1-5-5V5a5 5 0 0 1 5-5z" fill="#fffdf9" stroke="#c9bda8" strokeWidth=".8" />
+                <path d="M0 0h58a5 5 0 0 1 5 5v1l8-5-8 11v5a5 5 0 0 1-5 5H0a5 5 0 0 1-5-5V5a5 5 0 0 1 5-5z" fill="#fffdf9" stroke="#c9bda8" strokeWidth=".8" />
                 <text x="29" y="14.5" textAnchor="middle" fontSize="7.2" fontWeight="700" fill="#3b302a">{bn ? "‘ওটিপি দিন’" : "‘Send the OTP’"}</text>
                 <g className="kp-ls-warn" style={{ opacity: 0 }}>
                   <rect x="-2" y="-6" width="52" height="12" rx="6" fill="#b3261e" />
